@@ -1,0 +1,42 @@
+<Solution>
+  <Folder Name="/Api/">
+    <Project Path="MyHomeRamen.Api.Common/MyHomeRamen.Api.Common.csproj" Id="befa9a57-ff72-4c9f-a6fe-6be0475dfb0e" />
+    <Project Path="MyHomeRamen.Api/MyHomeRamen.Api.csproj" />
+  </Folder>
+  <Folder Name="/Blazor/">
+    <Project Path="MyHomeRamen.Blazor/MyHomeRamen.Blazor.csproj" />
+  </Folder>
+  <Folder Name="/Host/">
+    <Project Path="MyHomeRamen.AppHost/MyHomeRamen.AppHost.csproj" />
+    <Project Path="MyHomeRamen.ServiceDefaults/MyHomeRamen.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="MyHomeRamen.ArchitectureTests/MyHomeRamen.ArchitectureTests.csproj" Id="81301af1-6544-4e3e-bb3e-342fe857e20e" />
+    <Project Path="MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj" Id="81c45925-f5aa-4a1c-b28f-5882ed6bc05a" />
+    <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />
+  </Folder>
+  <Folder Name="/Workers/">
+    <Project Path="MyHomeRamen.Worker.Common/MyHomeRamen.Worker.Common.csproj" Id="26fb0a68-a068-4aa6-a742-f12ca9d6584e" />
+    <Project Path="MyHomeRamen.Worker.MailSender/MyHomeRamen.Worker.MailSender.csproj" Id="e76618b6-bbca-4d85-bc19-63c7c5bfe94a" />
+    <Project Path="MyHomeRamen.Worker.MessagesHandler/MyHomeRamen.Worker.MessagesHandler.csproj" Id="913d105a-90ab-485f-848d-71c361d1afb7" />
+  </Folder>
+  <Folder Name="/_github/">
+    <File Path=".github/copilot-instructions.md" />
+  </Folder>
+  <Folder Name="/_github/instructions/">
+    <File Path=".github/instructions/basket.instructions.md.md" />
+    <File Path=".github/instructions/menu.instructions.md.md" />
+    <File Path=".github/instructions/orders.instructions.md.md" />
+    <File Path=".github/instructions/payments.instructions.md.md" />
+    <File Path=".github/instructions/reservations.instructions.md.md" />
+    <File Path=".github/instructions/users.instructions.md.md" />
+  </Folder>
+  <Folder Name="/_github/prompts/">
+    <File Path=".github/prompts/create-domain-event.prompt.md.md" />
+  </Folder>
+</Solution>

@@ -1,0 +1,94 @@
+<Project>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+
+		<AnalysisLevel>latest</AnalysisLevel>
+		<AnalysisMode>All</AnalysisMode>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+	</PropertyGroup>
+
+	<!-- All projects -->
+	<ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">
+		<PackageReference Include="SonarAnalyzer.CSharp" >
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>
+				runtime; build; native; contentfiles; analyzers; buildtransitive
+			</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="StyleCop.Analyzers" >
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>
+				runtime; build; native; contentfiles; analyzers; buildtransitive
+			</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<!-- Web API Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Api`))'">
+		<PackageReference Include="Scalar.AspNetCore" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory"/>
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+		<PackageReference Include="Serilog"/>
+		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Serilog.Sinks.Seq" />
+		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
+		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+		<PackageReference Include="Aspire.StackExchange.Redis" />
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+	</ItemGroup>
+	
+	<!-- Blazor Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Blazor`))'">
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+		<PackageReference Include="MudBlazor" />
+		<PackageReference Include="MudBlazor.Markdown"/>
+		<PackageReference Include="Serilog"/>
+		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Serilog.Sinks.Seq" />
+		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
+		<PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" />
+	</ItemGroup>
+
+	<!-- Tests Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Tests`))'">
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="Moq" />
+		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="NetArchTest.Rules" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Testcontainers.MsSql" />
+		<PackageReference Include="Testcontainers.Redis" />
+		<PackageReference Include="Respawn" />
+	</ItemGroup>
+
+	<!-- Worker Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.Contains(`.Worker.`))'">
+		<PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Serilog"/>
+		<PackageReference Include="Serilog.Sinks.Seq" />
+		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
+	</ItemGroup>
+
+	<!-- All except Aspire projects-->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`AppHost`))' == false and '$(MSBuildProjectName.EndsWith(`ServiceDefaults`))' == false">
+		<PackageReference Include="FluentValidation" />
+	</ItemGroup>
+</Project>

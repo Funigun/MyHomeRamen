@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.5.0" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <UserSecretsId>44df43be-fc17-49e1-b255-02a58581c11d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyHomeRamen.Api\MyHomeRamen.Api.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Blazor\MyHomeRamen.Blazor.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Worker.MailSender\MyHomeRamen.Worker.MailSender.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Worker.MessagesHandler\MyHomeRamen.Worker.MessagesHandler.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup>
+    <UserSecretsId>dotnet-MyHomeRamen.Worker.MailSender-a7d4c219-3847-4e9e-9f4c-b34ccb5f4ba7</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Worker.Common\MyHomeRamen.Worker.Common.csproj" />
+  </ItemGroup>
+</Project>
