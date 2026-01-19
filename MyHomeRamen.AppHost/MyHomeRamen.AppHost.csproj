@@ -8,7 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Api\MyHomeRamen.Api.csproj" />
-    <ProjectReference Include="..\MyHomeRamen.Blazor\MyHomeRamen.Blazor.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Blazor\MyHomeRamen.Blazor\MyHomeRamen.Blazor.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Identity.Api\MyHomeRamen.Identity.Api.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Worker.MailSender\MyHomeRamen.Worker.MailSender.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Worker.MessagesHandler\MyHomeRamen.Worker.MessagesHandler.csproj" />
   </ItemGroup>
@@ -16,5 +17,6 @@
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" />
     <PackageReference Include="Aspire.Hosting.Redis" />
+	<PackageReference Include="Aspire.Hosting.RabbitMQ" />
   </ItemGroup>
 </Project>

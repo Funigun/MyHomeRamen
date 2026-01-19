@@ -56,6 +56,12 @@
 		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 		<PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server"/>
+	</ItemGroup>
+	
+	<!-- Blazor WASM Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Blazor.Client`))'">
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly"/>
 	</ItemGroup>
 
 	<!-- Tests Exclusive -->
