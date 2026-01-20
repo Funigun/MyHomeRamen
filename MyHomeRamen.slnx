@@ -34,12 +34,13 @@
     <File Path=".github/copilot-instructions.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
-    <File Path=".github/instructions/basket.instructions.md.md" />
-    <File Path=".github/instructions/menu.instructions.md.md" />
-    <File Path=".github/instructions/orders.instructions.md.md" />
-    <File Path=".github/instructions/payments.instructions.md.md" />
-    <File Path=".github/instructions/reservations.instructions.md.md" />
-    <File Path=".github/instructions/users.instructions.md.md" />
+    <File Path=".github/instructions/architecture_tests.instructions.md" />
+    <File Path=".github/instructions/basket.instructions.md" />
+    <File Path=".github/instructions/menu.instructions.md" />
+    <File Path=".github/instructions/orders.instructions.md" />
+    <File Path=".github/instructions/payments.instructions.md" />
+    <File Path=".github/instructions/reservations.instructions.md" />
+    <File Path=".github/instructions/users.instructions.md" />
   </Folder>
   <Folder Name="/_github/prompts/">
     <File Path=".github/prompts/create-domain-event.prompt.md" />
