@@ -42,7 +42,7 @@
     <File Path=".github/instructions/users.instructions.md.md" />
   </Folder>
   <Folder Name="/_github/prompts/">
-    <File Path=".github/prompts/create-domain-event.prompt.md.md" />
-    <File Path=".github/prompts/create-feature.prompt.md.md" />
+    <File Path=".github/prompts/create-domain-event.prompt.md" />
+    <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
 </Solution>
