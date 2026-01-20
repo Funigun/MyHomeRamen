@@ -17,5 +17,4 @@ if (app.Environment.IsDevelopment())
 
 app.MapDefaultEndpoints();
 
-app.Run();
-
+await app.RunAsync();

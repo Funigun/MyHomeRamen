@@ -28,11 +28,12 @@ public sealed class ProjectDependencyTests : BaseArchitectureTest
     public void Projects_ShouldHave_OnlyAllowedDependencies(Assembly projectAssembly, Assembly[] allowedDependencies)
     {
         // Act
-        bool hasForbiddenDependency = projectAssembly.GetReferencedAssemblies()
+        bool hasOnlyAllowedDependencies = projectAssembly.GetReferencedAssemblies()
                                                      .Where(r => r.FullName.StartsWith("MyHomeRamen"))
                                                      .All(a => allowedDependencies.Any(allowed => allowed.FullName == a.FullName));
+
         // Assert
-        Assert.True(hasForbiddenDependency, $"{projectAssembly.GetName().Name} should not have project dependencies other than {string.Join(",", allowedDependencies.Select(d => d.GetName()))}");
+        Assert.True(hasOnlyAllowedDependencies, $"{projectAssembly.GetName().Name} should not have project dependencies other than {string.Join(",", allowedDependencies.Select(d => d.GetName()))}");
     }
 
     [Fact]

@@ -1,6 +1,3 @@
 ﻿namespace MyHomeRamen.Domain;
 
-public interface IDomainAssemblyMarker
-{
-
-}
+public interface IDomainAssemblyMarker;
