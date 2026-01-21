@@ -3,7 +3,7 @@ using MyHomeRamen.ArchitectureTests.Common;
 using NetArchTest.Rules;
 using TestResult = NetArchTest.Rules.TestResult;
 
-namespace MyHomeRamen.ArchitectureTests.DependencyTests;
+namespace MyHomeRamen.ArchitectureTests;
 
 public sealed class ProjectDependencyTests : BaseArchitectureTest
 {
