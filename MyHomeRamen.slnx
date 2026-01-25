@@ -50,6 +50,7 @@
   </Folder>
   <Folder Name="/_github/prompts/">
     <File Path=".github/prompts/create-domain-event.prompt.md" />
+    <File Path=".github/prompts/create-domain-model-id.prompt.md" />
     <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
