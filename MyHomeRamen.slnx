@@ -33,16 +33,24 @@
   <Folder Name="/_github/">
     <File Path=".github/copilot-instructions.md" />
   </Folder>
+  <Folder Name="/_github/agents/">
+    <File Path=".github/agents/adr-expert.agent.md" />
+    <File Path=".github/agents/create-feature-structure.agent.md" />
+    <File Path=".github/agents/implement-feature.agent.md" />
+  </Folder>
   <Folder Name="/_github/instructions/">
-    <File Path=".github/instructions/basket.instructions.md.md" />
-    <File Path=".github/instructions/menu.instructions.md.md" />
-    <File Path=".github/instructions/orders.instructions.md.md" />
-    <File Path=".github/instructions/payments.instructions.md.md" />
-    <File Path=".github/instructions/reservations.instructions.md.md" />
-    <File Path=".github/instructions/users.instructions.md.md" />
+    <File Path=".github/instructions/architecture-tests.instructions.md" />
+    <File Path=".github/instructions/basket.instructions.md" />
+    <File Path=".github/instructions/blazor.instructions.md" />
+    <File Path=".github/instructions/menu.instructions.md" />
+    <File Path=".github/instructions/orders.instructions.md" />
+    <File Path=".github/instructions/payments.instructions.md" />
+    <File Path=".github/instructions/reservations.instructions.md" />
+    <File Path=".github/instructions/users.instructions.md" />
   </Folder>
   <Folder Name="/_github/prompts/">
     <File Path=".github/prompts/create-domain-event.prompt.md" />
+    <File Path=".github/prompts/create-domain-model-id.prompt.md" />
     <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>

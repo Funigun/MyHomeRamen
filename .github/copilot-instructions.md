@@ -4,16 +4,35 @@
 
 This project is an application for complete Ramen restaurant management.
 
-## Features
-
-
 ## Architecture & Patterns:
 Project follows Modular Monolith architecture pattern with Vertical Slice architecture principles.
 
-
-
 ## Solution structure:
+- Aspire orchiestration that setups Redis and RabbitMQ containers besides API, Blazor and Worker projects
 
+- Backend API
+	- Core Api:
+		- MyHomeRamen.Api: Main API project exposing REST endpoints
+		- MyHomeRamen.Api.Common: Common utilities, extensions and helpers for API project
+		- MyHomeRamen.Domain: Domain entities, value objects and domain services
+		- MyHomeRamen.Persistence: Database context and configurations using Entity Framework Core
+		- MyHomeRamen.Infrastructure: Infrastructure services like email, caching, messaging, etc.
+	- Identity:
+		- MyHomeRamen.Identity: ASP.NET Core Identity implementation for user management and authentication
+		
+- Workers:
+	- MyHomeRamen.Worker: Base project for background workers, provides Quarts configuration and common services
+	- MyHomeRamen.Worker.MailSender: Background worker for email sending
+	- MyHomeRamen.Worker.MessagesHandler: Background worker for RabbitMq messaging handling
+	
+- Blazor Frontend:
+	- MyHomeRamen.Blazor: Blazor Server frontend project
+	- MyHomeRamen.Blazor.Client: Blazor WASM frontend additional project
+
+- Testing:
+	- MyHomeRamen.Tests.Unit: Unit tests project
+	- MyHomeRamen.Tests.Integration: Integration tests project
+	- MyHomeRamen.Tests.Architecture: Architecture tests project using NetArchRules
 
 ## Coding standards
 Project uses global files for coding standards and practices:

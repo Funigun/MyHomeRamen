@@ -2,6 +2,23 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Api\MyHomeRamen.Api.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.AppHost\MyHomeRamen.AppHost.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Blazor\MyHomeRamen.Blazor.Client\MyHomeRamen.Blazor.Client.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Blazor\MyHomeRamen.Blazor\MyHomeRamen.Blazor.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Identity.Api\MyHomeRamen.Identity.Api.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Infrastructure\MyHomeRamen.Infrastructure.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.IntegrationTests\MyHomeRamen.IntegrationTests.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.UnitTests\MyHomeRamen.UnitTests.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Worker.Common\MyHomeRamen.Worker.Common.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Worker.MailSender\MyHomeRamen.Worker.MailSender.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Worker.MessagesHandler\MyHomeRamen.Worker.MessagesHandler.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
