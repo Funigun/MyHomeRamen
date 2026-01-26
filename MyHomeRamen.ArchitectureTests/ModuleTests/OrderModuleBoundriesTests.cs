@@ -10,7 +10,7 @@ public sealed class OrderModuleBoundriesTests : BaseArchitectureTest
     public void OrderModule_Should_Not_Access_Other_Modules_Directly()
     {
         // Arrange
-        string[]? forbiddenModules = ["MyHomeRamen.Domain.Menu"];
+        string[]? forbiddenModules = ["MyHomeRamen.Domain.Menu", "MyHomeRamen.Domain.Payments"];
 
         // Act
         TestResult result = Types.InAssembly(DomainAssembly)
