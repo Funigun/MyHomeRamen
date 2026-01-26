@@ -2,5 +2,5 @@
 
 public interface IEventProducer
 {
-    IReadOnlyList<IDomainEvent> Events { get; };
+    IReadOnlyList<IDomainEvent> Events { get; }
 }

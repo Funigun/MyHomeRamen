@@ -2,7 +2,7 @@
 
 public enum OrderType
 {
-    DineIn,
-    TakeOut,
-    Delivery
+    DineIn = 1,
+    TakeOut = 2,
+    Delivery = 3
 }
