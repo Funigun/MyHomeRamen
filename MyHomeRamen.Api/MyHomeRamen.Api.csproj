@@ -6,4 +6,7 @@
     <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />
     <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
   </ItemGroup>
+   <ItemGroup>
+     <Folder Include="Orders\Domain\" />
+   </ItemGroup>
 </Project>
