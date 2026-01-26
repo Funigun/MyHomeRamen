@@ -10,7 +10,8 @@ public sealed class PaymentsModuleBoundriesTests : BaseArchitectureTest
     public void OrderModule_Should_Not_Access_Other_Modules_Directly()
     {
         // Arrange
-        string[]? forbiddenModules = ["MyHomeRamen.Domain.Menu", "MyHomeRamen.Domain.Orders"];
+        string[]? forbiddenModules = ["MyHomeRamen.Domain.Menu", "MyHomeRamen.Domain.Orders",
+                                             "MyHomeRamen.Domain.Reservations", "MyHomeRamen.Domain.Basket"];
 
         // Act
         TestResult result = Types.InAssembly(DomainAssembly)
