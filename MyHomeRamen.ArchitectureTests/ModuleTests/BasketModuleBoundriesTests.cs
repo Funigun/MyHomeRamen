@@ -4,7 +4,7 @@ using TestResult = NetArchTest.Rules.TestResult;
 
 namespace MyHomeRamen.ArchitectureTests.ModuleTests;
 
-public sealed class ShoppingCartModuleBoundriesTests : BaseArchitectureTest
+public sealed class BasketModuleBoundriesTests : BaseArchitectureTest
 {
     [Fact]
     public void BasketModule_Should_Not_Access_Other_Modules_Directly()

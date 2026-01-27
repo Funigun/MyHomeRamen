@@ -54,4 +54,23 @@
     <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
+  <Folder Name="/_wiki/" />
+  <Folder Name="/_wiki/Basket/">
+    <File Path="Wiki/Basket ADR/0001-basket-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Menu/">
+    <File Path="Wiki/Menu ADR/0001-menu-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Orders/">
+    <File Path="Wiki/Orders ADR/0001-orders-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Payments/">
+    <File Path="Wiki/Payments ADR/0001-payments-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Reservations/">
+    <File Path="Wiki/Reservations ADR/0001-reservations-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Users/">
+    <File Path="Wiki/Users ADR/0001-users-domain.md" />
+  </Folder>
 </Solution>
