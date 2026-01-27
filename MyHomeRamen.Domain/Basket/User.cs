@@ -1,6 +1,7 @@
+using System.Net;
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Orders;
+namespace MyHomeRamen.Domain.Basket;
 
 public sealed class User : AuditableEntity, IEntity<UserId>
 {

@@ -1,6 +1,6 @@
-﻿using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Orders;
+namespace MyHomeRamen.Domain.Basket;
 
 public sealed class Product : AuditableEntity, IEntity<ProductId>
 {
@@ -35,11 +35,10 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         _customIngredients = customIngredients;
     }
 
-    public static Product Create(ProductId id, ProductId originalId, string name, string description, decimal price, string imageUrl, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
+    public static Product Create(ProductId id, ProductId originalId, string description, decimal price, string imageUrl, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
     {
         return new Product(id, originalId, baseIngredients, customIngredients)
         {
-            Name = name,
             Description = description,
             Price = price,
             ImageUrl = imageUrl
