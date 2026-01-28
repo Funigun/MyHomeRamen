@@ -17,6 +17,8 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public OrderType OrderType { get; private set; }
 
+    public User User { get; private set; }
+
     public IReadOnlyList<Product> ProductId => _productIds.ToList();
 
     public IReadOnlyList<IDomainEvent> Events => _events.ToList();
