@@ -9,12 +9,12 @@ At some point it evolved to more complext idea where I want to learn how to desi
 
 Currently there are following modules:
 
-a) **Basket**: Handles collecting products that user wants to order based on the `Menu` module. It also handles discounts (percentage, fixed amount, BOGO, free shipping) and acts as the source of truth for the shopping cart state.
-b) **Menu**: Acts as the single source of truth for the product domain, handling product catalog management including categories, ingredients, and pricing.
-c) **Orders**: Manages the lifecycle of customer orders based on the `Basket` module. It ensures data consistency with `Menu` module and acts as input for the `Payments` module.
-d) **Payments**: Handles payment provider integration and payment processing. It notifies the `Orders` module about payment status changes.
-e) **Reservations**: Handles user bookings for tables and time slots. It is a fully independent module.
-f) **Users**: Acts as the single source of truth for the user domain, serving other modules. It handles authentication (via a separate Identity API), user profiles, roles, and permissions, using RabbitMQ for data synchronization.
+- **Basket**: Handles collecting products that user wants to order based on the `Menu` module. It also handles discounts (percentage, fixed amount, BOGO, free shipping) and acts as the source of truth for the shopping cart state.
+- **Menu**: Acts as the single source of truth for the product domain, handling product catalog management including categories, ingredients, and pricing.
+- **Orders**: Manages the lifecycle of customer orders based on the `Basket` module. It ensures data consistency with `Menu` module and acts as input for the `Payments` module.
+- **Payments**: Handles payment provider integration and payment processing. It notifies the `Orders` module about payment status changes.
+- **Reservations**: Handles user bookings for tables and time slots. It is a fully independent module.
+- **Users**: Acts as the single source of truth for the user domain, serving other modules. It handles authentication (via a separate Identity API), user profiles, roles, and permissions, using RabbitMQ for data synchronization.
 
 ### Skills to learn
 - Modular monolith design (including database)
