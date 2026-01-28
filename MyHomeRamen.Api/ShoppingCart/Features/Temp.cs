@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Api.Orders.Features;
+﻿namespace MyHomeRamen.Api.ShoppingCart.Features;
 
 public class Temp
 {

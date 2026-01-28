@@ -24,6 +24,8 @@ f) **Users**: Acts as the single source of truth for the user domain, serving ot
 - Background workers implementation for different scenarios
 - Server Sent Events implementation (Kitchen dashboard with new orders)
 - SignalR - handle order status view
+- Implement API with Result pattern
+- Implement CQRS with my own lightweight mediator (optionally)
 
 ## 2. Technology Stack
 

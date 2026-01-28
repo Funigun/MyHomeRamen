@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Api.Orders.Features;
+﻿namespace MyHomeRamen.Api.Payments.Features;
 
 public class Temp
 {
