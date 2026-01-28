@@ -1,22 +1,22 @@
 ---
 title: "ADR-0001: Define Domain Model for Users Module"
-status: "Proposed"
-date: "2026-01-27"
-authors: "MyHomeRamen Team"
+status: "Accepted"
+date: "2026-01-28"
+authors: "Funigun"
 tags: ["domain", "users", "architecture"]
-supersedes: ""
-superseded_by: ""
 ---
 
 ### Status
 
-**Proposed**
+**Accepted**
 
 ### Context
 
-The MyHomeRamen application follows a Modular Monolith architecture. Currently, user-related entities (`User`, `UserId`) are defined independently in multiple modules (`Orders`, `Menu`, `Payments`, `Reservations`, `Basket`). This indicates a need for a dedicated **Users** module to act as the single source of truth for user domain logic (e.g., profiles, preferences, aggressive roots) and to serve as the reference point for other modules.
+In MyHomeRamen application Users module acts the single source of truth for user domain that serves other modules (`Orders`, `Menu`, `Payments`, `Reservations`, `Basket`). 
+Different modules will require different user-related data and behaviors, so in order to mainain separation of concerns and modularity, we need to define a dedicated Users Domain Model.
 
-The current Identity module (`MyHomeRamen.Identity`) handles authentication and authorization using ASP.NET Core Identity. However, mixing business domain logic (like customer loyalty, addresses, or specialized implementation details) with authentication infrastructure is an architectural anti-pattern in Domain-Driven Design.
+This module will handle authentication and authorization and provide features related to user management, such as user profiles, roles, and permissions.
+Every user-related data will go throught this module. Other modules will subscribe to events published through a message broker (RabbitMQ) to keep their local user references in sync.
 
 **Key constraints and requirements:**
 - **Modular Monolith**: Modules should be loosely coupled.
@@ -26,13 +26,13 @@ The current Identity module (`MyHomeRamen.Identity`) handles authentication and 
 
 ### Decision
 
-We will establish a dedicated **Users Domain Model** within the `MyHomeRamen.Domain.Users` namespace.
+We will create separate API project dedicated for Users management (`MyHomeRamen.Identity.Api`).
 
 **The decision includes:**
 1.  **Creation of `UserId`**: A strongly typed value object implementing `IEntityId`.
 2.  **Creation of `User` Entity**: A sealed aggregate root implementing `IEntity<UserId>` and inheriting from `AuditableEntity`.
 3.  **Synchronization**: The Users module will eventually subscribe to integration events (e.g., `UserRegistered`) from the Identity module to create and maintain the domain user record.
-
+                         Synchronization will be handled asynchronously using RabbitMQ to ensure eventual consistency.
 **Structure:**
 - `MyHomeRamen.Domain.Users.UserId` (Record Struct)
 - `MyHomeRamen.Domain.Users.User` (Class)
@@ -47,29 +47,5 @@ We will establish a dedicated **Users Domain Model** within the `MyHomeRamen.Dom
 
 #### Negative
 
-- **NEG-001**: **Data Duplication**: User IDs and basic info (email) will exist in both Identity tables and Users Domain tables, requiring synchronization.
-- **NEG-002**: **Complexity**: Adds overhead of maintaining a separate module and synchronization mechanism (e.g., event-driven eventual consistency).
-- **NEG-003**: **Initialization**: Requires strategies to ensure a Domain User exists when an Identity User is created.
-
-### Alternatives Considered
-
-#### Use ASP.NET Identity Entities Directly
-
-- **ALT-001**: **Description**: Use `IdentityUser` classes throughout the application domain.
-- **ALT-002**: **Rejection Reason**: Creates high coupling between business domain and specific security framework/infrastructure. Harder to unit test domain logic.
-
-#### Shared Kernel User Entity
-
-- **ALT-003**: **Description**: Define `User` in `MyHomeRamen.Domain.Common` for all modules to share.
-- **ALT-004**: **Rejection Reason**: Leads to a "God Object" `User` class that methods from all modules depend on, breaking module boundaries and encapsulation.
-
-### Implementation Notes
-
-- **IMP-001**: `UserId` must include implicit operators for `Guid` to facilitate distinct ID generation and compatibility.
-- **IMP-002**: `User` entity should encapsulate properties like Name, Email, and Address, using private setters.
-- **IMP-003**: Ensure proper integration with `NetArchTest` rules to prevent cyclic dependencies with other modules.
-
-### References
-
-- **REF-001**: `MyHomeRamen.Api.Common.Domain.IEntity`
-- **REF-002**: [Project Architecture Guidelines](.github/copilot-instructions.md)
+- **NEG-001**: **Complexity**: Adds overhead of maintaining a separate module and synchronization mechanism (e.g., event-driven eventual consistency).
+- **NEG-002**: **Eventual consistency**: Separeted modules might have inconsistent data until synchronization process is finished, however this is acceptable as used data does not change frequently.
