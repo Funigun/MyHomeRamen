@@ -1,14 +1,15 @@
-﻿using System.Collections.ObjectModel;
-using MyHomeRamen.Api.Common.Domain;
+﻿using MyHomeRamen.Api.Common.Domain;
 
 namespace MyHomeRamen.Domain.Orders;
 
 public sealed class Product : AuditableEntity, IEntity<ProductId>
 {
-    private readonly Collection<Ingredient> _baseIngredients = [];
-    private readonly Collection<Ingredient> _customIngredients = [];
+    private readonly List<Ingredient> _baseIngredients = [];
+    private readonly List<Ingredient> _customIngredients = [];
 
     public ProductId Id { get; private set; }
+
+    public ProductId OriginalId { get; private set; }
 
     public string Name { get; private set; } = string.Empty;
 
@@ -26,16 +27,17 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
     {
     }
 
-    private Product(ProductId id, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients)
+    private Product(ProductId id, ProductId originalId, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
     {
         Id = id;
+        OriginalId = originalId;
         _baseIngredients = baseIngredients;
         _customIngredients = customIngredients;
     }
 
-    public static Product Create(ProductId id, string name, string description, decimal price, string imageUrl, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients)
+    public static Product Create(ProductId id, ProductId originalId, string name, string description, decimal price, string imageUrl, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
     {
-        return new Product(id, baseIngredients, customIngredients)
+        return new Product(id, originalId, baseIngredients, customIngredients)
         {
             Name = name,
             Description = description,

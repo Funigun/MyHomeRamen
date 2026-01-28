@@ -1,7 +1,13 @@
-﻿namespace MyHomeRamen.Domain.Orders;
+﻿using MyHomeRamen.Api.Common.Domain;
 
-public sealed class Ingredient
+namespace MyHomeRamen.Domain.Orders;
+
+public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 {
+    public IngredientId Id { get; private set; }
+
+    public IngredientId OriginalId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     public string Description { get; private set; } = string.Empty;
@@ -12,9 +18,15 @@ public sealed class Ingredient
     {
     }
 
-    public static Ingredient Create(string name, string description, decimal price)
+    private Ingredient(IngredientId id, IngredientId originalId)
     {
-        return new Ingredient
+        Id = id;
+        OriginalId = originalId;
+    }
+
+    public static Ingredient Create(IngredientId id, IngredientId originalId, string name, string description, decimal price)
+    {
+        return new Ingredient(id, originalId)
         {
             Name = name,
             Description = description,
