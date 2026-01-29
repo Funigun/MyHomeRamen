@@ -32,7 +32,7 @@ Following steps should be taken:
 
 6. Implement `DbContext`
 - create {Module}DbContext class under {Module} folder
-- {Module}DbContext should implement `I{Module}DbContext` interface
+- {Module}DbContext should implement `I{Module}DbContext` and `IBaseDbContext` interfaces
 - configure `HasDefaultSchema` to `{module}` and primary key using the appropriate Id property
 - override `OnModelCreating` method to apply configurations
 - override `ConfigureConventions` method to add converters
