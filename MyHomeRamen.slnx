@@ -50,12 +50,18 @@
     <File Path=".github/instructions/users.instructions.md" />
   </Folder>
   <Folder Name="/_github/prompts/">
+    <File Path=".github/prompts/create-domain-db-context.prompt.md" />
     <File Path=".github/prompts/create-domain-event.prompt.md" />
     <File Path=".github/prompts/create-domain-model-id.prompt.md" />
     <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
   <Folder Name="/_wiki/" />
+  <Folder Name="/_wiki/Architecture/">
+    <File Path="Wiki/Architecture/adr-0001-modular-monolith-architecture.md" />
+    <File Path="Wiki/Architecture/adr-0002-aspire-orchestration.md" />
+    <File Path="Wiki/Architecture/adr-0003-module-specific-database-contexts.md" />
+  </Folder>
   <Folder Name="/_wiki/Basket/">
     <File Path="Wiki/Basket ADR/0001-basket-domain.md" />
   </Folder>

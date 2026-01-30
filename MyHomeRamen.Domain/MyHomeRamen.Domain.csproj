@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 
 </Project>

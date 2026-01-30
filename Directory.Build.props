@@ -45,6 +45,12 @@
 		<PackageReference Include="Aspire.StackExchange.Redis" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
 	</ItemGroup>
+
+	<!-- Persistance Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Persistance`))'">
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+	</ItemGroup>
 	
 	<!-- Blazor Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Blazor`))'">
