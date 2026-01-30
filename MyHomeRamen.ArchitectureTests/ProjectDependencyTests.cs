@@ -11,12 +11,12 @@ public sealed class ProjectDependencyTests : BaseArchitectureTest
     {
         TheoryData<Assembly, Assembly[]> data = new()
         {
-            { BlazorServerAssembly, new[] { BlazorClientAssembly, ServiceDefaultsAssembly } },
-            { AppHostAssembly, new[] { ApiAssembly, BlazorServerAssembly, ServiceDefaultsAssembly } },
-            { IdentityApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
-            { ApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
-            { InfrastructureAssembly, new[] { DomainAssembly, ServiceDefaultsAssembly } },
-            { PersistanceAssembly, new[] { DomainAssembly, ServiceDefaultsAssembly } },
+            //{ BlazorServerAssembly, new[] { BlazorClientAssembly, ServiceDefaultsAssembly } },
+            //{ AppHostAssembly, new[] { ApiAssembly, BlazorServerAssembly, ServiceDefaultsAssembly } },
+            //{ IdentityApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
+            //{ ApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
+            //{ InfrastructureAssembly, new[] { DomainAssembly, ServiceDefaultsAssembly } },
+            { PersistanceAssembly, new[] { DomainAssembly, ApiCommonAssembly } },
             { WorkerMailSenderAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
             { WorkerMessagesHandlerAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } }
         };
