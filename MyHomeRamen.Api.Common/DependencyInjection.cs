@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Api.Common.Cache;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Hateoas.Builder;
 using MyHomeRamen.Api.Common.Hateoas.Common;
@@ -37,6 +38,24 @@ public static class DependencyInjection
         foreach (Type type in types)
         {
             Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == authorizationPolicyType);
+            services.AddScoped(interfaceType, type);
+        }
+
+        return services;
+    }
+
+    public static IServiceCollection AddCacheableQueries(this IServiceCollection services, Assembly assembly)
+    {
+        Type cacheableQueryType = typeof(ICachePolicy<,>);
+
+        List<Type>? types = assembly.GetExportedTypes()
+                                    .Where(t => t.GetInterfaces()
+                                                     .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == cacheableQueryType))
+                                    .ToList();
+
+        foreach (Type type in types)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == cacheableQueryType);
             services.AddScoped(interfaceType, type);
         }
 

@@ -1,5 +1,3 @@
-using Aspire.Hosting;
-
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
 string resourcePrefix = builder.Configuration["CustomConfig:ResourcePrefix"]!;
@@ -34,12 +32,14 @@ builder.AddProject<Projects.MyHomeRamen_Blazor>($"{resourcePrefix}api-blazor")
        .WaitFor(identityApiService)
        .WithReference(identityApiService);
 
-IResourceBuilder<ProjectResource> mailingWorker = builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>($"{resourcePrefix}mailing-worker")
-                                                         .WithReference(apiService)
-                                                         .WaitFor(apiService);
+builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>($"{resourcePrefix}mailing-worker")
+       .WithReference(apiService)
+       .WaitFor(apiService)
+       .WithExplicitStart();
 
-IResourceBuilder<ProjectResource> messagesWorker = builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{resourcePrefix}messages-worker")
-                                                          .WithReference(apiService)
-                                                          .WaitFor(apiService);
+builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{resourcePrefix}messages-worker")
+       .WithReference(apiService)
+       .WaitFor(apiService)
+       .WithExplicitStart();
 
 await builder.Build().RunAsync();
