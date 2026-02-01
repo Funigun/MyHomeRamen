@@ -1,45 +1,24 @@
+using Microsoft.Extensions.Configuration;
+using MyHomeRamen.AppHost.InfrastructureConfiguration;
+
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-string resourcePrefix = builder.Configuration["CustomConfig:ResourcePrefix"]!;
+IConfiguration config = builder.Configuration;
+string resourcePrefix = config["CustomConfig:ResourcePrefix"]!;
 
 IResourceBuilder<ParameterResource>? username = builder.AddParameter("UserName", secret: true);
 IResourceBuilder<ParameterResource>? password = builder.AddParameter("Password", secret: true);
 
-IResourceBuilder<RedisResource> cache = builder.AddRedis($"{resourcePrefix}cache", null, password)
-                                               .WithRedisInsight();
+IResourceBuilder<RedisResource> cache = builder.AddRedis(resourcePrefix, password);
+IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.AddRabbitMq(resourcePrefix, username, password);
 
-IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.AddRabbitMQ($"{resourcePrefix}messaging", username, password)
-                                                           .WithManagementPlugin();
+IResourceBuilder<ProjectResource> apiService = builder.AddApiService(resourcePrefix, cache, rabbitmq);
+IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(resourcePrefix);
 
-IResourceBuilder<ProjectResource> apiService = builder.AddProject<Projects.MyHomeRamen_Api>($"{resourcePrefix}api")
-                                                      .WithHttpHealthCheck("/health")
-                                                      .WithReference(cache)
-                                                      .WaitFor(cache)
-                                                      .WaitFor(rabbitmq)
-                                                      .WithReference(rabbitmq);
+builder.AddBlazor(resourcePrefix, cache, apiService, identityApiService);
+builder.AddWorkers(resourcePrefix, apiService);
 
-IResourceBuilder<ProjectResource> identityApiService = builder.AddProject<Projects.MyHomeRamen_Identity_Api>($"{resourcePrefix}identity-api")
-                                                      .WithHttpHealthCheck("/health");
-
-builder.AddProject<Projects.MyHomeRamen_Blazor>($"{resourcePrefix}api-blazor")
-       .WithExternalHttpEndpoints()
-       .WithHttpHealthCheck("/health")
-       .WithReference(cache)
-       .WaitFor(cache)
-       .WithReference(apiService)
-       .WaitFor(apiService)
-       .WithReference(apiService)
-       .WaitFor(identityApiService)
-       .WithReference(identityApiService);
-
-builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>($"{resourcePrefix}mailing-worker")
-       .WithReference(apiService)
-       .WaitFor(apiService)
-       .WithExplicitStart();
-
-builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{resourcePrefix}messages-worker")
-       .WithReference(apiService)
-       .WaitFor(apiService)
-       .WithExplicitStart();
+builder.AddSeq(config, apiService);
+builder.AddJaeger();
 
 await builder.Build().RunAsync();
