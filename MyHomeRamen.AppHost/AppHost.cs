@@ -1,15 +1,20 @@
-IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
+using Microsoft.Extensions.Configuration;
 
-string resourcePrefix = builder.Configuration["CustomConfig:ResourcePrefix"]!;
+IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
+IConfiguration config = builder.Configuration;
+
+string resourcePrefix = config["CustomConfig:ResourcePrefix"]!;
 
 IResourceBuilder<ParameterResource>? username = builder.AddParameter("UserName", secret: true);
 IResourceBuilder<ParameterResource>? password = builder.AddParameter("Password", secret: true);
 
 IResourceBuilder<RedisResource> cache = builder.AddRedis($"{resourcePrefix}cache", null, password)
-                                               .WithRedisInsight();
+                                               .WithRedisInsight()
+                                               .WithLifetime(ContainerLifetime.Persistent);
 
 IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.AddRabbitMQ($"{resourcePrefix}messaging", username, password)
-                                                           .WithManagementPlugin();
+                                                           .WithManagementPlugin()
+                                                           .WithLifetime(ContainerLifetime.Persistent);
 
 IResourceBuilder<ProjectResource> apiService = builder.AddProject<Projects.MyHomeRamen_Api>($"{resourcePrefix}api")
                                                       .WithHttpHealthCheck("/health")
@@ -19,9 +24,9 @@ IResourceBuilder<ProjectResource> apiService = builder.AddProject<Projects.MyHom
                                                       .WithReference(rabbitmq);
 
 IResourceBuilder<ProjectResource> identityApiService = builder.AddProject<Projects.MyHomeRamen_Identity_Api>($"{resourcePrefix}identity-api")
-                                                      .WithHttpHealthCheck("/health");
+                                                              .WithHttpHealthCheck("/health");
 
-builder.AddProject<Projects.MyHomeRamen_Blazor>($"{resourcePrefix}api-blazor")
+builder.AddProject<Projects.MyHomeRamen_Blazor>($"{resourcePrefix}blazor")
        .WithExternalHttpEndpoints()
        .WithHttpHealthCheck("/health")
        .WithReference(cache)
@@ -41,5 +46,19 @@ builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{resourcePrefi
        .WithReference(apiService)
        .WaitFor(apiService)
        .WithExplicitStart();
+
+builder.AddContainer("seq", "datalust/seq")
+       .WithContainerName("seq-aspire")
+       .WithEnvironment("ACCEPT_EULA", "Y")
+       .WithBindMount(config["InfrastructureConfig:Seq:BindMountFrom"]!, config["InfrastructureConfig:Seq:BindMountTo"]!)
+       .WithHttpEndpoint(8081, 80)
+       .WithReference(apiService)
+       .WithLifetime(ContainerLifetime.Persistent);
+
+builder.AddContainer("jaeger", "jaegertracing/all-in-one")
+       .WithContainerName("jaeger-aspire")
+       .WithHttpEndpoint(16686, targetPort: 16686, name: "jaegerPortal")
+       .WithHttpEndpoint(4317, targetPort: 4317, name: "jaegerEndpoint")
+       .WithLifetime(ContainerLifetime.Persistent);
 
 await builder.Build().RunAsync();

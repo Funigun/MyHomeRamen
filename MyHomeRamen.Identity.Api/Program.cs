@@ -1,6 +1,6 @@
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+builder.AddServiceDefaults("my-home-ramen-identity-api");
 
 builder.Services.AddOpenApi();
 
