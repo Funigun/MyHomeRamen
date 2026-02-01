@@ -97,6 +97,7 @@
 	<ItemGroup Condition="'$(MSBuildProjectName.Contains(`.Worker.`))'">
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="Serilog"/>
+		<PackageReference Include="Serilog.AspNetCore" />
 		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 	</ItemGroup>
