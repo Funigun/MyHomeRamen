@@ -64,10 +64,34 @@ public static class Extensions
                     .AddHttpClientInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation()
                     .AddSqlClientInstrumentation()
-                    .AddRedisInstrumentation();
+                    .AddRedisInstrumentation()
+                    .AddOtlpExporter(options =>
+                    {
+                        options.Endpoint = new Uri("http://localhost:4317");
+                    });
+                ;
             });
 
         builder.AddOpenTelemetryExporters();
+
+        return builder;
+    }
+
+    private static IHostApplicationBuilder AddExportToSeq(this IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri("http://localhost:8081/ingest/otlp/v1/logs");
+            opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+        }));
+
+        builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing
+                        .AddSource(_sourceName)
+                        .AddOtlpExporter(opt =>
+                        {
+                            opt.Endpoint = new Uri("http://localhost:8081/ingest/otlp/v1/traces");
+                            opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+                        }));
 
         return builder;
     }
@@ -79,19 +103,11 @@ public static class Extensions
 
         if (useOtlpExporter)
         {
-            builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter(opt =>
-            {
-                opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:Seq:LogsExportEndpoint"]!);
-                opt.Protocol = OtlpExportProtocol.HttpProtobuf;
-            }));
+            builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
+            builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
+            builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
 
-            builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing
-                            .AddSource(_sourceName)
-                            .AddOtlpExporter(opt =>
-                            {
-                                opt.Endpoint = new Uri(builder.Configuration["OpenTelemetry:Seq:TracesExportEndpoint"]!);
-                                opt.Protocol = OtlpExportProtocol.HttpProtobuf;
-                            }));
+            builder.AddExportToSeq();
         }
 
         return builder;
