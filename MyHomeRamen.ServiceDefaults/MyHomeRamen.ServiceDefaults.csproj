@@ -18,5 +18,7 @@
 	  <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" />
 	  <PackageReference Include="Aspire.StackExchange.Redis" />
 	  <PackageReference Include="StackExchange.Redis" />
+      <PackageReference Include="Serilog" />
+      <PackageReference Include="Serilog.Sinks.Seq" />
   </ItemGroup>
 </Project>

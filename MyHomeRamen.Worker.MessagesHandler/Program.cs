@@ -1,9 +1,29 @@
 using MyHomeRamen.Worker.MessagesHandler;
+using Serilog;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-builder.AddServiceDefaults();
-builder.Services.AddHostedService<Worker>();
+Log.Logger = new LoggerConfiguration().ReadFrom
+             .Configuration(new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .Build())
+             .CreateLogger();
 
-IHost host = builder.Build();
-await host.RunAsync();
+try
+{
+    builder.AddServiceDefaults("my-home-ramen-messages-worker");
+    builder.Services.AddHostedService<Worker>();
+
+    IHost host = builder.Build();
+    await host.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}
