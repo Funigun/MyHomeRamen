@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Domain.Basket;
+﻿namespace MyHomeRamen.Domain.ShoppingCart;
 
 public sealed class UserAddress
 {

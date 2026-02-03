@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyHomeRamen.Domain.Basket;
+using MyHomeRamen.Domain.ShoppingCart;
 
-namespace MyHomeRamen.Persistance.Basket.Converters;
+namespace MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 public class UserIdConverter : ValueConverter<UserId, Guid>
 {

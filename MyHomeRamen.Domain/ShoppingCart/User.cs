@@ -1,7 +1,7 @@
 using System.Net;
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Basket;
+namespace MyHomeRamen.Domain.ShoppingCart;
 
 public sealed class User : AuditableEntity, IEntity<UserId>
 {

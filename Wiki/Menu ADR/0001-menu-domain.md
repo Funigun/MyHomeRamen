@@ -12,7 +12,7 @@ tags: ["domain", "products", "menu", "architecture"]
 
 ### Context
 
-In MyHomeRamen application Menu module acts the single source of truth for product domain that serves other modules (`Orders`, `Basket`).
+In MyHomeRamen application Menu module acts the single source of truth for product domain that serves other modules (`Orders`, `Shopping Cart`).
 
 This module handles product catalog management, including categories, ingredients and pricing.
 
@@ -23,8 +23,8 @@ This module handles product catalog management, including categories, ingredient
 
 
 **Related modules**
-- **Basket**: Needs to retrieve product details for displaying items in the basket. 
-              It will store its own copy of product data to ensure basket integrity and handle discounts.
+- **Shopping Cart**: Needs to retrieve product details for displaying items in the shopping cart. 
+              It will store its own copy of product data to ensure shopping cart integrity and handle discounts.
 
 - **Orders**: Needs to retrieve product details for order processing. It will store its own copy of product data to ensure order integrity.
               This will also allow to check hitorical orders even if product data changes later.
@@ -43,7 +43,7 @@ We create a `Menu` module by combining Clean and Vertical architecture styles by
 2. **Database**: `IMenuDbContext` will be defined in `MyHomeRamen.Domain` project with implementation in `MyHomeRamen.Persistance` project.
 3. **Synchonization**: Other modules will maintain their own copy of product data to ensure integrity. No synchronization mechanism is required at this moment.
 4. **Stick to assumptions**: Proper architecture tests will be created to ensure that `Menu` module does not depend directly on other modules (domain, business logic).
-5. **Skip discounts**: Current discount scenarios are based on items in whole shopping cart, so they will be handled in `Basket` module.
+5. **Skip discounts**: Current discount scenarios are based on items in whole shopping cart, so they will be handled in `Shopping Cart` module.
 
 ### Consequences
 

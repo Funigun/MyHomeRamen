@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Basket.Database;
+namespace MyHomeRamen.Domain.ShoppingCart.Database;
 
-public interface IBasketDbContext : IBaseDbContext
+public interface IShoppingCartDbContext : IBaseDbContext
 {
-    DbSet<ShoppingCart> ShoppingCarts { get; }
+    DbSet<Basket> ShoppingCarts { get; }
 
     DbSet<Product> Products { get; }
 

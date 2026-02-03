@@ -1,7 +1,7 @@
 using System;
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Basket;
+namespace MyHomeRamen.Domain.ShoppingCart;
 
 public readonly record struct UserId(Guid Value) : IEntityId
 {

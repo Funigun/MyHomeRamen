@@ -1,16 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Domain.Basket;
-using MyHomeRamen.Domain.Basket.Database;
-using MyHomeRamen.Persistance.Basket.Converters;
+using MyHomeRamen.Domain.ShoppingCart;
+using MyHomeRamen.Domain.ShoppingCart.Database;
+using MyHomeRamen.Persistance;
+using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
-namespace MyHomeRamen.Persistance.Basket;
+namespace MyHomeRamen.Persistance.ShoppingCart;
 
-public class BasketDbContext : DbContext, IBasketDbContext
+public class BasketDbContext : DbContext, IShoppingCartDbContext
 {
     public BasketDbContext(DbContextOptions<BasketDbContext> options) : base(options) { }
 
-    public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+    public DbSet<Basket> ShoppingCarts { get; set; }
 
     public DbSet<Product> Products { get; set; }
 
@@ -41,7 +42,7 @@ public class BasketDbContext : DbContext, IBasketDbContext
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-        configurationBuilder.Properties<ShoppingCartId>().HaveConversion<ShoppingCartIdConverter>();
+        configurationBuilder.Properties<BasketId>().HaveConversion<BasketIdConverter>();
         configurationBuilder.Properties<ProductId>().HaveConversion<ProductIdConverter>();
         configurationBuilder.Properties<IngredientId>().HaveConversion<IngredientIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();

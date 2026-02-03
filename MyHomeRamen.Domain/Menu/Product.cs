@@ -37,10 +37,11 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         _categories = categories;
     }
 
-    public static Product Create(ProductId id, string description, decimal price, string imageUrl, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients, Collection<Category> categories)
+    public static Product Create(ProductId id, string name, string description, decimal price, string imageUrl, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients, Collection<Category> categories)
     {
         return new Product(id, baseIngredients, customIngredients, categories)
         {
+            Name = name,
             Description = description,
             Price = price,
             ImageUrl = imageUrl

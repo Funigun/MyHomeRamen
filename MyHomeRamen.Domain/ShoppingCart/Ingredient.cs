@@ -1,6 +1,6 @@
 ﻿using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Basket;
+namespace MyHomeRamen.Domain.ShoppingCart;
 
 public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 {

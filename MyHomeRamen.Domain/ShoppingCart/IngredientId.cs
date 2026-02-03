@@ -1,6 +1,6 @@
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Basket;
+namespace MyHomeRamen.Domain.ShoppingCart;
 
 public readonly record struct IngredientId(Guid Value) : IEntityId
 {

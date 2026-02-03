@@ -12,7 +12,7 @@ tags: ["domain", "orders", "architecture"]
 
 ### Context
 
-In MyHomeRamen application Orders module orders manages the lifecycle of customer orders based on `Basket` module.
+In MyHomeRamen application Orders module orders manages the lifecycle of customer orders based on `Shopping Cart` module.
 It must ensure data consistency with `Menu` module when creating orders and collect all necessary information for order processing.
 
 **Key constraints and requirements:**
@@ -21,8 +21,8 @@ It must ensure data consistency with `Menu` module when creating orders and coll
 - **Independence**: Module should not rely on other modules or domains which will be forces through architecture tests.
 
 **Related modules**
-- **Basket**: Module serves the input data when order processing is started. 
-- **Menu**: Data consistency must be ensured when creating orders based on basket data. 
+- **Shopping Cart**: Module serves the input data when order processing is started. 
+- **Menu**: Data consistency must be ensured when creating orders based on shopping cart data. 
 - **Payments**: Needs to pass order data when proceeding to payment within `Payments` module. It will store its own copy of order data to ensure payment integrity.
 - **User**: Data must be consistent with `User` module when creating order.
 
@@ -36,7 +36,7 @@ We create a `Orders` module by combining Clean and Vertical architecture styles 
 **The decision includes:**
 1. **Domain**: Domain model will be defined in `MyHomeRamen.Domain` project under `Orders` folder
 2. **Database**: `IOrdersDbContext` will be defined in `MyHomeRamen.Domain` project with implementation in `MyHomeRamen.Persistance` project.
-3. **Synchonization**: Data must be consistent with `Menu` module when adding items to basket and before proceeding to checkout. No synchronization mechanism is required at this moment.
+3. **Synchonization**: Data must be consistent with `Menu` module when adding items to shopping cart and before proceeding to checkout. No synchronization mechanism is required at this moment.
 4. **Stick to assumptions**: Proper architecture tests will be created to ensure that `Order` module does not depend directly on other modules (domain, business logic).
 
 ### Consequences
