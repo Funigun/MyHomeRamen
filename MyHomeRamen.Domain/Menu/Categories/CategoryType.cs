@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Domain.Menu;
+﻿namespace MyHomeRamen.Domain.Menu.Categories;
 
 public enum CategoryType
 {

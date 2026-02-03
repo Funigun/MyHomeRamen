@@ -1,4 +1,5 @@
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Menu.Products;
 
 namespace MyHomeRamen.Domain.Menu;
 

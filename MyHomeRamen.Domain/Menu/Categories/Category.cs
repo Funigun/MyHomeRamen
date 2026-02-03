@@ -1,6 +1,6 @@
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Menu;
+namespace MyHomeRamen.Domain.Menu.Categories;
 
 public sealed class Category : AuditableEntity, IEntity<CategoryId>
 {

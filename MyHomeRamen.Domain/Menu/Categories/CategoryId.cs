@@ -1,6 +1,6 @@
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Menu;
+namespace MyHomeRamen.Domain.Menu.Categories;
 
 public readonly record struct CategoryId(Guid Value) : IEntityId
 {

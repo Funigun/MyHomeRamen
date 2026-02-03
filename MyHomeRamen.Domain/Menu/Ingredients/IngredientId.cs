@@ -1,7 +1,7 @@
 using System;
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Menu;
+namespace MyHomeRamen.Domain.Menu.Ingredients;
 
 public readonly record struct IngredientId(Guid Value) : IEntityId
 {

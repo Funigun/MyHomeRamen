@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Ingredients;
 
-namespace MyHomeRamen.Domain.Menu;
+namespace MyHomeRamen.Domain.Menu.Products;
 
 public sealed class Product : AuditableEntity, IEntity<ProductId>
 {
@@ -39,12 +41,16 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
     public static Product Create(ProductId id, string name, string description, decimal price, string imageUrl, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients, Collection<Category> categories)
     {
-        return new Product(id, baseIngredients, customIngredients, categories)
+        Product product = new(id, baseIngredients, customIngredients, categories)
         {
             Name = name,
             Description = description,
             Price = price,
             ImageUrl = imageUrl
         };
+
+        ProductValidator.ValidateProduct(product);
+
+        return product;
     }
 }

@@ -1,7 +1,8 @@
 using System.Collections.ObjectModel;
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Menu.Categories;
 
-namespace MyHomeRamen.Domain.Menu;
+namespace MyHomeRamen.Domain.Menu.Ingredients;
 
 public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 {
