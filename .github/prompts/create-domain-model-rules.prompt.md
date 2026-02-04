@@ -15,7 +15,6 @@ As we are working with modular monolith some models appear multiple times as the
 So the next step is to verify if rules for {DomainModel} already exist by performing following steps:
 - check if `Common/{DomainModel}Constants.cs` file exists
 - check if `Common/{DomainModel}Errors.cs` file exists
-- check if `Common/{DomainModel}Rules.cs` file exists
 
 If files exist, read them and extract rules from them and move to point 3, otherwise move to point 2.
 
