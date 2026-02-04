@@ -178,7 +178,7 @@ public class ProductValidationTests
         return Ingredient.Create(
             new IngredientId(Guid.NewGuid()),
             "Ingredient",
-            "Desc",
+            "Description",
             10.0m,
             []);
     }

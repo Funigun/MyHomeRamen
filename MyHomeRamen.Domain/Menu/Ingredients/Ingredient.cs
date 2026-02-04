@@ -30,11 +30,15 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 
     public static Ingredient Create(IngredientId id, string name, string description, decimal price, Collection<Category> categories)
     {
-        return new(id, categories)
+        Ingredient ingredient = new(id, categories)
         {
             Name = name,
             Description = description,
             Price = price
         };
+
+        IngredientValidator.Validate(ingredient);
+
+        return ingredient;
     }
 }
