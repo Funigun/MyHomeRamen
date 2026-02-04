@@ -23,11 +23,15 @@ public sealed class Category : AuditableEntity, IEntity<CategoryId>
 
     public static Category Create(CategoryId id, string name, int sortOrder, CategoryType categoryType)
     {
-        return new Category(id)
+        Category category = new(id)
         {
             Name = name,
             SortOrder = sortOrder,
             CategoryType = categoryType
         };
+
+        CategoryValidator.Validate(category);
+
+        return category;
     }
 }
