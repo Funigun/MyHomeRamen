@@ -54,6 +54,7 @@
     <File Path=".github/prompts/create-domain-event.prompt.md" />
     <File Path=".github/prompts/create-domain-model-id.prompt.md" />
     <File Path=".github/prompts/create-domain-model-rules.prompt.md" />
+    <File Path=".github/prompts/create-domain-model-unit-tests.prompt.md" />
     <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
