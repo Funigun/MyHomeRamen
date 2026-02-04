@@ -21,6 +21,7 @@ If files exist, read them and extract rules from them and move to point 3, other
 2) Create rules for {DomainModel}
 
 Perform following steps to create rules for {DomainModel}:
+	- if folder `{Module}/{DomainModelNamePlural}` does not exist, create it and move here {DomainModel}.cs and related files
 	- read `{Module}/{DomainModelNamePlural}/{DomainModel}.cs` file and extract all public properties with their types
 	- create `Common/{DomainModel}Constants.cs` file add constants related to {DomainModel} such:
 		- min/max length for string properties, 

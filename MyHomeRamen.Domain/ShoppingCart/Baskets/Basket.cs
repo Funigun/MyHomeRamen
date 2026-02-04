@@ -1,6 +1,7 @@
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.ShoppingCart.Products;
 
-namespace MyHomeRamen.Domain.ShoppingCart;
+namespace MyHomeRamen.Domain.ShoppingCart.Baskets;
 
 public sealed class Basket : AuditableEntity, IEntity<BasketId>
 {
@@ -24,6 +25,10 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
     public static Basket Create(BasketId id, User user)
     {
-        return new Basket(id, user);
+        Basket basket = new(id, user);
+
+        BasketValidator.Validate(basket);
+
+        return basket;
     }
 }

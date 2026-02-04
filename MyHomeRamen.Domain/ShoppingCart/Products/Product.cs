@@ -1,6 +1,7 @@
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 
-namespace MyHomeRamen.Domain.ShoppingCart;
+namespace MyHomeRamen.Domain.ShoppingCart.Products;
 
 public sealed class Product : AuditableEntity, IEntity<ProductId>
 {
@@ -35,13 +36,18 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         _customIngredients = customIngredients;
     }
 
-    public static Product Create(ProductId id, ProductId originalId, string description, decimal price, string imageUrl, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
+    public static Product Create(ProductId id, ProductId originalId, string name, string description, decimal price, string imageUrl, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
     {
-        return new Product(id, originalId, baseIngredients, customIngredients)
+        Product product = new(id, originalId, baseIngredients, customIngredients)
         {
+            Name = name,
             Description = description,
             Price = price,
             ImageUrl = imageUrl
         };
+
+        ProductValidator.Validate(product);
+
+        return product;
     }
 }

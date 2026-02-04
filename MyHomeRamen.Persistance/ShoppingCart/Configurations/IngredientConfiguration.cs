@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyHomeRamen.Domain.ShoppingCart;
+using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 
 namespace MyHomeRamen.Persistance.ShoppingCart.Configurations;
 

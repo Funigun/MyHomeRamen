@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.ShoppingCart;
+using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
+using MyHomeRamen.Domain.ShoppingCart.Ingredients;
+using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
