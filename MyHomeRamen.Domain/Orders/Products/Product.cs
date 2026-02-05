@@ -1,6 +1,9 @@
-﻿using MyHomeRamen.Api.Common.Domain;
+using System.Collections.Generic;
+using System.Linq;
+using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Orders.Ingredients;
 
-namespace MyHomeRamen.Domain.Orders;
+namespace MyHomeRamen.Domain.Orders.Products;
 
 public sealed class Product : AuditableEntity, IEntity<ProductId>
 {
@@ -37,12 +40,16 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
     public static Product Create(ProductId id, ProductId originalId, string name, string description, decimal price, string imageUrl, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
     {
-        return new Product(id, originalId, baseIngredients, customIngredients)
+        Product product = new(id, originalId, baseIngredients, customIngredients)
         {
             Name = name,
             Description = description,
             Price = price,
             ImageUrl = imageUrl
         };
+
+        ProductValidator.Validate(product);
+
+        return product;
     }
 }

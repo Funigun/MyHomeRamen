@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyHomeRamen.Domain.Orders;
+using MyHomeRamen.Domain.Orders.Orders;
 
 namespace MyHomeRamen.Persistance.Orders.Configurations;
 

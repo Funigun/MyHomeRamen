@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Domain.Orders;
+namespace MyHomeRamen.Domain.Orders.Orders;
 
 public enum OrderType
 {

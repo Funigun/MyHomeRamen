@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Orders.Products;
 
-namespace MyHomeRamen.Domain.Orders;
+namespace MyHomeRamen.Domain.Orders.Orders;
 
 public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 {
@@ -38,26 +40,38 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public static Order CreateDineIn(OrderId id, CustomerId customerId, PaymentId paymentId, IEnumerable<Product> productIds)
     {
-        return new(id, customerId, paymentId, productIds)
+        Order order = new(id, customerId, paymentId, productIds)
         {
             OrderType = OrderType.DineIn
         };
+
+        OrderValidator.Validate(order);
+
+        return order;
     }
 
     public static Order CreateTakeOut(OrderId id, CustomerId customerId, PaymentId paymentId, IEnumerable<Product> productIds)
     {
-        return new(id, customerId, paymentId, productIds)
+        Order order = new(id, customerId, paymentId, productIds)
         {
             OrderType = OrderType.TakeOut
         };
+
+        OrderValidator.Validate(order);
+
+        return order;
     }
 
     public static Order CreateDelivery(OrderId id, CustomerId customerId, PaymentId paymentId, IEnumerable<Product> productIds)
     {
-        return new(id, customerId, paymentId, productIds)
+        Order order = new(id, customerId, paymentId, productIds)
         {
             OrderType = OrderType.Delivery
         };
+
+        OrderValidator.Validate(order);
+
+        return order;
     }
 
     public void AddDomainEvent(IDomainEvent domainEvent)

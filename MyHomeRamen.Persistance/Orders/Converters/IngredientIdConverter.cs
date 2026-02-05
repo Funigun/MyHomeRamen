@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyHomeRamen.Domain.Orders;
+using MyHomeRamen.Domain.Orders.Ingredients;
 
 namespace MyHomeRamen.Persistance.Orders.Converters;
 

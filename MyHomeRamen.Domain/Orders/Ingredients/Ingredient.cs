@@ -1,6 +1,6 @@
-﻿using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Orders;
+namespace MyHomeRamen.Domain.Orders.Ingredients;
 
 public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 {
@@ -26,11 +26,15 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 
     public static Ingredient Create(IngredientId id, IngredientId originalId, string name, string description, decimal price)
     {
-        return new Ingredient(id, originalId)
+        Ingredient ingredient = new(id, originalId)
         {
             Name = name,
             Description = description,
             Price = price
         };
+
+        IngredientValidator.Validate(ingredient);
+
+        return ingredient;
     }
 }
