@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyHomeRamen.Domain.Reservations;
+using MyHomeRamen.Domain.Reservations.Bookings;
 
 namespace MyHomeRamen.Persistance.Reservations.Configurations;
 

@@ -1,7 +1,7 @@
 using System;
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Reservations;
+namespace MyHomeRamen.Domain.Reservations.Tables;
 
 public readonly record struct TableId(Guid Value) : IEntityId
 {

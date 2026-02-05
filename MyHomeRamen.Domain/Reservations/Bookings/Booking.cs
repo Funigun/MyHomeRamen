@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Reservations.Tables;
 
-namespace MyHomeRamen.Domain.Reservations;
+namespace MyHomeRamen.Domain.Reservations.Bookings;
 
 public sealed class Booking : AuditableEntity, IEntity<BookingId>
 {
@@ -25,10 +27,14 @@ public sealed class Booking : AuditableEntity, IEntity<BookingId>
 
     public static Booking Create(BookingId id, IEnumerable<Table> tables)
     {
-        return new Booking(id, tables)
+        Booking booking = new(id, tables)
         {
             Status = BookingStatus.Created
         };
+
+        BookingValidator.Validate(booking);
+
+        return booking;
     }
 
     public void Confirm()

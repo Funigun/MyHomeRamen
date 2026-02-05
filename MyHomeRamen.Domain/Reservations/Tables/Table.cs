@@ -1,6 +1,6 @@
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Reservations;
+namespace MyHomeRamen.Domain.Reservations.Tables;
 
 public sealed class Table : AuditableEntity, IEntity<TableId>
 {
@@ -23,11 +23,15 @@ public sealed class Table : AuditableEntity, IEntity<TableId>
 
     public static Table Create(TableId id, int tableNumber, int minNumberOfSeats, int maxNumberOfSeats)
     {
-        return new Table(id)
+        Table table = new(id)
         {
             TableNumber = tableNumber,
             MinNumberOfSeats = minNumberOfSeats,
             MaxNumberOfSeats = maxNumberOfSeats
         };
+
+        TableValidator.Validate(table);
+
+        return table;
     }
 }

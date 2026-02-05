@@ -1,7 +1,7 @@
 using System;
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Reservations;
+namespace MyHomeRamen.Domain.Reservations.Bookings;
 
 public readonly record struct BookingId(Guid Value) : IEntityId
 {

@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Domain.Reservations;
+namespace MyHomeRamen.Domain.Reservations.Bookings;
 
 public enum BookingStatus
 {
