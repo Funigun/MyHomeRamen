@@ -1,6 +1,3 @@
-using System;
-using Xunit;
-
 namespace MyHomeRamen.UnitTests.ShoppingCartModule.Ingredients;
 
 public class IngredientTests

@@ -1,8 +1,6 @@
-using System;
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Payment;
 using MyHomeRamen.Domain.Payments.Payments;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.PaymentsModule.Payments;
 

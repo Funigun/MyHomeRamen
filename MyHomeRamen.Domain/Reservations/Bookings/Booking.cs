@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Reservations.Tables;

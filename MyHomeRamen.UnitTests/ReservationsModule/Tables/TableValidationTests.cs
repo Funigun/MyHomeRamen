@@ -1,8 +1,6 @@
-using System;
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Table;
 using MyHomeRamen.Domain.Reservations.Tables;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.ReservationsModule.Tables;
 

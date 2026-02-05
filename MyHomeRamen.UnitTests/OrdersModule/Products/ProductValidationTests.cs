@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Orders.Ingredients;
 using MyHomeRamen.Domain.Orders.Products;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.OrdersModule.Products;
 

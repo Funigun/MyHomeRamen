@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Orders.Products;
 

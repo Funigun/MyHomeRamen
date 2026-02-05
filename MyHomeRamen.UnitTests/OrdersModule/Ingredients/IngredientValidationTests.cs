@@ -1,8 +1,6 @@
-using System;
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Ingredient;
 using MyHomeRamen.Domain.Orders.Ingredients;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.OrdersModule.Ingredients;
 

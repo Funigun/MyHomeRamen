@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.PaymentGroup;
 using MyHomeRamen.Domain.Payments.PaymentGroups;
 using MyHomeRamen.Domain.Payments.PaymentProviders;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.PaymentsModule.PaymentGroups;
 

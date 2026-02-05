@@ -1,4 +1,3 @@
-using System.Linq;
 using MyHomeRamen.Domain.Common.Order;
 
 namespace MyHomeRamen.Domain.Orders.Orders;

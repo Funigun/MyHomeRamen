@@ -1,4 +1,3 @@
-using System.Net;
 using MyHomeRamen.Api.Common.Domain;
 
 namespace MyHomeRamen.Domain.ShoppingCart;

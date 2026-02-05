@@ -1,4 +1,3 @@
-using System;
 using MyHomeRamen.Api.Common.Domain;
 
 namespace MyHomeRamen.Domain.Orders.Products;

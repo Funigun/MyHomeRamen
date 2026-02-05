@@ -1,8 +1,6 @@
-using System;
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Order;
 using MyHomeRamen.Domain.Payments.Orders;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.PaymentsModule.Orders;
 

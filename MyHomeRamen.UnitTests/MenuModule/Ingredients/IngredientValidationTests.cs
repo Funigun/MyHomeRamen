@@ -3,7 +3,6 @@ using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Ingredient;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.MenuModule.Ingredients;
 
