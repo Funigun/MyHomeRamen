@@ -103,7 +103,7 @@ public class OrderValidationTests
             new ProductId(Guid.NewGuid()),
             new ProductId(Guid.NewGuid()),
             "Delicious Ramen",
-            "Tasty Ramen Description that is long enough",
+            "Tasty Ramen Description that is long enough to meet the minimum length requirement.",
             25.0m,
             "http://example.com/image.jpg",
             [],

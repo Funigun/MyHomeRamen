@@ -1,6 +1,6 @@
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Payments;
+namespace MyHomeRamen.Domain.Payments.Payments;
 
 public sealed class Payment : AuditableEntity, IEntity<PaymentId>
 {
@@ -21,10 +21,14 @@ public sealed class Payment : AuditableEntity, IEntity<PaymentId>
 
     public static Payment Create(PaymentId id, string name, string imageUrl)
     {
-        return new Payment(id)
+        Payment payment = new(id)
         {
             Name = name,
             ImageUrl = imageUrl
         };
+
+        PaymentValidator.Validate(payment);
+
+        return payment;
     }
 }

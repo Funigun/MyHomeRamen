@@ -1,7 +1,7 @@
 using System;
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Payments;
+namespace MyHomeRamen.Domain.Payments.Orders;
 
 public readonly record struct OrderId(Guid Value) : IEntityId
 {

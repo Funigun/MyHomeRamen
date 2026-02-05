@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Payments;
 using MyHomeRamen.Domain.Payments.Database;
+using MyHomeRamen.Domain.Payments.Orders;
+using MyHomeRamen.Domain.Payments.Payments;
 using MyHomeRamen.Persistance.Payments.Converters;
 
 namespace MyHomeRamen.Persistance.Payments;

@@ -1,6 +1,6 @@
 using MyHomeRamen.Api.Common.Domain;
 
-namespace MyHomeRamen.Domain.Payments;
+namespace MyHomeRamen.Domain.Payments.Orders;
 
 public sealed class Order : AuditableEntity, IEntity<OrderId>
 {
@@ -22,9 +22,13 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>
 
     public static Order Create(OrderId id, OrderId originalId, decimal amount)
     {
-        return new Order(id, originalId)
+        Order order = new(id, originalId)
         {
             Amount = amount
         };
+
+        OrderValidator.Validate(order);
+
+        return order;
     }
 }
