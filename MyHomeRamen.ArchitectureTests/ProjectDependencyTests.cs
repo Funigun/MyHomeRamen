@@ -67,7 +67,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper) : Bas
             .Select(t =>
             {
                 // If the type is in the allowed namespace or a child of it, it is not forbidden.
-                if (allowedNamespace.Contains(t.Namespace) || t.Namespace!.StartsWith($"{allowedNamespace}."))
+                if (allowedNamespace.Any(ns => t.Namespace == ns || t.Namespace!.StartsWith(ns + ".", StringComparison.Ordinal)))
                 {
                     return null;
                 }
