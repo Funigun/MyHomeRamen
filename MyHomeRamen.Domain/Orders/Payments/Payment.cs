@@ -1,6 +1,6 @@
 ﻿using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Orders.Orders;
 using MyHomeRamen.Domain.Orders.Products;
-using MyHomeRamen.Domain.Payments.Orders;
 
 namespace MyHomeRamen.Domain.Orders.Payments;
 

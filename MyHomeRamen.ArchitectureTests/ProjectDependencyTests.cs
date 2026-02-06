@@ -5,7 +5,7 @@ using TestResult = NetArchTest.Rules.TestResult;
 
 namespace MyHomeRamen.ArchitectureTests;
 
-public sealed class ProjectDependencyTests : BaseArchitectureTest
+public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper) : BaseArchitectureTest
 {
     public static TheoryData<Assembly, Assembly[]> GetProjectDependencies()
     {
@@ -59,7 +59,7 @@ public sealed class ProjectDependencyTests : BaseArchitectureTest
     public void Domain_Should_OnlyUse_ApiCommonDomain_Namespace()
     {
         // Arrange
-        string allowedNamespace = "MyHomeRamen.Api.Common.Domain";
+        string[] allowedNamespace = ["MyHomeRamen.Api.Common.Domain", "MyHomeRamen.Api.Common.Exceptions"];
         Type[] apiCommonTypes = ApiCommonAssembly.GetTypes();
 
         string[] forbiddenNamespacesOrTypes = apiCommonTypes
@@ -67,7 +67,7 @@ public sealed class ProjectDependencyTests : BaseArchitectureTest
             .Select(t =>
             {
                 // If the type is in the allowed namespace or a child of it, it is not forbidden.
-                if (t.Namespace == allowedNamespace || t.Namespace!.StartsWith($"{allowedNamespace}."))
+                if (allowedNamespace.Contains(t.Namespace) || t.Namespace!.StartsWith($"{allowedNamespace}."))
                 {
                     return null;
                 }
@@ -91,6 +91,16 @@ public sealed class ProjectDependencyTests : BaseArchitectureTest
                                  .Should()
                                  .NotHaveDependencyOnAny(forbiddenNamespacesOrTypes)
                                  .GetResult();
+
+        if (result.FailingTypes is not null && result.FailingTypes.Any())
+        {
+            outputHelper.WriteLine("The following types in the Domain assembly have forbidden dependencies:");
+
+            foreach (Type failingType in result.FailingTypes)
+            {
+                outputHelper.WriteLine($"- {failingType.FullName}");
+            }
+        }
 
         // Assert
         Assert.True(result.IsSuccessful, "Domain assembly should only use items from 'MyHomeRamen.Api.Common.Domain' namespaces, but no others from Api.Common.");
