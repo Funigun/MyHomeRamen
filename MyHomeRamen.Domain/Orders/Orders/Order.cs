@@ -1,4 +1,5 @@
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Orders.Payments;
 using MyHomeRamen.Domain.Orders.Products;
 
 namespace MyHomeRamen.Domain.Orders.Orders;
@@ -6,6 +7,7 @@ namespace MyHomeRamen.Domain.Orders.Orders;
 public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 {
     private readonly List<Product> _productIds = [];
+    private readonly List<Payment> _payments = [];
     private readonly List<IDomainEvent> _events = [];
 
     public OrderId Id { get; private set; }
@@ -14,13 +16,19 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public CustomerId CustomerId { get; private set; }
 
-    public PaymentId PaymentId { get; private set; }
+    public OrderType Type { get; private set; }
 
-    public OrderType OrderType { get; private set; }
+    public OrderStatus Status { get; private set; }
+
+    public decimal TotalOriginalAmount { get; private set; }
+
+    public decimal TotalCalculatedAmount { get; private set; }
 
     public User User { get; private set; }
 
     public IReadOnlyList<Product> ProductId => _productIds.ToList();
+
+    public IReadOnlyList<Payment> Payments => _payments.ToList();
 
     public IReadOnlyList<IDomainEvent> Events => _events.ToList();
 
@@ -28,20 +36,21 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
     {
     }
 
-    private Order(OrderId id, CustomerId customerId, PaymentId paymentId, IEnumerable<Product> productIds)
+    private Order(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
     {
         Id = id;
         ReferenceNumber = Guid.CreateVersion7();
         CustomerId = customerId;
-        PaymentId = paymentId;
+        TotalOriginalAmount = productIds.Sum(p => p.OriginalPrice);
+        Status = OrderStatus.Created;
         _productIds.AddRange(productIds);
     }
 
-    public static Order CreateDineIn(OrderId id, CustomerId customerId, PaymentId paymentId, IEnumerable<Product> productIds)
+    public static Order CreateDineIn(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, paymentId, productIds)
+        Order order = new(id, customerId, productIds)
         {
-            OrderType = OrderType.DineIn
+            Type = OrderType.DineIn
         };
 
         OrderValidator.Validate(order);
@@ -49,11 +58,11 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         return order;
     }
 
-    public static Order CreateTakeOut(OrderId id, CustomerId customerId, PaymentId paymentId, IEnumerable<Product> productIds)
+    public static Order CreateTakeOut(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, paymentId, productIds)
+        Order order = new(id, customerId, productIds)
         {
-            OrderType = OrderType.TakeOut
+            Type = OrderType.TakeOut
         };
 
         OrderValidator.Validate(order);
@@ -61,11 +70,11 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         return order;
     }
 
-    public static Order CreateDelivery(OrderId id, CustomerId customerId, PaymentId paymentId, IEnumerable<Product> productIds)
+    public static Order CreateDelivery(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, paymentId, productIds)
+        Order order = new(id, customerId, productIds)
         {
-            OrderType = OrderType.Delivery
+            Type = OrderType.Delivery
         };
 
         OrderValidator.Validate(order);

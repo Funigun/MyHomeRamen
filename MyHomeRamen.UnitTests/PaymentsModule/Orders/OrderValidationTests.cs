@@ -26,7 +26,7 @@ public class OrderValidationTests
     public void Create_Should_ThrowDomainException_When_AmountIsTooSmall()
     {
         // Arrange
-        decimal amount = OrderConstants.MinAmount - 0.01m;
+        decimal amount = OrderConstants.MinTotalAmount - 0.01m;
 
         // Act & Assert
         DomainException exception = Assert.Throws<DomainException>(() => CreateOrder(amount: amount));
@@ -37,7 +37,7 @@ public class OrderValidationTests
     public void Create_Should_ThrowDomainException_When_AmountIsTooLarge()
     {
         // Arrange
-        decimal amount = OrderConstants.MaxAmount + 0.01m;
+        decimal amount = OrderConstants.MaxTotalAmount + 0.01m;
 
         // Act & Assert
         DomainException exception = Assert.Throws<DomainException>(() => CreateOrder(amount: amount));

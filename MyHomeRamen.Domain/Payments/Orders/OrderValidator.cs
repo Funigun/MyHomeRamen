@@ -11,12 +11,12 @@ internal static class OrderValidator
 
     private static void CheckAmount(Order order)
     {
-        if (order.Amount < OrderConstants.MinAmount)
+        if (order.Amount < OrderConstants.MinTotalAmount)
         {
             throw OrderErrors.AmountTooSmall();
         }
 
-        if (order.Amount > OrderConstants.MaxAmount)
+        if (order.Amount > OrderConstants.MaxTotalAmount)
         {
             throw OrderErrors.AmountTooLarge();
         }

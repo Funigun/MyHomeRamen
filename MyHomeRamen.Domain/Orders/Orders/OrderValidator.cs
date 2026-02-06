@@ -7,6 +7,8 @@ internal static class OrderValidator
     internal static void Validate(Order order)
     {
         CheckProducts(order);
+        CheckAmount(order);
+        CheckDeliveryFee(order);
     }
 
     private static void CheckProducts(Order order)
@@ -19,6 +21,27 @@ internal static class OrderValidator
         if (order.ProductId.Count > OrderConstants.MaxProductsCount)
         {
             throw OrderErrors.TooManyProducts();
+        }
+    }
+
+    private static void CheckAmount(Order order)
+    {
+        if (order.TotalOriginalAmount < OrderConstants.MinTotalAmount)
+        {
+            throw OrderErrors.AmountTooSmall();
+        }
+
+        if (order.TotalOriginalAmount > OrderConstants.MaxTotalAmount)
+        {
+            throw OrderErrors.AmountTooLarge();
+        }
+    }
+
+    private static void CheckDeliveryFee(Order order)
+    {
+        if (order.Type == OrderType.Delivery && order.TotalOriginalAmount < OrderConstants.MinDeliveryAmount)
+        {
+            throw OrderErrors.DeliveryAmountTooSmall();
         }
     }
 }

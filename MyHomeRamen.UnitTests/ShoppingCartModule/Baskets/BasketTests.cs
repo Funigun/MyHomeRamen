@@ -10,7 +10,7 @@ public class BasketTests
     {
         // Arrange
         decimal basketMaxValue = BasketConstants.MaxTotalPrice;
-        decimal orderMaxValue = OrderConstants.MaxAmount;
+        decimal orderMaxValue = OrderConstants.MaxTotalAmount;
 
         // Act & Assert
         Assert.Equal(basketMaxValue, orderMaxValue);

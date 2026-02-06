@@ -10,7 +10,6 @@ public class OrderValidationTests
 {
     private static readonly OrderId DefaultId = new(Guid.NewGuid());
     private static readonly CustomerId DefaultCustomerId = new(Guid.NewGuid());
-    private static readonly PaymentId DefaultPaymentId = new(Guid.NewGuid());
 
     [Fact]
     public void CreateDineIn_Should_SetPropertiesCorrectly_When_InputIsValid()
@@ -20,14 +19,13 @@ public class OrderValidationTests
         List<Product> products = [product];
 
         // Act
-        Order order = Order.CreateDineIn(DefaultId, DefaultCustomerId, DefaultPaymentId, products);
+        Order order = Order.CreateDineIn(DefaultId, DefaultCustomerId, products);
 
         // Assert
         Assert.Equal(DefaultId, order.Id);
         Assert.Equal(DefaultCustomerId, order.CustomerId);
-        Assert.Equal(DefaultPaymentId, order.PaymentId);
         Assert.Equal(products, order.ProductId);
-        Assert.Equal(OrderType.DineIn, order.OrderType);
+        Assert.Equal(OrderType.DineIn, order.Type);
         Assert.NotEqual(Guid.Empty, order.ReferenceNumber);
     }
 
@@ -39,14 +37,13 @@ public class OrderValidationTests
         List<Product> products = [product];
 
         // Act
-        Order order = Order.CreateTakeOut(DefaultId, DefaultCustomerId, DefaultPaymentId, products);
+        Order order = Order.CreateTakeOut(DefaultId, DefaultCustomerId, products);
 
         // Assert
         Assert.Equal(DefaultId, order.Id);
         Assert.Equal(DefaultCustomerId, order.CustomerId);
-        Assert.Equal(DefaultPaymentId, order.PaymentId);
         Assert.Equal(products, order.ProductId);
-        Assert.Equal(OrderType.TakeOut, order.OrderType);
+        Assert.Equal(OrderType.TakeOut, order.Type);
         Assert.NotEqual(Guid.Empty, order.ReferenceNumber);
     }
 
@@ -58,14 +55,13 @@ public class OrderValidationTests
         List<Product> products = [product];
 
         // Act
-        Order order = Order.CreateDelivery(DefaultId, DefaultCustomerId, DefaultPaymentId, products);
+        Order order = Order.CreateDelivery(DefaultId, DefaultCustomerId, products);
 
         // Assert
         Assert.Equal(DefaultId, order.Id);
         Assert.Equal(DefaultCustomerId, order.CustomerId);
-        Assert.Equal(DefaultPaymentId, order.PaymentId);
         Assert.Equal(products, order.ProductId);
-        Assert.Equal(OrderType.Delivery, order.OrderType);
+        Assert.Equal(OrderType.Delivery, order.Type);
         Assert.NotEqual(Guid.Empty, order.ReferenceNumber);
     }
 
@@ -76,7 +72,7 @@ public class OrderValidationTests
         List<Product> products = [];
 
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Order.CreateDineIn(DefaultId, DefaultCustomerId, DefaultPaymentId, products));
+        DomainException exception = Assert.Throws<DomainException>(() => Order.CreateDineIn(DefaultId, DefaultCustomerId, products));
         Assert.Equal(OrderErrors.OrderMustHaveProducts().Message, exception.Message);
     }
 
@@ -89,8 +85,44 @@ public class OrderValidationTests
             .ToList();
 
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Order.CreateDineIn(DefaultId, DefaultCustomerId, DefaultPaymentId, products));
+        DomainException exception = Assert.Throws<DomainException>(() => Order.CreateDineIn(DefaultId, DefaultCustomerId, products));
         Assert.Equal(OrderErrors.TooManyProducts().Message, exception.Message);
+    }
+
+    [Fact]
+    public void Create_Should_ThrowDomainException_When_AmountIsTooSmallForDelivery()
+    {
+        // Arrange
+        Product product = CreateInvalidProductForDelivery();
+        List<Product> products = [product];
+
+        // Act & Assert
+        DomainException exception = Assert.Throws<DomainException>(() => Order.CreateDelivery(DefaultId, DefaultCustomerId, products));
+        Assert.Equal(OrderErrors.DeliveryAmountTooSmall().Message, exception.Message);
+    }
+
+    [Fact]
+    public void Create_Should_ThrowDomainException_When_AmountIsTooHigh()
+    {
+        // Arrange
+        Product product = CreateProduct();
+        int numberOfProducts = (int)(OrderConstants.MaxTotalAmount / product.OriginalPrice) + 1;
+        List<Product> products = [];
+
+        for (int i = 0; i < numberOfProducts; i++)
+        {
+            products.Add(product);
+        }
+
+        // Act & Assert
+        DomainException exception = Assert.Throws<DomainException>(() => Order.CreateDelivery(DefaultId, DefaultCustomerId, products));
+        Assert.Equal(OrderErrors.AmountTooLarge().Message, exception.Message);
+
+        exception = Assert.Throws<DomainException>(() => Order.CreateDineIn(DefaultId, DefaultCustomerId, products));
+        Assert.Equal(OrderErrors.AmountTooLarge().Message, exception.Message);
+
+        exception = Assert.Throws<DomainException>(() => Order.CreateTakeOut(DefaultId, DefaultCustomerId, products));
+        Assert.Equal(OrderErrors.AmountTooLarge().Message, exception.Message);
     }
 
     private static Product CreateProduct()
@@ -99,8 +131,19 @@ public class OrderValidationTests
             new ProductId(Guid.NewGuid()),
             new ProductId(Guid.NewGuid()),
             "Delicious Ramen",
-            "Tasty Ramen Description that is long enough to meet the minimum length requirement.",
-            25.0m,
+            OrderConstants.MinDeliveryAmount,
+            "http://example.com/image.jpg",
+            [],
+            []);
+    }
+
+    private static Product CreateInvalidProductForDelivery()
+    {
+        return Product.Create(
+            new ProductId(Guid.NewGuid()),
+            new ProductId(Guid.NewGuid()),
+            "Delicious Ramen",
+            OrderConstants.MinDeliveryAmount - 0.1m,
             "http://example.com/image.jpg",
             [],
             []);

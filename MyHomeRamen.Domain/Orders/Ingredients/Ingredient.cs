@@ -10,9 +10,9 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 
     public string Name { get; private set; } = string.Empty;
 
-    public string Description { get; private set; } = string.Empty;
+    public decimal OriginalPrice { get; private set; }
 
-    public decimal Price { get; private set; }
+    public decimal CalculatedPrice { get; private set; }
 
     private Ingredient()
     {
@@ -24,13 +24,12 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
         OriginalId = originalId;
     }
 
-    public static Ingredient Create(IngredientId id, IngredientId originalId, string name, string description, decimal price)
+    public static Ingredient Create(IngredientId id, IngredientId originalId, string name, decimal price)
     {
         Ingredient ingredient = new(id, originalId)
         {
             Name = name,
-            Description = description,
-            Price = price
+            OriginalPrice = price
         };
 
         IngredientValidator.Validate(ingredient);

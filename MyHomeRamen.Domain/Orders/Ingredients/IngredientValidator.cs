@@ -7,7 +7,6 @@ internal static class IngredientValidator
     internal static void Validate(Ingredient ingredient)
     {
         CheckName(ingredient);
-        CheckDescription(ingredient);
         CheckPrice(ingredient);
     }
 
@@ -24,27 +23,14 @@ internal static class IngredientValidator
         }
     }
 
-    private static void CheckDescription(Ingredient ingredient)
-    {
-        if (ingredient.Description.Length < IngredientConstants.MinDescriptionLength)
-        {
-            throw IngredientErrors.DescriptionTooShort();
-        }
-
-        if (ingredient.Description.Length > IngredientConstants.MaxDescriptionLength)
-        {
-            throw IngredientErrors.DescriptionTooLong();
-        }
-    }
-
     private static void CheckPrice(Ingredient ingredient)
     {
-        if (ingredient.Price < IngredientConstants.MinPrice)
+        if (ingredient.OriginalPrice < IngredientConstants.MinPrice)
         {
             throw IngredientErrors.PriceTooSmall();
         }
 
-        if (ingredient.Price > IngredientConstants.MaxPrice)
+        if (ingredient.OriginalPrice > IngredientConstants.MaxPrice)
         {
             throw IngredientErrors.PriceTooHigh();
         }

@@ -7,7 +7,6 @@ internal static class ProductValidator
     internal static void Validate(Product product)
     {
         CheckName(product);
-        CheckDescription(product);
         CheckPrice(product);
         CheckIngredients(product);
     }
@@ -25,27 +24,14 @@ internal static class ProductValidator
         }
     }
 
-    private static void CheckDescription(Product product)
-    {
-        if (product.Description.Length < ProductConstants.MinDescriptionLength)
-        {
-            throw ProductErrors.DescriptionTooShort();
-        }
-
-        if (product.Description.Length > ProductConstants.MaxDescriptionLength)
-        {
-            throw ProductErrors.DescriptionTooLong();
-        }
-    }
-
     private static void CheckPrice(Product product)
     {
-        if (product.Price < ProductConstants.MinPrice)
+        if (product.OriginalPrice < ProductConstants.MinPrice)
         {
             throw ProductErrors.PriceTooSmall();
         }
 
-        if (product.Price > ProductConstants.MaxPrice)
+        if (product.OriginalPrice > ProductConstants.MaxPrice)
         {
             throw ProductErrors.PriceTooHigh();
         }

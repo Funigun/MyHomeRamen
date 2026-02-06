@@ -10,7 +10,6 @@ public class ProductValidationTests
     private static readonly ProductId DefaultId = new(Guid.NewGuid());
     private static readonly ProductId DefaultOriginalId = new(Guid.NewGuid());
     private const string DefaultName = "Delicious Ramen";
-    private const string DefaultDescription = "A very tasty ramen bowl that makes everyone happy and full.";
     private const decimal DefaultPrice = 25.0m;
     private const string DefaultImageUrl = "http://example.com/ramen.png";
 
@@ -22,14 +21,13 @@ public class ProductValidationTests
         List<Ingredient> customIngredients = [];
 
         // Act
-        Product product = Product.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultDescription, DefaultPrice, DefaultImageUrl, baseIngredients, customIngredients);
+        Product product = Product.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultPrice, DefaultImageUrl, baseIngredients, customIngredients);
 
         // Assert
         Assert.Equal(DefaultId, product.Id);
         Assert.Equal(DefaultOriginalId, product.OriginalId);
         Assert.Equal(DefaultName, product.Name);
-        Assert.Equal(DefaultDescription, product.Description);
-        Assert.Equal(DefaultPrice, product.Price);
+        Assert.Equal(DefaultPrice, product.OriginalPrice);
         Assert.Equal(DefaultImageUrl, product.ImageUrl);
         Assert.Equal(baseIngredients, product.BaseIngredients);
         Assert.Equal(customIngredients, product.CustomIngredients);
@@ -55,28 +53,6 @@ public class ProductValidationTests
         // Act & Assert
         DomainException exception = Assert.Throws<DomainException>(() => CreateProduct(name: name));
         Assert.Equal(ProductErrors.NameTooLong().Message, exception.Message);
-    }
-
-    [Fact]
-    public void Create_Should_ThrowDomainException_When_DescriptionIsTooShort()
-    {
-        // Arrange
-        string description = new('a', ProductConstants.MinDescriptionLength - 1);
-
-        // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => CreateProduct(description: description));
-        Assert.Equal(ProductErrors.DescriptionTooShort().Message, exception.Message);
-    }
-
-    [Fact]
-    public void Create_Should_ThrowDomainException_When_DescriptionIsTooLong()
-    {
-        // Arrange
-        string description = new('a', ProductConstants.MaxDescriptionLength + 1);
-
-        // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => CreateProduct(description: description));
-        Assert.Equal(ProductErrors.DescriptionTooLong().Message, exception.Message);
     }
 
     [Fact]
@@ -127,7 +103,6 @@ public class ProductValidationTests
 
     private static Product CreateProduct(
         string? name = null,
-        string? description = null,
         decimal? price = null,
         List<Ingredient>? baseIngredients = null,
         List<Ingredient>? customIngredients = null)
@@ -136,7 +111,6 @@ public class ProductValidationTests
             DefaultId,
             DefaultOriginalId,
             name ?? DefaultName,
-            description ?? DefaultDescription,
             price ?? DefaultPrice,
             DefaultImageUrl,
             baseIngredients ?? [],
@@ -149,7 +123,6 @@ public class ProductValidationTests
             new IngredientId(Guid.NewGuid()),
             new IngredientId(Guid.NewGuid()),
             "Ingredient",
-            "Description",
             10.0m);
     }
 }

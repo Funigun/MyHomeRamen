@@ -10,7 +10,7 @@ public static class ProductConstants
 
     public const int MaxDescriptionLength = 500;
 
-    public const decimal MinPrice = 0.0m;
+    public const decimal MinPrice = 0.5m;
 
     public const decimal MaxPrice = 100.0m;
 }
