@@ -16,7 +16,7 @@ public sealed class BasketModuleBoundriesTests : BaseArchitectureTest
         // Act
         TestResult result = Types.InAssembly(DomainAssembly)
                                  .That()
-                                 .ResideInNamespace("MyHomeRamen.Domain.Basket")
+                                 .ResideInNamespace("MyHomeRamen.Domain.ShoppingCart")
                                  .ShouldNot()
                                  .HaveDependencyOnAny(forbiddenModules)
                                  .GetResult();

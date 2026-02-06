@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyHomeRamen.Domain.Orders;
+using MyHomeRamen.Domain.Orders.Payments;
 
 namespace MyHomeRamen.Persistance.Orders.Converters;
 

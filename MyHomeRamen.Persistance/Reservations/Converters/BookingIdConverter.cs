@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyHomeRamen.Domain.Reservations;
+using MyHomeRamen.Domain.Reservations.Bookings;
 
 namespace MyHomeRamen.Persistance.Reservations.Converters;
 
