@@ -11,7 +11,7 @@ public sealed class PaymentsModuleBoundriesTests : BaseArchitectureTest
     {
         // Arrange
         string[]? forbiddenModules = ["MyHomeRamen.Domain.Menu", "MyHomeRamen.Domain.Orders",
-                                             "MyHomeRamen.Domain.Reservations", "MyHomeRamen.Domain.Basket"];
+                                             "MyHomeRamen.Domain.Reservations", "MyHomeRamen.Domain.ShoppingCart"];
 
         // Act
         TestResult result = Types.InAssembly(DomainAssembly)

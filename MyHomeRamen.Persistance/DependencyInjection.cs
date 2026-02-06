@@ -2,11 +2,11 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Persistance.Basket;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
 using MyHomeRamen.Persistance.Reservations;
+using MyHomeRamen.Persistance.ShoppingCart;
 
 namespace MyHomeRamen.Persistance;
 

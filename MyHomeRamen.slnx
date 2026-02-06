@@ -41,18 +41,20 @@
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
-    <File Path=".github/instructions/basket.instructions.md" />
     <File Path=".github/instructions/blazor.instructions.md" />
     <File Path=".github/instructions/menu.instructions.md" />
     <File Path=".github/instructions/orders.instructions.md" />
     <File Path=".github/instructions/payments.instructions.md" />
     <File Path=".github/instructions/reservations.instructions.md" />
+    <File Path=".github/instructions/shoppingCart.instructions.md" />
     <File Path=".github/instructions/users.instructions.md" />
   </Folder>
   <Folder Name="/_github/prompts/">
     <File Path=".github/prompts/create-domain-db-context.prompt.md" />
     <File Path=".github/prompts/create-domain-event.prompt.md" />
     <File Path=".github/prompts/create-domain-model-id.prompt.md" />
+    <File Path=".github/prompts/create-domain-model-rules.prompt.md" />
+    <File Path=".github/prompts/create-domain-model-unit-tests.prompt.md" />
     <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
@@ -61,9 +63,6 @@
     <File Path="Wiki/Architecture/adr-0001-modular-monolith-architecture.md" />
     <File Path="Wiki/Architecture/adr-0002-aspire-orchestration.md" />
     <File Path="Wiki/Architecture/adr-0003-module-specific-database-contexts.md" />
-  </Folder>
-  <Folder Name="/_wiki/Basket/">
-    <File Path="Wiki/Basket ADR/0001-basket-domain.md" />
   </Folder>
   <Folder Name="/_wiki/Menu/">
     <File Path="Wiki/Menu ADR/0001-menu-domain.md" />
@@ -76,6 +75,9 @@
   </Folder>
   <Folder Name="/_wiki/Reservations/">
     <File Path="Wiki/Reservations ADR/0001-reservations-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Shopping Cart/">
+    <File Path="Wiki/Shopping Cart ADR/0001-shopping-cart-domain.md" />
   </Folder>
   <Folder Name="/_wiki/Users/">
     <File Path="Wiki/Users ADR/0001-users-domain.md" />

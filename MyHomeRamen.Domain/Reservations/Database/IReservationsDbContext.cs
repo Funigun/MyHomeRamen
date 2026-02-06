@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Reservations.Bookings;
+using MyHomeRamen.Domain.Reservations.Tables;
 
 namespace MyHomeRamen.Domain.Reservations.Database;
 

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyHomeRamen.Domain.Menu;
+using MyHomeRamen.Domain.Menu.Products;
 
 namespace MyHomeRamen.Persistance.Menu.Converters;
 
