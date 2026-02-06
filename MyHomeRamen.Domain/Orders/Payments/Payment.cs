@@ -8,7 +8,7 @@ public sealed class Payment : AuditableEntity, IEntity<PaymentId>
 {
     private readonly List<Product> _productIds = [];
 
-    public PaymentId Id { get; }
+    public PaymentId Id { get; private set; }
 
     public Guid ReferenceNumber { get; private set; }
 

@@ -3,7 +3,7 @@
 public static class ProductErrors
 {
     public static DomainException NameTooShort()
-        => new($"Product name is too short. Minimum length is {ProductConstants.MaxNameLength}");
+        => new($"Product name is too short. Minimum length is {ProductConstants.MinNameLength}");
 
     public static DomainException NameTooLong()
         => new($"Product name exceeds maximum length of {ProductConstants.MaxNameLength}");
@@ -15,7 +15,7 @@ public static class ProductErrors
         => new($"Product description exceeds maximum length of {ProductConstants.MaxDescriptionLength}");
 
     public static DomainException PriceTooSmall()
-        => new($"Product price can not be negative");
+        => new($"Product price can not be smaller than {ProductConstants.MinPrice}");
 
     public static DomainException PriceTooHigh()
         => new($"Product price can not be greater than {ProductConstants.MaxPrice}");
