@@ -1,44 +1,46 @@
+using Microsoft.Extensions.Configuration;
+
 namespace MyHomeRamen.AppHost.InfrastructureConfiguration;
 
 internal static class ProjectRegistrationExtensions
 {
-    public static IResourceBuilder<ProjectResource> AddApiService(this IDistributedApplicationBuilder builder, string resourcePrefix, IResourceBuilder<RedisResource> cache, IResourceBuilder<RabbitMQServerResource> rabbitmq)
-    {
-        return builder.AddProject<Projects.MyHomeRamen_Api>($"{resourcePrefix}api")
-                      .WithHttpHealthCheck("/health")
-                      .WithReference(cache)
-                      .WaitFor(cache)
-                      .WaitFor(rabbitmq)
-                      .WithReference(rabbitmq);
-    }
+    private const string ApplicationNameSetting = "CustomConfig:ApplicationName";
 
-    public static IResourceBuilder<ProjectResource> AddIdentityApiService(this IDistributedApplicationBuilder builder, string resourcePrefix)
+    public static IResourceBuilder<ProjectResource> AddApiService(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        return builder.AddProject<Projects.MyHomeRamen_Identity_Api>($"{resourcePrefix}identity-api")
+        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
+
+        return builder.AddProject<Projects.MyHomeRamen_Api>($"{applicationName}-api")
                       .WithHttpHealthCheck("/health");
     }
 
-    public static IResourceBuilder<ProjectResource> AddBlazor(this IDistributedApplicationBuilder builder, string resourcePrefix, IResourceBuilder<RedisResource> cache, IResourceBuilder<ProjectResource> apiService, IResourceBuilder<ProjectResource> identityApiService)
+    public static IResourceBuilder<ProjectResource> AddIdentityApiService(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        return builder.AddProject<Projects.MyHomeRamen_Blazor>($"{resourcePrefix}blazor")
-                      .WithExternalHttpEndpoints()
-                      .WithHttpHealthCheck("/health")
-                      .WithReference(cache)
-                      .WaitFor(cache)
-                      .WithReference(apiService)
-                      .WaitFor(apiService)
-                      .WaitFor(identityApiService)
-                      .WithReference(identityApiService);
+        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
+
+        return builder.AddProject<Projects.MyHomeRamen_Identity_Api>($"{applicationName}-identity-api")
+                      .WithHttpHealthCheck("/health");
     }
 
-    public static void AddWorkers(this IDistributedApplicationBuilder builder, string resourcePrefix, IResourceBuilder<ProjectResource> apiService)
+    public static IResourceBuilder<ProjectResource> AddBlazor(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>($"{resourcePrefix}mailing-worker")
+        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
+
+        return builder.AddProject<Projects.MyHomeRamen_Blazor>($"{applicationName}-blazor")
+                      .WithExternalHttpEndpoints()
+                      .WithHttpHealthCheck("/health");
+    }
+
+    public static void AddWorkers(this IDistributedApplicationBuilder builder, IConfiguration configuration, IResourceBuilder<ProjectResource> apiService)
+    {
+        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
+
+        builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>($"{applicationName}-mailing-worker")
                .WithReference(apiService)
                .WaitFor(apiService)
                .WithExplicitStart();
 
-        builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{resourcePrefix}messages-worker")
+        builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{applicationName}-messages-worker")
                .WithReference(apiService)
                .WaitFor(apiService)
                .WithExplicitStart();
