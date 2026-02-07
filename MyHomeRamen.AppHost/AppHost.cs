@@ -4,21 +4,32 @@ using MyHomeRamen.AppHost.InfrastructureConfiguration;
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
 IConfiguration config = builder.Configuration;
-string resourcePrefix = config["CustomConfig:ResourcePrefix"]!;
 
-IResourceBuilder<ParameterResource>? username = builder.AddParameter("UserName", secret: true);
-IResourceBuilder<ParameterResource>? password = builder.AddParameter("Password", secret: true);
+IResourceBuilder<RedisResource> cache = builder.ConfigureRedis(config);
+IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.ConfigureRabbitMq(config);
 
-IResourceBuilder<RedisResource> cache = builder.AddRedis(resourcePrefix, password);
-IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.AddRabbitMq(resourcePrefix, username, password);
+IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 
-IResourceBuilder<ProjectResource> apiService = builder.AddApiService(resourcePrefix, cache, rabbitmq);
-IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(resourcePrefix);
+IResourceBuilder<PostgresServerResource> postgres = builder.ConfigurePostgresDb(config);
+postgres.AddDatabase("db");
 
-builder.AddBlazor(resourcePrefix, cache, apiService, identityApiService);
-builder.AddWorkers(resourcePrefix, apiService);
+IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
+                                                      .WithReference(rabbitmq)
+                                                      .WithReference(cache)
+                                                      .WithReference(keyCloak)
+                                                      .WithReference(postgres)
+                                                      .WaitFor(rabbitmq)
+                                                      .WaitFor(cache)
+                                                      .WaitFor(keyCloak);
 
-builder.AddSeq(config, apiService);
-builder.AddJaeger();
+builder.AddBlazor(config)
+       .WithReference(keyCloak)
+       .WithReference(apiService)
+       .WaitFor(apiService);
+
+builder.AddWorkers(config, apiService);
+
+builder.ConfigureSeq(config);
+builder.ConfigureJaeger(config);
 
 await builder.Build().RunAsync();
