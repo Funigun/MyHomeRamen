@@ -81,5 +81,6 @@
   </Folder>
   <Folder Name="/_wiki/Users/">
     <File Path="Wiki/Users ADR/0001-users-domain.md" />
+    <File Path="Wiki/Users ADR/0002-users-authentication.md" />
   </Folder>
 </Solution>

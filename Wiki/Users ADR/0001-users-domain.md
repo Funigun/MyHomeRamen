@@ -15,8 +15,10 @@ tags: ["domain", "users", "architecture"]
 In MyHomeRamen application Users module acts the single source of truth for user domain that serves other modules (`Orders`, `Menu`, `Payments`, `Reservations`, `Basket`). 
 Different modules will require different user-related data and behaviors, so in order to mainain separation of concerns and modularity, we need to define a dedicated Users Domain Model.
 
-This module will handle authentication and authorization and provide features related to user management, such as user profiles, roles, and permissions.
+This module will handle authorization and provide features related to user management, such as user profiles, roles, and permissions.
 Every user-related data will go throught this module. Other modules will subscribe to events published through a message broker (RabbitMQ) to keep their local user references in sync.
+
+Authentication will be handled by `Keycloak` as an external Identity Provider (see [ADR-0002](0002-users-authentication.md)).
 
 **Key constraints and requirements:**
 - **Modular Monolith**: Modules should be loosely coupled.

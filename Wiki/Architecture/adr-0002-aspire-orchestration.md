@@ -1,7 +1,7 @@
 ---
 title: "ADR-0002: .NET Aspire for Application Orchestration"
 status: "Accepted"
-date: "2025-01-30"
+date: "2026-02-08"
 authors: "Funigun"
 tags: ["architecture", "decision", "orchestration", "devops"]
 ---
@@ -16,7 +16,7 @@ The MyHomeRamen solution consists of multiple interacting components:
 - **Backend API**: The Modular Monolith core.
 - **Workers**: Background processing (MailSender, MessagesHandler).
 - **Frontend**: Blazor Server and Client (WASM).
-- **Infrastructure**: Redis (caching), RabbitMQ (messaging), SQL Server (data).
+- **Infrastructure**: Redis (caching), RabbitMQ (messaging), PostgreSql (data).
 
 Orchestrating these dependencies during local development is complex. Developers typically need to manage Docker Compose files, connection strings, port allocations, and startup sequences manually. Without a unified tool, "it works on my machine" issues are frequent, and onboarding new developers is slow.
 

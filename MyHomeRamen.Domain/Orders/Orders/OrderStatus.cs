@@ -8,5 +8,6 @@ public enum OrderStatus
     DeliveryInProgress = 3,
     ReadyForPickup = 4,
     Completed = 5,
-    Cancelled = 6
+    Rejected = 6,
+    Cancelled = 7
 }
