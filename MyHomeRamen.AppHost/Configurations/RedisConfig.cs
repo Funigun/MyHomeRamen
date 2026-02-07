@@ -1,8 +1,6 @@
 ﻿namespace MyHomeRamen.AppHost.Configurations;
 
-public sealed record RedisConfig
+public sealed record RedisConfig : BaseConfiguration
 {
-    public string? BindMountFrom { get; init; }
 
-    public string? BindMountTo { get; init; }
 }

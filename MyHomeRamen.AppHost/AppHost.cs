@@ -11,6 +11,7 @@ IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.ConfigureRabbitMq(co
 IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 
 IResourceBuilder<PostgresServerResource> postgres = builder.ConfigurePostgresDb(config);
+postgres.AddDatabase("db");
 
 IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
                                                       .WithReference(rabbitmq)

@@ -1,8 +1,6 @@
 namespace MyHomeRamen.AppHost.Configurations;
 
-public sealed record KeyCloakConfig
+public sealed record KeyCloakConfig : BaseConfiguration
 {
-    public string? BindMountFrom { get; init; }
 
-    public string? BindMountTo { get; init; }
 }

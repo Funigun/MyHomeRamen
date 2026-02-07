@@ -7,7 +7,6 @@ internal static class RegistrationExtensions
 {
     private const string ConfigurationSectionPrefix = "InfrastructureConfig:";
     private const string ApplicationNameSetting = "CustomConfig:ApplicationName";
-    private static readonly GenerateParameterDefault _defaultParameterOptions = new GenerateParameterDefault { MinLength = 22, Special = true };
 
     public static IResourceBuilder<RedisResource> ConfigureRedis(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
@@ -16,7 +15,7 @@ internal static class RegistrationExtensions
         string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
         RedisConfig config = configuration.GetSection(sectionName).Get<RedisConfig>() ?? new();
 
-        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-cache-password", _defaultParameterOptions, secret: true);
+        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-cache-password", config.Password, secret: true);
 
         return builder.AddRedis($"{applicationName}-cache", null, password)
                       .WithContainerName($"{applicationName}-redis")
@@ -36,8 +35,8 @@ internal static class RegistrationExtensions
         string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
         RabbitMqConfig config = configuration.GetSection(sectionName).Get<RabbitMqConfig>() ?? new();
 
-        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{applicationName}-messaging-user-name", _defaultParameterOptions, secret: true);
-        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-messaging-password", _defaultParameterOptions, secret: true);
+        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{applicationName}-messaging-user-name", config.UserName, secret: true);
+        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-messaging-password", config.Password, secret: true);
 
         return builder.AddRabbitMQ($"{applicationName}-messaging", user, password)
                       .WithContainerName($"{applicationName}-rabbitmq")
@@ -84,7 +83,10 @@ internal static class RegistrationExtensions
         string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
         KeyCloakConfig config = configuration.GetSection(sectionName).Get<KeyCloakConfig>() ?? new();
 
-        return builder.AddKeycloak($"{applicationName}-key-cloak", 8080)
+        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{applicationName}-key-cloak-user-name", config.UserName, secret: true);
+        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-key-cloak-password", config.Password, secret: true);
+
+        return builder.AddKeycloak($"{applicationName}-key-cloak", 8080, user, password)
                       .WithContainerName($"{applicationName}-key-cloak")
                       //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
                       .WithOtlpExporter()
@@ -93,12 +95,15 @@ internal static class RegistrationExtensions
 
     public static IResourceBuilder<PostgresServerResource> ConfigurePostgresDb(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        const string sectionName = $"{ConfigurationSectionPrefix}KeyCloakConfig";
+        const string sectionName = $"{ConfigurationSectionPrefix}PostgresConfig";
 
         string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
         PostgresConfig config = configuration.GetSection(sectionName).Get<PostgresConfig>() ?? new();
 
-        return builder.AddPostgres($"{applicationName}-postgres-db")
+        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{applicationName}-postgres-db-user-name", config.UserName, secret: true);
+        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-postgres-db-password", config.Password, secret: true);
+
+        return builder.AddPostgres($"{applicationName}-postgres-db", user, password)
                       .WithContainerName($"{applicationName}-postgres")
                       //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
                       .WithEnvironment("ACCEPT_EULA", "Y")

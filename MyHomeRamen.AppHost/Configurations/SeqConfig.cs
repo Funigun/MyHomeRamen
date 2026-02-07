@@ -1,8 +1,6 @@
 namespace MyHomeRamen.AppHost.Configurations;
 
-public sealed record SeqConfig
+public sealed record SeqConfig : BaseConfiguration
 {
-    public string? BindMountFrom { get; init; }
 
-    public string? BindMountTo { get; init; }
 }

@@ -1,8 +1,6 @@
 namespace MyHomeRamen.AppHost.Configurations;
 
-public sealed record RabbitMqConfig
+public sealed record RabbitMqConfig : BaseConfiguration
 {
-    public string? BindMountFrom { get; init; }
 
-    public string? BindMountTo { get; init; }
 }

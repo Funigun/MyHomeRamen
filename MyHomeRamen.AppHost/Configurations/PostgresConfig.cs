@@ -1,8 +1,6 @@
 namespace MyHomeRamen.AppHost.Configurations;
 
-public sealed record PostgresConfig
+public sealed record PostgresConfig : BaseConfiguration
 {
-    public string? BindMountFrom { get; init; }
 
-    public string? BindMountTo { get; init; }
 }

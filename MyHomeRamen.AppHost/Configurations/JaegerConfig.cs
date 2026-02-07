@@ -1,8 +1,6 @@
 namespace MyHomeRamen.AppHost.Configurations;
 
-public sealed record JaegerConfig
+public sealed record JaegerConfig : BaseConfiguration
 {
-    public string? BindMountFrom { get; init; }
 
-    public string? BindMountTo { get; init; }
 }
