@@ -25,4 +25,10 @@
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.Sinks.Seq" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Configurations\ConfigFiles\realm-init-template.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

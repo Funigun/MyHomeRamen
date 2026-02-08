@@ -89,6 +89,7 @@ internal static class RegistrationExtensions
         return builder.AddKeycloak($"{applicationName}-key-cloak", 8080, user, password)
                       .WithContainerName($"{applicationName}-key-cloak")
                       //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
+                      //.WithBindMount(Path.Combine(AppContext.BaseDirectory, "realm-init-template"), "/opt/keycloak/data/import/realm.json")
                       .WithOtlpExporter()
                       .WithLifetime(ContainerLifetime.Persistent);
     }
