@@ -4,7 +4,6 @@
     <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Features\Account\LogOut\" />
     <Folder Include="Features\Account\Register\" />
     <Folder Include="Features\Admin\GetEmployees\" />
     <Folder Include="Features\Admin\UpdatePermissions\" />

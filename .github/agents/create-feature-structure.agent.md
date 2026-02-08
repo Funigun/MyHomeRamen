@@ -48,7 +48,7 @@ public static class {FeatureName}Endpoint : IEndpoint
 ```csharp
 public static class {FeatureName}Endpoint : IEndpoint
 {
-	public string GroupName => "{Module}";
+	public string GroupName { get; init; } = "{Module}";
 
 	public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
 	{
@@ -71,7 +71,7 @@ public static class {FeatureName}Endpoint : IEndpoint
 ```csharp
 public static class {FeatureName}Endpoint : IEndpoint
 {
-	public string GroupName => "{Module}";
+	public string GroupName { get; init; } = "{Module}";
 
 	public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
 	{
@@ -93,7 +93,7 @@ public static class {FeatureName}Endpoint : IEndpoint
 ```csharp
 public static class {FeatureName}Endpoint : IEndpoint
 {
-	public string GroupName => "{Module}";
+	public string GroupName { get; init; } = "{Module}";
 
 	public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
 	{
@@ -114,9 +114,9 @@ public static class {FeatureName}Endpoint : IEndpoint
 #### Delete Endpoint
 
 ```csharp
-public static class {FeatureName}Endpoint : IEndpoint
+public sealed class {FeatureName}Endpoint : IEndpoint
 {
-	public string GroupName => "{Module}";
+	public string GroupName { get; init; } = "{Module}";
 
 	public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
 	{
