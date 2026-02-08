@@ -13,7 +13,7 @@ IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 IResourceBuilder<PostgresServerResource> postgres = builder.ConfigurePostgresDb(config);
 postgres.AddDatabase("db");
 
-IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
+IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
                                                       .WithReference(rabbitmq)
                                                       .WithReference(cache)
                                                       .WithReference(keyCloak)
@@ -22,9 +22,21 @@ IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
                                                       .WaitFor(cache)
                                                       .WaitFor(keyCloak);
 
+IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
+                                                      .WithReference(rabbitmq)
+                                                      .WithReference(cache)
+                                                      .WithReference(keyCloak)
+                                                      .WithReference(postgres)
+                                                      .WithReference(identityApiService)
+                                                      .WaitFor(rabbitmq)
+                                                      .WaitFor(cache)
+                                                      .WaitFor(keyCloak)
+                                                      .WaitFor(identityApiService);
+
 builder.AddBlazor(config)
        .WithReference(keyCloak)
        .WithReference(apiService)
+       .WithReference(identityApiService)
        .WaitFor(apiService);
 
 builder.AddWorkers(config, apiService);

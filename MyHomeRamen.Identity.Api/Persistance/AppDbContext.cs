@@ -21,6 +21,14 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
         {
             b.ToTable("Users");
 
+            b.Ignore(u => u.LockoutEnd);
+            b.Ignore(u => u.TwoFactorEnabled);
+            b.Ignore(u => u.PhoneNumberConfirmed);
+            b.Ignore(u => u.ConcurrencyStamp);
+            b.Ignore(u => u.SecurityStamp);
+            b.Ignore(u => u.NormalizedEmail);
+            b.Ignore(u => u.LockoutEnabled);
+
             b.HasMany<Permission>()
              .WithMany()
              .UsingEntity("UserPermissions");
@@ -29,6 +37,10 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
         builder.Entity<Role>(b =>
         {
             b.ToTable("Roles");
+
+            b.Ignore(u => u.NormalizedName);
+            b.Ignore(u => u.ConcurrencyStamp);
+
             b.HasMany<Permission>()
              .WithMany()
              .UsingEntity("RolePermissions");

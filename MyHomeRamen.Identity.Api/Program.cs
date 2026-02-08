@@ -1,6 +1,14 @@
+using System.Reflection;
+using FluentValidation;
+using MyHomeRamen.Api.Common;
+using MyHomeRamen.Api.Common.Extentsions;
+using MyHomeRamen.Identity.Api.Presentation;
+using Scalar.AspNetCore;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+Assembly apiAssembly = Assembly.GetExecutingAssembly();
 
 Log.Logger = new LoggerConfiguration().ReadFrom
              .Configuration(new ConfigurationBuilder()
@@ -12,17 +20,43 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
+    builder.AddConfiguration();
+
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("MyHomeRamenPolicy", policy =>
+        {
+            policy.WithOrigins("https://localhost:7079")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+    });
+
+    builder.Services.AddSerilog();
     builder.AddServiceDefaults("my-home-ramen-identity-api");
 
-    builder.Services.AddOpenApi();
+    builder.Services.AddOpenApi("v1", options =>
+    {
+        options.AddDocumentTransformer<TokenTransformer>();
+        options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
+    });
+
+    builder.Services.AddSharedServices()
+                    .AddEndpoints(apiAssembly)
+                    .AddAuthorizationPolicies(apiAssembly)
+                    .AddValidatorsFromAssembly(apiAssembly);
 
     WebApplication app = builder.Build();
+
+    app.UseMiddlewares();
+    app.UseRouting();
 
     app.MapDefaultEndpoints();
 
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
+        app.MapScalarApiReference(options => options.ConfigureScalarOptions());
     }
 
     app.UseHttpsRedirection();

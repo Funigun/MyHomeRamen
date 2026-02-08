@@ -148,12 +148,4 @@ public static class DependencyInjection
 
         return app;
     }
-
-    public static WebApplicationBuilder AddConfiguration(this WebApplicationBuilder builder)
-    {
-        builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                             .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
-
-        return builder;
-    }
 }
