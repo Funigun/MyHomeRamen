@@ -46,12 +46,20 @@ try
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
+    builder.Services.ConfigureIdentity()
+                    .ConfigureDatabase(builder.Configuration);
+
+    builder.Services.ConfigureAuthentication(builder.Configuration)
+                .AddAuthorizationBuilder()
+                .AddPolicy("RecipeManagerPolicy", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                });
+
     WebApplication app = builder.Build();
 
     app.UseMiddlewares();
     app.UseRouting();
-
-    app.MapDefaultEndpoints();
 
     if (app.Environment.IsDevelopment())
     {
@@ -60,6 +68,12 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseSerilogRequestLogging();
+    app.UseCors("MyHomeRamenPolicy");
+    app.MapDefaultEndpoints();
+    app.MapEndpoints();
+    app.UseAuthorization();
 
     await app.RunAsync();
 }

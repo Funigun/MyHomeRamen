@@ -24,9 +24,9 @@ Before creating the feature classes, collect the following inputs from the user 
 
 #### POST Endpoint
 ```csharp
-public static class {FeatureName}Endpoint : IEndpoint
+public sealed class {FeatureName}Endpoint : IEndpoint
 {
-	public string GroupName => "{Module}";
+	public string GroupName { get; init; } = "{Module}";
 
 	public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
 	{
@@ -46,7 +46,7 @@ public static class {FeatureName}Endpoint : IEndpoint
 
 #### GET Endpoint (By Id)
 ```csharp
-public static class {FeatureName}Endpoint : IEndpoint
+public sealed class {FeatureName}Endpoint : IEndpoint
 {
 	public string GroupName { get; init; } = "{Module}";
 
@@ -69,7 +69,7 @@ public static class {FeatureName}Endpoint : IEndpoint
 #### GET Endpoint (collection)
 
 ```csharp
-public static class {FeatureName}Endpoint : IEndpoint
+public sealed class {FeatureName}Endpoint : IEndpoint
 {
 	public string GroupName { get; init; } = "{Module}";
 
@@ -91,7 +91,7 @@ public static class {FeatureName}Endpoint : IEndpoint
 
 #### PUT Endpoint
 ```csharp
-public static class {FeatureName}Endpoint : IEndpoint
+public sealed class {FeatureName}Endpoint : IEndpoint
 {
 	public string GroupName { get; init; } = "{Module}";
 

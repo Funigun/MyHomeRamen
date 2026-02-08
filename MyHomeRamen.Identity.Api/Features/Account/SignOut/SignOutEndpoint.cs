@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Identity.Api.Domain;
 
@@ -15,7 +16,7 @@ public class SignOutEndpoint : IEndpoint
                        .WithDescription("Handles SignOut operations.");
     }
 
-    private static async Task<IResult> Handler(SignInManager<User> signInManager, CancellationToken cancellationToken)
+    private static async Task<IResult> Handler([FromServices] SignInManager<User> signInManager, CancellationToken cancellationToken)
     {
         await signInManager.SignOutAsync();
 

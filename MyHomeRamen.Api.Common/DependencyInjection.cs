@@ -104,7 +104,7 @@ public static class DependencyInjection
 
         foreach (IEndpoint endpoint in endpoints)
         {
-            if (string.IsNullOrEmpty(endpoint.GroupName))
+            if (!string.IsNullOrEmpty(endpoint.GroupName))
             {
                 if (!groupedEndpoints.TryGetValue(endpoint.GroupName, out List<IEndpoint>? groupEndpoints))
                 {
