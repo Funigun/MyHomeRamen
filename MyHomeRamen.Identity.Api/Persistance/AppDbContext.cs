@@ -8,8 +8,6 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
 {
     public DbSet<Permission> Permissions { get; set; } = default!;
 
-    public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
-
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
 

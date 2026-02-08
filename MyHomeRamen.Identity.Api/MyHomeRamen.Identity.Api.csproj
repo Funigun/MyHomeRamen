@@ -3,4 +3,10 @@
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\Account\GetPermissions\" />
+    <Folder Include="Features\Account\Register\" />
+    <Folder Include="Features\Admin\CreateEmployeeAccount\" />
+    <Folder Include="Features\Admin\UpdatePermissions\" />
+  </ItemGroup>
 </Project>
