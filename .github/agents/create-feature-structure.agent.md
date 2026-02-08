@@ -144,3 +144,4 @@ public static class {FeatureName}Endpoint : IEndpoint
 - Create a new folder for the feature under `{Module}/Features/{FeatureName}/Models`.
 - Create request and response models as needed for the feature under the `Models` folder.
 - Create additional DTOs if necessary to simplify request and response models as needed.
+- Request, response and DTO should be sealed records.
