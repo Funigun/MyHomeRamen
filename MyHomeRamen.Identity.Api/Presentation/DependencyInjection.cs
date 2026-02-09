@@ -81,6 +81,15 @@ internal static class DependencyInjection
             );
         });
 
+        services.AddScoped<DbService>();
+
         return services;
+    }
+
+    public static async Task InitDatabase(this WebApplication app)
+    {
+        using IServiceScope scope = app.Services.CreateScope();
+        DbService dbService = scope.ServiceProvider.GetRequiredService<DbService>();
+        await dbService.SeedDatabase();
     }
 }

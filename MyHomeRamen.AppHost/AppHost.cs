@@ -14,13 +14,13 @@ IResourceBuilder<PostgresServerResource> postgres = builder.ConfigurePostgresDb(
 postgres.AddDatabase("db");
 
 IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
-                                                      .WithReference(rabbitmq)
-                                                      .WithReference(cache)
-                                                      .WithReference(keyCloak)
-                                                      .WithReference(postgres)
-                                                      .WaitFor(rabbitmq)
-                                                      .WaitFor(cache)
-                                                      .WaitFor(keyCloak);
+                                                              .WithReference(rabbitmq)
+                                                              .WithReference(cache)
+                                                              .WithReference(keyCloak)
+                                                              .WithReference(postgres)
+                                                              .WaitFor(rabbitmq)
+                                                              .WaitFor(cache)
+                                                              .WaitFor(keyCloak);
 
 IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
                                                       .WithReference(rabbitmq)
@@ -33,11 +33,13 @@ IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
                                                       .WaitFor(keyCloak)
                                                       .WaitFor(identityApiService);
 
-builder.AddBlazor(config)
-       .WithReference(keyCloak)
-       .WithReference(apiService)
-       .WithReference(identityApiService)
-       .WaitFor(apiService);
+IResourceBuilder<ProjectResource> blazor = builder.AddBlazor(config)
+                                                  .WithReference(keyCloak)
+                                                  .WithReference(apiService)
+                                                  .WithReference(identityApiService)
+                                                  .WaitFor(apiService);
+
+identityApiService.WithReference(blazor);
 
 builder.AddWorkers(config, apiService);
 

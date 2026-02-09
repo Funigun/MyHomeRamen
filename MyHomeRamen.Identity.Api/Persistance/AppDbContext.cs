@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Identity.Api.Application;
 using MyHomeRamen.Identity.Api.Domain;
+using MyHomeRamen.Identity.Api.Persistance.GuidConvention;
 
 namespace MyHomeRamen.Identity.Api.Persistance;
 

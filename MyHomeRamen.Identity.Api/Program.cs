@@ -21,7 +21,7 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    const string corsPolicyName = "MyHomeRamenPolicy";
+    const string corsPolicyName = "RestaurantPolicy";
 
     builder.AddConfiguration();
 
@@ -31,14 +31,14 @@ try
     {
         options.AddPolicy(corsPolicyName, policy =>
         {
-            policy.WithOrigins("https://localhost:7079")
+        policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
     });
 
     builder.Services.AddSerilog();
-    builder.AddServiceDefaults($"{configurationProvider}-identity-api");
+    builder.AddServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
 
     builder.Services.AddOpenApi("v1", options =>
     {
@@ -80,6 +80,7 @@ try
     app.MapEndpoints();
     app.UseAuthorization();
 
+    await app.InitDatabase();
     await app.RunAsync();
 }
 catch (Exception ex)

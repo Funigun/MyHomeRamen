@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace MyHomeRamen.Identity.Api.Persistance;
+namespace MyHomeRamen.Identity.Api.Persistance.GuidConvention;
 
 public class GuidFinalizingConvention : IModelFinalizingConvention
 {

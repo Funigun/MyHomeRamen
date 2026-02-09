@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace MyHomeRamen.Identity.Api.Persistance;
+namespace MyHomeRamen.Identity.Api.Persistance.GuidConvention;
 
 public class GuidValueGenerator : ValueGenerator<Guid>
 {
