@@ -58,6 +58,7 @@ internal static class RegistrationExtensions
                       //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
                       .WithHttpEndpoint(8081, 80, "main")
                       .WithHttpEndpoint(5341, 5341, "other")
+                      .WithExplicitStart()
                       .WithLifetime(ContainerLifetime.Persistent);
     }
 
@@ -73,6 +74,7 @@ internal static class RegistrationExtensions
                       //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
                       .WithHttpEndpoint(16686, targetPort: 16686, name: "jaegerPortal")
                       .WithHttpEndpoint(4317, targetPort: 4317, name: "jaegerEndpoint")
+                      .WithExplicitStart()
                       .WithLifetime(ContainerLifetime.Persistent);
     }
 

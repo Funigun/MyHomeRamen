@@ -63,7 +63,6 @@ public static class Extensions
                     )
                     .AddHttpClientInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation()
-                    .AddSqlClientInstrumentation()
                     .AddRedisInstrumentation()
                     .AddOtlpExporter(options =>
                     {
@@ -107,7 +106,7 @@ public static class Extensions
             builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
             builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
 
-            builder.AddExportToSeq();
+            //builder.AddExportToSeq();
         }
 
         return builder;

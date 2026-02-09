@@ -4,6 +4,8 @@ namespace MyHomeRamen.Identity.Api.Domain;
 
 public class User : IdentityUser<Guid>
 {
+    public Guid RestgaurantId { get; private set; }
+
     public string FirstName { get; private set; }
 
     public string LastName { get; private set; }
@@ -14,10 +16,11 @@ public class User : IdentityUser<Guid>
     {
     }
 
-    public static User Create(string userName, string firstName, string lastName, string email, string phoneNumber)
+    public static User Create(Guid restaurantId, string userName, string firstName, string lastName, string email, string phoneNumber)
     {
         return new User
         {
+            RestgaurantId = restaurantId,
             FirstName = firstName,
             LastName = lastName,
             Email = email,

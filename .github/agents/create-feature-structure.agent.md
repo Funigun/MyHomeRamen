@@ -14,9 +14,9 @@ You are an expert software developer specializing in creating feature classes fo
 Before creating the feature classes, collect the following inputs from the user or conversation context:
 - **Module**: The name of the module where the new feature will be added.
 - **FeatureName**: The name of the new feature to be created.
+- **DomainModel**: The domain model that the feature will be based on (if applicable). This will help with mapping extensions initialization.
 - **Is Validator required**: Boolean indicating if a validation policy class is needed.
 - **Is Authorization required**: Boolean indicating if an authorization policy class is needed.
-- **Is Cache required**: Boolean indicating if caching mechanisms are needed.
 
 **Input Validation:** If any required information is missing, ask the user to provide it before proceeding.
 
@@ -144,4 +144,34 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 - Create a new folder for the feature under `{Module}/Features/{FeatureName}/Models`.
 - Create request and response models as needed for the feature under the `Models` folder.
 - Create additional DTOs if necessary to simplify request and response models as needed.
-- Request, response and DTO should be sealed records.
+	- Request, response and DTO should be sealed records.
+- Create `Mappings` file under the feature folder to handle mapping between entities, DTOs, and response/request models
+	- It should be internal static class 
+	- For Commands it should be initialized with extension mapping method for each DTO and for Request object e.g.
+	
+	```csharp
+	internal static class Mappings
+	{
+		extension({RequestDto} dto)
+		{
+			internal {DomainModel} ToEntity()
+			{
+				// mapping implementation here
+			}
+		}
+	}
+	```
+	- For queries it should be initialized with extension mapping method for each entity e.g.
+	
+	```csharp
+	internal static class Mappings
+	{
+		extension({DomainModel} {domainModel})
+		{
+			internal {ResponseModel} ToResponse()
+			{
+				// mapping implementation here
+			}
+		}
+	}
+	```

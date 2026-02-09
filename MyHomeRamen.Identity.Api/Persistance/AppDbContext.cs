@@ -21,6 +21,9 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
         {
             b.ToTable("Users");
 
+            b.Property(u => u.RestgaurantId)
+             .IsRequired(true);
+
             b.Ignore(u => u.LockoutEnd);
             b.Ignore(u => u.TwoFactorEnabled);
             b.Ignore(u => u.PhoneNumberConfirmed);

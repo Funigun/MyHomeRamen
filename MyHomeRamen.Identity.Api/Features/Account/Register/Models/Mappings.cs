@@ -6,15 +6,16 @@ internal static class Mappings
 {
     extension(RegisterRequest request)
     {
-        internal User ToUser()
+        internal User ToUser(Guid restaurantId)
         {
             return User.Create
             (
-                userName: request.UserName,
-                firstName: request.FirstName,
-                lastName: request.LastName,
-                email: request.Email,
-                phoneNumber: request.PhoneNumber
+                restaurantId,
+                request.UserName,
+                request.FirstName,
+                request.LastName,
+                request.Email,
+                request.PhoneNumber
             );
         }
     }

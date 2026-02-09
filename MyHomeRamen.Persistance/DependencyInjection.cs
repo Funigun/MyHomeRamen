@@ -19,7 +19,7 @@ public static class DependencyInjection
             services.AddDbContext<MenuDbContext>(options =>
             {
                 string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
+                options.UseNpgsql(
                     connectionString,
                     serverOptions =>
                     {
@@ -36,7 +36,7 @@ public static class DependencyInjection
             services.AddDbContext<BasketDbContext>(options =>
             {
                 string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
+                options.UseNpgsql(
                     connectionString,
                     serverOptions =>
                     {
@@ -53,7 +53,7 @@ public static class DependencyInjection
             services.AddDbContext<OrdersDbContext>(options =>
             {
                 string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
+                options.UseNpgsql(
                     connectionString,
                     serverOptions =>
                     {
@@ -70,7 +70,7 @@ public static class DependencyInjection
             services.AddDbContext<ReservationsDbContext>(options =>
             {
                 string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
+                options.UseNpgsql(
                     connectionString,
                     serverOptions =>
                     {
@@ -87,7 +87,7 @@ public static class DependencyInjection
             services.AddDbContext<PaymentsDbContext>(options =>
             {
                 string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
+                options.UseNpgsql(
                     connectionString,
                     serverOptions =>
                     {

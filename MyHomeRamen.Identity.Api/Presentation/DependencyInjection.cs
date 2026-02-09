@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Domain;
@@ -53,6 +54,7 @@ internal static class DependencyInjection
                 .AddApiEndpoints();
 
         services.AddScoped<AuthorizationService>();
+        services.AddScoped<RestaurantConfigurationFactory>();
 
         services.Configure<IdentityOptions>(options =>
         {
@@ -72,7 +74,7 @@ internal static class DependencyInjection
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-
+            options.UseNpgsql(configuration.GetConnectionString(configuration["RestaurantConfiguration:ConnectionStringResourceName"]!));
         });
 
         return services;

@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Domain.Common.Authorization;
+using MyHomeRamen.Identity.Api.Application;
 using MyHomeRamen.Identity.Api.Application.Exceptions;
+using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Domain;
 using MyHomeRamen.Identity.Api.Features.Account.Register.Models;
 
@@ -20,9 +23,10 @@ public sealed class RegisterEndpoint : IEndpoint
                .WithDescription("Handles user registration");
     }
 
-    private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, UserManager<User> userManager, CancellationToken cancellationToken)
+    private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, [FromServices] UserManager<User> userManager, [FromServices] RestaurantConfigurationFactory configurationFactory, CancellationToken cancellationToken)
     {
-        User user = request.ToUser();
+        RestaurantConfiguration configuration = configurationFactory.Create();
+        User user = request.ToUser(configuration.RestaurantId);
 
         if (await userManager.Users.AnyAsync(usr => usr.UserName!.ToUpper() == user.UserName!.ToUpper() || usr.Email.ToUpper() == user.Email.ToUpper(), cancellationToken))
         {
