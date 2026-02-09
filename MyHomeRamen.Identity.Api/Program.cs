@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Extentsions;
+using MyHomeRamen.Identity.Api.Application;
 using MyHomeRamen.Identity.Api.Presentation;
 using Scalar.AspNetCore;
 using Serilog;
@@ -20,11 +21,15 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
+    const string corsPolicyName = "MyHomeRamenPolicy";
+
     builder.AddConfiguration();
+
+    RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
 
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy("MyHomeRamenPolicy", policy =>
+        options.AddPolicy(corsPolicyName, policy =>
         {
             policy.WithOrigins("https://localhost:7079")
                   .AllowAnyMethod()
@@ -33,7 +38,7 @@ try
     });
 
     builder.Services.AddSerilog();
-    builder.AddServiceDefaults("my-home-ramen-identity-api");
+    builder.AddServiceDefaults($"{configurationProvider}-identity-api");
 
     builder.Services.AddOpenApi("v1", options =>
     {
@@ -47,14 +52,14 @@ try
                     .AddValidatorsFromAssembly(apiAssembly);
 
     builder.Services.ConfigureIdentity()
-                    .ConfigureDatabase(builder.Configuration);
+                    .ConfigureDatabase(configurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
-                .AddAuthorizationBuilder()
-                .AddPolicy("RecipeManagerPolicy", policy =>
-                {
-                    policy.RequireAuthenticatedUser();
-                });
+                    .AddAuthorizationBuilder()
+                    .AddPolicy(corsPolicyName, policy =>
+                    {
+                        policy.RequireAuthenticatedUser();
+                    });
 
     WebApplication app = builder.Build();
 
@@ -64,13 +69,13 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
-        app.MapScalarApiReference(options => options.ConfigureScalarOptions());
+        app.MapScalarApiReference(options => options.ConfigureScalarOptions(configurationProvider));
     }
 
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseSerilogRequestLogging();
-    app.UseCors("MyHomeRamenPolicy");
+    app.UseCors(corsPolicyName);
     app.MapDefaultEndpoints();
     app.MapEndpoints();
     app.UseAuthorization();

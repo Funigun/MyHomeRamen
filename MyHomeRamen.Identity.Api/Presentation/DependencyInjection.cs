@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MyHomeRamen.Identity.Api.Application;
 using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Domain;
 using MyHomeRamen.Identity.Api.Persistance;
@@ -12,9 +13,9 @@ namespace MyHomeRamen.Identity.Api.Presentation;
 
 internal static class DependencyInjection
 {
-    internal static ScalarOptions ConfigureScalarOptions(this ScalarOptions options)
+    internal static ScalarOptions ConfigureScalarOptions(this ScalarOptions options, RestaurantConfigurationProvider configurationProvider)
     {
-        options.WithTitle("Recipe Manager Identity API")
+        options.WithTitle(configurationProvider.RestaurantName)
                .WithTheme(ScalarTheme.Kepler)
                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 
@@ -54,7 +55,6 @@ internal static class DependencyInjection
                 .AddApiEndpoints();
 
         services.AddScoped<AuthorizationService>();
-        services.AddScoped<RestaurantConfigurationFactory>();
 
         services.Configure<IdentityOptions>(options =>
         {
@@ -70,11 +70,15 @@ internal static class DependencyInjection
         return services;
     }
 
-    internal static IServiceCollection ConfigureDatabase(this IServiceCollection services, IConfiguration configuration)
+    internal static IServiceCollection ConfigureDatabase(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseNpgsql(configuration.GetConnectionString(configuration["RestaurantConfiguration:ConnectionStringResourceName"]!));
+            options.UseNpgsql
+            (
+                configurationProvider.ConnectionString,
+                config => config.CommandTimeout(300)
+            );
         });
 
         return services;

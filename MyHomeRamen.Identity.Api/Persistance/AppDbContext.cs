@@ -1,16 +1,19 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Identity.Api.Application;
 using MyHomeRamen.Identity.Api.Domain;
 
 namespace MyHomeRamen.Identity.Api.Persistance;
 
 public class AppDbContext : IdentityDbContext<User, Role, Guid>
 {
+    private RestaurantConfigurationProvider RestaurantConfiguration { get; init; }
+
     public DbSet<Permission> Permissions { get; set; } = default!;
 
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    public AppDbContext(DbContextOptions<AppDbContext> options, RestaurantConfigurationProvider configFactory) : base(options)
     {
-
+        RestaurantConfiguration = configFactory;
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -21,7 +24,9 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
         {
             b.ToTable("Users");
 
-            b.Property(u => u.RestgaurantId)
+            b.HasQueryFilter(u => u.RestaurantId == RestaurantConfiguration.RestaurantId);
+
+            b.Property(u => u.RestaurantId)
              .IsRequired(true);
 
             b.Ignore(u => u.LockoutEnd);
@@ -41,6 +46,11 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
         {
             b.ToTable("Roles");
 
+            b.Property(p => p.RestaurantId)
+             .IsRequired(true);
+
+            b.HasQueryFilter(u => u.RestaurantId == RestaurantConfiguration.RestaurantId);
+
             b.Ignore(u => u.NormalizedName);
             b.Ignore(u => u.ConcurrencyStamp);
 
@@ -49,6 +59,21 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
              .UsingEntity("RolePermissions");
         });
 
+        builder.Entity<Permission>(b =>
+        {
+            b.ToTable("Permissions");
+            b.HasQueryFilter(p => p.RestaurantId == RestaurantConfiguration.RestaurantId);
+            b.Property(p => p.RestaurantId).IsRequired(true);
+            b.Property(p => p.Description).HasMaxLength(500);
+        });
+
         base.OnModelCreating(builder);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        configurationBuilder.Conventions.Add(_ => new GuidFinalizingConvention());
     }
 }

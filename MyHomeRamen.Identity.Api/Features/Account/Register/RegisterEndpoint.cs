@@ -25,7 +25,7 @@ public sealed class RegisterEndpoint : IEndpoint
 
     private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, [FromServices] UserManager<User> userManager, [FromServices] RestaurantConfigurationFactory configurationFactory, CancellationToken cancellationToken)
     {
-        RestaurantConfiguration configuration = configurationFactory.Create();
+        RestaurantConfigurationProvider configuration = configurationFactory.Create();
         User user = request.ToUser(configuration.RestaurantId);
 
         if (await userManager.Users.AnyAsync(usr => usr.UserName!.ToUpper() == user.UserName!.ToUpper() || usr.Email.ToUpper() == user.Email.ToUpper(), cancellationToken))

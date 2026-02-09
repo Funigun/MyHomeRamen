@@ -4,7 +4,7 @@ namespace MyHomeRamen.Identity.Api.Domain;
 
 public class User : IdentityUser<Guid>
 {
-    public Guid RestgaurantId { get; private set; }
+    public Guid RestaurantId { get; private set; }
 
     public string FirstName { get; private set; }
 
@@ -20,7 +20,7 @@ public class User : IdentityUser<Guid>
     {
         return new User
         {
-            RestgaurantId = restaurantId,
+            RestaurantId = restaurantId,
             FirstName = firstName,
             LastName = lastName,
             Email = email,
