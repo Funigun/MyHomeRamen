@@ -14,7 +14,7 @@ public class User : IdentityUser<Guid>
     {
     }
 
-    public static User Create(string firstName, string lastName, string email, string phoneNumber)
+    public static User Create(string userName, string firstName, string lastName, string email, string phoneNumber)
     {
         return new User
         {
@@ -22,7 +22,7 @@ public class User : IdentityUser<Guid>
             LastName = lastName,
             Email = email,
             PhoneNumber = phoneNumber,
-            UserName = email
+            UserName = userName
         };
     }
 }
