@@ -3,26 +3,27 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Domain.Common.Authorization;
 using MyHomeRamen.Identity.Api.Application;
 using MyHomeRamen.Identity.Api.Application.Exceptions;
 using MyHomeRamen.Identity.Api.Domain;
 using MyHomeRamen.Identity.Api.Features.Account.Register.Models;
+using MyHomeRamen.Identity.Api.Features.Admin.RegisterEmployee.Models;
 
-namespace MyHomeRamen.Identity.Api.Features.Account.Register;
+namespace MyHomeRamen.Identity.Api.Features.Admin.RegisterEmployee;
 
-public sealed class RegisterEndpoint : IEndpoint
+public sealed class RegisterEmployeeEndpoint : IEndpoint
 {
     public string GroupName { get; init; } = "Account";
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<RegisterRequest, RegisterRequest>("/sign-up", Handler)
-               .WithName("RegisterEndpoint")
-               .WithDescription("Handles user registration");
+        endpointBuilder.MapStandardPost<RegisterRequest, RegisterRequest>("/employee-sign-up", Handler)
+                       .WithAuthenticationFilter<RegisterEmployeeRequest>()
+                       .WithName("RegisterEndpoint")
+                       .WithDescription("Handles user registration");
     }
 
-    private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, [FromServices] UserManager<User> userManager, [FromServices] RestaurantConfigurationProvider configurationProvider, CancellationToken cancellationToken)
+    private static async Task<Results<Ok, BadRequest>> Handler(RegisterEmployeeRequest request, [FromServices] UserManager<User> userManager, [FromServices] RestaurantConfigurationProvider configurationProvider, CancellationToken cancellationToken)
     {
         User user = request.ToUser(configurationProvider.RestaurantId);
 
