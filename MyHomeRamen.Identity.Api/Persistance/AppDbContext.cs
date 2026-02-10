@@ -10,7 +10,7 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
 {
     private RestaurantConfigurationProvider RestaurantConfiguration { get; init; }
 
-    public DbSet<Permission> Permissions { get; set; } = default!;
+    public DbSet<Address> Addresses { get; set; } = default!;
 
     public AppDbContext(DbContextOptions<AppDbContext> options, RestaurantConfigurationProvider configFactory) : base(options)
     {
@@ -38,34 +38,9 @@ public class AppDbContext : IdentityDbContext<User, Role, Guid>
             b.Ignore(u => u.NormalizedEmail);
             b.Ignore(u => u.LockoutEnabled);
 
-            b.HasMany<Permission>()
+            b.HasMany<Address>()
              .WithMany()
-             .UsingEntity("UserPermissions");
-        });
-
-        builder.Entity<Role>(b =>
-        {
-            b.ToTable("Roles");
-
-            b.Property(p => p.RestaurantId)
-             .IsRequired(true);
-
-            b.HasQueryFilter(u => u.RestaurantId == RestaurantConfiguration.RestaurantId);
-
-            b.Ignore(u => u.NormalizedName);
-            b.Ignore(u => u.ConcurrencyStamp);
-
-            b.HasMany<Permission>()
-             .WithMany()
-             .UsingEntity("RolePermissions");
-        });
-
-        builder.Entity<Permission>(b =>
-        {
-            b.ToTable("Permissions");
-            b.HasQueryFilter(p => p.RestaurantId == RestaurantConfiguration.RestaurantId);
-            b.Property(p => p.RestaurantId).IsRequired(true);
-            b.Property(p => p.Description).HasMaxLength(500);
+             .UsingEntity("UserAddresses");
         });
 
         base.OnModelCreating(builder);

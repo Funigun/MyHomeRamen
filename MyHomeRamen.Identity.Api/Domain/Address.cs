@@ -2,6 +2,8 @@
 
 public class Address
 {
+    public Guid Id { get; private set; }
+
     public string Street { get; private set; }
 
     public string Building { get; private set; }
@@ -16,10 +18,11 @@ public class Address
     {
     }
 
-    public static Address Create(string street, string city, string building, string apartment, string zipCode)
+    public static Address Create(Guid id, string street, string city, string building, string apartment, string zipCode)
     {
         return new Address
         {
+            Id = id,
             Street = street,
             City = city,
             Building = building,

@@ -8,5 +8,6 @@
     <Folder Include="Features\Admin\UpdatePermissions\" />
     <Folder Include="Features\Admin\RemoveEmployee\" />
     <Folder Include="Features\Admin\RegisterEmployee\" />
+    <Folder Include="Persistance\Migrations\" />
   </ItemGroup>
 </Project>

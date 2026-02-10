@@ -23,10 +23,9 @@ public sealed class RegisterEndpoint : IEndpoint
                .WithDescription("Handles user registration");
     }
 
-    private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, [FromServices] UserManager<User> userManager, [FromServices] RestaurantConfigurationFactory configurationFactory, CancellationToken cancellationToken)
+    private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, [FromServices] UserManager<User> userManager, [FromServices] RestaurantConfigurationProvider configurationProvider, CancellationToken cancellationToken)
     {
-        RestaurantConfigurationProvider configuration = configurationFactory.Create();
-        User user = request.ToUser(configuration.RestaurantId);
+        User user = request.ToUser(configurationProvider.RestaurantId);
 
         if (await userManager.Users.AnyAsync(usr => usr.UserName!.ToUpper() == user.UserName!.ToUpper() || usr.Email.ToUpper() == user.Email.ToUpper(), cancellationToken))
         {
@@ -39,8 +38,6 @@ public sealed class RegisterEndpoint : IEndpoint
         {
             throw IdentityValidationException.RegistrationFailed(result.Errors.Select(error => error.Description));
         }
-
-        await userManager.AddToRoleAsync(user, CommonRoleConstants.Customer);
 
         return TypedResults.Ok();
     }

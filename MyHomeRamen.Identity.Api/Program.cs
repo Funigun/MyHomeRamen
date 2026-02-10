@@ -3,6 +3,7 @@ using FluentValidation;
 using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Identity.Api.Application;
+using MyHomeRamen.Identity.Api.Persistance;
 using MyHomeRamen.Identity.Api.Presentation;
 using Scalar.AspNetCore;
 using Serilog;
@@ -24,7 +25,7 @@ try
     const string corsPolicyName = "RestaurantPolicy";
 
     builder.AddConfiguration();
-
+    builder.Services.AddScoped<RestaurantConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
 
     builder.Services.AddCors(options =>
@@ -52,7 +53,7 @@ try
                     .AddValidatorsFromAssembly(apiAssembly);
 
     builder.Services.ConfigureIdentity()
-                    .ConfigureDatabase(configurationProvider);
+                    .ConfigureDatabase(builder.Configuration);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .AddAuthorizationBuilder()
