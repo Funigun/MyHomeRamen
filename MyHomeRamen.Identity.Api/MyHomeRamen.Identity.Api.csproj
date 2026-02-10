@@ -5,7 +5,6 @@
     <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Features\Admin\GetEmployees\" />
     <Folder Include="Features\Admin\UpdatePermissions\" />
     <Folder Include="Features\Admin\RemoveEmployee\" />
     <Folder Include="Features\Admin\RegisterEmployee\" />

@@ -139,16 +139,17 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 - Create the following classes:
   - `{FeatureName}Endpoint.cs`: This class will handle the API endpoints for the feature. It must follow selected template, implement `IEndpoint` interface and use proper `IEndpointRouteBuilder` extension method from `MyHomeRamen.Api.Common` project and to map an endpoint.
   - `{FeatureName}ValidationPolicy.cs`: This class will define the validation rules for the feature (only if "Is Validator required" is true).
+	- it should implement `IValidationPolicy<{RequestModel}>` from `MyHomeRamen.Api.Common` project.
   - `{FeatureName}AuthorizationPolicy.cs`: This class will define the authorization rules for the feature (only if "Is Authorization required" is true).
+	- it should implement `IAuthorizationPolicy<{RequestModel}>` from `MyHomeRamen.Api.Common` project.
   - `{FeatureName}CachePolicy.cs`: This class will handle caching mechanisms for the feature (only if "Is Cache required" is true).
 - Create a new folder for the feature under `{Module}/Features/{FeatureName}/Models`.
 - Create request and response models as needed for the feature under the `Models` folder.
 - Create additional DTOs if necessary to simplify request and response models as needed.
 	- Request, response and DTO should be sealed records.
-- Create `Mappings` file under the feature folder to handle mapping between entities, DTOs, and response/request models
+- Create `Mappings` in the same folder as request/response and DTOs to handle mapping between entities, DTOs, and response/request models
 	- It should be internal static class 
 	- For Commands it should be initialized with extension mapping method for each DTO and for Request object e.g.
-	
 	```csharp
 	internal static class Mappings
 	{
@@ -175,3 +176,5 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 		}
 	}
 	```
+
+Important: do not implement any logic inside created classes unless what's defined in instructions or templates.
