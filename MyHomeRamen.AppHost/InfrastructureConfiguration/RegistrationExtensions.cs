@@ -42,39 +42,7 @@ internal static class RegistrationExtensions
                       .WithContainerName($"{applicationName}-rabbitmq")
                       //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
                       .WithManagementPlugin()
-                      .WithLifetime(ContainerLifetime.Persistent);
-    }
-
-    public static IResourceBuilder<ContainerResource> ConfigureSeq(this IDistributedApplicationBuilder builder, IConfiguration configuration)
-    {
-        const string sectionName = $"{ConfigurationSectionPrefix}SeqConfig";
-
-        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
-        SeqConfig config = configuration.GetSection(sectionName).Get<SeqConfig>() ?? new();
-
-        return builder.AddContainer($"{applicationName}-seq", "datalust/seq")
-                      .WithContainerName($"{applicationName}-seq")
-                      .WithEnvironment("ACCEPT_EULA", "Y")
-                      //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
-                      .WithHttpEndpoint(8081, 80, "main")
-                      .WithHttpEndpoint(5341, 5341, "other")
-                      .WithExplicitStart()
-                      .WithLifetime(ContainerLifetime.Persistent);
-    }
-
-    public static IResourceBuilder<ContainerResource> ConfigureJaeger(this IDistributedApplicationBuilder builder, IConfiguration configuration)
-    {
-        const string sectionName = $"{ConfigurationSectionPrefix}JaegerConfig";
-
-        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
-        JaegerConfig config = configuration.GetSection(sectionName).Get<JaegerConfig>() ?? new();
-
-        return builder.AddContainer($"{applicationName}-jaeger", "jaegertracing/all-in-one")
-                      .WithContainerName($"{applicationName}-jaeger")
-                      //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
-                      .WithHttpEndpoint(16686, targetPort: 16686, name: "jaegerPortal")
-                      .WithHttpEndpoint(4317, targetPort: 4317, name: "jaegerEndpoint")
-                      .WithExplicitStart()
+                      .WithOtlpExporter()
                       .WithLifetime(ContainerLifetime.Persistent);
     }
 
@@ -114,7 +82,9 @@ internal static class RegistrationExtensions
                       {
                           config.WithContainerName($"{applicationName}-postgres-web-view");
                           config.WithExplicitStart();
+                          config.WithOtlpExporter();
                       })
+                      .WithOtlpExporter()
                       .WithLifetime(ContainerLifetime.Persistent);
     }
 }

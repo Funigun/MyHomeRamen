@@ -22,6 +22,5 @@
     <PackageReference Include="Aspire.Hosting.Keycloak" />
 	<PackageReference Include="Aspire.Hosting.PostgreSQL" />
     <PackageReference Include="Serilog" />
-    <PackageReference Include="Serilog.Sinks.Seq" />
   </ItemGroup>
 </Project>

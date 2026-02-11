@@ -76,25 +76,6 @@ public static class Extensions
         return builder;
     }
 
-    private static IHostApplicationBuilder AddExportToSeq(this IHostApplicationBuilder builder)
-    {
-        builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter(opt =>
-        {
-            opt.Endpoint = new Uri("http://localhost:8081/ingest/otlp/v1/logs");
-            opt.Protocol = OtlpExportProtocol.HttpProtobuf;
-        }));
-
-        builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing
-                        .AddSource(_sourceName)
-                        .AddOtlpExporter(opt =>
-                        {
-                            opt.Endpoint = new Uri("http://localhost:8081/ingest/otlp/v1/traces");
-                            opt.Protocol = OtlpExportProtocol.HttpProtobuf;
-                        }));
-
-        return builder;
-    }
-
     private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder)
              where TBuilder : IHostApplicationBuilder
     {
@@ -105,8 +86,6 @@ public static class Extensions
             builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
             builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
             builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
-
-            //builder.AddExportToSeq();
         }
 
         return builder;

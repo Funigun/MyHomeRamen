@@ -50,12 +50,9 @@ internal static class DependencyInjection
         using IServiceScope scope = app.Services.CreateScope();
         using AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        if (!await dbContext.Database.EnsureCreatedAsync())
+        if (!await dbContext.Database.EnsureCreatedAsync() && (await dbContext.Database.GetPendingMigrationsAsync()).Any())
         {
-            if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
-            {
-                await dbContext.Database.MigrateAsync();
-            }
+            await dbContext.Database.MigrateAsync();
         }
     }
 }

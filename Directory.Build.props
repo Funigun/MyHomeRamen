@@ -38,7 +38,6 @@
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="Serilog"/>
 		<PackageReference Include="Serilog.AspNetCore" />
-		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
 		<PackageReference Include="Aspire.StackExchange.Redis" />
@@ -59,7 +58,6 @@
 		<PackageReference Include="MudBlazor.Markdown"/>
 		<PackageReference Include="Serilog"/>
 		<PackageReference Include="Serilog.AspNetCore" />
-		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 		<PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server"/>
@@ -95,7 +93,6 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="Serilog"/>
 		<PackageReference Include="Serilog.AspNetCore" />
-		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 	</ItemGroup>
 

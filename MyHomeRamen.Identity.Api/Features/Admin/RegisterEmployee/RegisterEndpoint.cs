@@ -19,7 +19,7 @@ public sealed class RegisterEmployeeEndpoint : IEndpoint
     {
         endpointBuilder.MapStandardPost<RegisterRequest, RegisterRequest>("/employee-sign-up", Handler)
                        .WithAuthenticationFilter<RegisterEmployeeRequest>()
-                       .WithName("RegisterEndpoint")
+                       .WithName("RegisterEmployeeEndpoint")
                        .WithDescription("Handles user registration");
     }
 

@@ -11,7 +11,7 @@ IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.ConfigureRabbitMq(co
 IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 
 IResourceBuilder<PostgresServerResource> postgres = builder.ConfigurePostgresDb(config);
-IResourceBuilder<PostgresDatabaseResource>? db = postgres.AddDatabase("MyHomeRamenDb");
+IResourceBuilder<PostgresDatabaseResource> db = postgres.AddDatabase("MyHomeRamenDb");
 
 IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
                                                               .WithReference(rabbitmq)
@@ -20,30 +20,20 @@ IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiSer
                                                               .WithReference(postgres)
                                                               .WaitFor(rabbitmq)
                                                               .WaitFor(cache)
-                                                              .WaitFor(keyCloak);
+                                                              .WaitFor(keyCloak)
+                                                              .WaitFor(db);
 
 IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
-                                                      .WithReference(rabbitmq)
-                                                      .WithReference(cache)
-                                                      .WithReference(keyCloak)
-                                                      .WithReference(postgres)
                                                       .WithReference(identityApiService)
-                                                      .WaitFor(rabbitmq)
-                                                      .WaitFor(cache)
-                                                      .WaitFor(keyCloak)
                                                       .WaitFor(identityApiService);
 
 IResourceBuilder<ProjectResource> blazor = builder.AddBlazor(config)
-                                                  .WithReference(keyCloak)
-                                                  .WithReference(apiService)
                                                   .WithReference(identityApiService)
+                                                  .WithReference(apiService)
                                                   .WaitFor(apiService);
 
 identityApiService.WithReference(blazor);
 
 builder.AddWorkers(config, apiService);
-
-builder.ConfigureSeq(config);
-builder.ConfigureJaeger(config);
 
 await builder.Build().RunAsync();
