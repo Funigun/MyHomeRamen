@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using MyHomeRamen.Identity.Api.Application;
+using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Identity.Api.Persistance;
 using Scalar.AspNetCore;
 

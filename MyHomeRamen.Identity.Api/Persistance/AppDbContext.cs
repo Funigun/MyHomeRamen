@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Identity.Api.Application;
+using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Identity.Api.Domain;
 using MyHomeRamen.Identity.Api.Persistance.GuidConvention;
 

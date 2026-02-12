@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Domain.Common.Authorization;
-using MyHomeRamen.Identity.Api.Application;
 using MyHomeRamen.Identity.Api.Application.Exceptions;
 using MyHomeRamen.Identity.Api.Domain;
 using MyHomeRamen.Identity.Api.Features.Account.Register.Models;

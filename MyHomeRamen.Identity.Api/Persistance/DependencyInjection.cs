@@ -37,7 +37,7 @@ internal static class DependencyInjection
         {
             options.UseSqlServer
             (
-                configuration[$"RestaurantConfiguration:ConnectionString"]!,
+                configuration[$"RestaurantConfiguration:IdentityConnectionString"]!,
                 serverOptions =>
                 {
                     serverOptions.CommandTimeout(600);

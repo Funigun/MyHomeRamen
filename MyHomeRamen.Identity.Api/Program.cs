@@ -1,8 +1,8 @@
 using System.Reflection;
 using FluentValidation;
 using MyHomeRamen.Api.Common;
+using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Extentsions;
-using MyHomeRamen.Identity.Api.Application;
 using MyHomeRamen.Identity.Api.Persistance;
 using MyHomeRamen.Identity.Api.Presentation;
 using Scalar.AspNetCore;
