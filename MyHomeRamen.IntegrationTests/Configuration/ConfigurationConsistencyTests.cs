@@ -7,12 +7,12 @@ namespace MyHomeRamen.IntegrationTests.Configuration;
 
 public sealed class ConfigurationConsistencyTests : IAsyncLifetime
 {
-    private static RestaurantConfigurationProvider _appHostConfiguration;
-    private static RestaurantConfigurationProvider _identityConfiguration;
-    private static RestaurantConfigurationProvider _apiConfiguration;
-    private static RestaurantConfigurationProvider _blazorConfiguration;
-    private static RestaurantConfigurationProvider _emailWorkerConfiguration;
-    private static RestaurantConfigurationProvider _messagesWorkerConfiguration;
+    private RestaurantConfigurationProvider _appHostConfiguration = null!;
+    private RestaurantConfigurationProvider _identityConfiguration = null!;
+    private RestaurantConfigurationProvider _apiConfiguration = null!;
+    private RestaurantConfigurationProvider _blazorConfiguration = null!;
+    private RestaurantConfigurationProvider _emailWorkerConfiguration = null!;
+    private RestaurantConfigurationProvider _messagesWorkerConfiguration = null!;
 
     public ValueTask InitializeAsync()
     {
