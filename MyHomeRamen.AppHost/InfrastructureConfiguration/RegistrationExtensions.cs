@@ -63,28 +63,4 @@ internal static class RegistrationExtensions
                       .WithOtlpExporter()
                       .WithLifetime(ContainerLifetime.Persistent);
     }
-
-    public static IResourceBuilder<PostgresServerResource> ConfigurePostgresDb(this IDistributedApplicationBuilder builder, IConfiguration configuration)
-    {
-        const string sectionName = $"{ConfigurationSectionPrefix}PostgresConfig";
-
-        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
-        PostgresConfig config = configuration.GetSection(sectionName).Get<PostgresConfig>() ?? new();
-
-        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{applicationName}-postgres-db-user-name", config.UserName, secret: true);
-        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-postgres-db-password", config.Password, secret: true);
-
-        return builder.AddPostgres($"{applicationName}-postgres-db", user, password)
-                      .WithContainerName($"{applicationName}-postgres")
-                      //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
-                      .WithEnvironment("ACCEPT_EULA", "Y")
-                      .WithPgWeb(config =>
-                      {
-                          config.WithContainerName($"{applicationName}-postgres-web-view");
-                          config.WithExplicitStart();
-                          config.WithOtlpExporter();
-                      })
-                      .WithOtlpExporter()
-                      .WithLifetime(ContainerLifetime.Persistent);
-    }
 }

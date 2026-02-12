@@ -10,18 +10,13 @@ IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.ConfigureRabbitMq(co
 
 IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 
-IResourceBuilder<PostgresServerResource> postgres = builder.ConfigurePostgresDb(config);
-IResourceBuilder<PostgresDatabaseResource> db = postgres.AddDatabase("MyHomeRamenDb");
-
 IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
                                                               .WithReference(rabbitmq)
                                                               .WithReference(cache)
                                                               .WithReference(keyCloak)
-                                                              .WithReference(postgres)
                                                               .WaitFor(rabbitmq)
                                                               .WaitFor(cache)
-                                                              .WaitFor(keyCloak)
-                                                              .WaitFor(db);
+                                                              .WaitFor(keyCloak);
 
 IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
                                                       .WithReference(identityApiService)

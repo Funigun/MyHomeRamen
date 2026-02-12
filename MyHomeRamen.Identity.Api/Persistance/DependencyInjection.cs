@@ -35,9 +35,9 @@ internal static class DependencyInjection
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            options.UseNpgsql
+            options.UseSqlServer
             (
-                configuration.GetConnectionString(configuration[$"RestaurantConfiguration:ConnectionStringPath"]!)!,
+                configuration[$"RestaurantConfiguration:ConnectionString"]!,
                 serverOptions =>
                 {
                     serverOptions.CommandTimeout(600);
