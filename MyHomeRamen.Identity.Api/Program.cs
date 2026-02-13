@@ -39,7 +39,7 @@ try
     });
 
     builder.Services.AddSerilog();
-    builder.AddServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
+    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
 
     builder.Services.AddOpenApi("v1", options =>
     {

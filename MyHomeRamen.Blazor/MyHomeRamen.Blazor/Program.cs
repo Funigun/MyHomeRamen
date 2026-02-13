@@ -13,7 +13,7 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    builder.AddServiceDefaults("my-home-ramen-blazor");
+    builder.AddBlazorServiceDefaults("my-home-ramen-blazor");
 
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents()

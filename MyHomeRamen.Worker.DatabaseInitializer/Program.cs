@@ -13,7 +13,7 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    builder.AddServiceDefaults("my-home-ramen-db-initializer-worker");
+    builder.AddWorkerServiceDefaults("my-home-ramen-db-initializer-worker");
     builder.Services.AddHostedService<Worker>();
 
     IHost host = builder.Build();

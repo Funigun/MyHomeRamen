@@ -12,7 +12,7 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    builder.AddServiceDefaults("my-home-ramen-api");
+    builder.AddApiServiceDefaults("my-home-ramen-api");
 
     builder.Services.AddProblemDetails();
 
