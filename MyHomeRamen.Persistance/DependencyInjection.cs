@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
@@ -12,91 +13,88 @@ namespace MyHomeRamen.Persistance;
 
 public static class DependencyInjection
 {
-    extension(IServiceCollection services)
+    public static IServiceCollection AddMenuPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
     {
-        public IServiceCollection AddMenuPersistance(IConfiguration configuration)
+        services.AddDbContext<MenuDbContext>(options =>
         {
-            services.AddDbContext<MenuDbContext>(options =>
-            {
-                string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
-                    connectionString,
-                    serverOptions =>
-                    {
-                        serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "menu");
-                    }
-                );
-            });
+            string? connectionString = configurationProvider.MenuConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "menu");
+                }
+            );
+        });
 
-            return services;
-        }
+        return services;
+    }
 
-        public IServiceCollection AddBasketPersistance(IConfiguration configuration)
+    public static IServiceCollection AddBasketPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    {
+        services.AddDbContext<BasketDbContext>(options =>
         {
-            services.AddDbContext<BasketDbContext>(options =>
-            {
-                string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
-                    connectionString,
-                    serverOptions =>
-                    {
-                        serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "basket");
-                    }
-                );
-            });
+            string? connectionString = configurationProvider.ShoppingCartConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "basket");
+                }
+            );
+        });
 
-            return services;
-        }
+        return services;
+    }
 
-        public IServiceCollection AddOrdersPersistance(IConfiguration configuration)
+    public static IServiceCollection AddOrdersPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    {
+        services.AddDbContext<OrdersDbContext>(options =>
         {
-            services.AddDbContext<OrdersDbContext>(options =>
-            {
-                string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
-                    connectionString,
-                    serverOptions =>
-                    {
-                        serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "orders");
-                    }
-                );
-            });
+            string? connectionString = configurationProvider.OrdersConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "orders");
+                }
+            );
+        });
 
-            return services;
-        }
+        return services;
+    }
 
-        public IServiceCollection AddReservationsPersistance(IConfiguration configuration)
+    public static IServiceCollection AddReservationsPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    {
+        services.AddDbContext<ReservationsDbContext>(options =>
         {
-            services.AddDbContext<ReservationsDbContext>(options =>
-            {
-                string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
-                    connectionString,
-                    serverOptions =>
-                    {
-                        serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "reservations");
-                    }
-                );
-            });
+            string? connectionString = configurationProvider.ReservationsConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "reservations");
+                }
+            );
+        });
 
-            return services;
-        }
+        return services;
+    }
 
-        public IServiceCollection AddPaymentsPersistance(IConfiguration configuration)
+    public static IServiceCollection AddPaymentsPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    {
+        services.AddDbContext<PaymentsDbContext>(options =>
         {
-            services.AddDbContext<PaymentsDbContext>(options =>
-            {
-                string? connectionString = configuration.GetConnectionString("MyHomeRamenConnectionString");
-                options.UseSqlServer(
-                    connectionString,
-                    serverOptions =>
-                    {
-                        serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "payments");
-                    }
-                );
-            });
+            string? connectionString = configurationProvider.PaymentsConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "payments");
+                }
+            );
+        });
 
-            return services;
-        }
+        return services;
     }
 }

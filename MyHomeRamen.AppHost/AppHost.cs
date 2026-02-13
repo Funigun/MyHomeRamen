@@ -10,26 +10,25 @@ IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.ConfigureRabbitMq(co
 
 IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 
-IResourceBuilder<PostgresServerResource> postgres = builder.ConfigurePostgresDb(config);
-postgres.AddDatabase("db");
+IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
+                                                              .WithReference(rabbitmq)
+                                                              .WithReference(cache)
+                                                              .WithReference(keyCloak)
+                                                              .WaitFor(rabbitmq)
+                                                              .WaitFor(cache)
+                                                              .WaitFor(keyCloak);
 
 IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
-                                                      .WithReference(rabbitmq)
-                                                      .WithReference(cache)
-                                                      .WithReference(keyCloak)
-                                                      .WithReference(postgres)
-                                                      .WaitFor(rabbitmq)
-                                                      .WaitFor(cache)
-                                                      .WaitFor(keyCloak);
+                                                      .WithReference(identityApiService)
+                                                      .WaitFor(identityApiService);
 
-builder.AddBlazor(config)
-       .WithReference(keyCloak)
-       .WithReference(apiService)
-       .WaitFor(apiService);
+IResourceBuilder<ProjectResource> blazor = builder.AddBlazor(config)
+                                                  .WithReference(identityApiService)
+                                                  .WithReference(apiService)
+                                                  .WaitFor(apiService);
+
+identityApiService.WithReference(blazor);
 
 builder.AddWorkers(config, apiService);
-
-builder.ConfigureSeq(config);
-builder.ConfigureJaeger(config);
 
 await builder.Build().RunAsync();

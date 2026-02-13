@@ -104,7 +104,7 @@ public static class DependencyInjection
 
         foreach (IEndpoint endpoint in endpoints)
         {
-            if (string.IsNullOrEmpty(endpoint.GroupName))
+            if (!string.IsNullOrEmpty(endpoint.GroupName))
             {
                 if (!groupedEndpoints.TryGetValue(endpoint.GroupName, out List<IEndpoint>? groupEndpoints))
                 {
@@ -147,13 +147,5 @@ public static class DependencyInjection
         }
 
         return app;
-    }
-
-    public static WebApplicationBuilder AddConfiguration(this WebApplicationBuilder builder)
-    {
-        builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                             .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
-
-        return builder;
     }
 }
