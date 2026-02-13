@@ -13,6 +13,7 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
     private RestaurantConfigurationProvider _blazorConfiguration = null!;
     private RestaurantConfigurationProvider _emailWorkerConfiguration = null!;
     private RestaurantConfigurationProvider _messagesWorkerConfiguration = null!;
+    private RestaurantConfigurationProvider _dbInitializerWorkerConfiguration = null!;
 
     public ValueTask InitializeAsync()
     {
@@ -24,6 +25,7 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
         string blazorConfig = Path.Combine(solutionRoot, "MyHomeRamen.Blazor", "MyHomeRamen.Blazor", "appsettings.Development.json");
         string emailWorkerConfig = Path.Combine(solutionRoot, "MyHomeRamen.Worker.MailSender", "appsettings.Development.json");
         string messagesWorkerConfig = Path.Combine(solutionRoot, "MyHomeRamen.Worker.MessagesHandler", "appsettings.Development.json");
+        string dbInitializerWorkerConfig = Path.Combine(solutionRoot, "MyHomeRamen.Worker.DatabaseInitializer", "appsettings.Development.json");
 
         IConfigurationRoot? config = new ConfigurationBuilder().AddJsonFile(appHostConfig, optional: false).Build();
         _appHostConfiguration = new(config);
@@ -43,6 +45,9 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
         config = new ConfigurationBuilder().AddJsonFile(messagesWorkerConfig, optional: false).Build();
         _messagesWorkerConfiguration = new(config);
 
+        config = new ConfigurationBuilder().AddJsonFile(dbInitializerWorkerConfig, optional: false).Build();
+        _dbInitializerWorkerConfiguration = new(config);
+
         return ValueTask.CompletedTask;
     }
 
@@ -55,6 +60,7 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
         Assert.Null(_identityConfiguration.ReservationsConnectionString);
         Assert.Null(_identityConfiguration.ShoppingCartConnectionString);
         Assert.Null(_identityConfiguration.PaymentsConnectionString);
+        Assert.Null(_identityConfiguration.WorkerConnectionString);
 
         // Assert relevant
         Assert.NotNull(_identityConfiguration.IdentityConnectionString);
@@ -104,7 +110,8 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
             _apiConfiguration,
             _blazorConfiguration,
             _emailWorkerConfiguration,
-            _messagesWorkerConfiguration
+            _messagesWorkerConfiguration,
+            _dbInitializerWorkerConfiguration
         ];
 
         foreach (PropertyInfo property in properties)
@@ -131,7 +138,8 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
             _apiConfiguration.PaymentsConnectionString ?? string.Empty,
             _apiConfiguration.ReservationsConnectionString ?? string.Empty,
             _emailWorkerConfiguration.WorkerConnectionString ?? string.Empty,
-            _messagesWorkerConfiguration.WorkerConnectionString ?? string.Empty
+            _messagesWorkerConfiguration.WorkerConnectionString ?? string.Empty,
+            _dbInitializerWorkerConfiguration.WorkerConnectionString ?? string.Empty
             ];
 
         foreach (string config in connectionsToCheck)
@@ -167,7 +175,10 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
     {
         Assert.NotNull(_emailWorkerConfiguration.WorkerConnectionString);
         Assert.NotNull(_messagesWorkerConfiguration.WorkerConnectionString);
+        Assert.NotNull(_dbInitializerWorkerConfiguration.WorkerConnectionString);
+
         Assert.Equal(_emailWorkerConfiguration.WorkerConnectionString, _messagesWorkerConfiguration.WorkerConnectionString);
+        Assert.Equal(_emailWorkerConfiguration.WorkerConnectionString, _dbInitializerWorkerConfiguration.WorkerConnectionString);
     }
 
     public ValueTask DisposeAsync()

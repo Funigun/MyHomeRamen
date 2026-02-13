@@ -19,6 +19,7 @@ public abstract class BaseArchitectureTest
     protected static readonly Assembly WorkerCommonAssembly = typeof(MyHomeRamen.Worker.Common.IWorkerCommonAssemblyMarker).Assembly;
     protected static readonly Assembly WorkerMailSenderAssembly = typeof(MyHomeRamen.Worker.MailSender.IWorkerMailSenderAssemblyMarker).Assembly;
     protected static readonly Assembly WorkerMessagesHandlerAssembly = typeof(MyHomeRamen.Worker.MessagesHandler.IWorkerMessagesHandlerAssemblyMarker).Assembly;
+    protected static readonly Assembly WorkerDbInitializerAssembly = typeof(MyHomeRamen.Worker.DatabaseInitializer.IDbInitializerWorkerAssemblyMarker).Assembly;
     protected static readonly Assembly ArchitectureTestsAssembly = typeof(BaseArchitectureTest).Assembly;
 
     protected static readonly Assembly[] ProjectAssemblies =
@@ -38,6 +39,7 @@ public abstract class BaseArchitectureTest
         WorkerCommonAssembly,
         WorkerMailSenderAssembly,
         WorkerMessagesHandlerAssembly,
+        WorkerDbInitializerAssembly,
         ArchitectureTestsAssembly
     ];
 }

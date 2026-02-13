@@ -28,6 +28,7 @@
   </Folder>
   <Folder Name="/Workers/">
     <Project Path="MyHomeRamen.Worker.Common/MyHomeRamen.Worker.Common.csproj" Id="26fb0a68-a068-4aa6-a742-f12ca9d6584e" />
+    <Project Path="MyHomeRamen.Worker.DatabaseInitializer/MyHomeRamen.Worker.DatabaseInitializer.csproj" />
     <Project Path="MyHomeRamen.Worker.MailSender/MyHomeRamen.Worker.MailSender.csproj" Id="e76618b6-bbca-4d85-bc19-63c7c5bfe94a" />
     <Project Path="MyHomeRamen.Worker.MessagesHandler/MyHomeRamen.Worker.MessagesHandler.csproj" Id="913d105a-90ab-485f-848d-71c361d1afb7" />
   </Folder>
@@ -57,9 +58,6 @@
     <File Path=".github/prompts/create-domain-model-unit-tests.prompt.md" />
     <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
-  </Folder>
-  <Folder Name="/_github/workflows/">
-    <File Path=".github/workflows/pr-checks.yml" />
   </Folder>
   <Folder Name="/_wiki/" />
   <Folder Name="/_wiki/Architecture/">
