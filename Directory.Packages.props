@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- API Documentation -->
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.15.0-beta.1" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.12.4" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
     <!-- AspNetCore and extensions -->
@@ -24,6 +23,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.14.0-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.14.0-beta.1" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.15.0-beta.1" />
     <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.1.0" />
     <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.1.0" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.0" />
@@ -65,5 +65,7 @@
     <PackageVersion Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.18.0.131500" />
     <PackageVersion Include="StyleCop.Analyzers" Version="1.2.0-beta.556" />
+	<PackageVersion Include="Quartz" Version="3.13.1" />
+	<PackageVersion Include="Quartz.Extensions.Hosting" Version="3.13.1" />
   </ItemGroup>
 </Project>

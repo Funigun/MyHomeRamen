@@ -91,6 +91,8 @@
 	<!-- Worker Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.Contains(`.Worker.`))'">
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Quartz" />
+		<PackageReference Include="Quartz.Extensions.Hosting" />
 		<PackageReference Include="Serilog"/>
 		<PackageReference Include="Serilog.AspNetCore" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
