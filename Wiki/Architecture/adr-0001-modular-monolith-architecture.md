@@ -1,7 +1,7 @@
 ---
 title: "ADR-0001: Modular Monolith Architecture with Microservices Transition Strategy"
 status: "Accepted"
-date: "2025-01-30"
+date: "2026-01-30"
 authors: "Funigun"
 tags: ["architecture", "decision", "structure"]
 ---

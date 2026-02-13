@@ -1,6 +1,6 @@
 ---
 title: "ADR-0001: Define Domain Model for Payments Module"
-status: "Proposed"
+status: "Accepted"
 date: "2026-01-28"
 authors: "Funigun"
 tags: ["domain", "payments", "architecture"]

@@ -35,13 +35,10 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory"/>
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="Serilog"/>
 		<PackageReference Include="Serilog.AspNetCore" />
-		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
-		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
 		<PackageReference Include="Aspire.StackExchange.Redis" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
@@ -61,7 +58,6 @@
 		<PackageReference Include="MudBlazor.Markdown"/>
 		<PackageReference Include="Serilog"/>
 		<PackageReference Include="Serilog.AspNetCore" />
-		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 		<PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server"/>
@@ -88,7 +84,6 @@
 		<PackageReference Include="NetArchTest.Rules" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
-		<PackageReference Include="Testcontainers.MsSql" />
 		<PackageReference Include="Testcontainers.Redis" />
 		<PackageReference Include="Respawn" />
 	</ItemGroup>
@@ -98,7 +93,6 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="Serilog"/>
 		<PackageReference Include="Serilog.AspNetCore" />
-		<PackageReference Include="Serilog.Sinks.Seq" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 	</ItemGroup>
 

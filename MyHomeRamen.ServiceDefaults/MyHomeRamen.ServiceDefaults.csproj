@@ -14,11 +14,9 @@
 	  <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
 	  <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
 	  <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
-	  <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" />
 	  <PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" />
 	  <PackageReference Include="Aspire.StackExchange.Redis" />
 	  <PackageReference Include="StackExchange.Redis" />
       <PackageReference Include="Serilog" />
-      <PackageReference Include="Serilog.Sinks.Seq" />
   </ItemGroup>
 </Project>

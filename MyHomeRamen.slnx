@@ -58,6 +58,9 @@
     <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
+  <Folder Name="/_github/workflows/">
+    <File Path=".github/workflows/pr-checks.yml" />
+  </Folder>
   <Folder Name="/_wiki/" />
   <Folder Name="/_wiki/Architecture/">
     <File Path="Wiki/Architecture/adr-0001-modular-monolith-architecture.md" />
@@ -81,5 +84,6 @@
   </Folder>
   <Folder Name="/_wiki/Users/">
     <File Path="Wiki/Users ADR/0001-users-domain.md" />
+    <File Path="Wiki/Users ADR/0002-users-authentication.md" />
   </Folder>
 </Solution>
