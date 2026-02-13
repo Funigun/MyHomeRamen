@@ -109,7 +109,7 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
 
         foreach (PropertyInfo property in properties)
         {
-            List<object?>? values = configs.Select(c => property.GetValue(c)).Distinct().ToList();
+            List<object?>? values = configs.Select(property.GetValue).Distinct().ToList();
             Assert.True(values.Count == 1, $"Property {property.Name} differs across modules.");
         }
     }
@@ -182,7 +182,7 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
             return (null, null, null);
         }
 
-        DbConnectionStringBuilder? builder = new();
+        DbConnectionStringBuilder? builder = [];
         try
         {
             builder.ConnectionString = connectionString;
@@ -197,21 +197,5 @@ public sealed class ConfigurationConsistencyTests : IAsyncLifetime
         string? user = builder["User Id"] as string;
 
         return (server, database, user);
-    }
-
-    private static void CheckConnectionStrings(RestaurantConfigurationProvider config, string expectedServer, string expectedDb)
-    {
-        IEnumerable<PropertyInfo>? properties = typeof(RestaurantConfigurationProvider)
-            .GetProperties()
-            .Where(p => p.Name.EndsWith("ConnectionString"));
-
-        foreach (PropertyInfo prop in properties)
-        {
-            string? connString = prop.GetValue(config) as string;
-
-            (string? server, string? db, _) = ParseConnectionString(connString);
-            Assert.Equal(expectedServer, server);
-            Assert.Equal(expectedDb, db);
-        }
     }
 }

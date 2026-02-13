@@ -148,11 +148,16 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ZipCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Addresses", "identity");
                 });
@@ -197,9 +202,6 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("AddressId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -242,8 +244,6 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AddressId");
-
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -257,13 +257,13 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
 
             modelBuilder.Entity("UserAddresses", b =>
                 {
-                    b.Property<Guid>("Address1Id")
+                    b.Property<Guid>("AddressId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Address1Id", "UserId");
+                    b.HasKey("AddressId", "UserId");
 
                     b.HasIndex("UserId");
 
@@ -321,20 +321,18 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Identity.Api.Domain.User", b =>
+            modelBuilder.Entity("MyHomeRamen.Identity.Api.Domain.Address", b =>
                 {
-                    b.HasOne("MyHomeRamen.Identity.Api.Domain.Address", "Address")
-                        .WithMany()
-                        .HasForeignKey("AddressId");
-
-                    b.Navigation("Address");
+                    b.HasOne("MyHomeRamen.Identity.Api.Domain.User", null)
+                        .WithMany("Addresses")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("UserAddresses", b =>
                 {
                     b.HasOne("MyHomeRamen.Identity.Api.Domain.Address", null)
                         .WithMany()
-                        .HasForeignKey("Address1Id")
+                        .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -343,6 +341,11 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Identity.Api.Domain.User", b =>
+                {
+                    b.Navigation("Addresses");
                 });
 #pragma warning restore 612, 618
         }

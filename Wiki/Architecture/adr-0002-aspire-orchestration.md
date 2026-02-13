@@ -16,7 +16,7 @@ The MyHomeRamen solution consists of multiple interacting components:
 - **Backend API**: The Modular Monolith core.
 - **Workers**: Background processing (MailSender, MessagesHandler).
 - **Frontend**: Blazor Server and Client (WASM).
-- **Infrastructure**: Redis (caching), RabbitMQ (messaging), PostgreSql (data).
+- **Infrastructure**: Redis (caching), RabbitMQ (messaging), MS SQL Server (data).
 
 Orchestrating these dependencies during local development is complex. Developers typically need to manage Docker Compose files, connection strings, port allocations, and startup sequences manually. Without a unified tool, "it works on my machine" issues are frequent, and onboarding new developers is slow.
 

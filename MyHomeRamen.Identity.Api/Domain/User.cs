@@ -4,13 +4,15 @@ namespace MyHomeRamen.Identity.Api.Domain;
 
 public class User : IdentityUser<Guid>
 {
+    private readonly List<Address> _addresses = [];
+
     public Guid RestaurantId { get; private set; }
 
     public string FirstName { get; private set; }
 
     public string LastName { get; private set; }
 
-    public Address? Address { get; private set; }
+    public ICollection<Address> Addresses => _addresses.ToList();
 
     private User()
     {

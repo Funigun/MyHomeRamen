@@ -22,4 +22,9 @@ public class IdentityValidationException : ApplicationValidationException
     {
         Errors = ["User name already in use"],
     };
+
+    public static IdentityValidationException LogInFailed() => new("Login failed")
+    {
+        Errors = ["Invalid username or password"],
+    };
 }

@@ -15,23 +15,6 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                 name: "identity");
 
             migrationBuilder.CreateTable(
-                name: "Addresses",
-                schema: "identity",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Building = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Apartment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Addresses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 schema: "identity",
                 columns: table => new
@@ -56,7 +39,6 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                     RestaurantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -70,12 +52,6 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUsers_Addresses_AddressId",
-                        column: x => x.AddressId,
-                        principalSchema: "identity",
-                        principalTable: "Addresses",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -99,6 +75,30 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Addresses",
+                schema: "identity",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Building = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Apartment = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Addresses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Addresses_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalSchema: "identity",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -200,15 +200,15 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                 schema: "identity",
                 columns: table => new
                 {
-                    Address1Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserAddresses", x => new { x.Address1Id, x.UserId });
+                    table.PrimaryKey("PK_UserAddresses", x => new { x.AddressId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_UserAddresses_Addresses_Address1Id",
-                        column: x => x.Address1Id,
+                        name: "FK_UserAddresses_Addresses_AddressId",
+                        column: x => x.AddressId,
                         principalSchema: "identity",
                         principalTable: "Addresses",
                         principalColumn: "Id",
@@ -221,6 +221,12 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Addresses_UserId",
+                schema: "identity",
+                table: "Addresses",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -259,12 +265,6 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                 schema: "identity",
                 table: "AspNetUsers",
                 column: "NormalizedEmail");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_AddressId",
-                schema: "identity",
-                table: "AspNetUsers",
-                column: "AddressId");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
@@ -313,11 +313,11 @@ namespace MyHomeRamen.Identity.Api.Persistance.Migrations
                 schema: "identity");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers",
+                name: "Addresses",
                 schema: "identity");
 
             migrationBuilder.DropTable(
-                name: "Addresses",
+                name: "AspNetUsers",
                 schema: "identity");
         }
     }

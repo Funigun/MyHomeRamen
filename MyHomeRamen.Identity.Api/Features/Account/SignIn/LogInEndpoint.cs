@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Identity.Api.Application.Exceptions;
 using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Domain;
 using MyHomeRamen.Identity.Api.Features.Account.SignIn.Models;
@@ -23,6 +24,11 @@ public class LogInEndpoint : IEndpoint
     private static async Task<Results<Ok<LogInResponse>, BadRequest>> Handler(LogInRequest request, UserManager<User> userManager, AuthorizationService authorizationService, AppDbContext dbContext, IConfiguration configuration, CancellationToken cancellationToken)
     {
         User user = await userManager.Users.FirstAsync(userManager => userManager.UserName == request.UserName, cancellationToken);
+
+        if (!await userManager.CheckPasswordAsync(user, request.Password))
+        {
+            throw IdentityValidationException.LogInFailed();
+        }
 
         DateTime tokenExpirationTime = authorizationService.CalculateTokenExpirationTime(configuration, isRefreshToken: false);
 
