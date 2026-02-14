@@ -37,6 +37,21 @@ public class BasketDbContext : DbContext, IShoppingCartDbContext
         return Database.RollbackTransactionAsync(cancellationToken);
     }
 
+    public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
+    {
+        return await Database.EnsureCreatedAsync(cancellationToken);
+    }
+
+    public async Task Migrate(CancellationToken cancellationToken)
+    {
+        await Database.MigrateAsync(cancellationToken);
+    }
+
+    public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
+    {
+        return await Database.ExecuteSqlAsync(sql, cancellationToken);
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("basket");

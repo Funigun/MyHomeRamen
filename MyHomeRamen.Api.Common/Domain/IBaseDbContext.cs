@@ -11,4 +11,10 @@ public interface IBaseDbContext
     Task CommitTransaction(CancellationToken cancellationToken);
 
     Task RollbackTransaction(CancellationToken cancellationToken);
+
+    Task<bool> EnsureCreated(CancellationToken cancellationToken);
+
+    Task Migrate(CancellationToken cancellationToken);
+
+    Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken);
 }
