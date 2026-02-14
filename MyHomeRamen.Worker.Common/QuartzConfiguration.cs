@@ -5,7 +5,7 @@ namespace MyHomeRamen.Worker.Common;
 
 public static class QuartzConfiguration
 {
-    public static IServiceCollection AddQuartzServices(this IServiceCollection services)
+    public static IServiceCollection AddQuartzServices(this IServiceCollection services, Action<IServiceCollectionQuartzConfigurator>? configure = null)
     {
         services.Configure<QuartzOptions>(options =>
         {
@@ -21,9 +21,10 @@ public static class QuartzConfiguration
             {
                 tp.MaxConcurrency = 10;
             });
-        });
 
-        services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+            // Allow the caller to configure jobs and triggers
+            configure?.Invoke(q);
+        });
 
         return services;
     }

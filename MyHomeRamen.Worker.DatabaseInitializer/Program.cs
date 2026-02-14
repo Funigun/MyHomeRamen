@@ -23,7 +23,19 @@ try
 
     builder.AddWorkerServiceDefaults("my-home-ramen-db-initializer-worker");
 
-    builder.Services.AddQuartzServices();
+    // Configure Quartz with the DbInitializerJob scheduled to run once immediately
+    builder.Services.AddQuartzServices(q =>
+    {
+        JobKey? jobKey = new JobKey(nameof(DbInitializerJob));
+
+        q.AddJob<DbInitializerJob>(opts => opts.WithIdentity(jobKey));
+
+        q.AddTrigger(opts => opts
+            .ForJob(jobKey)
+            .WithIdentity($"{nameof(DbInitializerJob)}-trigger")
+            .StartNow() // Run immediately when application starts
+        );
+    });
 
     builder.Services.AddIdentityPersistance(configurationProvider);
     builder.Services.AddMenuPersistance(configurationProvider);
@@ -34,7 +46,7 @@ try
 
     builder.Services.AddQuartzHostedService(options =>
     {
-        options.WaitForJobsToComplete = true;
+        options.WaitForJobsToComplete = true; // Essential specifically for run-once jobs
     });
 
     IHost host = builder.Build();

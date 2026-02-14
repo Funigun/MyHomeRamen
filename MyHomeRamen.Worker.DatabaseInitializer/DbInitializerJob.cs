@@ -12,7 +12,7 @@ namespace MyHomeRamen.Worker.DatabaseInitializer;
 
 internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
                                 IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext,
-                                IPaymentsDbContext paymentsDbContext)
+                                IPaymentsDbContext paymentsDbContext, ILogger<DbInitializerJob> logger)
              : IJob
 {
     public async Task Execute(IJobExecutionContext context)
@@ -28,27 +28,40 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
             { paymentsDbContext, DatabaseUserConfig.CreatePaymentAdmin() }
         };
 
-        await userContext.EnsureCreated(cancellationToken);
+        bool newDatabaseCreated = await userContext.EnsureCreated(cancellationToken);
+        string databaseCreationComment = newDatabaseCreated ? "Database created successfully." : "Database already exists.";
+        logger.LogInformation("{Comment}", databaseCreationComment);
 
         foreach (IBaseDbContext dbContext in dbContexts.Keys)
         {
             DatabaseUserConfig userConfig = dbContexts[dbContext];
 
-            await dbContext.ExecuteSql($"CREATE SCHEMA {userConfig.Schema}", cancellationToken);
+            await dbContext.ExecuteSql(
+                                       $@"IF (SCHEMA_ID('{userConfig.Schema}') IS NULL)
+                                       BEGIN
+                                            EXEC ('CREATE SCHEMA [{userConfig.Schema}]')
+                                       END",
+                                       cancellationToken);
+
             await dbContext.Migrate(cancellationToken);
 
-            await dbContext.ExecuteSql($"CREATE ROLE {userConfig.Schema}", cancellationToken);
-            await dbContext.ExecuteSql($"ALTER ROLE {userConfig.Role}", cancellationToken);
-            await dbContext.ExecuteSql($"ADD MEMBER {userConfig.User}", cancellationToken);
+            if (newDatabaseCreated)
+            {
+                await dbContext.ExecuteSql($"CREATE ROLE {userConfig.Schema}", cancellationToken);
+                await dbContext.ExecuteSql($"ALTER ROLE {userConfig.Role}", cancellationToken);
+                await dbContext.ExecuteSql($"ADD MEMBER {userConfig.User}", cancellationToken);
 
-            //await dbContext.ExecuteSql($"REVOKE SELECT, INSERT, UPDATE, DELETE, EXECUTE ON SCHEMA::{userConfig.Schema} FROM public", CancellationToken.None);
+                //await dbContext.ExecuteSql($"REVOKE SELECT, INSERT, UPDATE, DELETE, EXECUTE ON SCHEMA::{userConfig.Schema} FROM public", CancellationToken.None);
 
-            await dbContext.ExecuteSql($"GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
+                await dbContext.ExecuteSql($"GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
 
-            await dbContext.ExecuteSql($"GRANT EXECUTE ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
+                await dbContext.ExecuteSql($"GRANT EXECUTE ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
 
-            await dbContext.ExecuteSql($"GRANT CONTROL ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
-            await dbContext.ExecuteSql($"ALTER AUTHORIZATION ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
+                await dbContext.ExecuteSql($"GRANT CONTROL ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
+                await dbContext.ExecuteSql($"ALTER AUTHORIZATION ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
+            }
+
+            logger.LogInformation("{Comment}", $"Schema {userConfig.Schema} configured successfully.");
         }
     }
 }
