@@ -32,6 +32,7 @@ public sealed class UserModuleBoundriesTests : BaseArchitectureTest
         // Arrange
         string[]? allowedNamespaces =
         [
+            "MyHomeRamen.Domain.Users",
             "MyHomeRamen.Domain.Common.Authorization",
             "MyHomeRamen.Domain.Menu.Authorization",
             "MyHomeRamen.Domain.Orders.Authorization",
