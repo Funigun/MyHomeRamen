@@ -2,7 +2,7 @@
 
 namespace MyHomeRamen.Api.Common.Domain;
 
-public interface IBaseDbContext
+public interface IBaseDbContext : IDisposable
 {
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 

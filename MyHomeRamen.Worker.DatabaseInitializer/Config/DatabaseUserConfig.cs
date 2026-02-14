@@ -17,6 +17,16 @@ internal sealed record DatabaseUserConfig
         User = user;
     }
 
+    internal static DatabaseUserConfig CreateUserAdmin()
+    {
+        return new
+        (
+            "indentity",
+            "IdentityRole",
+            "IdentityAdmin"
+        );
+    }
+
     internal static DatabaseUserConfig CreateMenuAdmin()
     {
         return new

@@ -23,7 +23,6 @@ public static class QuartzConfiguration
             });
         });
 
-
         services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
         return services;

@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace MyHomeRamen.Identity.Api.Persistance.GuidConvention;
+namespace MyHomeRamen.Persistance.Common.GuidConvention;
 
 public class GuidFinalizingConvention : IModelFinalizingConvention
 {

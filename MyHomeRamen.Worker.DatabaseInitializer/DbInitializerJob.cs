@@ -4,12 +4,13 @@ using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.ShoppingCart.Database;
+using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Worker.DatabaseInitializer.Config;
 using Quartz;
 
 namespace MyHomeRamen.Worker.DatabaseInitializer;
 
-internal class DbInitializerJob(IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
+internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
                                 IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext,
                                 IPaymentsDbContext paymentsDbContext)
              : IJob
@@ -19,6 +20,7 @@ internal class DbInitializerJob(IMenuDbContext menuDbContext, IShoppingCartDbCon
         CancellationToken cancellationToken = context.CancellationToken;
         Dictionary<IBaseDbContext, DatabaseUserConfig> dbContexts = new()
         {
+            { userContext, DatabaseUserConfig.CreateUserAdmin() },
             { menuDbContext, DatabaseUserConfig.CreateMenuAdmin() },
             { shoppingCartDbContext, DatabaseUserConfig.CreateShoppingCartAdmin() },
             { ordersDbContext, DatabaseUserConfig.CreateOrderAdmin() },
@@ -26,7 +28,7 @@ internal class DbInitializerJob(IMenuDbContext menuDbContext, IShoppingCartDbCon
             { paymentsDbContext, DatabaseUserConfig.CreatePaymentAdmin() }
         };
 
-        await menuDbContext.EnsureCreated(cancellationToken);
+        await userContext.EnsureCreated(cancellationToken);
 
         foreach (IBaseDbContext dbContext in dbContexts.Keys)
         {

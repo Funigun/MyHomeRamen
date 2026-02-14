@@ -1,4 +1,4 @@
-﻿using MyHomeRamen.Identity.Api.Domain;
+﻿using MyHomeRamen.Domain.Users;
 
 namespace MyHomeRamen.Identity.Api.Features.Account.Register.Models;
 

@@ -1,13 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
 using MyHomeRamen.Persistance.Reservations;
 using MyHomeRamen.Persistance.ShoppingCart;
+using MyHomeRamen.Persistance.Users;
 
 namespace MyHomeRamen.Persistance;
 
@@ -93,6 +97,46 @@ public static class DependencyInjection
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "payments");
                 }
             );
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    {
+        services.ConfigureIdentity();
+
+        services.AddDbContext<UsersDbContext>(options =>
+        {
+            string? connectionString = configurationProvider.IdentityConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.CommandTimeout(600);
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "identity");
+                }
+            );
+        });
+        return services;
+    }
+
+    private static IServiceCollection ConfigureIdentity(this IServiceCollection services)
+    {
+        services.AddIdentityCore<User>()
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<UsersDbContext>()
+                .AddApiEndpoints();
+
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequiredLength = 10;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequiredUniqueChars = 3;
+            options.User.RequireUniqueEmail = true;
         });
 
         return services;

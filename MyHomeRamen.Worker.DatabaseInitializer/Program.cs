@@ -25,6 +25,7 @@ try
 
     builder.Services.AddQuartzServices();
 
+    builder.Services.AddIdentityPersistance(configurationProvider);
     builder.Services.AddMenuPersistance(configurationProvider);
     builder.Services.AddBasketPersistance(configurationProvider);
     builder.Services.AddOrdersPersistance(configurationProvider);

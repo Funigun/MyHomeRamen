@@ -3,8 +3,9 @@ using FluentValidation;
 using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Extentsions;
-using MyHomeRamen.Identity.Api.Persistance;
+using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Presentation;
+using MyHomeRamen.Persistance;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -48,12 +49,12 @@ try
     });
 
     builder.Services.AddSharedServices()
+                    .AddScoped<AuthorizationService>()
                     .AddEndpoints(apiAssembly)
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.ConfigureIdentity()
-                    .ConfigureDatabase(builder.Configuration);
+    builder.Services.AddIdentityPersistance(configurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .AddAuthorizationBuilder()

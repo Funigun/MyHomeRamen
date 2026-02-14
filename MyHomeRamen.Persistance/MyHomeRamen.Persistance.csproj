@@ -12,6 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Common\" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
   </ItemGroup>
 </Project>

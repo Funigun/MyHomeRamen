@@ -1,9 +1,87 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Domain.Users.Database;
+using MyHomeRamen.Persistance.Common.GuidConvention;
 
 namespace MyHomeRamen.Persistance.Users;
 
-internal class UsersDbContext
+public class UsersDbContext : IdentityDbContext<User, Role, Guid>, IUsersDbContext
 {
+    private readonly RestaurantConfigurationProvider _restaurantConfiguration;
+
+    public DbSet<Address> Addresses { get; set; } = default!;
+
+    public UsersDbContext(DbContextOptions<UsersDbContext> options, RestaurantConfigurationProvider configFactory) : base(options)
+    {
+        _restaurantConfiguration = configFactory;
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.HasDefaultSchema("identity");
+
+        builder.Entity<User>(b =>
+        {
+            b.ToTable("Users");
+
+            b.HasQueryFilter(u => u.RestaurantId == _restaurantConfiguration.RestaurantId);
+
+            b.Property(u => u.RestaurantId)
+             .IsRequired(true);
+
+            b.Ignore(u => u.LockoutEnd);
+            b.Ignore(u => u.TwoFactorEnabled);
+            b.Ignore(u => u.PhoneNumberConfirmed);
+            b.Ignore(u => u.ConcurrencyStamp);
+            b.Ignore(u => u.SecurityStamp);
+            b.Ignore(u => u.NormalizedEmail);
+            b.Ignore(u => u.LockoutEnabled);
+
+            b.HasMany<Address>()
+             .WithMany()
+             .UsingEntity("UserAddresses");
+        });
+
+        base.OnModelCreating(builder);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        base.ConfigureConventions(configurationBuilder);
+
+        configurationBuilder.Conventions.Add(_ => new GuidFinalizingConvention());
+    }
+
+    public async Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
+    {
+        return await Database.BeginTransactionAsync(cancellationToken);
+    }
+
+    public async Task CommitTransaction(CancellationToken cancellationToken)
+    {
+        await Database.CommitTransactionAsync(cancellationToken);
+    }
+
+    public async Task RollbackTransaction(CancellationToken cancellationToken)
+    {
+        await Database.RollbackTransactionAsync(cancellationToken);
+    }
+
+    public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
+    {
+        return await Database.EnsureCreatedAsync(cancellationToken);
+    }
+
+    public async Task Migrate(CancellationToken cancellationToken)
+    {
+        await Database.MigrateAsync(cancellationToken);
+    }
+
+    public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
+    {
+        return await Database.ExecuteSqlInterpolatedAsync(sql, cancellationToken);
+    }
 }

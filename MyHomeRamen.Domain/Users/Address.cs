@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Identity.Api.Domain;
+namespace MyHomeRamen.Domain.Users;
 
 public class Address
 {
