@@ -1,8 +1,10 @@
 using System.Reflection;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Extentsions;
+using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Presentation;
 using MyHomeRamen.Persistance;
@@ -53,6 +55,9 @@ try
                     .AddEndpoints(apiAssembly)
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
+
+    builder.Services.AddIdentityCore<User>()
+                .AddApiEndpoints();
 
     builder.Services.AddIdentityPersistance(configurationProvider);
 

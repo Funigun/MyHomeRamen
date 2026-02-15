@@ -44,7 +44,5 @@ internal static class ProjectRegistrationExtensions
                .WithReference(apiService)
                .WaitFor(apiService)
                .WithExplicitStart();
-
-        builder.AddProject<Projects.MyHomeRamen_Worker_DatabaseInitializer>($"{applicationName}-db-initializer");
     }
 }

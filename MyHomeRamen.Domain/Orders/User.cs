@@ -14,21 +14,18 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 
     public string PhoneNumber { get; private set; }
 
-    public UserAddress Address { get; private set; }
-
     private User()
     {
     }
 
-    private User(UserId id, UserAddress address)
+    private User(UserId id)
     {
         Id = id;
-        Address = address;
     }
 
-    public static User Create(UserId id, string firstName, string lastName, string email, string phoneNumber, UserAddress address)
+    public static User Create(UserId id, string firstName, string lastName, string email, string phoneNumber)
     {
-        return new User(id, address)
+        return new User(id)
         {
             FirstName = firstName,
             LastName = lastName,

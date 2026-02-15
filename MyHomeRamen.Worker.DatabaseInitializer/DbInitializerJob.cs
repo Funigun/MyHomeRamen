@@ -1,4 +1,5 @@
-﻿using MyHomeRamen.Api.Common.Domain;
+﻿using System.Runtime.CompilerServices;
+using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Payments.Database;
@@ -15,6 +16,8 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
                                 IPaymentsDbContext paymentsDbContext, ILogger<DbInitializerJob> logger)
              : IJob
 {
+    private static FormattableString CreateRawSql(string sql) => FormattableStringFactory.Create(sql);
+
     public async Task Execute(IJobExecutionContext context)
     {
         CancellationToken cancellationToken = context.CancellationToken;
@@ -37,28 +40,28 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
             DatabaseUserConfig userConfig = dbContexts[dbContext];
 
             await dbContext.ExecuteSql(
+                                       CreateRawSql(
                                        $@"IF (SCHEMA_ID('{userConfig.Schema}') IS NULL)
                                        BEGIN
                                             EXEC ('CREATE SCHEMA [{userConfig.Schema}]')
-                                       END",
+                                       END"),
                                        cancellationToken);
 
             await dbContext.Migrate(cancellationToken);
 
             if (newDatabaseCreated)
             {
-                await dbContext.ExecuteSql($"CREATE ROLE {userConfig.Schema}", cancellationToken);
-                await dbContext.ExecuteSql($"ALTER ROLE {userConfig.Role}", cancellationToken);
-                await dbContext.ExecuteSql($"ADD MEMBER {userConfig.User}", cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"CREATE ROLE [{userConfig.Role}]"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"ALTER ROLE [{userConfig.Role}] ADD MEMBER [{userConfig.User}]"), cancellationToken);
 
                 //await dbContext.ExecuteSql($"REVOKE SELECT, INSERT, UPDATE, DELETE, EXECUTE ON SCHEMA::{userConfig.Schema} FROM public", CancellationToken.None);
 
-                await dbContext.ExecuteSql($"GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::[{userConfig.Schema}] TO [{userConfig.Role}]"), cancellationToken);
 
-                await dbContext.ExecuteSql($"GRANT EXECUTE ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"GRANT EXECUTE ON SCHEMA::[{userConfig.Schema}] TO [{userConfig.Role}]"), cancellationToken);
 
-                await dbContext.ExecuteSql($"GRANT CONTROL ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
-                await dbContext.ExecuteSql($"ALTER AUTHORIZATION ON SCHEMA::{userConfig.Schema} TO {userConfig.Role}", cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"GRANT CONTROL ON SCHEMA::[{userConfig.Schema}] TO [{userConfig.Role}]"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"ALTER AUTHORIZATION ON SCHEMA::[{userConfig.Schema}] TO [{userConfig.Role}]"), cancellationToken);
             }
 
             logger.LogInformation("{Comment}", $"Schema {userConfig.Schema} configured successfully.");

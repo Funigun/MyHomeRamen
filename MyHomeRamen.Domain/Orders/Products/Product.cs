@@ -18,8 +18,6 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
     public decimal CalculatedPrice { get; private set; }
 
-    public string ImageUrl { get; private set; } = string.Empty;
-
     public bool Paid { get; private set; }
 
     public IReadOnlyList<Ingredient> BaseIngredients => _baseIngredients.ToList();
@@ -38,13 +36,12 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         _customIngredients = customIngredients;
     }
 
-    public static Product Create(ProductId id, ProductId originalId, string name, decimal price, string imageUrl, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
+    public static Product Create(ProductId id, ProductId originalId, string name, decimal price, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
     {
         Product product = new(id, originalId, baseIngredients, customIngredients)
         {
             Name = name,
             OriginalPrice = price,
-            ImageUrl = imageUrl
         };
 
         ProductValidator.Validate(product);

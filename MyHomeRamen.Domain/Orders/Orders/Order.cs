@@ -14,8 +14,6 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public Guid ReferenceNumber { get; private set; }
 
-    public CustomerId CustomerId { get; private set; }
-
     public OrderType Type { get; private set; }
 
     public OrderStatus Status { get; private set; }
@@ -26,7 +24,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public User User { get; private set; }
 
-    public IReadOnlyList<Product> ProductId => _productIds.ToList();
+    public OrderAddress DeliveryAddress { get; private set; }
+
+    public IReadOnlyList<Product> Products => _productIds.ToList();
 
     public IReadOnlyList<Payment> Payments => _payments.ToList();
 
@@ -36,19 +36,18 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
     {
     }
 
-    private Order(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
+    private Order(OrderId id, IEnumerable<Product> productIds)
     {
         Id = id;
         ReferenceNumber = Guid.CreateVersion7();
-        CustomerId = customerId;
         TotalOriginalAmount = productIds.Sum(p => p.OriginalPrice);
         Status = OrderStatus.Created;
         _productIds.AddRange(productIds);
     }
 
-    public static Order CreateDineIn(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
+    public static Order CreateDineIn(OrderId id, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, productIds)
+        Order order = new(id, productIds)
         {
             Type = OrderType.DineIn
         };
@@ -58,9 +57,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         return order;
     }
 
-    public static Order CreateTakeOut(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
+    public static Order CreateTakeOut(OrderId id, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, productIds)
+        Order order = new(id, productIds)
         {
             Type = OrderType.TakeOut
         };
@@ -70,9 +69,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         return order;
     }
 
-    public static Order CreateDelivery(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
+    public static Order CreateDelivery(OrderId id, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, productIds)
+        Order order = new(id, productIds)
         {
             Type = OrderType.Delivery
         };

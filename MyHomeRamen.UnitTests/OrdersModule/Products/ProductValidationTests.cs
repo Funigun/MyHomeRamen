@@ -11,7 +11,6 @@ public class ProductValidationTests
     private static readonly ProductId DefaultOriginalId = new(Guid.NewGuid());
     private const string DefaultName = "Delicious Ramen";
     private const decimal DefaultPrice = 25.0m;
-    private const string DefaultImageUrl = "http://example.com/ramen.png";
 
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
@@ -21,14 +20,13 @@ public class ProductValidationTests
         List<Ingredient> customIngredients = [];
 
         // Act
-        Product product = Product.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultPrice, DefaultImageUrl, baseIngredients, customIngredients);
+        Product product = Product.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultPrice, baseIngredients, customIngredients);
 
         // Assert
         Assert.Equal(DefaultId, product.Id);
         Assert.Equal(DefaultOriginalId, product.OriginalId);
         Assert.Equal(DefaultName, product.Name);
         Assert.Equal(DefaultPrice, product.OriginalPrice);
-        Assert.Equal(DefaultImageUrl, product.ImageUrl);
         Assert.Equal(baseIngredients, product.BaseIngredients);
         Assert.Equal(customIngredients, product.CustomIngredients);
     }
@@ -112,7 +110,6 @@ public class ProductValidationTests
             DefaultOriginalId,
             name ?? DefaultName,
             price ?? DefaultPrice,
-            DefaultImageUrl,
             baseIngredients ?? [],
             customIngredients ?? []);
     }

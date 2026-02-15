@@ -1,6 +1,6 @@
-﻿namespace MyHomeRamen.Domain.Orders;
+﻿namespace MyHomeRamen.Domain.Orders.Orders;
 
-public sealed class UserAddress
+public sealed class OrderAddress
 {
     public string Street { get; private set; }
 
@@ -12,13 +12,13 @@ public sealed class UserAddress
 
     public string ZipCode { get; private set; }
 
-    private UserAddress()
+    private OrderAddress()
     {
     }
 
-    public static UserAddress Create(string street, string city, string building, string apartment, string zipCode)
+    public static OrderAddress Create(string street, string city, string building, string apartment, string zipCode)
     {
-        return new UserAddress
+        return new OrderAddress
         {
             Street = street,
             City = city,

@@ -5,7 +5,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Menu.Database;
+using MyHomeRamen.Domain.Orders.Database;
+using MyHomeRamen.Domain.Payments.Database;
+using MyHomeRamen.Domain.Reservations.Database;
+using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
@@ -31,6 +38,8 @@ public static class DependencyInjection
             );
         });
 
+        services.AddScoped<IMenuDbContext, MenuDbContext>();
+
         return services;
     }
 
@@ -47,6 +56,8 @@ public static class DependencyInjection
                 }
             );
         });
+
+        services.AddScoped<IShoppingCartDbContext, BasketDbContext>();
 
         return services;
     }
@@ -65,6 +76,8 @@ public static class DependencyInjection
             );
         });
 
+        services.AddScoped<IOrdersDbContext, OrdersDbContext>();
+
         return services;
     }
 
@@ -82,6 +95,8 @@ public static class DependencyInjection
             );
         });
 
+        services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
+
         return services;
     }
 
@@ -98,6 +113,8 @@ public static class DependencyInjection
                 }
             );
         });
+
+        services.AddScoped<IPaymentsDbContext, PaymentsDbContext>();
 
         return services;
     }
@@ -118,6 +135,9 @@ public static class DependencyInjection
                 }
             );
         });
+
+        services.AddScoped<IUsersDbContext, UsersDbContext>();
+
         return services;
     }
 
@@ -125,8 +145,7 @@ public static class DependencyInjection
     {
         services.AddIdentityCore<User>()
                 .AddRoles<Role>()
-                .AddEntityFrameworkStores<UsersDbContext>()
-                .AddApiEndpoints();
+                .AddEntityFrameworkStores<UsersDbContext>();
 
         services.Configure<IdentityOptions>(options =>
         {

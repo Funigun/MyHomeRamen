@@ -9,5 +9,35 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder.HasKey(x => x.Id);
+
+        builder.Property(order => order.Type)
+               .HasConversion<string>()
+               .IsRequired();
+
+        builder.Property(order => order.Status)
+               .HasConversion<string>()
+               .IsRequired();
+
+        builder.Property(x => x.TotalOriginalAmount)
+               .IsRequired()
+               .HasPrecision(18, 2);
+
+        builder.Property(x => x.TotalCalculatedAmount)
+               .IsRequired()
+               .HasPrecision(18, 2);
+
+        builder.OwnsOne(x => x.DeliveryAddress);
+
+        builder.HasOne(x => x.User)
+               .WithMany()
+               .IsRequired();
+
+        builder.HasMany(x => x.Products)
+               .WithOne()
+               .IsRequired();
+
+        builder.HasMany(x => x.Payments)
+               .WithOne()
+               .IsRequired();
     }
 }

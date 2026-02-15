@@ -66,7 +66,6 @@ public class OrdersDbContext : DbContext, IOrdersDbContext
         configurationBuilder.Properties<ProductId>().HaveConversion<ProductIdConverter>();
         configurationBuilder.Properties<IngredientId>().HaveConversion<IngredientIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
-        configurationBuilder.Properties<CustomerId>().HaveConversion<CustomerIdConverter>();
         configurationBuilder.Properties<PaymentId>().HaveConversion<PaymentIdConverter>();
     }
 }
