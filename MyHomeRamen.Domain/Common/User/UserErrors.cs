@@ -27,13 +27,13 @@ public static class UserErrors
         => new("Phone number is required");
 
     public static DomainException MissingRole()
-        => new($"User must be assigned with at leas one role");
+        => new($"User must be assigned with at least one role");
 
     public static DomainException InvalidRoleName()
         => new("Invalid role name");
 
     public static DomainException MissingPermission()
-    => new($"User must be assigned with at leas one permission");
+    => new($"User must be assigned with at least one permission");
 
     public static DomainException InvalidPermissionName()
         => new("Invalid permission name");

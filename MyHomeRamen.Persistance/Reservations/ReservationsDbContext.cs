@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Domain.Reservations;
 using MyHomeRamen.Domain.Reservations.Bookings;
 using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.Reservations.Tables;
+using MyHomeRamen.Domain.Reservations.Users;
 using MyHomeRamen.Persistance.Reservations.Converters;
 
 namespace MyHomeRamen.Persistance.Reservations;
@@ -17,6 +17,10 @@ public class ReservationsDbContext : DbContext, IReservationsDbContext
     public DbSet<Table> Tables { get; set; }
 
     public DbSet<User> Users { get; set; }
+
+    public DbSet<Role> Roles { get; set; }
+
+    public DbSet<Permission> Permissions { get; set; }
 
     public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
     {
@@ -59,5 +63,7 @@ public class ReservationsDbContext : DbContext, IReservationsDbContext
         configurationBuilder.Properties<BookingId>().HaveConversion<BookingIdConverter>();
         configurationBuilder.Properties<TableId>().HaveConversion<TableIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
+        configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
+        configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
     }
 }

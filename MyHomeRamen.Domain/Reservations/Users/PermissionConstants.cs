@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Domain.Reservations.Authorization;
+﻿namespace MyHomeRamen.Domain.Reservations.Users;
 
 public static class PermissionConstants
 {
@@ -13,4 +13,18 @@ public static class PermissionConstants
     public const string CanAddTable = "CanAddTable";
     public const string CanEditTable = "CanEditTable";
     public const string CanDeleteTable = "CanDeleteTable";
+
+    public static IEnumerable<string> AvailablePermissions =>
+     [
+        CanViewBookingsManagementView,
+        CanAddBooking,
+        CanEditBooking,
+        CanCancelBooking,
+        CanViewBookingsHistory,
+        CanViewCustomerBookings,
+        CanViewTablesManagementView,
+        CanAddTable,
+        CanEditTable,
+        CanDeleteTable
+     ];
 }

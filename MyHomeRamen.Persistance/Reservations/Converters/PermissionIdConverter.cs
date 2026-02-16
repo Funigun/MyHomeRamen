@@ -3,7 +3,7 @@ using MyHomeRamen.Domain.Reservations.Users;
 
 namespace MyHomeRamen.Persistance.Reservations.Converters;
 
-public class UserIdConverter : ValueConverter<UserId, Guid>
+public class PermissionIdConverter : ValueConverter<PermissionId, Guid>
 {
-    public UserIdConverter() : base(id => id.Value, value => new UserId(value)) { }
+    public PermissionIdConverter() : base(id => id.Value, value => new PermissionId(value)) { }
 }
