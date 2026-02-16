@@ -24,6 +24,7 @@ public class IngredientConfiguration : IEntityTypeConfiguration<Ingredient>
                .HasPrecision(18, 2);
 
         builder.HasMany(x => x.Categories)
-               .WithMany();
+               .WithMany()
+               .UsingEntity(j => j.ToTable("IngredientCategories"));
     }
 }

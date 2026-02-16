@@ -24,7 +24,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
                .HasPrecision(18, 2);
 
         builder.Property(x => x.ImageUrl)
-               .IsRequired();
+               .IsRequired()
+               .HasMaxLength(2048);
 
         builder.HasMany(x => x.BaseIngredients)
                .WithMany()
@@ -35,6 +36,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
                .UsingEntity(j => j.ToTable("ProductCustomIngredients"));
 
         builder.HasMany(x => x.Categories)
-               .WithMany();
+               .WithMany()
+               .UsingEntity(j => j.ToTable("ProductCategories"));
     }
 }

@@ -17,4 +17,21 @@ public static class PermissionConstants
     public const string CanAddIngredient = "CanAddIngredient";
     public const string CanEditIngredient = "CanEditIngredient";
     public const string CanDeleteIngredient = "CanDeleteIngredient";
+
+    public static IEnumerable<string> AvailablePermissions =>
+     [
+        CanViewProductsManagementView,
+        CanAddProduct,
+        CanEditProduct,
+        CanDeleteProduct,
+        CanEditProductsRecipes,
+        CanViewCategoriesManagementView,
+        CanAddCategory,
+        CanEditCategory,
+        CanDeleteCategory,
+        CanViewIngredientsManagementView,
+        CanAddIngredient,
+        CanEditIngredient,
+        CanDeleteIngredient
+     ];
 }
