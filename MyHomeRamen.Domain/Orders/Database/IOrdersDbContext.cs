@@ -19,4 +19,8 @@ public interface IOrdersDbContext : IBaseDbContext
     DbSet<Payment> Payments { get; }
 
     DbSet<User> Users { get; }
+
+    DbSet<Role> Roles { get; }
+
+    DbSet<Permission> Permissions { get; }
 }

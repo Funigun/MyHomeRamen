@@ -24,6 +24,10 @@ public class OrdersDbContext : DbContext, IOrdersDbContext
 
     public DbSet<User> Users { get; set; }
 
+    public DbSet<Role> Roles { get; set; }
+
+    public DbSet<Permission> Permissions { get; set; }
+
     public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
     {
         return Database.BeginTransactionAsync(cancellationToken);
@@ -67,5 +71,7 @@ public class OrdersDbContext : DbContext, IOrdersDbContext
         configurationBuilder.Properties<IngredientId>().HaveConversion<IngredientIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<PaymentId>().HaveConversion<PaymentIdConverter>();
+        configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
+        configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
     }
 }
