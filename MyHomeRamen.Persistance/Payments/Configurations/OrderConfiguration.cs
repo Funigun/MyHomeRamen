@@ -9,5 +9,12 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.Amount)
+               .IsRequired()
+               .HasPrecision(18, 2);
+
+        builder.Property(x => x.OriginalId)
+               .IsRequired();
     }
 }

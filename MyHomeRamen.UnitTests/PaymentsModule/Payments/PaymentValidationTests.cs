@@ -7,6 +7,7 @@ namespace MyHomeRamen.UnitTests.PaymentsModule.Payments;
 public class PaymentValidationTests
 {
     private static readonly PaymentId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultReferenceId = Guid.NewGuid();
     private const string DefaultName = "Credit Card";
     private const string DefaultImageUrl = "http://example.com/credit-card.png";
 
@@ -14,10 +15,11 @@ public class PaymentValidationTests
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
     {
         // Act
-        Payment payment = Payment.Create(DefaultId, DefaultName, DefaultImageUrl);
+        Payment payment = Payment.Create(DefaultId, DefaultReferenceId, DefaultName, DefaultImageUrl);
 
         // Assert
         Assert.Equal(DefaultId, payment.Id);
+        Assert.Equal(DefaultReferenceId, payment.ReferenceId);
         Assert.Equal(DefaultName, payment.Name);
         Assert.Equal(DefaultImageUrl, payment.ImageUrl);
     }
@@ -44,12 +46,22 @@ public class PaymentValidationTests
         Assert.Equal(PaymentErrors.NameTooLong().Message, exception.Message);
     }
 
+    [Fact]
+    public void Create_Should_ThrowDomainException_When_ReferenceIdIsEmpty()
+    {
+        // Act & Assert
+        DomainException exception = Assert.Throws<DomainException>(() => CreatePayment(referenceId: Guid.Empty));
+        Assert.Equal(PaymentErrors.ReferenceIdRequired().Message, exception.Message);
+    }
+
     private static Payment CreatePayment(
+        Guid? referenceId = null,
         string? name = null,
         string? imageUrl = null)
     {
         return Payment.Create(
             DefaultId,
+            referenceId ?? DefaultReferenceId,
             name ?? DefaultName,
             imageUrl ?? DefaultImageUrl);
     }

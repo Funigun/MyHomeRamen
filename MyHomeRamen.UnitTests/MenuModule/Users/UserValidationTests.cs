@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.User;
 using MyHomeRamen.Domain.Menu.Users;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.MenuModule.Users;
 

@@ -3,7 +3,9 @@ using MyHomeRamen.Domain.Payments.Users;
 
 namespace MyHomeRamen.Persistance.Payments.Converters;
 
-public class UserIdConverter : ValueConverter<UserId, Guid>
+public class RoleIdConverter : ValueConverter<RoleId, Guid>
 {
-    public UserIdConverter() : base(id => id.Value, value => new UserId(value)) { }
+    public RoleIdConverter() : base(id => id.Value, value => new RoleId(value))
+    {
+    }
 }

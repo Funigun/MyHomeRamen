@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Domain.Payments;
 using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Payments.Orders;
 using MyHomeRamen.Domain.Payments.PaymentGroups;
 using MyHomeRamen.Domain.Payments.PaymentProviders;
 using MyHomeRamen.Domain.Payments.Payments;
+using MyHomeRamen.Domain.Payments.Users;
 using MyHomeRamen.Persistance.Payments.Converters;
 
 namespace MyHomeRamen.Persistance.Payments;
@@ -19,6 +19,10 @@ public class PaymentsDbContext : DbContext, IPaymentsDbContext
     public DbSet<Order> Orders { get; set; }
 
     public DbSet<User> Users { get; set; }
+
+    public DbSet<Role> Roles { get; set; }
+
+    public DbSet<Permission> Permissions { get; set; }
 
     public DbSet<PaymentProvider> PaymentProviders { get; set; }
 
@@ -65,6 +69,8 @@ public class PaymentsDbContext : DbContext, IPaymentsDbContext
         configurationBuilder.Properties<PaymentId>().HaveConversion<PaymentIdConverter>();
         configurationBuilder.Properties<OrderId>().HaveConversion<OrderIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
+        configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
+        configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
         configurationBuilder.Properties<PaymentProviderId>().HaveConversion<PaymentProviderIdConverter>();
         configurationBuilder.Properties<PaymentGroupId>().HaveConversion<PaymentGroupIdConverter>();
     }
