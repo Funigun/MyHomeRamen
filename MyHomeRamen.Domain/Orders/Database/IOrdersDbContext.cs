@@ -4,6 +4,7 @@ using MyHomeRamen.Domain.Orders.Ingredients;
 using MyHomeRamen.Domain.Orders.Orders;
 using MyHomeRamen.Domain.Orders.Payments;
 using MyHomeRamen.Domain.Orders.Products;
+using MyHomeRamen.Domain.Orders.Users;
 
 namespace MyHomeRamen.Domain.Orders.Database;
 

@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Domain.Menu.Authorization;
+﻿namespace MyHomeRamen.Domain.Menu.Users;
 
 public static class PermissionConstants
 {

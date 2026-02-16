@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Domain.Orders;
 using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Orders.Ingredients;
 using MyHomeRamen.Domain.Orders.Orders;
 using MyHomeRamen.Domain.Orders.Payments;
 using MyHomeRamen.Domain.Orders.Products;
+using MyHomeRamen.Domain.Orders.Users;
 using MyHomeRamen.Persistance.Orders.Converters;
 
 namespace MyHomeRamen.Persistance.Orders;

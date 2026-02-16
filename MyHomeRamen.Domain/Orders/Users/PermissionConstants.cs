@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Domain.Orders.Authorization;
+﻿namespace MyHomeRamen.Domain.Orders.Users;
 
 public static class PermissionConstants
 {
@@ -12,4 +12,17 @@ public static class PermissionConstants
 
     public const string CanCancelPayment = "CanCancelPayment";
     public const string CanSplitPayment = "CanSplitPayment";
+
+    public static IEnumerable<string> AvailablePermissions =>
+    [
+        CanAcceptOrder,
+        CanRejectOrder,
+        CanCancelOrder,
+        CanMarkAsComplete,
+        CanMarkAsPrepared,
+        CanShowOrdersHistory,
+        CanViewCustomerOrders,
+        CanCancelPayment,
+        CanSplitPayment
+    ];
 }
