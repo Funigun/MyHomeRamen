@@ -1,7 +1,7 @@
 ---
 title: "ADR-0003: Isolated Module Database Contexts"
 status: "Accepted"
-date: "2026-01-30"
+date: "2026-02-18"
 authors: "Funigun"
 tags: ["architecture", "decision", "database", "persistence"]
 ---
@@ -27,8 +27,9 @@ Key aspects of this decision:
 1.  **Separate DbContexts**: Each module will possess its own Entity Framework Core `DbContext` (e.g., `OrdersDbContext`, `MenuDbContext`).
 2.  **Schema Separation**: Each DbContext will map to a specific database schema (e.g., `orders.*`, `menu.*`) within the same physical database (initially), or different databases if needed. This logical separation prevents table joins across modules.
 3.  **Shared Contract**: All module DbContexts must implement the `IBaseDbContext` interface defined in `MyHomeRamen.Api.Common`.
-    - This interface enforces standard methods: `SaveChangesAsync`, `BeginTransaction`, `CommitTransaction`, and `RollbackTransaction`.
-    - This allows infrastructure components (like transaction behaviors or unit of work pipelines) to interact with any module's database context polymorphically.
+- This interface enforces standard methods: `SaveChangesAsync`, `BeginTransaction`, `CommitTransaction`, and `RollbackTransaction`.
+- It also includes lifecycle management methods: `Migrate`, `Seed`, `EnsureCreated`, and `ExecuteSql` to support the database initialization worker.
+- This allows infrastructure components (like transaction behaviors or unit of work pipelines) to interact with any module's database context polymorphically.
 4.  **No Cross-Context Navigation**: Entity navigation properties must not span across module boundaries. Relationships between modules are handled via IDs (Logical Foreign Keys), not object references.
 
 ### Consequences
