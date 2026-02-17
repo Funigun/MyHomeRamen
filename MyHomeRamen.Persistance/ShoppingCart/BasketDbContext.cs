@@ -5,6 +5,7 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
@@ -20,6 +21,10 @@ public class BasketDbContext : DbContext, IShoppingCartDbContext
     public DbSet<Ingredient> Ingredients { get; set; }
 
     public DbSet<User> Users { get; set; }
+
+    public DbSet<Role> Roles { get; set; }
+
+    public DbSet<Permission> Permissions { get; set; }
 
     public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
     {
@@ -54,7 +59,7 @@ public class BasketDbContext : DbContext, IShoppingCartDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("basket");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(BasketDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Basket.Configurations"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(BasketDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("ShoppingCart.Configurations"));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -63,5 +68,7 @@ public class BasketDbContext : DbContext, IShoppingCartDbContext
         configurationBuilder.Properties<ProductId>().HaveConversion<ProductIdConverter>();
         configurationBuilder.Properties<IngredientId>().HaveConversion<IngredientIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
+        configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
+        configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
     }
 }

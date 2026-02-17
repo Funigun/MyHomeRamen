@@ -36,10 +36,7 @@ public class BasketValidationTests
     {
         return User.Create(
             new UserId(Guid.NewGuid()),
-            "John",
-            "Doe",
-            "john.doe@example.com",
-            "+1234567890",
-            UserAddress.Create("Street", "City", "State", "Zip", "Country"));
+            [],
+            []);
     }
 }

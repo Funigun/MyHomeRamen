@@ -1,39 +1,34 @@
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 
 namespace MyHomeRamen.Domain.ShoppingCart;
 
 public sealed class User : AuditableEntity, IEntity<UserId>
 {
+    private readonly List<Role> _roles = [];
+    private readonly List<Permission> _permissions = [];
+
     public UserId Id { get; private set; }
 
-    public string FirstName { get; private set; }
+    public ICollection<Role> Roles => _roles.ToList();
 
-    public string LastName { get; private set; }
-
-    public string Email { get; private set; }
-
-    public string PhoneNumber { get; private set; }
-
-    public UserAddress Address { get; private set; }
+    public ICollection<Permission> Permissions => _permissions.ToList();
 
     private User()
     {
     }
 
-    private User(UserId id, UserAddress address)
+    private User(UserId id, List<Role> roles, List<Permission> permissions)
     {
         Id = id;
-        Address = address;
+        _roles = roles;
+        _permissions = permissions;
     }
 
-    public static User Create(UserId id, string firstName, string lastName, string email, string phoneNumber, UserAddress address)
+    public static User Create(UserId id, List<Role> roles, List<Permission> permissions)
     {
-        return new User(id, address)
-        {
-            FirstName = firstName,
-            LastName = lastName,
-            Email = email,
-            PhoneNumber = phoneNumber
-        };
+        User user = new(id, roles, permissions);
+
+        return user;
     }
 }
