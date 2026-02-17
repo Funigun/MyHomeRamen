@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Orders.Ingredients;
 using MyHomeRamen.Domain.Orders.Orders;
@@ -10,9 +12,14 @@ using MyHomeRamen.Persistance.Orders.Converters;
 
 namespace MyHomeRamen.Persistance.Orders;
 
-public class OrdersDbContext : DbContext, IOrdersDbContext
+public class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbContext(options), IOrdersDbContext
 {
-    public OrdersDbContext(DbContextOptions<OrdersDbContext> options) : base(options) { }
+    private readonly ICurrentUser _currentUser;
+
+    public OrdersDbContext(DbContextOptions<OrdersDbContext> options, ICurrentUser currentUser) : this(options)
+    {
+        _currentUser = currentUser;
+    }
 
     public DbSet<Order> Orders { get; set; }
 
@@ -27,6 +34,33 @@ public class OrdersDbContext : DbContext, IOrdersDbContext
     public DbSet<Role> Roles { get; set; }
 
     public DbSet<Permission> Permissions { get; set; }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateEntities();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateEntities()
+    {
+        DateTime currentDateTime = DateTime.UtcNow;
+
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedBy = _currentUser.Id.ToString();
+                    entry.Entity.CreatedOn = currentDateTime;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.ModifiedBy = _currentUser.Id.ToString();
+                    entry.Entity.ModifiedOn = currentDateTime;
+                    break;
+            }
+        }
+    }
 
     public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
     {

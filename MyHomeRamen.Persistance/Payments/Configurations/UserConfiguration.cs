@@ -41,10 +41,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasMany(x => x.Permissions)
                .WithMany()
                .UsingEntity(j => j.ToTable("UserPermissions"));
-
-        builder.HasMany(x => x.Payments)
-               .WithMany()
-               .UsingEntity(j => j.ToTable("UserPayments"));
     }
 }
-

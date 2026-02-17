@@ -1,22 +1,53 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Common.GuidConvention;
 
 namespace MyHomeRamen.Persistance.Users;
 
-public class UsersDbContext : IdentityDbContext<User, Role, Guid>, IUsersDbContext
+public class UsersDbContext(DbContextOptions<UsersDbContext> options) : IdentityDbContext<User, Role, Guid>(options), IUsersDbContext
 {
     private readonly RestaurantConfigurationProvider _restaurantConfiguration;
+    private readonly ICurrentUser _currentUser;
 
     public DbSet<Address> Addresses { get; set; } = default!;
 
-    public UsersDbContext(DbContextOptions<UsersDbContext> options, RestaurantConfigurationProvider configFactory) : base(options)
+    public UsersDbContext(DbContextOptions<UsersDbContext> options, RestaurantConfigurationProvider configFactory, ICurrentUser currentUser) : this(options)
     {
         _restaurantConfiguration = configFactory;
+        _currentUser = currentUser;
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateEntities();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateEntities()
+    {
+        DateTime currentDateTime = DateTime.UtcNow;
+
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedBy = _currentUser.Id.ToString();
+                    entry.Entity.CreatedOn = currentDateTime;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.ModifiedBy = _currentUser.Id.ToString();
+                    entry.Entity.ModifiedOn = currentDateTime;
+                    break;
+            }
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

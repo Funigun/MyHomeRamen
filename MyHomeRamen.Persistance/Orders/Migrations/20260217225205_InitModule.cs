@@ -219,7 +219,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     RestaurantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ReferenceNumber = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    OrderId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
@@ -234,15 +233,7 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                         column: x => x.OrderId,
                         principalSchema: "orders",
                         principalTable: "Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Payments_Orders_OrderId1",
-                        column: x => x.OrderId1,
-                        principalSchema: "orders",
-                        principalTable: "Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -373,12 +364,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                 schema: "orders",
                 table: "Payments",
                 column: "OrderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_OrderId1",
-                schema: "orders",
-                table: "Payments",
-                column: "OrderId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PermissionRole_RoleId",

@@ -240,30 +240,30 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserPayments",
+                name: "PaymentUser",
                 schema: "payments",
                 columns: table => new
                 {
                     PaymentsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UsersId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserPayments", x => new { x.PaymentsId, x.UserId });
+                    table.PrimaryKey("PK_PaymentUser", x => new { x.PaymentsId, x.UsersId });
                     table.ForeignKey(
-                        name: "FK_UserPayments_Payments_PaymentsId",
+                        name: "FK_PaymentUser_Payments_PaymentsId",
                         column: x => x.PaymentsId,
                         principalSchema: "payments",
                         principalTable: "Payments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserPayments_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_PaymentUser_Users_UsersId",
+                        column: x => x.UsersId,
                         principalSchema: "payments",
                         principalTable: "Users",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -333,16 +333,16 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                 column: "PaymentsId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PaymentUser_UsersId",
+                schema: "payments",
+                table: "PaymentUser",
+                column: "UsersId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_RoleId",
                 schema: "payments",
                 table: "RolePermissions",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserPayments_UserId",
-                schema: "payments",
-                table: "UserPayments",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserPermissions_UserId",
@@ -379,11 +379,11 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                 schema: "payments");
 
             migrationBuilder.DropTable(
-                name: "RolePermissions",
+                name: "PaymentUser",
                 schema: "payments");
 
             migrationBuilder.DropTable(
-                name: "UserPayments",
+                name: "RolePermissions",
                 schema: "payments");
 
             migrationBuilder.DropTable(

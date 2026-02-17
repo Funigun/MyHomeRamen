@@ -1,7 +1,9 @@
+using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.DatabaseInitializer;
+using MyHomeRamen.Worker.DatabaseInitializer.Config;
 using Quartz;
 using Serilog;
 
@@ -26,7 +28,7 @@ try
     // Configure Quartz with the DbInitializerJob scheduled to run once immediately
     builder.Services.AddQuartzServices(q =>
     {
-        JobKey? jobKey = new JobKey(nameof(DbInitializerJob));
+        JobKey jobKey = new(nameof(DbInitializerJob));
 
         q.AddJob<DbInitializerJob>(opts => opts.WithIdentity(jobKey));
 
@@ -37,6 +39,7 @@ try
         );
     });
 
+    builder.Services.AddScoped<ICurrentUser, Worker>();
     builder.Services.AddIdentityPersistance(configurationProvider);
     builder.Services.AddMenuPersistance(configurationProvider);
     builder.Services.AddBasketPersistance(configurationProvider);

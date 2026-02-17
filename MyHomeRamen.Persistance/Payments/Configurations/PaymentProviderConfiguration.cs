@@ -27,4 +27,3 @@ public class PaymentProviderConfiguration : IEntityTypeConfiguration<PaymentProv
                .UsingEntity(j => j.ToTable("PaymentProviderPayments"));
     }
 }
-

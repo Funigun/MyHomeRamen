@@ -1,7 +1,10 @@
+using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.Extensions.Hosting;
 using MyHomeRamen.Domain.Common.Payment;
 using MyHomeRamen.Domain.Payments.Payments;
+using MyHomeRamen.Domain.Payments.Users;
 
 namespace MyHomeRamen.Persistance.Payments.Configurations;
 
@@ -24,6 +27,11 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(x => x.ImageUrl)
                .IsRequired()
                .HasMaxLength(2048);
+
+        builder.HasMany(p => p.Users)
+               .WithMany(u => u.Payments)
+               .UsingEntity(
+            r => r.HasOne(typeof(User)).WithMany().OnDelete(DeleteBehavior.Restrict),
+            l => l.HasOne(typeof(Payment)).WithMany().OnDelete(DeleteBehavior.Cascade));
     }
 }
-

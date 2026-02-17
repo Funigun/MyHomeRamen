@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.ShoppingCart;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
@@ -10,9 +12,14 @@ using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
 
-public class ShoppingCartDbContext : DbContext, IShoppingCartDbContext
+public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : DbContext(options), IShoppingCartDbContext
 {
-    public ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : base(options) { }
+    private readonly ICurrentUser _currentUser;
+
+    public ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options, ICurrentUser currentUser) : this(options)
+    {
+        _currentUser = currentUser;
+    }
 
     public DbSet<Basket> ShoppingCarts { get; set; }
 
@@ -25,6 +32,33 @@ public class ShoppingCartDbContext : DbContext, IShoppingCartDbContext
     public DbSet<Role> Roles { get; set; }
 
     public DbSet<Permission> Permissions { get; set; }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateEntities();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateEntities()
+    {
+        DateTime currentDateTime = DateTime.UtcNow;
+
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedBy = _currentUser.Id.ToString();
+                    entry.Entity.CreatedOn = currentDateTime;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.ModifiedBy = _currentUser.Id.ToString();
+                    entry.Entity.ModifiedOn = currentDateTime;
+                    break;
+            }
+        }
+    }
 
     public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
     {

@@ -54,17 +54,20 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
 
             if (newDatabaseCreated)
             {
-                await dbContext.ExecuteSql(CreateRawSql($"CREATE ROLE [{userConfig.Role}]"), cancellationToken);
-                await dbContext.ExecuteSql(CreateRawSql($"ALTER ROLE [{userConfig.Role}] ADD MEMBER [{userConfig.User}]"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"CREATE LOGIN {userConfig.User} with PASSWORD = '{userConfig.Password}';"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"CREATE USER {userConfig.User} FOR LOGIN {userConfig.User};"), cancellationToken);
+
+                await dbContext.ExecuteSql(CreateRawSql($"CREATE ROLE {userConfig.Role};"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"ALTER ROLE {userConfig.Role} ADD MEMBER {userConfig.User};"), cancellationToken);
 
                 //await dbContext.ExecuteSql($"REVOKE SELECT, INSERT, UPDATE, DELETE, EXECUTE ON SCHEMA::{userConfig.Schema} FROM public", CancellationToken.None);
 
-                await dbContext.ExecuteSql(CreateRawSql($"GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::[{userConfig.Schema}] TO [{userConfig.Role}]"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::[{userConfig.Schema}] TO {userConfig.Role};"), cancellationToken);
 
-                await dbContext.ExecuteSql(CreateRawSql($"GRANT EXECUTE ON SCHEMA::[{userConfig.Schema}] TO [{userConfig.Role}]"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"GRANT EXECUTE ON SCHEMA::[{userConfig.Schema}] TO {userConfig.Role};"), cancellationToken);
 
-                await dbContext.ExecuteSql(CreateRawSql($"GRANT CONTROL ON SCHEMA::[{userConfig.Schema}] TO [{userConfig.Role}]"), cancellationToken);
-                await dbContext.ExecuteSql(CreateRawSql($"ALTER AUTHORIZATION ON SCHEMA::[{userConfig.Schema}] TO [{userConfig.Role}]"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"GRANT CONTROL ON SCHEMA::[{userConfig.Schema}] TO {userConfig.Role};"), cancellationToken);
+                await dbContext.ExecuteSql(CreateRawSql($"ALTER AUTHORIZATION ON SCHEMA::[{userConfig.Schema}] TO {userConfig.Role};"), cancellationToken);
             }
 
             logger.LogInformation("{Comment}", $"Schema {userConfig.Schema} configured successfully.");

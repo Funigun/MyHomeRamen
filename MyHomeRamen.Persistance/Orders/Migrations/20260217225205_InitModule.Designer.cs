@@ -12,7 +12,7 @@ using MyHomeRamen.Persistance.Orders;
 namespace MyHomeRamen.Persistance.Orders.Migrations
 {
     [DbContext(typeof(OrdersDbContext))]
-    [Migration("20260217220341_InitModule")]
+    [Migration("20260217225205_InitModule")]
     partial class InitModule
     {
         /// <inheritdoc />
@@ -173,9 +173,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("OrderId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("ReferenceNumber")
                         .HasColumnType("uniqueidentifier");
 
@@ -185,8 +182,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
-
-                    b.HasIndex("OrderId1");
 
                     b.ToTable("Payments", "orders");
                 });
@@ -496,16 +491,10 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
 
             modelBuilder.Entity("MyHomeRamen.Domain.Orders.Payments.Payment", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Orders.Orders.Order", null)
+                    b.HasOne("MyHomeRamen.Domain.Orders.Orders.Order", "Order")
                         .WithMany("Payments")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyHomeRamen.Domain.Orders.Orders.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId1")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Order");

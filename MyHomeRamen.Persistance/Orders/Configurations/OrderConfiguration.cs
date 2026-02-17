@@ -40,7 +40,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                .IsRequired();
 
         builder.HasMany(x => x.Payments)
-               .WithOne()
-               .IsRequired();
+               .WithOne(p => p.Order)
+               .OnDelete(DeleteBehavior.NoAction);
     }
 }

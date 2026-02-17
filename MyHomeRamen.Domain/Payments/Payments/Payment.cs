@@ -1,9 +1,12 @@
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Payments.Users;
 
 namespace MyHomeRamen.Domain.Payments.Payments;
 
 public sealed class Payment : AuditableEntity, IEntity<PaymentId>
 {
+    private readonly List<User> _users = new();
+
     public PaymentId Id { get; private set; }
 
     public Guid RestaurantId { get; private set; }
@@ -13,6 +16,8 @@ public sealed class Payment : AuditableEntity, IEntity<PaymentId>
     public string Name { get; private set; }
 
     public string ImageUrl { get; private set; }
+
+    public ICollection<User> Users => _users.ToList();
 
     private Payment()
     {

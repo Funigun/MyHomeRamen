@@ -22,8 +22,8 @@ public class PaymentGroupConfiguration : IEntityTypeConfiguration<PaymentGroup>
                .IsRequired()
                .HasMaxLength(2048);
 
-         builder.HasMany(x => x.PaymentProviders)
-                .WithMany()
-                .UsingEntity(j => j.ToTable("PaymentGroupProviders"));
+        builder.HasMany(x => x.PaymentProviders)
+               .WithMany()
+               .UsingEntity(j => j.ToTable("PaymentGroupProviders"));
     }
 }

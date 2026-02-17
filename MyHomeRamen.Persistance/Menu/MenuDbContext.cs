@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
@@ -9,9 +11,14 @@ using MyHomeRamen.Persistance.Menu.Converters;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public class MenuDbContext : DbContext, IMenuDbContext
+public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
 {
-    public MenuDbContext(DbContextOptions<MenuDbContext> options) : base(options) { }
+    private readonly ICurrentUser _currentUser;
+
+    public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser) : this(options)
+    {
+        _currentUser = currentUser;
+    }
 
     public DbSet<Product> Products { get; set; }
 
@@ -56,6 +63,12 @@ public class MenuDbContext : DbContext, IMenuDbContext
         {
             await Database.MigrateAsync(cancellationToken);
         }
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateEntities();
+        return await base.SaveChangesAsync(cancellationToken);
     }
 
     public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
@@ -107,5 +120,26 @@ public class MenuDbContext : DbContext, IMenuDbContext
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
+    }
+
+    private void UpdateEntities()
+    {
+        DateTime currentDateTime = DateTime.UtcNow;
+
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedBy = _currentUser.Id.ToString();
+                    entry.Entity.CreatedOn = currentDateTime;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.ModifiedBy = _currentUser.Id.ToString();
+                    entry.Entity.ModifiedOn = currentDateTime;
+                    break;
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Reservations.Bookings;
 using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.Reservations.Tables;
@@ -8,9 +10,14 @@ using MyHomeRamen.Persistance.Reservations.Converters;
 
 namespace MyHomeRamen.Persistance.Reservations;
 
-public class ReservationsDbContext : DbContext, IReservationsDbContext
+public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> options) : DbContext(options), IReservationsDbContext
 {
-    public ReservationsDbContext(DbContextOptions<ReservationsDbContext> options) : base(options) { }
+    private readonly ICurrentUser _currentUser;
+
+    public ReservationsDbContext(DbContextOptions<ReservationsDbContext> options, ICurrentUser currentUser) : this(options)
+    {
+        _currentUser = currentUser;
+    }
 
     public DbSet<Booking> Bookings { get; set; }
 
@@ -21,6 +28,33 @@ public class ReservationsDbContext : DbContext, IReservationsDbContext
     public DbSet<Role> Roles { get; set; }
 
     public DbSet<Permission> Permissions { get; set; }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateEntities();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateEntities()
+    {
+        DateTime currentDateTime = DateTime.UtcNow;
+
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.CreatedBy = _currentUser.Id.ToString();
+                    entry.Entity.CreatedOn = currentDateTime;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.ModifiedBy = _currentUser.Id.ToString();
+                    entry.Entity.ModifiedOn = currentDateTime;
+                    break;
+            }
+        }
+    }
 
     public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
     {

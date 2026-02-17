@@ -325,14 +325,14 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                     b.Property<Guid>("PaymentsId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("UsersId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("PaymentsId", "UserId");
+                    b.HasKey("PaymentsId", "UsersId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UsersId");
 
-                    b.ToTable("UserPayments", "payments");
+                    b.ToTable("PaymentUser", "payments");
                 });
 
             modelBuilder.Entity("PermissionRole", b =>
@@ -431,8 +431,8 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
 
                     b.HasOne("MyHomeRamen.Domain.Payments.Users.User", null)
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 
