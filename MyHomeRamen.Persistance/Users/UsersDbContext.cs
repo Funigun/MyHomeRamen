@@ -77,7 +77,15 @@ public class UsersDbContext : IdentityDbContext<User, Role, Guid>, IUsersDbConte
 
     public async Task Migrate(CancellationToken cancellationToken)
     {
-        await Database.MigrateAsync(cancellationToken);
+        if ((await Database.GetPendingMigrationsAsync(cancellationToken)).Any())
+        {
+            await Database.MigrateAsync(cancellationToken);
+        }
+    }
+
+    public Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)

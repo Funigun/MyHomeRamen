@@ -10,9 +10,9 @@ using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
 
-public class BasketDbContext : DbContext, IShoppingCartDbContext
+public class ShoppingCartDbContext : DbContext, IShoppingCartDbContext
 {
-    public BasketDbContext(DbContextOptions<BasketDbContext> options) : base(options) { }
+    public ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : base(options) { }
 
     public DbSet<Basket> ShoppingCarts { get; set; }
 
@@ -48,7 +48,45 @@ public class BasketDbContext : DbContext, IShoppingCartDbContext
 
     public async Task Migrate(CancellationToken cancellationToken)
     {
-        await Database.MigrateAsync(cancellationToken);
+        if ((await Database.GetPendingMigrationsAsync(cancellationToken)).Any())
+        {
+            await Database.MigrateAsync(cancellationToken);
+        }
+    }
+
+    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    {
+        IEnumerable<string> roles = RoleConstants.AvailableRoles;
+        IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
+
+        HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
+        HashSet<string> existingPermissions = await Permissions.AsNoTracking().Select(permission => permission.Name).ToHashSetAsync(cancellationToken);
+
+        IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
+                                            .Select(role => Role.CreateForSeed(new RoleId(Guid.NewGuid()), restaurantId, role))
+                                            .ToList();
+
+        IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions)
+                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), restaurantId, permission))
+                                                              .ToList();
+
+        bool anyRolesToAdd = rolesToAdd.Any();
+        bool anyPermissionsToAdd = permissionsToAdd.Any();
+
+        if (anyRolesToAdd || anyPermissionsToAdd)
+        {
+            if (anyRolesToAdd)
+            {
+                await Roles.AddRangeAsync(rolesToAdd, cancellationToken);
+            }
+
+            if (anyPermissionsToAdd)
+            {
+                await Permissions.AddRangeAsync(permissionsToAdd, cancellationToken);
+            }
+
+            await SaveChangesAsync(cancellationToken);
+        }
     }
 
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
@@ -59,7 +97,7 @@ public class BasketDbContext : DbContext, IShoppingCartDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("basket");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(BasketDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("ShoppingCart.Configurations"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingCartDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("ShoppingCart.Configurations"));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

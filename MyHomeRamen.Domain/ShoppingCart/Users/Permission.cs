@@ -24,6 +24,11 @@ public sealed class Permission : AuditableEntity, IEntity<PermissionId>
         Description = description;
     }
 
+    public static Permission CreateForSeed(PermissionId id, Guid restaurantId, string name)
+    {
+        return new Permission(id, restaurantId, name, name);
+    }
+
     public static Permission Create(PermissionId id, Guid restaurantId, string name, string description)
     {
         return new Permission(id, restaurantId, name, description);

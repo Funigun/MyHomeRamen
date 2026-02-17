@@ -45,7 +45,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddBasketPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
     {
-        services.AddDbContext<BasketDbContext>(options =>
+        services.AddDbContext<ShoppingCartDbContext>(options =>
         {
             string? connectionString = configurationProvider.ShoppingCartConnectionString;
             options.UseSqlServer(
@@ -57,7 +57,7 @@ public static class DependencyInjection
             );
         });
 
-        services.AddScoped<IShoppingCartDbContext, BasketDbContext>();
+        services.AddScoped<IShoppingCartDbContext, ShoppingCartDbContext>();
 
         return services;
     }

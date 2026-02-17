@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Orders.Database;
@@ -13,7 +14,8 @@ namespace MyHomeRamen.Worker.DatabaseInitializer;
 
 internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
                                 IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext,
-                                IPaymentsDbContext paymentsDbContext, ILogger<DbInitializerJob> logger)
+                                IPaymentsDbContext paymentsDbContext, RestaurantConfigurationProvider configurationProvider, 
+                                ILogger<DbInitializerJob> logger)
              : IJob
 {
     private static FormattableString CreateRawSql(string sql) => FormattableStringFactory.Create(sql);
@@ -48,6 +50,7 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
                                        cancellationToken);
 
             await dbContext.Migrate(cancellationToken);
+            await dbContext.Seed(configurationProvider.RestaurantId, cancellationToken);
 
             if (newDatabaseCreated)
             {

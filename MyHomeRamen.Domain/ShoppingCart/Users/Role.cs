@@ -27,6 +27,17 @@ public sealed class Role : AuditableEntity, IEntity<RoleId>
         _permissions = permissions;
     }
 
+    public static Role CreateForSeed(RoleId id, Guid restaurantId, string name)
+    {
+        Role role = new(id, restaurantId, [])
+        {
+            Name = name,
+            Description = name
+        };
+
+        return role;
+    }
+
     public static Role CreateCustomerRole(RoleId id, Guid restaurantId, List<Permission> permissions)
     {
         return new(id, restaurantId, permissions)

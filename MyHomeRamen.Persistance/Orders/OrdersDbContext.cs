@@ -55,7 +55,45 @@ public class OrdersDbContext : DbContext, IOrdersDbContext
 
     public async Task Migrate(CancellationToken cancellationToken)
     {
-        await Database.MigrateAsync(cancellationToken);
+        if ((await Database.GetPendingMigrationsAsync(cancellationToken)).Any())
+        {
+            await Database.MigrateAsync(cancellationToken);
+        }
+    }
+
+    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    {
+        IEnumerable<string> roles = RoleConstants.AvailableRoles;
+        IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
+
+        HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
+        HashSet<string> existingPermissions = await Permissions.AsNoTracking().Select(permission => permission.Name).ToHashSetAsync(cancellationToken);
+
+        IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
+                                            .Select(role => Role.CreateForSeed(new RoleId(Guid.NewGuid()), restaurantId, role))
+                                            .ToList();
+
+        IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions)
+                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), restaurantId, permission))
+                                                              .ToList();
+
+        bool anyRolesToAdd = rolesToAdd.Any();
+        bool anyPermissionsToAdd = permissionsToAdd.Any();
+
+        if (anyRolesToAdd || anyPermissionsToAdd)
+        {
+            if (anyRolesToAdd)
+            {
+                await Roles.AddRangeAsync(rolesToAdd, cancellationToken);
+            }
+
+            if (anyPermissionsToAdd)
+            {
+                await Permissions.AddRangeAsync(permissionsToAdd, cancellationToken);
+            }
+
+            await SaveChangesAsync(cancellationToken);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

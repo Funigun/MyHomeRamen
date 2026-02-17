@@ -16,5 +16,7 @@ public interface IBaseDbContext : IDisposable
 
     Task Migrate(CancellationToken cancellationToken);
 
+    Task Seed(Guid restaurantId, CancellationToken cancellationToken);
+
     Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken);
 }
