@@ -7,6 +7,7 @@ namespace MyHomeRamen.UnitTests.PaymentsModule.Payments;
 public class PaymentValidationTests
 {
     private static readonly PaymentId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private static readonly Guid DefaultReferenceId = Guid.NewGuid();
     private const string DefaultName = "Credit Card";
     private const string DefaultImageUrl = "http://example.com/credit-card.png";
@@ -15,7 +16,7 @@ public class PaymentValidationTests
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
     {
         // Act
-        Payment payment = Payment.Create(DefaultId, DefaultReferenceId, DefaultName, DefaultImageUrl);
+        Payment payment = Payment.Create(DefaultId, DefaultRestaurantId, DefaultReferenceId, DefaultName, DefaultImageUrl);
 
         // Assert
         Assert.Equal(DefaultId, payment.Id);
@@ -61,6 +62,7 @@ public class PaymentValidationTests
     {
         return Payment.Create(
             DefaultId,
+            DefaultRestaurantId,
             referenceId ?? DefaultReferenceId,
             name ?? DefaultName,
             imageUrl ?? DefaultImageUrl);

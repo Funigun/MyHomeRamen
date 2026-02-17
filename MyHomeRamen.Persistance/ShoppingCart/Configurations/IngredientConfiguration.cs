@@ -11,6 +11,9 @@ public class IngredientConfiguration : IEntityTypeConfiguration<Ingredient>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.RestaurantId)
+               .IsRequired();
+
         builder.Property(x => x.Name)
             .HasMaxLength(IngredientConstants.MaxNameLength);
 

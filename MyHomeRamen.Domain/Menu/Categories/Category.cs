@@ -6,6 +6,8 @@ public sealed class Category : AuditableEntity, IEntity<CategoryId>
 {
     public CategoryId Id { get; private set; }
 
+    public Guid RestaurantId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     public int SortOrder { get; private set; }
@@ -16,14 +18,15 @@ public sealed class Category : AuditableEntity, IEntity<CategoryId>
     {
     }
 
-    private Category(CategoryId id)
+    private Category(CategoryId id, Guid restaurantId)
     {
         Id = id;
+        RestaurantId = restaurantId;
     }
 
-    public static Category Create(CategoryId id, string name, int sortOrder, CategoryType categoryType)
+    public static Category Create(CategoryId id, Guid restaurantId, string name, int sortOrder, CategoryType categoryType)
     {
-        Category category = new(id)
+        Category category = new(id, restaurantId)
         {
             Name = name,
             SortOrder = sortOrder,

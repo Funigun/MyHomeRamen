@@ -7,6 +7,7 @@ namespace MyHomeRamen.UnitTests.PaymentsModule.Orders;
 public class OrderValidationTests
 {
     private static readonly OrderId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private static readonly OrderId DefaultOriginalId = new(Guid.NewGuid());
     private const decimal DefaultAmount = 50.0m;
 
@@ -14,7 +15,7 @@ public class OrderValidationTests
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
     {
         // Act
-        Order order = Order.Create(DefaultId, DefaultOriginalId, DefaultAmount);
+        Order order = Order.Create(DefaultId, DefaultRestaurantId, DefaultOriginalId, DefaultAmount);
 
         // Assert
         Assert.Equal(DefaultId, order.Id);
@@ -48,6 +49,7 @@ public class OrderValidationTests
     {
         return Order.Create(
             DefaultId,
+            DefaultRestaurantId,
             DefaultOriginalId,
             amount ?? DefaultAmount);
     }

@@ -13,6 +13,8 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public OrderId Id { get; private set; }
 
+    public Guid RestaurantId { get; private set; }
+
     public Guid ReferenceNumber { get; private set; }
 
     public OrderType Type { get; private set; }
@@ -37,18 +39,19 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
     {
     }
 
-    private Order(OrderId id, IEnumerable<Product> productIds)
+    private Order(OrderId id, Guid restaurantId, IEnumerable<Product> productIds)
     {
         Id = id;
+        RestaurantId = restaurantId;
         ReferenceNumber = Guid.CreateVersion7();
         TotalOriginalAmount = productIds.Sum(p => p.OriginalPrice);
         Status = OrderStatus.Created;
         _productIds.AddRange(productIds);
     }
 
-    public static Order CreateDineIn(OrderId id, IEnumerable<Product> productIds)
+    public static Order CreateDineIn(OrderId id, Guid restaurantId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, productIds)
+        Order order = new(id, restaurantId, productIds)
         {
             Type = OrderType.DineIn
         };
@@ -58,9 +61,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         return order;
     }
 
-    public static Order CreateTakeOut(OrderId id, IEnumerable<Product> productIds)
+    public static Order CreateTakeOut(OrderId id, Guid restaurantId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, productIds)
+        Order order = new(id, restaurantId, productIds)
         {
             Type = OrderType.TakeOut
         };
@@ -70,9 +73,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         return order;
     }
 
-    public static Order CreateDelivery(OrderId id, IEnumerable<Product> productIds)
+    public static Order CreateDelivery(OrderId id, Guid restaurantId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, productIds)
+        Order order = new(id, restaurantId, productIds)
         {
             Type = OrderType.Delivery
         };

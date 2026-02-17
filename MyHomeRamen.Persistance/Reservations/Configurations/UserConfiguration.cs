@@ -11,6 +11,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.RestaurantId)
+               .IsRequired();
+
         builder.Property(x => x.FirstName)
             .HasMaxLength(UserConstants.MaxFirstNameLength);
 

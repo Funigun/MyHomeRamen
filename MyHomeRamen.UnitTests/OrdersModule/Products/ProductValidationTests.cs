@@ -8,6 +8,7 @@ namespace MyHomeRamen.UnitTests.OrdersModule.Products;
 public class ProductValidationTests
 {
     private static readonly ProductId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private static readonly ProductId DefaultOriginalId = new(Guid.NewGuid());
     private const string DefaultName = "Delicious Ramen";
     private const decimal DefaultPrice = 25.0m;
@@ -20,7 +21,7 @@ public class ProductValidationTests
         List<Ingredient> customIngredients = [];
 
         // Act
-        Product product = Product.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultPrice, baseIngredients, customIngredients);
+        Product product = Product.Create(DefaultId, DefaultRestaurantId, DefaultOriginalId, DefaultName, DefaultPrice, baseIngredients, customIngredients);
 
         // Assert
         Assert.Equal(DefaultId, product.Id);
@@ -107,6 +108,7 @@ public class ProductValidationTests
     {
         return Product.Create(
             DefaultId,
+            DefaultRestaurantId,
             DefaultOriginalId,
             name ?? DefaultName,
             price ?? DefaultPrice,
@@ -118,6 +120,7 @@ public class ProductValidationTests
     {
         return Ingredient.Create(
             new IngredientId(Guid.NewGuid()),
+            DefaultRestaurantId,
             new IngredientId(Guid.NewGuid()),
             "Ingredient",
             10.0m);

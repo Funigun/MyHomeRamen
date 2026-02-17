@@ -15,6 +15,7 @@ public class ProductValidationTests
     private const string DefaultImageUrl = "http://example.com/ramen.jpg";
 
     private static readonly ProductId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
 
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
@@ -25,7 +26,7 @@ public class ProductValidationTests
         Collection<Category> categories = [];
 
         // Act
-        Product product = Product.Create(DefaultId, DefaultName, DefaultDescription, DefaultPrice, DefaultImageUrl, baseIngredients, customIngredients, categories);
+        Product product = Product.Create(DefaultId, DefaultRestaurantId, DefaultName, DefaultDescription, DefaultPrice, DefaultImageUrl, baseIngredients, customIngredients, categories);
 
         // Assert
         Assert.Equal(DefaultId, product.Id);
@@ -133,7 +134,7 @@ public class ProductValidationTests
     {
         // Arrange
         // CategoryType.Ingredient (2) is invalid for products
-        Category category = Category.Create(new CategoryId(Guid.NewGuid()), "IngCat", 1, CategoryType.Ingredient);
+        Category category = Category.Create(new CategoryId(Guid.NewGuid()), DefaultRestaurantId, "IngCat", 1, CategoryType.Ingredient);
         Collection<Category> categories = [category];
 
         // Act & Assert
@@ -145,7 +146,7 @@ public class ProductValidationTests
     public void Create_Should_ThrowDomainException_When_CategoriesAreNotUnique()
     {
         // Arrange
-        Category category = Category.Create(new CategoryId(Guid.NewGuid()), "ProdCat", 1, CategoryType.Product);
+        Category category = Category.Create(new CategoryId(Guid.NewGuid()), DefaultRestaurantId, "ProdCat", 1, CategoryType.Product);
         Collection<Category> categories = [category, category];
 
         // Act & Assert
@@ -163,6 +164,7 @@ public class ProductValidationTests
     {
         return Product.Create(
             DefaultId,
+            DefaultRestaurantId,
             name ?? DefaultName,
             description ?? DefaultDescription,
             price ?? DefaultPrice,
@@ -176,6 +178,7 @@ public class ProductValidationTests
     {
         return Ingredient.Create(
             new IngredientId(Guid.NewGuid()),
+            DefaultRestaurantId,
             "Ingredient",
             "Description",
             10.0m,

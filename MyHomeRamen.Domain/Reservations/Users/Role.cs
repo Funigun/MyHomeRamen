@@ -8,6 +8,8 @@ public sealed class Role : AuditableEntity, IEntity<RoleId>
 
     public RoleId Id { get; }
 
+    public Guid RestaurantId { get; private set; }
+
     public string Name { get; private set; }
 
     public string Description { get; private set; }
@@ -18,33 +20,34 @@ public sealed class Role : AuditableEntity, IEntity<RoleId>
     {
     }
 
-    private Role(RoleId id, List<Permission> permissions)
+    private Role(RoleId id, Guid restaurantId, List<Permission> permissions)
     {
         Id = id;
+        RestaurantId = restaurantId;
         _permissions = permissions;
     }
 
-    public static Role CreateCustomerRole(RoleId id, List<Permission> permissions)
+    public static Role CreateCustomerRole(RoleId id, Guid restaurantId, List<Permission> permissions)
     {
-        return new(id, permissions)
+        return new(id, restaurantId, permissions)
         {
             Name = RoleConstants.Customer,
             Description = "A customer"
         };
     }
 
-    public static Role CreateEmployeeRole(RoleId id, List<Permission> permissions)
+    public static Role CreateEmployeeRole(RoleId id, Guid restaurantId, List<Permission> permissions)
     {
-        return new(id, permissions)
+        return new(id, restaurantId, permissions)
         {
             Name = RoleConstants.Employee,
             Description = "An employee"
         };
     }
 
-    public static Role CreateAdminRole(RoleId id, List<Permission> permissions)
+    public static Role CreateAdminRole(RoleId id, Guid restaurantId, List<Permission> permissions)
     {
-        return new(id, permissions)
+        return new(id, restaurantId, permissions)
         {
             Name = RoleConstants.Admin,
             Description = "An admin"

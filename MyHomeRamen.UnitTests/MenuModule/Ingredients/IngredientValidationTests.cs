@@ -9,6 +9,7 @@ namespace MyHomeRamen.UnitTests.MenuModule.Ingredients;
 public class IngredientValidationTests
 {
     private static readonly IngredientId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private const string DefaultName = "Fresh Garlic";
     private const string DefaultDescription = "Organic fresh garlic.";
     private const decimal DefaultPrice = 5.0m;
@@ -20,7 +21,7 @@ public class IngredientValidationTests
         Collection<Category> categories = [];
 
         // Act
-        Ingredient ingredient = Ingredient.Create(DefaultId, DefaultName, DefaultDescription, DefaultPrice, categories);
+        Ingredient ingredient = Ingredient.Create(DefaultId, DefaultRestaurantId, DefaultName, DefaultDescription, DefaultPrice, categories);
 
         // Assert
         Assert.Equal(DefaultId, ingredient.Id);
@@ -101,7 +102,7 @@ public class IngredientValidationTests
     {
         // Arrange
         // CategoryType.Product (1) is invalid for ingredients
-        Category category = Category.Create(new CategoryId(Guid.NewGuid()), "ProdCat", 1, CategoryType.Product);
+        Category category = Category.Create(new CategoryId(Guid.NewGuid()), DefaultRestaurantId, "ProdCat", 1, CategoryType.Product);
         Collection<Category> categories = [category];
 
         // Act & Assert
@@ -113,7 +114,7 @@ public class IngredientValidationTests
     public void Create_Should_ThrowDomainException_When_CategoriesAreNotUnique()
     {
         // Arrange
-        Category category = Category.Create(new CategoryId(Guid.NewGuid()), "IngCat", 1, CategoryType.Ingredient);
+        Category category = Category.Create(new CategoryId(Guid.NewGuid()), DefaultRestaurantId, "IngCat", 1, CategoryType.Ingredient);
         Collection<Category> categories = [category, category];
 
         // Act & Assert
@@ -129,6 +130,7 @@ public class IngredientValidationTests
     {
         return Ingredient.Create(
             DefaultId,
+            DefaultRestaurantId,
             name ?? DefaultName,
             description ?? DefaultDescription,
             price ?? DefaultPrice,

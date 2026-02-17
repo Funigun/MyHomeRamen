@@ -11,6 +11,9 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.RestaurantId)
+               .IsRequired();
+
         builder.Property(category => category.Name)
                .HasMaxLength(CategoryConstants.MaxNameLength)
                .IsRequired();

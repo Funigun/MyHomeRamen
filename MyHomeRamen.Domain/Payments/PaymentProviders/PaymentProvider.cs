@@ -9,6 +9,8 @@ public sealed class PaymentProvider : AuditableEntity, IEntity<PaymentProviderId
 
     public PaymentProviderId Id { get; private set; }
 
+    public Guid RestaurantId { get; private set; }
+
     public string Name { get; private set; }
 
     public string ImageUrl { get; private set; }
@@ -19,14 +21,15 @@ public sealed class PaymentProvider : AuditableEntity, IEntity<PaymentProviderId
     {
     }
 
-    private PaymentProvider(PaymentProviderId id)
+    private PaymentProvider(PaymentProviderId id, Guid restaurantId)
     {
         Id = id;
+        RestaurantId = restaurantId;
     }
 
-    public static PaymentProvider Create(PaymentProviderId id, string name, string imageUrl)
+    public static PaymentProvider Create(PaymentProviderId id, Guid restaurantId, string name, string imageUrl)
     {
-        PaymentProvider paymentProvider = new(id)
+        PaymentProvider paymentProvider = new(id, restaurantId)
         {
             Name = name,
             ImageUrl = imageUrl
