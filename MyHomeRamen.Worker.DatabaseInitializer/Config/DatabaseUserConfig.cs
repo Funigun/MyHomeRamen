@@ -21,7 +21,7 @@ internal sealed record DatabaseUserConfig
     {
         return new
         (
-            "indentity",
+            "identity",
             "IdentityRole",
             "IdentityAdmin"
         );
