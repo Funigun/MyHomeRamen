@@ -8,72 +8,18 @@ internal sealed record DatabaseUserConfig
 
     public string User { get; init; } = string.Empty;
 
-    public string Password => $"{User}Password123";
+    public string Password { get; init; }
 
-    private DatabaseUserConfig(string schema, string role, string user)
+    private DatabaseUserConfig(string schema, IConfiguration configuration)
     {
-        Schema = schema;
-        Role = role;
-        User = user;
+        Schema = schema.ToLower();
+        Role = $"{schema}Role";
+        User = configuration[$"CustomConfig:{schema}:User"]!;
+        Password = configuration[$"CustomConfig:{schema}:Password"]!;
     }
 
-    internal static DatabaseUserConfig CreateUserAdmin()
+    internal static DatabaseUserConfig Create(string schema, IConfiguration configuration)
     {
-        return new
-        (
-            "identity",
-            "IdentityRole",
-            "IdentityAdmin"
-        );
-    }
-
-    internal static DatabaseUserConfig CreateMenuAdmin()
-    {
-        return new
-        (
-            "menu",
-            "MenuRole",
-            "MenuAdmin"
-        );
-    }
-
-    internal static DatabaseUserConfig CreateShoppingCartAdmin()
-    {
-        return new
-        (
-            "shoppingCart",
-            "ShoppingCartRole",
-            "ShoppingCartAdmin"
-        );
-    }
-
-    internal static DatabaseUserConfig CreateOrderAdmin()
-    {
-        return new
-        (
-            "order",
-            "OrderRole",
-            "OrderAdmin"
-        );
-    }
-
-    internal static DatabaseUserConfig CreateReservationAdmin()
-    {
-        return new
-        (
-            "reservation",
-            "ReservationRole",
-            "ReservationUser"
-        );
-    }
-
-    internal static DatabaseUserConfig CreatePaymentAdmin()
-    {
-        return new
-        (
-            "payments",
-            "PaymentRole",
-            "PaymentUser"
-        );
+        return new DatabaseUserConfig(schema, configuration);
     }
 }

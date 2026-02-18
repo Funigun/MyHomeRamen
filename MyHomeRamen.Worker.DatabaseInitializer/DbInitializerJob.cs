@@ -14,7 +14,7 @@ namespace MyHomeRamen.Worker.DatabaseInitializer;
 
 internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
                                 IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext,
-                                IPaymentsDbContext paymentsDbContext, RestaurantConfigurationProvider configurationProvider, 
+                                IPaymentsDbContext paymentsDbContext, IConfiguration configuration,
                                 ILogger<DbInitializerJob> logger)
              : IJob
 {
@@ -25,14 +25,15 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
         CancellationToken cancellationToken = context.CancellationToken;
         Dictionary<IBaseDbContext, DatabaseUserConfig> dbContexts = new()
         {
-            { userContext, DatabaseUserConfig.CreateUserAdmin() },
-            { menuDbContext, DatabaseUserConfig.CreateMenuAdmin() },
-            { shoppingCartDbContext, DatabaseUserConfig.CreateShoppingCartAdmin() },
-            { ordersDbContext, DatabaseUserConfig.CreateOrderAdmin() },
-            { reservationsDbContext, DatabaseUserConfig.CreateReservationAdmin() },
-            { paymentsDbContext, DatabaseUserConfig.CreatePaymentAdmin() }
+            { userContext, DatabaseUserConfig.Create("Identity", configuration) },
+            { menuDbContext, DatabaseUserConfig.Create("Menu", configuration) },
+            { shoppingCartDbContext, DatabaseUserConfig.Create("ShoppingCart", configuration) },
+            { ordersDbContext, DatabaseUserConfig.Create("Order", configuration) },
+            { reservationsDbContext, DatabaseUserConfig.Create("Reservation", configuration) },
+            { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) }
         };
 
+        Guid restaurantId = Guid.Parse(configuration["RestaurantConfiguration:RestaurantId"]!);
         bool newDatabaseCreated = await userContext.EnsureCreated(cancellationToken);
         string databaseCreationComment = newDatabaseCreated ? "Database created successfully." : "Database already exists.";
         logger.LogInformation("{Comment}", databaseCreationComment);
@@ -50,7 +51,7 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
                                        cancellationToken);
 
             await dbContext.Migrate(cancellationToken);
-            await dbContext.Seed(configurationProvider.RestaurantId, cancellationToken);
+            await dbContext.Seed(restaurantId, cancellationToken);
 
             if (newDatabaseCreated)
             {

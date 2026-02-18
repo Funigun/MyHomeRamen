@@ -31,4 +31,26 @@ internal static class ConfigurationExtensions
               .Replace(userNamePlaceholder, userName, StringComparison.InvariantCulture)!
               .Replace(passwordPlaceholder, password, StringComparison.InvariantCulture)!;
     }
+
+    internal static IResourceBuilder<ProjectResource> WithModulesAccess(this IResourceBuilder<ProjectResource> builder, IEnumerable<string> modules, IConfiguration configuration)
+    {
+        foreach (string module in modules)
+        {
+            builder.WithEnvironment($"ConnectionStrings__{module}", configuration.GetModuleConnectionString(module))
+                   .WithEnvironment($"RestaurantConfiguration__{module}ConnectionString", $"ConnectionStrings:{module}");
+        }
+
+        return builder;
+    }
+
+    internal static IResourceBuilder<ProjectResource> WithUsersConfiguration(this IResourceBuilder<ProjectResource> builder, IEnumerable<string> modules, IConfiguration configuration)
+    {
+        foreach (string module in modules)
+        {
+            builder.WithEnvironment($"CustomConfig__{module}__User", configuration[$"CustomConfig:{module}:User"]!)
+                   .WithEnvironment($"CustomConfig__{module}__Password", configuration[$"CustomConfig:{module}:Password"]!);
+        }
+
+        return builder;
+    }
 }

@@ -9,17 +9,16 @@ internal static class ProjectRegistrationExtensions
     {
         string applicationName = configuration[ConfigurationConstants.ApplicationNameSetting] ?? throw new Exception("Application name not configured");
 
+        IEnumerable<string> requiredModules = [
+            ConfigurationConstants.MenuModuleName,
+            ConfigurationConstants.ReservationModuleName,
+            ConfigurationConstants.OrderModuleName,
+            ConfigurationConstants.ShoppingCartModuleName,
+            ConfigurationConstants.PaymentModuleName
+        ];
+
         return builder.AddProject<Projects.MyHomeRamen_Api>($"{applicationName}-api")
-                      .WithEnvironment("ConnectionStrings__Menu", configuration.GetModuleConnectionString(ConfigurationConstants.MenuModuleName))
-                      .WithEnvironment("ConnectionStrings__Reservation", configuration.GetModuleConnectionString(ConfigurationConstants.ReservationModuleName))
-                      .WithEnvironment("ConnectionStrings__Order", configuration.GetModuleConnectionString(ConfigurationConstants.OrderModuleName))
-                      .WithEnvironment("ConnectionStrings__ShoppingCart", configuration.GetModuleConnectionString(ConfigurationConstants.ShoppingCartModuleName))
-                      .WithEnvironment("ConnectionStrings__Payment", configuration.GetModuleConnectionString(ConfigurationConstants.PaymentModuleName))
-                      .WithEnvironment("RestaurantConfiguration__MenuConnectionString", "ConnectionStrings:Menu")
-                      .WithEnvironment("RestaurantConfiguration__ReservationConnectionString", "ConnectionStrings:Reservation")
-                      .WithEnvironment("RestaurantConfiguration__OrderConnectionString", "ConnectionStrings:Order")
-                      .WithEnvironment("RestaurantConfiguration__ShoppingCartConnectionString", "ConnectionStrings:ShoppingCart")
-                      .WithEnvironment("RestaurantConfiguration__PaymentConnectionString", "ConnectionStrings:Payment")
+                      .WithModulesAccess(requiredModules, configuration)
                       .WithHttpHealthCheck("/health");
     }
 
@@ -27,9 +26,12 @@ internal static class ProjectRegistrationExtensions
     {
         string applicationName = configuration[ConfigurationConstants.ApplicationNameSetting] ?? throw new Exception("Application name not configured");
 
+        IEnumerable<string> requiredModules = [
+            ConfigurationConstants.IdentityModuleName
+        ];
+
         return builder.AddProject<Projects.MyHomeRamen_Identity_Api>($"{applicationName}-identity-api")
-                      .WithEnvironment("ConnectionStrings__Identity", configuration.GetModuleConnectionString(ConfigurationConstants.IdentityModuleName))
-                      .WithEnvironment("RestaurantConfiguration__IdentityConnectionString", "ConnectionStrings:Identity")
+                      .WithModulesAccess(requiredModules, configuration)
                       .WithHttpHealthCheck("/health");
     }
 
@@ -46,19 +48,18 @@ internal static class ProjectRegistrationExtensions
     {
         string applicationName = configuration[ConfigurationConstants.ApplicationNameSetting] ?? throw new Exception("Application name not configured");
 
+        IEnumerable<string> requiredModules = [
+            ConfigurationConstants.MenuModuleName,
+            ConfigurationConstants.ReservationModuleName,
+            ConfigurationConstants.OrderModuleName,
+            ConfigurationConstants.ShoppingCartModuleName,
+            ConfigurationConstants.PaymentModuleName,
+            ConfigurationConstants.IdentityModuleName
+        ];
+
         return builder.AddProject<Projects.MyHomeRamen_Worker_DatabaseInitializer>($"{applicationName}-db-initializer")
-                      .WithEnvironment("ConnectionStrings__Menu", configuration.GetModuleConnectionString(ConfigurationConstants.DbInitializerWorkerName))
-                      .WithEnvironment("ConnectionStrings__Reservation", configuration.GetModuleConnectionString(ConfigurationConstants.DbInitializerWorkerName))
-                      .WithEnvironment("ConnectionStrings__Order", configuration.GetModuleConnectionString(ConfigurationConstants.DbInitializerWorkerName))
-                      .WithEnvironment("ConnectionStrings__ShoppingCart", configuration.GetModuleConnectionString(ConfigurationConstants.DbInitializerWorkerName))
-                      .WithEnvironment("ConnectionStrings__Payment", configuration.GetModuleConnectionString(ConfigurationConstants.DbInitializerWorkerName))
-                      .WithEnvironment("ConnectionStrings__Identity", configuration.GetModuleConnectionString(ConfigurationConstants.DbInitializerWorkerName))
-                      .WithEnvironment("RestaurantConfiguration__MenuConnectionString", "ConnectionStrings:Menu")
-                      .WithEnvironment("RestaurantConfiguration__ReservationConnectionString", "ConnectionStrings:Reservation")
-                      .WithEnvironment("RestaurantConfiguration__OrderConnectionString", "ConnectionStrings:Order")
-                      .WithEnvironment("RestaurantConfiguration__ShoppingCartConnectionString", "ConnectionStrings:ShoppingCart")
-                      .WithEnvironment("RestaurantConfiguration__PaymentConnectionString", "ConnectionStrings:Payment")
-                      .WithEnvironment("RestaurantConfiguration__IdentityConnectionString", "ConnectionStrings:Identity");
+                      .WithModulesAccess(requiredModules, configuration)
+                      .WithUsersConfiguration(requiredModules, configuration);
     }
 
     public static void AddWorkers(this IDistributedApplicationBuilder builder, IConfiguration configuration, IResourceBuilder<ProjectResource> apiService)
