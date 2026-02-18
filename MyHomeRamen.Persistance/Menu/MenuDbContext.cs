@@ -54,7 +54,7 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
 
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
     {
-        return await Database.ExecuteSqlAsync(sql, cancellationToken);
+        return await Database.ExecuteSqlInterpolatedAsync(sql, cancellationToken);
     }
 
     public async Task Migrate(CancellationToken cancellationToken)

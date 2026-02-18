@@ -127,7 +127,7 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
 
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
     {
-        return await Database.ExecuteSqlAsync(sql, cancellationToken);
+        return await Database.ExecuteSqlInterpolatedAsync(sql, cancellationToken);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

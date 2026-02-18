@@ -10,7 +10,7 @@ IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.ConfigureRabbitMq(co
 
 IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 
-IResourceBuilder<ProjectResource> dbMigrator = builder.AddProject<Projects.MyHomeRamen_Worker_DatabaseInitializer>($"my-home-ramen-db-initializer");
+IResourceBuilder<ProjectResource> dbMigrator = builder.AddDbinitializer(config);
 
 IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
                                                               .WithReference(rabbitmq)

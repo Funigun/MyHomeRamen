@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.AppHost.Configurations;
+﻿namespace MyHomeRamen.AppHost.Configurations.Common;
 
 public abstract record BaseConfiguration
 {
