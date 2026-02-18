@@ -58,6 +58,9 @@
     <File Path=".github/prompts/create-domain-event.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
+  <Folder Name="/_github/workflows/">
+    <File Path=".github/workflows/pr-checks.yml" />
+  </Folder>
   <Folder Name="/_wiki/" />
   <Folder Name="/_wiki/Architecture/">
     <File Path="Wiki/Architecture/0001-modular-monolith-architecture.md" />
