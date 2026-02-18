@@ -19,13 +19,16 @@ internal static class ConfigurationExtensions
         string connectionTemplate = configuration[$"CustomConfig:ConnectionTemplate"]!;
         string server = configuration["CustomConfig:Server"] ?? ".";
         string databaseName = configuration["CustomConfig:DatabaseName"]!;
-        string userName = configuration[$"CustomConfig:{moduleName}:User"]!;
-        string password = configuration[$"CustomConfig:{moduleName}:Password"]!;
+        string? userName = configuration[$"CustomConfig:{moduleName}:User"];
+        string? password = configuration[$"CustomConfig:{moduleName}:Password"];
+
+        string userNamePlaceholder = userName is null ? "User Id=[UserName]" : "[UserName]";
+        string passwordPlaceholder = password is null ? ";Password=[Password]" : "[Password]";
 
         return connectionTemplate?
               .Replace("[Server]", server, StringComparison.InvariantCulture)!
               .Replace("[DbName]", databaseName, StringComparison.InvariantCulture)!
-              .Replace("[UserName]", userName, StringComparison.InvariantCulture)!
-              .Replace("[Password]", password, StringComparison.InvariantCulture)!;
+              .Replace(userNamePlaceholder, userName, StringComparison.InvariantCulture)!
+              .Replace(passwordPlaceholder, password, StringComparison.InvariantCulture)!;
     }
 }
