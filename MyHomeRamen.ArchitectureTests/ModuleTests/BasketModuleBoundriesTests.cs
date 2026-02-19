@@ -11,7 +11,8 @@ public sealed class BasketModuleBoundriesTests : BaseArchitectureTest
     {
         // Arrange
         string[]? forbiddenModules = ["MyHomeRamen.Domain.Menu", "MyHomeRamen.Domain.Orders",
-                                             "MyHomeRamen.Domain.Payments", "MyHomeRamen.Domain.Reservations"];
+                                             "MyHomeRamen.Domain.Payments", "MyHomeRamen.Domain.Reservations",
+                                             "MyHomeRamen.Identity.Api", "MyHomeRamen.Worker"];
 
         // Act
         TestResult result = Types.InAssembly(DomainAssembly)

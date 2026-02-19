@@ -1,13 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Menu.Database;
+using MyHomeRamen.Domain.Orders.Database;
+using MyHomeRamen.Domain.Payments.Database;
+using MyHomeRamen.Domain.Reservations.Database;
+using MyHomeRamen.Domain.ShoppingCart.Database;
+using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
 using MyHomeRamen.Persistance.Reservations;
 using MyHomeRamen.Persistance.ShoppingCart;
+using MyHomeRamen.Persistance.Users;
 
 namespace MyHomeRamen.Persistance;
 
@@ -27,12 +38,14 @@ public static class DependencyInjection
             );
         });
 
+        services.AddScoped<IMenuDbContext, MenuDbContext>();
+
         return services;
     }
 
     public static IServiceCollection AddBasketPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
     {
-        services.AddDbContext<BasketDbContext>(options =>
+        services.AddDbContext<ShoppingCartDbContext>(options =>
         {
             string? connectionString = configurationProvider.ShoppingCartConnectionString;
             options.UseSqlServer(
@@ -43,6 +56,8 @@ public static class DependencyInjection
                 }
             );
         });
+
+        services.AddScoped<IShoppingCartDbContext, ShoppingCartDbContext>();
 
         return services;
     }
@@ -61,6 +76,8 @@ public static class DependencyInjection
             );
         });
 
+        services.AddScoped<IOrdersDbContext, OrdersDbContext>();
+
         return services;
     }
 
@@ -78,6 +95,8 @@ public static class DependencyInjection
             );
         });
 
+        services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
+
         return services;
     }
 
@@ -93,6 +112,50 @@ public static class DependencyInjection
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "payments");
                 }
             );
+        });
+
+        services.AddScoped<IPaymentsDbContext, PaymentsDbContext>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddIdentityPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    {
+        services.ConfigureIdentity();
+
+        services.AddDbContext<UsersDbContext>(options =>
+        {
+            string? connectionString = configurationProvider.IdentityConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.CommandTimeout(600);
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "identity");
+                }
+            );
+        });
+
+        services.AddScoped<IUsersDbContext, UsersDbContext>();
+
+        return services;
+    }
+
+    private static IServiceCollection ConfigureIdentity(this IServiceCollection services)
+    {
+        services.AddIdentityCore<User>()
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<UsersDbContext>();
+
+        services.Configure<IdentityOptions>(options =>
+        {
+            options.Password.RequireDigit = true;
+            options.Password.RequiredLength = 10;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequiredUniqueChars = 3;
+            options.User.RequireUniqueEmail = true;
         });
 
         return services;

@@ -8,10 +8,10 @@ namespace MyHomeRamen.UnitTests.OrdersModule.Products;
 public class ProductValidationTests
 {
     private static readonly ProductId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private static readonly ProductId DefaultOriginalId = new(Guid.NewGuid());
     private const string DefaultName = "Delicious Ramen";
     private const decimal DefaultPrice = 25.0m;
-    private const string DefaultImageUrl = "http://example.com/ramen.png";
 
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
@@ -21,14 +21,13 @@ public class ProductValidationTests
         List<Ingredient> customIngredients = [];
 
         // Act
-        Product product = Product.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultPrice, DefaultImageUrl, baseIngredients, customIngredients);
+        Product product = Product.Create(DefaultId, DefaultRestaurantId, DefaultOriginalId, DefaultName, DefaultPrice, baseIngredients, customIngredients);
 
         // Assert
         Assert.Equal(DefaultId, product.Id);
         Assert.Equal(DefaultOriginalId, product.OriginalId);
         Assert.Equal(DefaultName, product.Name);
         Assert.Equal(DefaultPrice, product.OriginalPrice);
-        Assert.Equal(DefaultImageUrl, product.ImageUrl);
         Assert.Equal(baseIngredients, product.BaseIngredients);
         Assert.Equal(customIngredients, product.CustomIngredients);
     }
@@ -109,10 +108,10 @@ public class ProductValidationTests
     {
         return Product.Create(
             DefaultId,
+            DefaultRestaurantId,
             DefaultOriginalId,
             name ?? DefaultName,
             price ?? DefaultPrice,
-            DefaultImageUrl,
             baseIngredients ?? [],
             customIngredients ?? []);
     }
@@ -121,6 +120,7 @@ public class ProductValidationTests
     {
         return Ingredient.Create(
             new IngredientId(Guid.NewGuid()),
+            DefaultRestaurantId,
             new IngredientId(Guid.NewGuid()),
             "Ingredient",
             10.0m);

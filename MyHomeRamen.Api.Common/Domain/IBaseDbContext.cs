@@ -2,7 +2,7 @@
 
 namespace MyHomeRamen.Api.Common.Domain;
 
-public interface IBaseDbContext
+public interface IBaseDbContext : IDisposable
 {
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 
@@ -11,4 +11,12 @@ public interface IBaseDbContext
     Task CommitTransaction(CancellationToken cancellationToken);
 
     Task RollbackTransaction(CancellationToken cancellationToken);
+
+    Task<bool> EnsureCreated(CancellationToken cancellationToken);
+
+    Task Migrate(CancellationToken cancellationToken);
+
+    Task Seed(Guid restaurantId, CancellationToken cancellationToken);
+
+    Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken);
 }

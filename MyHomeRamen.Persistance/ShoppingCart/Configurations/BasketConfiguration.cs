@@ -1,3 +1,4 @@
+using MyHomeRamen.Domain.Common.Basket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
@@ -9,5 +10,15 @@ public class BasketConfiguration : IEntityTypeConfiguration<Basket>
     public void Configure(EntityTypeBuilder<Basket> builder)
     {
         builder.HasKey(x => x.Id);
+
+        builder.Property(x => x.RestaurantId)
+               .IsRequired();
+
+        builder.HasOne(x => x.User)
+            .WithMany()
+            .IsRequired();
+
+        builder.HasMany(x => x.Products)
+            .WithOne();
     }
 }

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
@@ -17,12 +16,30 @@ public static class Extensions
 
     private static string _sourceName;
 
-    public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder, string sourceName)
+    public static TBuilder AddApiServiceDefaults<TBuilder>(this TBuilder builder, string sourceName)
             where TBuilder : IHostApplicationBuilder
     {
         _sourceName = sourceName;
 
-        builder.ConfigureOpenTelemetry();
+        builder.WithHttpMetrics()
+               .WithConfiguredLogging();
+
+        builder.Services.AddOpenTelemetry()
+                        .WithTracing(tracing =>
+                           {
+                               tracing.AddSource(builder.Environment.ApplicationName)
+                                   .AddAspNetCoreInstrumentation(tracing =>
+                                       tracing.Filter = context =>
+                                           !context.Request.Path.StartsWithSegments(HealthEndpointPath)
+                                           && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
+                                   )
+                                   .AddHttpClientInstrumentation()
+                                   .AddEntityFrameworkCoreInstrumentation()
+                                   .AddSqlClientInstrumentation()
+                                   .AddRedisInstrumentation();
+                           });
+
+        builder.AddOpenTelemetryExporters();
 
         builder.AddDefaultHealthChecks();
 
@@ -37,8 +54,82 @@ public static class Extensions
         return builder;
     }
 
-    public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder)
+    public static TBuilder AddBlazorServiceDefaults<TBuilder>(this TBuilder builder, string sourceName)
             where TBuilder : IHostApplicationBuilder
+    {
+        _sourceName = sourceName;
+
+        builder.WithHttpMetrics()
+               .WithConfiguredLogging();
+
+        builder.Services.AddOpenTelemetry()
+                        .WithTracing(tracing =>
+                        {
+                            tracing.AddSource(builder.Environment.ApplicationName)
+                                .AddAspNetCoreInstrumentation(tracing =>
+                                    tracing.Filter = context =>
+                                        !context.Request.Path.StartsWithSegments(HealthEndpointPath)
+                                        && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
+                                )
+                                .AddHttpClientInstrumentation()
+                                .AddRedisInstrumentation();
+                        });
+
+        builder.AddOpenTelemetryExporters();
+
+        builder.AddDefaultHealthChecks();
+
+        builder.Services.AddServiceDiscovery();
+
+        builder.Services.ConfigureHttpClientDefaults(http =>
+        {
+            http.AddStandardResilienceHandler();
+            http.AddServiceDiscovery();
+        });
+
+        return builder;
+    }
+
+    public static TBuilder AddWorkerServiceDefaults<TBuilder>(this TBuilder builder, string sourceName)
+            where TBuilder : IHostApplicationBuilder
+    {
+        _sourceName = sourceName;
+
+        builder.WithHttpMetrics()
+               .WithConfiguredLogging();
+
+        builder.Services.AddOpenTelemetry()
+                        .WithTracing(tracing =>
+                        {
+                            tracing.AddSource(builder.Environment.ApplicationName)
+                                .AddAspNetCoreInstrumentation(tracing =>
+                                    tracing.Filter = context =>
+                                        !context.Request.Path.StartsWithSegments(HealthEndpointPath)
+                                        && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
+                                )
+                                .AddHttpClientInstrumentation()
+                                .AddEntityFrameworkCoreInstrumentation()
+                                .AddSqlClientInstrumentation()
+                                .AddQuartzInstrumentation();
+                        });
+
+        builder.AddOpenTelemetryExporters();
+
+        builder.AddDefaultHealthChecks();
+
+        builder.Services.AddServiceDiscovery();
+
+        builder.Services.ConfigureHttpClientDefaults(http =>
+        {
+            http.AddStandardResilienceHandler();
+            http.AddServiceDiscovery();
+        });
+
+        return builder;
+    }
+
+    private static TBuilder WithConfiguredLogging<TBuilder>(this TBuilder builder)
+         where TBuilder : IHostApplicationBuilder
     {
         builder.Logging.AddOpenTelemetry(logging =>
         {
@@ -46,33 +137,19 @@ public static class Extensions
             logging.IncludeScopes = true;
         });
 
+        return builder;
+    }
+
+    private static TBuilder WithHttpMetrics<TBuilder>(this TBuilder builder)
+             where TBuilder : IHostApplicationBuilder
+    {
         builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics =>
-            {
-                metrics.AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation()
-                    .AddRuntimeInstrumentation();
-            })
-            .WithTracing(tracing =>
-            {
-                tracing.AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation(tracing =>
-                        tracing.Filter = context =>
-                            !context.Request.Path.StartsWithSegments(HealthEndpointPath)
-                            && !context.Request.Path.StartsWithSegments(AlivenessEndpointPath)
-                    )
-                    .AddHttpClientInstrumentation()
-                    .AddEntityFrameworkCoreInstrumentation()
-                    .AddRedisInstrumentation()
-                    .AddOtlpExporter(options =>
-                    {
-                        options.Endpoint = new Uri("http://localhost:4317");
-                    });
-                ;
-            });
-
-        builder.AddOpenTelemetryExporters();
-
+                        .WithMetrics(metrics =>
+                        {
+                            metrics.AddAspNetCoreInstrumentation()
+                                   .AddHttpClientInstrumentation()
+                                   .AddRuntimeInstrumentation();
+                        });
         return builder;
     }
 

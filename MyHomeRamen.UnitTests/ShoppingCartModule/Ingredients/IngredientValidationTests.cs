@@ -7,6 +7,7 @@ namespace MyHomeRamen.UnitTests.ShoppingCartModule.Ingredients;
 public class IngredientValidationTests
 {
     private static readonly IngredientId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private static readonly IngredientId DefaultOriginalId = new(Guid.NewGuid());
     private const string DefaultName = "Fresh Garlic";
     private const string DefaultDescription = "Organic fresh garlic.";
@@ -16,7 +17,7 @@ public class IngredientValidationTests
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
     {
         // Act
-        Ingredient ingredient = Ingredient.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultDescription, DefaultPrice);
+        Ingredient ingredient = Ingredient.Create(DefaultId, DefaultRestaurantId, DefaultOriginalId, DefaultName, DefaultDescription, DefaultPrice);
 
         // Assert
         Assert.Equal(DefaultId, ingredient.Id);
@@ -99,6 +100,7 @@ public class IngredientValidationTests
     {
         return Ingredient.Create(
             DefaultId,
+            DefaultRestaurantId,
             DefaultOriginalId,
             name ?? DefaultName,
             description ?? DefaultDescription,

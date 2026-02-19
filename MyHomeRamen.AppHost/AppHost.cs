@@ -10,13 +10,16 @@ IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.ConfigureRabbitMq(co
 
 IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 
+IResourceBuilder<ProjectResource> dbMigrator = builder.AddDbinitializer(config);
+
 IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
                                                               .WithReference(rabbitmq)
                                                               .WithReference(cache)
                                                               .WithReference(keyCloak)
                                                               .WaitFor(rabbitmq)
                                                               .WaitFor(cache)
-                                                              .WaitFor(keyCloak);
+                                                              .WaitFor(keyCloak)
+                                                              .WaitFor(dbMigrator);
 
 IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
                                                       .WithReference(identityApiService)

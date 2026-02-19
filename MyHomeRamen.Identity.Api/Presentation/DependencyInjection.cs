@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MyHomeRamen.Api.Common.Configuration;
-using MyHomeRamen.Identity.Api.Persistance;
+using MyHomeRamen.Domain.Users.Database;
 using Scalar.AspNetCore;
 
 namespace MyHomeRamen.Identity.Api.Presentation;
@@ -48,11 +48,8 @@ internal static class DependencyInjection
     internal static async Task InitDatabase(this WebApplication app)
     {
         using IServiceScope scope = app.Services.CreateScope();
-        using AppDbContext dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        using IUsersDbContext dbContext = scope.ServiceProvider.GetRequiredService<IUsersDbContext>();
 
-        if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
-        {
-            await dbContext.Database.MigrateAsync();
-        }
+        await dbContext.Migrate(CancellationToken.None);
     }
 }

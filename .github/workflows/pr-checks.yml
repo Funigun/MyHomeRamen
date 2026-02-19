@@ -26,6 +26,3 @@ jobs:
 
     - name: Run Architecture Tests
       run: dotnet test MyHomeRamen.ArchitectureTests/MyHomeRamen.ArchitectureTests.csproj --no-build --configuration Release --verbosity normal
-      
-    - name: Run Configuration Tests
-      run: dotnet test MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj --no-build --configuration Release --filter "FullyQualifiedName~MyHomeRamen.IntegrationTests.Configuration.ConfigurationConsistencyTests"

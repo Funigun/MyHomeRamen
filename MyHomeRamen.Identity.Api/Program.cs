@@ -1,10 +1,13 @@
 using System.Reflection;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Extentsions;
-using MyHomeRamen.Identity.Api.Persistance;
+using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Presentation;
+using MyHomeRamen.Persistance;
 using Scalar.AspNetCore;
 using Serilog;
 
@@ -39,7 +42,7 @@ try
     });
 
     builder.Services.AddSerilog();
-    builder.AddServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
+    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
 
     builder.Services.AddOpenApi("v1", options =>
     {
@@ -48,12 +51,15 @@ try
     });
 
     builder.Services.AddSharedServices()
+                    .AddScoped<AuthorizationService>()
                     .AddEndpoints(apiAssembly)
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.ConfigureIdentity()
-                    .ConfigureDatabase(builder.Configuration);
+    builder.Services.AddIdentityCore<User>()
+                .AddApiEndpoints();
+
+    builder.Services.AddIdentityPersistance(configurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .AddAuthorizationBuilder()
