@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Identity.Api.Domain;
+using MyHomeRamen.Domain.Users;
 
 namespace MyHomeRamen.Identity.Api.Features.Account.SignOut;
 

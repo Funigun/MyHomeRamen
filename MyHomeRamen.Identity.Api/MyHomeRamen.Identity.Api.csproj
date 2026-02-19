@@ -2,11 +2,11 @@
   <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />
     <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Features\Admin\UpdatePermissions\" />
     <Folder Include="Features\Admin\RemoveEmployee\" />
-    <Folder Include="Persistance\Migrations\" />
   </ItemGroup>
 </Project>

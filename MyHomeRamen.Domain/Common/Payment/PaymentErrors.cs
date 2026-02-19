@@ -7,4 +7,7 @@ public static class PaymentErrors
 
     public static DomainException NameTooLong()
         => new($"Payment name exceeds maximum length of {PaymentConstants.MaxNameLength}");
+
+    public static DomainException ReferenceIdRequired()
+        => new("ReferenceId is required");
 }

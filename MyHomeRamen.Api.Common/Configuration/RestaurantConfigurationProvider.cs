@@ -12,17 +12,33 @@ public class RestaurantConfigurationProvider(IConfiguration configuration)
 
     public Guid RestaurantId => configuration.GetValue<Guid>($"{SectionKey}RestaurantId");
 
-    public string? IdentityConnectionString => configuration[$"{SectionKey}IdentityConnectionString"];
+    public string? IdentityConnectionString => GetConnectionString("IdentityConnectionString");
 
-    public string? MenuConnectionString => configuration[$"{SectionKey}MenuConnectionString"];
+    public string? MenuConnectionString => GetConnectionString("MenuConnectionString");
 
-    public string? ReservationsConnectionString => configuration[$"{SectionKey}ReservationConnectionString"];
+    public string? ReservationsConnectionString => GetConnectionString("ReservationConnectionString");
 
-    public string? OrdersConnectionString => configuration[$"{SectionKey}OrderConnectionString"];
+    public string? OrdersConnectionString => GetConnectionString("OrderConnectionString");
 
-    public string? ShoppingCartConnectionString => configuration[$"{SectionKey}ShoppingCartConnectionString"];
+    public string? ShoppingCartConnectionString => GetConnectionString("ShoppingCartConnectionString");
 
-    public string? PaymentsConnectionString => configuration[$"{SectionKey}PaymentConnectionString"];
+    public string? PaymentsConnectionString => GetConnectionString("PaymentConnectionString");
 
-    public string? WorkerConnectionString => configuration[$"{SectionKey}WorkerConnectionString"];
+    public string? WorkerConnectionString => GetConnectionString("WorkerConnectionString");
+
+    private string? GetConnectionString(string key)
+    {
+        string? value = configuration[$"{SectionKey}{key}"];
+        if (string.IsNullOrEmpty(value))
+        {
+            return null;
+        }
+
+        if (configuration.GetSection(value).Exists())
+        {
+            return configuration[value];
+        }
+
+        return value;
+    }
 }

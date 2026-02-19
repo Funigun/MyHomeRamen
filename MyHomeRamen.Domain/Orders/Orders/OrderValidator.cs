@@ -13,12 +13,12 @@ internal static class OrderValidator
 
     private static void CheckProducts(Order order)
     {
-        if (order.ProductId.Count == 0)
+        if (order.Products.Count == 0)
         {
             throw OrderErrors.OrderMustHaveProducts();
         }
 
-        if (order.ProductId.Count > OrderConstants.MaxProductsCount)
+        if (order.Products.Count > OrderConstants.MaxProductsCount)
         {
             throw OrderErrors.TooManyProducts();
         }

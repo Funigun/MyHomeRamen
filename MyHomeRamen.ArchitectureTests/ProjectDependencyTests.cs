@@ -18,7 +18,8 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper) : Bas
             { InfrastructureAssembly, new[] { DomainAssembly, ServiceDefaultsAssembly } },
             { PersistanceAssembly, new[] { DomainAssembly, ApiCommonAssembly } },
             { WorkerMailSenderAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
-            { WorkerMessagesHandlerAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } }
+            { WorkerMessagesHandlerAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
+            { WorkerDbInitializerAssembly, new[] { ApiCommonAssembly, WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } }
         };
         return data;
     }

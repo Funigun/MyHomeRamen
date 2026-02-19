@@ -10,5 +10,13 @@
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Reservations\Authorization\" />
+  </ItemGroup>
 
 </Project>

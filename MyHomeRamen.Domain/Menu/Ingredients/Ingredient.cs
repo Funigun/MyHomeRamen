@@ -10,6 +10,8 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 
     public IngredientId Id { get; private set; }
 
+    public Guid RestaurantId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     public string Description { get; private set; }
@@ -22,15 +24,16 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
     {
     }
 
-    private Ingredient(IngredientId id, Collection<Category> categories)
+    private Ingredient(IngredientId id, Guid restaurantId, Collection<Category> categories)
     {
         Id = id;
+        RestaurantId = restaurantId;
         _categories = categories;
     }
 
-    public static Ingredient Create(IngredientId id, string name, string description, decimal price, Collection<Category> categories)
+    public static Ingredient Create(IngredientId id, Guid restaurantId, string name, string description, decimal price, Collection<Category> categories)
     {
-        Ingredient ingredient = new(id, categories)
+        Ingredient ingredient = new(id, restaurantId, categories)
         {
             Name = name,
             Description = description,

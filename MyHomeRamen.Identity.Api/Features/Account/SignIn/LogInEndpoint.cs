@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Identity.Api.Application.Exceptions;
 using MyHomeRamen.Identity.Api.Application.Services;
-using MyHomeRamen.Identity.Api.Domain;
 using MyHomeRamen.Identity.Api.Features.Account.SignIn.Models;
-using MyHomeRamen.Identity.Api.Persistance;
+using MyHomeRamen.Persistance.Users;
 
 namespace MyHomeRamen.Identity.Api.Features.Account.SignIn;
 
@@ -21,7 +22,7 @@ public class LogInEndpoint : IEndpoint
                        .WithDescription("Handles LogIn operations.");
     }
 
-    private static async Task<Results<Ok<LogInResponse>, BadRequest>> Handler(LogInRequest request, UserManager<User> userManager, AuthorizationService authorizationService, AppDbContext dbContext, IConfiguration configuration, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<LogInResponse>, BadRequest>> Handler(LogInRequest request, UserManager<User> userManager, AuthorizationService authorizationService, IUsersDbContext dbContext, IConfiguration configuration, CancellationToken cancellationToken)
     {
         User user = await userManager.Users.FirstAsync(userManager => userManager.UserName == request.UserName, cancellationToken);
 
@@ -33,8 +34,6 @@ public class LogInEndpoint : IEndpoint
         DateTime tokenExpirationTime = authorizationService.CalculateTokenExpirationTime(configuration, isRefreshToken: false);
 
         string token = await authorizationService.GenerateToken(user, userManager, configuration, isRefreshToken: false, tokenExpirationTime);
-
-        await dbContext.SaveChangesAsync(cancellationToken);
 
         LogInResponse response = new(token);
 

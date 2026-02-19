@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using MyHomeRamen.Identity.Api.Domain;
+using MyHomeRamen.Domain.Users;
 
 namespace MyHomeRamen.Identity.Api.Application.Services;
 

@@ -13,4 +13,6 @@ public static class ProductConstants
     public const decimal MinPrice = 0.5m;
 
     public const decimal MaxPrice = 100.0m;
+
+    public const int MaxImageUrlLength = 2048;
 }

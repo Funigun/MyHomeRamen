@@ -28,6 +28,7 @@
   </Folder>
   <Folder Name="/Workers/">
     <Project Path="MyHomeRamen.Worker.Common/MyHomeRamen.Worker.Common.csproj" Id="26fb0a68-a068-4aa6-a742-f12ca9d6584e" />
+    <Project Path="MyHomeRamen.Worker.DatabaseInitializer/MyHomeRamen.Worker.DatabaseInitializer.csproj" />
     <Project Path="MyHomeRamen.Worker.MailSender/MyHomeRamen.Worker.MailSender.csproj" Id="e76618b6-bbca-4d85-bc19-63c7c5bfe94a" />
     <Project Path="MyHomeRamen.Worker.MessagesHandler/MyHomeRamen.Worker.MessagesHandler.csproj" Id="913d105a-90ab-485f-848d-71c361d1afb7" />
   </Folder>
@@ -50,12 +51,11 @@
     <File Path=".github/instructions/users.instructions.md" />
   </Folder>
   <Folder Name="/_github/prompts/">
-    <File Path=".github/prompts/create-domain-db-context.prompt.md" />
+    <File Path=".github/prompts/001-create-domain-model.prompt.md" />
+    <File Path=".github/prompts/002-create-domain-model-rules.prompt.md" />
+    <File Path=".github/prompts/003-create-domain-model-unit-tests.prompt.md" />
+    <File Path=".github/prompts/004-create-domain-db-context.prompt.md" />
     <File Path=".github/prompts/create-domain-event.prompt.md" />
-    <File Path=".github/prompts/create-domain-model-id.prompt.md" />
-    <File Path=".github/prompts/create-domain-model-rules.prompt.md" />
-    <File Path=".github/prompts/create-domain-model-unit-tests.prompt.md" />
-    <File Path=".github/prompts/create-domain-model.prompt.md" />
     <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
   <Folder Name="/_github/workflows/">
@@ -63,9 +63,10 @@
   </Folder>
   <Folder Name="/_wiki/" />
   <Folder Name="/_wiki/Architecture/">
-    <File Path="Wiki/Architecture/adr-0001-modular-monolith-architecture.md" />
-    <File Path="Wiki/Architecture/adr-0002-aspire-orchestration.md" />
-    <File Path="Wiki/Architecture/adr-0003-module-specific-database-contexts.md" />
+    <File Path="Wiki/Architecture/0001-modular-monolith-architecture.md" />
+    <File Path="Wiki/Architecture/0002-aspire-orchestration.md" />
+    <File Path="Wiki/Architecture/0003-module-specific-database-contexts.md" />
+    <File Path="Wiki/Architecture/0004-restaurant-configuration.md" />
   </Folder>
   <Folder Name="/_wiki/Menu/">
     <File Path="Wiki/Menu ADR/0001-menu-domain.md" />

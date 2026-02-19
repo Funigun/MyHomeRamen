@@ -8,6 +8,7 @@ namespace MyHomeRamen.UnitTests.ShoppingCartModule.Baskets;
 public class BasketValidationTests
 {
     private static readonly BasketId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
 
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
@@ -16,7 +17,7 @@ public class BasketValidationTests
         User user = CreateUser();
 
         // Act
-        Basket basket = Basket.Create(DefaultId, user);
+        Basket basket = Basket.Create(DefaultId, DefaultRestaurantId, user);
 
         // Assert
         Assert.Equal(DefaultId, basket.Id);
@@ -28,7 +29,7 @@ public class BasketValidationTests
     public void Create_Should_ThrowDomainException_When_UserIsNull()
     {
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Basket.Create(DefaultId, null!));
+        DomainException exception = Assert.Throws<DomainException>(() => Basket.Create(DefaultId, DefaultRestaurantId, null!));
         Assert.Equal(BasketErrors.BasketUserRequired().Message, exception.Message);
     }
 
@@ -36,10 +37,8 @@ public class BasketValidationTests
     {
         return User.Create(
             new UserId(Guid.NewGuid()),
-            "John",
-            "Doe",
-            "john.doe@example.com",
-            "+1234567890",
-            UserAddress.Create("Street", "City", "State", "Zip", "Country"));
+            DefaultRestaurantId,
+            [],
+            []);
     }
 }

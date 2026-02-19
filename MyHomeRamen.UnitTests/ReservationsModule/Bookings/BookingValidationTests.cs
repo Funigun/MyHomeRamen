@@ -8,6 +8,7 @@ namespace MyHomeRamen.UnitTests.ReservationsModule.Bookings;
 public class BookingValidationTests
 {
     private static readonly BookingId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
 
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
@@ -17,7 +18,7 @@ public class BookingValidationTests
         List<Table> tables = [table];
 
         // Act
-        Booking booking = Booking.Create(DefaultId, tables);
+        Booking booking = Booking.Create(DefaultId, DefaultRestaurantId, tables);
 
         // Assert
         Assert.Equal(DefaultId, booking.Id);
@@ -32,7 +33,7 @@ public class BookingValidationTests
         List<Table> tables = [];
 
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, tables));
+        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, DefaultRestaurantId, tables));
         Assert.Equal(BookingErrors.NoTablesAssigned().Message, exception.Message);
     }
 
@@ -45,7 +46,7 @@ public class BookingValidationTests
             .ToList();
 
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, tables));
+        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, DefaultRestaurantId, tables));
         Assert.Equal(BookingErrors.TooManyTables().Message, exception.Message);
     }
 
@@ -57,7 +58,7 @@ public class BookingValidationTests
         List<Table> tables = [table, table];
 
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, tables));
+        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, DefaultRestaurantId, tables));
         Assert.Equal(BookingErrors.TablesNotUnique().Message, exception.Message);
     }
 
@@ -102,11 +103,11 @@ public class BookingValidationTests
 
     private static Booking CreateBooking()
     {
-        return Booking.Create(DefaultId, [CreateTable()]);
+        return Booking.Create(DefaultId, DefaultRestaurantId, [CreateTable()]);
     }
 
     private static Table CreateTable()
     {
-        return Table.Create(new TableId(Guid.NewGuid()), 1, 2, 4);
+        return Table.Create(new TableId(Guid.NewGuid()), DefaultRestaurantId, 1, 2, 4);
     }
 }

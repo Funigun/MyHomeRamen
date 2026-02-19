@@ -10,6 +10,8 @@ public sealed class Payment : AuditableEntity, IEntity<PaymentId>
 
     public PaymentId Id { get; private set; }
 
+    public Guid RestaurantId { get; private set; }
+
     public Guid ReferenceNumber { get; private set; }
 
     public decimal Amount { get; private set; }
@@ -22,16 +24,17 @@ public sealed class Payment : AuditableEntity, IEntity<PaymentId>
     {
     }
 
-    private Payment(PaymentId id, Order order, List<Product> products)
+    private Payment(PaymentId id, Guid restaurantId, Order order, List<Product> products)
     {
         Id = id;
+        RestaurantId = restaurantId;
         Order = order;
         _productIds.AddRange(products);
     }
 
-    public static Payment Create(PaymentId id, decimal amount, Order order, List<Product> products)
+    public static Payment Create(PaymentId id, Guid restaurantId, decimal amount, Order order, List<Product> products)
     {
-        Payment payment = new(id, order, products)
+        Payment payment = new(id, restaurantId, order, products)
         {
             ReferenceNumber = Guid.CreateVersion7(),
             Amount = amount

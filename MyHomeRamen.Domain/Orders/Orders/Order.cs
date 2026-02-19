@@ -1,6 +1,7 @@
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Orders.Payments;
 using MyHomeRamen.Domain.Orders.Products;
+using MyHomeRamen.Domain.Orders.Users;
 
 namespace MyHomeRamen.Domain.Orders.Orders;
 
@@ -12,9 +13,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public OrderId Id { get; private set; }
 
-    public Guid ReferenceNumber { get; private set; }
+    public Guid RestaurantId { get; private set; }
 
-    public CustomerId CustomerId { get; private set; }
+    public Guid ReferenceNumber { get; private set; }
 
     public OrderType Type { get; private set; }
 
@@ -26,7 +27,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public User User { get; private set; }
 
-    public IReadOnlyList<Product> ProductId => _productIds.ToList();
+    public OrderAddress DeliveryAddress { get; private set; }
+
+    public IReadOnlyList<Product> Products => _productIds.ToList();
 
     public IReadOnlyList<Payment> Payments => _payments.ToList();
 
@@ -36,19 +39,19 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
     {
     }
 
-    private Order(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
+    private Order(OrderId id, Guid restaurantId, IEnumerable<Product> productIds)
     {
         Id = id;
+        RestaurantId = restaurantId;
         ReferenceNumber = Guid.CreateVersion7();
-        CustomerId = customerId;
         TotalOriginalAmount = productIds.Sum(p => p.OriginalPrice);
         Status = OrderStatus.Created;
         _productIds.AddRange(productIds);
     }
 
-    public static Order CreateDineIn(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
+    public static Order CreateDineIn(OrderId id, Guid restaurantId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, productIds)
+        Order order = new(id, restaurantId, productIds)
         {
             Type = OrderType.DineIn
         };
@@ -58,9 +61,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         return order;
     }
 
-    public static Order CreateTakeOut(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
+    public static Order CreateTakeOut(OrderId id, Guid restaurantId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, productIds)
+        Order order = new(id, restaurantId, productIds)
         {
             Type = OrderType.TakeOut
         };
@@ -70,9 +73,9 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         return order;
     }
 
-    public static Order CreateDelivery(OrderId id, CustomerId customerId, IEnumerable<Product> productIds)
+    public static Order CreateDelivery(OrderId id, Guid restaurantId, IEnumerable<Product> productIds)
     {
-        Order order = new(id, customerId, productIds)
+        Order order = new(id, restaurantId, productIds)
         {
             Type = OrderType.Delivery
         };
