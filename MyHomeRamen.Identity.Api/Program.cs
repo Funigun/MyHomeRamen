@@ -7,9 +7,12 @@ using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Presentation;
+using MyHomeRamen.Infrastructure.Cache;
+using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Persistance;
 using Scalar.AspNetCore;
 using Serilog;
+using StackExchange.Redis;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -31,18 +34,18 @@ try
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
 
+    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
+    builder.Services.AddSerilog();
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy(corsPolicyName, policy =>
         {
-        policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
+            policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
     });
-
-    builder.Services.AddSerilog();
-    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
 
     builder.Services.AddOpenApi("v1", options =>
     {
@@ -62,11 +65,14 @@ try
     builder.Services.AddIdentityPersistance(configurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
-                    .AddAuthorizationBuilder()
-                    .AddPolicy(corsPolicyName, policy =>
-                    {
-                        policy.RequireAuthenticatedUser();
-                    });
+                    .ConfigureAuthorizationPolicies(corsPolicyName);
+
+    // Keycloak Admin REST API client (service account via client_credentials)
+    builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");
+    IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
+    builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
+                    .AddCacheService()
+                    .AddKeycloakAdminService(builder.Configuration);
 
     WebApplication app = builder.Build();
 

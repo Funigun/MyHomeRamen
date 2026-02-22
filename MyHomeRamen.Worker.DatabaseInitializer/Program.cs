@@ -23,9 +23,8 @@ try
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
 
-    builder.AddWorkerServiceDefaults("my-home-ramen-db-initializer-worker");
+    builder.AddWorkerServiceDefaults($"{configurationProvider.InfrastructurePrefix}-db-initializer-worker");
 
-    // Configure Quartz with the DbInitializerJob scheduled to run once immediately
     builder.Services.AddQuartzServices(q =>
     {
         JobKey jobKey = new(nameof(DbInitializerJob));
@@ -35,11 +34,12 @@ try
         q.AddTrigger(opts => opts
             .ForJob(jobKey)
             .WithIdentity($"{nameof(DbInitializerJob)}-trigger")
-            .StartNow() // Run immediately when application starts
+            .StartNow()
         );
     });
 
     builder.Services.AddScoped<ICurrentUser, Worker>();
+
     builder.Services.AddIdentityPersistance(configurationProvider);
     builder.Services.AddMenuPersistance(configurationProvider);
     builder.Services.AddBasketPersistance(configurationProvider);
@@ -49,7 +49,7 @@ try
 
     builder.Services.AddQuartzHostedService(options =>
     {
-        options.WaitForJobsToComplete = true; // Essential specifically for run-once jobs
+        options.WaitForJobsToComplete = true;
     });
 
     IHost host = builder.Build();
