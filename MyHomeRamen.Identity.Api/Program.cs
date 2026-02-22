@@ -57,7 +57,7 @@ try
                     .AddValidatorsFromAssembly(apiAssembly);
 
     builder.Services.AddIdentityCore<User>()
-                .AddApiEndpoints();
+                    .AddApiEndpoints();
 
     builder.Services.AddIdentityPersistance(configurationProvider);
 

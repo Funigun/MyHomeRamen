@@ -1,4 +1,9 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MyHomeRamen.Blazor.Components;
+using MyHomeRamen.Blazor.Presentation;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -18,6 +23,32 @@ try
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents()
         .AddInteractiveWebAssemblyComponents();
+
+    builder.Services.AddHttpContextAccessor()
+                .AddTransient<AuthHeaderHandler>();
+
+    builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                .AddKeycloakOpenIdConnect(
+                    serviceName: "my-home-ramen-key-cloak",
+                    realm: "my-home-ramen-realm",
+                    options =>
+                    {
+                        options.ClientId = "my-home-ramen-client";
+                        options.ClientSecret = "EZRhFcYRCOhrolFSrpC6KfIXX9SqMVgy";
+                        options.ResponseType = OpenIdConnectResponseType.Code;
+                        options.Scope.Add("openid");
+                        options.Scope.Add("profile");
+                        options.SaveTokens = true;
+                        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+                        if (builder.Environment.IsDevelopment())
+                        {
+                            options.RequireHttpsMetadata = false;
+                        }
+                    })
+                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
+
+    builder.Services.AddCascadingAuthenticationState();
 
     WebApplication app = builder.Build();
 
@@ -43,6 +74,8 @@ try
         .AddInteractiveServerRenderMode()
         .AddInteractiveWebAssemblyRenderMode()
         .AddAdditionalAssemblies(typeof(MyHomeRamen.Blazor.Client._Imports).Assembly);
+
+    app.MapSignInSignOut();
 
     await app.RunAsync();
 }
