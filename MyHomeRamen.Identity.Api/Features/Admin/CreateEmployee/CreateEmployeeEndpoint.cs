@@ -13,7 +13,8 @@ public sealed class CreateEmployeeEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder.MapStandardPost<CreateEmployeeRequest, Created>("/employees", Handler)
-               .RequireAuthorization(DependencyInjection.AdminPolicy)
+               //.RequireAuthorization(DependencyInjection.AdminPolicy)
+               .AllowAnonymous()
                .WithName("CreateEmployeeEndpoint")
                .WithDescription("Creates an employee account in Keycloak. Requires admin role.");
     }
@@ -36,7 +37,7 @@ public sealed class CreateEmployeeEndpoint : IEndpoint
                 {
                     Type = "password",
                     Value = request.TemporaryPassword,
-                    Temporary = true,
+                    Temporary = false,
                 }
             ]
         };

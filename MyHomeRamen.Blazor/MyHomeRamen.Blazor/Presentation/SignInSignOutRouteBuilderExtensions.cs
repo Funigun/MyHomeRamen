@@ -7,7 +7,7 @@ namespace MyHomeRamen.Blazor.Presentation;
 
 internal static class SignInSignOutRouteBuilderExtensions
 {
-    internal static IEndpointConventionBuilder MapSignInSignOut(this IEndpointRouteBuilder endpoints)
+    internal static IEndpointConventionBuilder MapAutheticationEndpoints(this IEndpointRouteBuilder endpoints)
     {
         RouteGroupBuilder group = endpoints.MapGroup("authentication");
 

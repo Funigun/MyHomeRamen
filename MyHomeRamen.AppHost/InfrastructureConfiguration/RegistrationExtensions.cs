@@ -6,7 +6,7 @@ namespace MyHomeRamen.AppHost.InfrastructureConfiguration;
 internal static class RegistrationExtensions
 {
     private const string ConfigurationSectionPrefix = "InfrastructureConfig:";
-    private const string ApplicationNameSetting = "CustomConfig:ApplicationName";
+    private const string ApplicationNameSetting = "RestaurantConfiguration:InfrastructurePrefix";
 
     public static IResourceBuilder<RedisResource> ConfigureRedis(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {

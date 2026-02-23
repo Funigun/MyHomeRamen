@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MyHomeRamen.Infrastructure.Cache;
 
@@ -8,9 +9,10 @@ namespace MyHomeRamen.Infrastructure.Keycloak;
 internal sealed class KeycloakAdminTokenHandler(
     IHttpClientFactory httpClientFactory,
     ICacheService cacheService,
-    IOptions<KeycloakAdminOptions> options) : DelegatingHandler
+    IConfiguration configuration,
+    IOptions<KeycloakAdminOptions> admninOptions) : DelegatingHandler
 {
-    private readonly KeycloakAdminOptions _options = options.Value;
+    private readonly KeycloakAdminOptions _adminOptions = admninOptions.Value;
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -21,7 +23,7 @@ internal sealed class KeycloakAdminTokenHandler(
 
     private Task<string> GetOrFetchTokenAsync(CancellationToken cancellationToken) =>
         cacheService.GetOrSetAsync(
-            new KeycloakAdminTokenCachePolicy(_options.TokenLifetimeSeconds),
+            new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
             FetchTokenFromKeycloakAsync,
             cancellationToken);
 
@@ -29,13 +31,13 @@ internal sealed class KeycloakAdminTokenHandler(
     {
         // Uses a plain HttpClient (not the typed one) to avoid circular dependency
         using HttpClient client = httpClientFactory.CreateClient();
-        string tokenUrl = $"{_options.BaseUrl}/realms/{_options.Realm}/protocol/openid-connect/token";
+        string tokenUrl = $"{_adminOptions.BaseUrl}/realms/{_adminOptions.Realm}/protocol/openid-connect/token";
 
         using FormUrlEncodedContent form = new(new Dictionary<string, string>
         {
             ["grant_type"] = "client_credentials",
-            ["client_id"] = _options.ClientId,
-            ["client_secret"] = _options.ClientSecret,
+            ["client_id"] = _adminOptions.ClientId,
+            ["client_secret"] = _adminOptions.ClientSecret,
         });
 
         using HttpResponseMessage response = await client.PostAsync(tokenUrl, form, cancellationToken);

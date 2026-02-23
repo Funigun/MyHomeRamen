@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -32,25 +31,43 @@ internal static class DependencyInjection
         return options;
     }
 
+    internal static IServiceCollection ConfigureAuthorizationPolicies(this IServiceCollection services, string policy)
+    {
+        services.AddAuthorizationBuilder()
+                .AddPolicy(policy, policy => policy.RequireAuthenticatedUser())
+                .AddPolicy(AdminPolicy, policy =>
+                    policy.AddAuthenticationSchemes(KeycloakBearerScheme)
+                          .RequireAuthenticatedUser());
+
+        return services;
+    }
+
     internal static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
+        string keycloakAuthority = ResolveKeycloakAuthority(configuration);
+        string[] validIssuers = ResolveValidIssuers(configuration, keycloakAuthority);
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer("Bearer", options =>
                 {
+                    options.Authority = keycloakAuthority;
+                    options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidIssuer = configuration["Authorization:Issuer"],
-                        ValidAudience = configuration["Authorization:Audience"],
+                        ValidIssuers = validIssuers,
+                        ValidAudiences = [configuration["Authorization:Audience"]!, "account"],
+                        NameClaimType = "preferred_username",
+                        RoleClaimType = ClaimTypes.Role,
                     };
                 })
                 .AddJwtBearer(KeycloakBearerScheme, options =>
                 {
-                    // Keycloak OIDC discovery — tokens are validated against Keycloak's public keys
-                    options.Authority = configuration["KeycloakAdmin:Authority"];
+                    options.Authority = keycloakAuthority;
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateAudience = false,
+                        ValidIssuers = validIssuers,
+                        ValidAudiences = [configuration["Authorization:Audience"]!, "account"],
                         NameClaimType = "preferred_username",
                         RoleClaimType = ClaimTypes.Role,
                     };
@@ -61,23 +78,37 @@ internal static class DependencyInjection
         return services;
     }
 
-    internal static IServiceCollection ConfigureAuthorizationPolicies(this IServiceCollection services, string policy)
+    private static string ResolveKeycloakAuthority(IConfiguration configuration)
     {
-        services.AddAuthorizationBuilder()
-                .AddPolicy(policy, policy => policy.RequireAuthenticatedUser())
-                .AddPolicy(AdminPolicy, policy =>
-                    policy.AddAuthenticationSchemes(KeycloakBearerScheme)
-                          .RequireAuthenticatedUser()
-                          .RequireRole("admin"));
+        string prefix = configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
 
-        return services;
+        string keycloakBaseUrl =
+            configuration[$"services:{prefix}-key-cloak:https:0"] ??
+            configuration.GetConnectionString($"{prefix}-key-cloak") ??
+            configuration["Authorization:BaseUrl"] ??
+            throw new InvalidOperationException(
+                "Keycloak base URL is not configured. Ensure the Aspire reference or 'Authorization:BaseUrl' is set.");
+
+        string realm = configuration["Authorization:Realm"]
+            ?? throw new InvalidOperationException("'Authorization:Realm' is not configured.");
+
+        return $"{keycloakBaseUrl.TrimEnd('/')}/realms/{realm}";
     }
 
-    internal static async Task InitDatabase(this WebApplication app)
+    private static string[] ResolveValidIssuers(IConfiguration configuration, string httpAuthority)
     {
-        using IServiceScope scope = app.Services.CreateScope();
-        using IUsersDbContext dbContext = scope.ServiceProvider.GetRequiredService<IUsersDbContext>();
+        string prefix = configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
 
-        await dbContext.Migrate(CancellationToken.None);
+        List<string> issuers = [httpAuthority];
+
+        string? httpsBaseUrl = configuration[$"services:{prefix}-key-cloak:https:0"];
+        string? realm = configuration["Authorization:Realm"];
+
+        if (!string.IsNullOrEmpty(httpsBaseUrl) && !string.IsNullOrEmpty(realm))
+        {
+            issuers.Add($"{httpsBaseUrl.TrimEnd('/')}/realms/{realm}");
+        }
+
+        return [.. issuers];
     }
 }

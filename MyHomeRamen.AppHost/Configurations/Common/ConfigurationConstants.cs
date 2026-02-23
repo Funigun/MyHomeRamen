@@ -2,7 +2,9 @@
 
 internal static class ConfigurationConstants
 {
-    internal const string ApplicationNameSetting = "CustomConfig:ApplicationName";
+    internal const string DatabaseConfigurationSection = "DatabaseConfiguration";
+    internal const string RestaurantConfigurationSection = "RestaurantConfiguration";
+
     internal const string MenuModuleName = "Menu";
     internal const string ReservationModuleName = "Reservation";
     internal const string OrderModuleName = "Order";
@@ -11,4 +13,5 @@ internal static class ConfigurationConstants
     internal const string IdentityModuleName = "Identity";
 
     internal const string DbInitializerWorkerName = "DbInitializer";
+
 }

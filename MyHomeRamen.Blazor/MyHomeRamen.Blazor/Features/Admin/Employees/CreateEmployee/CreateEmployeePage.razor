@@ -1,0 +1,117 @@
+@page "/admin/employees/create"
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+@using MyHomeRamen.Blazor.Features.Admin.Employees
+@using MyHomeRamen.Blazor.Features.Admin.Employees.CreateEmployee
+
+@inject EmployeeApiClient Api
+@inject ISnackbar Snackbar
+
+<PageTitle>Create Employee</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudText Typo="Typo.h5" GutterBottom="true">Create Employee</MudText>
+
+    <MudCard>
+        <MudForm @ref="_form" Model="_model">
+            <MudCardContent>
+                <MudTextField T="string"
+                              Value="_model.Username"
+                              ValueChanged="@((string v) => _model.Username = v)"
+                              For="() => _model.Username"
+                              Validation="@_validator.ValidateValue"
+                              Label="Username"
+                              Immediate="true" />
+
+                <MudTextField T="string"
+                              Value="_model.Email"
+                              ValueChanged="@((string v) => _model.Email = v)"
+                              For="() => _model.Email"
+                              Validation="@_validator.ValidateValue"
+                              Label="Email"
+                              Immediate="true" />
+
+                <MudTextField T="string"
+                              Value="_model.FirstName"
+                              ValueChanged="@((string v) => _model.FirstName = v)"
+                              For="() => _model.FirstName"
+                              Validation="@_validator.ValidateValue"
+                              Label="First Name"
+                              Immediate="true" />
+
+                <MudTextField T="string"
+                              Value="_model.LastName"
+                              ValueChanged="@((string v) => _model.LastName = v)"
+                              For="() => _model.LastName"
+                              Validation="@_validator.ValidateValue"
+                              Label="Last Name"
+                              Immediate="true" />
+
+                <MudTextField T="string"
+                              Value="_model.TemporaryPassword"
+                              ValueChanged="@((string v) => _model.TemporaryPassword = v)"
+                              For="() => _model.TemporaryPassword"
+                              Validation="@_validator.ValidateValue"
+                              Label="Temporary Password"
+                              InputType="InputType.Password"
+                              Immediate="true" />
+            </MudCardContent>
+
+            <MudCardActions>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Loading="_isLoading"
+                           OnClick="SubmitAsync">
+                    Create Employee
+                </MudButton>
+            </MudCardActions>
+        </MudForm>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private readonly CreateEmployeeFormModel _model = new();
+    private readonly CreateEmployeeValidator _validator = new();
+    private MudForm _form = null!;
+    private bool _isLoading;
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        _isLoading = true;
+
+        try
+        {
+            await Api.CreateAsync(new CreateEmployeeRequest(
+                _model.Username,
+                _model.Email,
+                _model.FirstName,
+                _model.LastName,
+                _model.TemporaryPassword));
+
+            Snackbar.Add("Employee created successfully.", Severity.Success);
+            _model.Reset();
+            await _form.ResetAsync();
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            Snackbar.Add("Username or email is already in use.", Severity.Error);
+        }
+        catch (HttpRequestException)
+        {
+            Snackbar.Add("Failed to create employee. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}
+

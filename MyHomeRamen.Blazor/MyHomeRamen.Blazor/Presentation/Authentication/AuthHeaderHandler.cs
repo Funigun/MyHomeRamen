@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
 
-namespace MyHomeRamen.Blazor.Presentation;
+namespace MyHomeRamen.Blazor.Presentation.Authentication;
 
 public class AuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
 {

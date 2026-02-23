@@ -93,7 +93,6 @@ try
     app.MapEndpoints();
     app.UseAuthorization();
 
-    await app.InitDatabase();
     await app.RunAsync();
 }
 catch (Exception ex)

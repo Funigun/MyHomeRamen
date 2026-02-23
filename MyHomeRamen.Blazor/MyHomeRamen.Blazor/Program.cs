@@ -1,7 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using MudBlazor.Services;
 using MyHomeRamen.Blazor.Components;
 using MyHomeRamen.Blazor.Presentation;
 using Serilog;
@@ -18,37 +15,25 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    builder.AddBlazorServiceDefaults("my-home-ramen-blazor");
+    builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                         .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
+
+    string infrastructurePrefix = builder.Configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
+
+    builder.AddBlazorServiceDefaults($"{infrastructurePrefix}-blazor");
 
     builder.Services.AddRazorComponents()
-        .AddInteractiveServerComponents()
-        .AddInteractiveWebAssemblyComponents();
+                    .AddInteractiveServerComponents()
+                    .AddInteractiveWebAssemblyComponents();
 
     builder.Services.AddHttpContextAccessor()
-                .AddTransient<AuthHeaderHandler>();
+                    .AddAuthenticationHandlers()
+                    .AddKeycloackAuthentication(builder)
+                    .AddCascadingAuthenticationState();
 
-    builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddKeycloakOpenIdConnect(
-                    serviceName: "my-home-ramen-key-cloak",
-                    realm: "my-home-ramen-realm",
-                    options =>
-                    {
-                        options.ClientId = "my-home-ramen-client";
-                        options.ClientSecret = "EZRhFcYRCOhrolFSrpC6KfIXX9SqMVgy";
-                        options.ResponseType = OpenIdConnectResponseType.Code;
-                        options.Scope.Add("openid");
-                        options.Scope.Add("profile");
-                        options.SaveTokens = true;
-                        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    builder.Services.AddMudServices();
 
-                        if (builder.Environment.IsDevelopment())
-                        {
-                            options.RequireHttpsMetadata = false;
-                        }
-                    })
-                .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
-
-    builder.Services.AddCascadingAuthenticationState();
+    builder.Services.AddApiServices(infrastructurePrefix);
 
     WebApplication app = builder.Build();
 
@@ -70,12 +55,13 @@ try
     app.UseAntiforgery();
 
     app.MapStaticAssets();
-    app.MapRazorComponents<App>()
-        .AddInteractiveServerRenderMode()
-        .AddInteractiveWebAssemblyRenderMode()
-        .AddAdditionalAssemblies(typeof(MyHomeRamen.Blazor.Client._Imports).Assembly);
 
-    app.MapSignInSignOut();
+    app.MapRazorComponents<App>()
+       .AddInteractiveServerRenderMode()
+       .AddInteractiveWebAssemblyRenderMode()
+       .AddAdditionalAssemblies(typeof(MyHomeRamen.Blazor.Client._Imports).Assembly);
+
+    app.MapAutheticationEndpoints();
 
     await app.RunAsync();
 }
