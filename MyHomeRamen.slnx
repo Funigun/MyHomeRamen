@@ -38,7 +38,6 @@
   <Folder Name="/_github/agents/">
     <File Path=".github/agents/adr-expert.agent.md" />
     <File Path=".github/agents/create-feature-structure.agent.md" />
-    <File Path=".github/agents/implement-feature.agent.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />

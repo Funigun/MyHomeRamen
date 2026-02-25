@@ -29,23 +29,7 @@ public sealed class RegisterEmployeeEndpoint : IEndpoint
         [FromServices] IKeycloakAdminService keycloakAdminService,
         CancellationToken cancellationToken)
     {
-        KeycloakUserDto keycloakUser = new()
-        {
-            Username = request.Username,
-            Email = request.Email,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            Enabled = true,
-            Credentials =
-            [
-                new KeycloakCredentialDto
-                {
-                    Type = "password",
-                    Value = request.TemporaryPassword,
-                    Temporary = false,
-                }
-            ]
-        };
+        KeycloakUserDto keycloakUser = request.ToUserDto();
 
         await keycloakAdminService.CreateUserAsync(keycloakUser, cancellationToken);
 

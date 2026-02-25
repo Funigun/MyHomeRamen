@@ -60,7 +60,7 @@ public sealed class Role : AuditableEntity, IEntity<RoleId>
     {
         return new(id, restaurantId, permissions)
         {
-            Name = RoleConstants.OrdersAdmin,
+            Name = RoleConstants.Admin,
             Description = "An admin"
         };
     }

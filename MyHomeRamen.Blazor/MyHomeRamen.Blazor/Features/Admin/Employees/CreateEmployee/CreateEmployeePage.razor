@@ -92,10 +92,10 @@
     protected override async Task OnInitializedAsync()
     {
         GetEmployeesResponse? employees = await Api.GetEmployeesAsync();
-        IEnumerable<RoleDto> roles = await Api.GetAvailableRoles();
+        GetRolesResponse roles = await Api.GetAvailableRoles();
 
         _users = string.Join("\n", employees?.Employees?.Select(e => $"{e.Username}")) ?? "";
-        _roles = string.Join("\n", roles.Select(r => $"{r.Name}"));
+        _roles = string.Join("\n", roles.Roles.Select(r => $"{r.Name}"));
 
         await base.OnInitializedAsync();
     }

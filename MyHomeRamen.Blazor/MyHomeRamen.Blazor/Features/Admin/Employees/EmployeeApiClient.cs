@@ -16,12 +16,12 @@ public sealed class EmployeeApiClient(HttpClient httpClient)
         return await response.Content.ReadFromJsonAsync<GetEmployeesResponse>(ct) ?? default!;
     }
 
-    public async Task<IEnumerable<RoleDto>> GetAvailableRoles(CancellationToken ct = default)
+    public async Task<GetRolesResponse> GetAvailableRoles(CancellationToken ct = default)
     {
-        using HttpResponseMessage response = await httpClient.GetAsync("/api/admin/available-roles", ct);
+        using HttpResponseMessage response = await httpClient.GetAsync("/api/admin/role", ct);
         response.EnsureSuccessStatusCode();
-
-        return await response.Content.ReadFromJsonAsync<IEnumerable<RoleDto>>(ct) ?? [];
+        string rsp = await response.Content.ReadAsStringAsync();
+        return await response.Content.ReadFromJsonAsync<GetRolesResponse>(ct) ?? new([]);
     }
 }
 
@@ -40,6 +40,8 @@ public sealed record EmployeeDto(
     string Email,
     string FirstName,
     string LastName);
+
+public sealed record GetRolesResponse(IEnumerable<RoleDto> Roles);
 
 public sealed record RoleDto(
     string Id,
