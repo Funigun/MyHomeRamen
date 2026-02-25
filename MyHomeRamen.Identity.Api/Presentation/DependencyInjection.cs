@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MyHomeRamen.Api.Common.Configuration;
-using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Identity.Api.Infrastructure;
 using Scalar.AspNetCore;
 

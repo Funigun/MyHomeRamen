@@ -67,6 +67,17 @@
                 </MudButton>
             </MudCardActions>
         </MudForm>
+
+        <MudStack Row ="true">
+            <MudStack>
+                <MudText Typo="Typo.subtitle1" GutterBottom="true">Existing Users:</MudText>
+                <MudText Typo="Typo.body2" GutterBottom="true" Style="white-space: pre-wrap;">@_users</MudText>
+            </MudStack>
+            <MudStack>
+                <MudText Typo="Typo.subtitle1" GutterBottom="true">Available Roles:</MudText>
+                <MudText Typo="Typo.body2" GutterBottom="true" Style="white-space: pre-wrap;">@_roles</MudText>
+            </MudStack>
+        </MudStack>
     </MudCard>
 </MudContainer>
 
@@ -75,6 +86,19 @@
     private readonly CreateEmployeeValidator _validator = new();
     private MudForm _form = null!;
     private bool _isLoading;
+    private string _users = string.Empty;
+    private string _roles = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        GetEmployeesResponse? employees = await Api.GetEmployeesAsync();
+        IEnumerable<RoleDto> roles = await Api.GetAvailableRoles();
+
+        _users = string.Join("\n", employees?.Employees?.Select(e => $"{e.Username}")) ?? "";
+        _roles = string.Join("\n", roles.Select(r => $"{r.Name}"));
+
+        await base.OnInitializedAsync();
+    }
 
     private async Task SubmitAsync()
     {

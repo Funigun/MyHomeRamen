@@ -1,30 +1,35 @@
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Identity.Api.Features.Account.Register.Models;
+using MyHomeRamen.Identity.Api.Features.Admin.RegisterEmployee.Models;
 using MyHomeRamen.Identity.Api.Presentation;
 using MyHomeRamen.Infrastructure.Keycloak;
+using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
-namespace MyHomeRamen.Identity.Api.Features.Admin.CreateEmployee;
+namespace MyHomeRamen.Identity.Api.Features.Admin.RegisterEmployee;
 
-public sealed class CreateEmployeeEndpoint : IEndpoint
+public sealed class RegisterEmployeeEndpoint : IEndpoint
 {
     public string GroupName { get; init; } = "Admin";
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<CreateEmployeeRequest, Created>("/employees", Handler)
-               //.RequireAuthorization(DependencyInjection.AdminPolicy)
-               .AllowAnonymous()
-               .WithName("CreateEmployeeEndpoint")
-               .WithDescription("Creates an employee account in Keycloak. Requires admin role.");
+        endpointBuilder.MapStandardPost<RegisterEmployeeRequest, Created>("/employee-sign-up", Handler)
+                       //.RequireAuthorization(DependencyInjection.AdminPolicy)
+                       .AllowAnonymous()
+                       .WithName("CreateEmployeeEndpoint")
+                       .WithDescription("Creates an employee account in Keycloak. Requires admin role.");
     }
 
     private static async Task<Results<Created, BadRequest>> Handler(
-        CreateEmployeeRequest request,
+        RegisterEmployeeRequest request,
         [FromServices] IKeycloakAdminService keycloakAdminService,
         CancellationToken cancellationToken)
     {
-        KeycloakUserRepresentation keycloakUser = new()
+        KeycloakUserDto keycloakUser = new()
         {
             Username = request.Username,
             Email = request.Email,
@@ -33,7 +38,7 @@ public sealed class CreateEmployeeEndpoint : IEndpoint
             Enabled = true,
             Credentials =
             [
-                new KeycloakCredentialRepresentation
+                new KeycloakCredentialDto
                 {
                     Type = "password",
                     Value = request.TemporaryPassword,
