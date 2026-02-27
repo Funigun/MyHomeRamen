@@ -5,8 +5,8 @@ namespace MyHomeRamen.Identity.Api.Features.Admin.GetEmployees;
 
 public sealed class GetEmployeesAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetEmployeesResponse>
 {
-    public Task<bool> IsAuthorized(GetEmployeesResponse request)
+    public async Task<bool> IsAuthorized(GetEmployeesResponse request)
     {
-        throw new NotImplementedException();
+        return true;
     }
 }

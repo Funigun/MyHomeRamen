@@ -28,24 +28,22 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    const string corsPolicyName = "RestaurantPolicy";
-
     builder.AddConfiguration();
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
 
-    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
-    builder.Services.AddSerilog();
-
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy(corsPolicyName, policy =>
+        options.AddDefaultPolicy(policy =>
         {
-            policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
         });
     });
+
+    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
+    builder.Services.AddSerilog();
 
     builder.Services.AddOpenApi("v1", options =>
     {
@@ -64,8 +62,8 @@ try
 
     builder.Services.AddIdentityPersistance(configurationProvider);
 
-    builder.Services.ConfigureAuthorizationPolicies(corsPolicyName)
-                    .ConfigureAuthentication(builder.Configuration);
+    builder.Services.ConfigureAuthentication(builder.Configuration)
+                    .ConfigureAuthorizationPolicies();
 
     // Keycloak Admin REST API client (service account via client_credentials)
     builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");
@@ -88,9 +86,9 @@ try
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseSerilogRequestLogging();
-    app.UseCors(corsPolicyName);
     app.MapDefaultEndpoints();
     app.MapEndpoints();
+    app.UseCors();
     app.UseAuthorization();
 
     await app.RunAsync();

@@ -20,7 +20,7 @@ public sealed class EmployeeApiClient(HttpClient httpClient)
     {
         using HttpResponseMessage response = await httpClient.GetAsync("/api/admin/role", ct);
         response.EnsureSuccessStatusCode();
-        string rsp = await response.Content.ReadAsStringAsync();
+
         return await response.Content.ReadFromJsonAsync<GetRolesResponse>(ct) ?? new([]);
     }
 }

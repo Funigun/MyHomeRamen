@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +11,9 @@ namespace MyHomeRamen.Identity.Api.Presentation;
 
 internal static class DependencyInjection
 {
-    internal const string RestaurantPolicy = "RestaurantPolicy";
-    internal const string AdminPolicy = "AdminPolicy";
-    internal const string KeycloakBearerScheme = "KeycloakBearer";
+    internal const string RestaurantCustomerPolicy = "RestaurantCustomer";
+    internal const string RestaurantEmployeePolicy = "RestaurantEmployee";
+    internal const string RestaurantManagerPolicy = "RestaurantManager";
 
     internal static ScalarOptions ConfigureScalarOptions(this ScalarOptions options, RestaurantConfigurationProvider configurationProvider)
     {
@@ -22,21 +21,30 @@ internal static class DependencyInjection
                .WithTheme(ScalarTheme.Kepler)
                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 
-        options.AddPreferredSecuritySchemes("Bearer");
-        options.AddHttpAuthentication("Bearer", o => o.Description = "Provide valid token");
+        options.AddPreferredSecuritySchemes(RestaurantCustomerPolicy, RestaurantEmployeePolicy, RestaurantManagerPolicy);
 
         options.Servers = [new("https://localhost:7188")];
 
         return options;
     }
 
-    internal static IServiceCollection ConfigureAuthorizationPolicies(this IServiceCollection services, string policy)
+    internal static IServiceCollection ConfigureAuthorizationPolicies(this IServiceCollection services)
     {
         services.AddAuthorizationBuilder()
-                .AddPolicy(policy, policy => policy.RequireAuthenticatedUser())
-                .AddPolicy(AdminPolicy, policy =>
-                    policy.AddAuthenticationSchemes(KeycloakBearerScheme)
-                          .RequireAuthenticatedUser());
+                .AddPolicy(RestaurantCustomerPolicy, policy =>
+                    policy.AddAuthenticationSchemes(RestaurantCustomerPolicy)
+                          .RequireAuthenticatedUser()
+                          .RequireRole("customer"))
+
+                .AddPolicy(RestaurantEmployeePolicy, policy =>
+                    policy.AddAuthenticationSchemes(RestaurantEmployeePolicy)
+                          .RequireAuthenticatedUser()
+                          .RequireRole("employee"))
+
+                .AddPolicy(RestaurantManagerPolicy, policy =>
+                    policy.AddAuthenticationSchemes(RestaurantManagerPolicy)
+                          .RequireAuthenticatedUser()
+                          .RequireRole("manager"));
 
         return services;
     }
@@ -47,28 +55,56 @@ internal static class DependencyInjection
         string[] validIssuers = ResolveValidIssuers(configuration, keycloakAuthority);
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer("Bearer", options =>
+                .AddJwtBearer(RestaurantCustomerPolicy, options =>
                 {
                     options.Authority = keycloakAuthority;
+                    options.Audience = configuration["Authorization:Audience"]!;
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuers = validIssuers,
-                        ValidAudiences = [configuration["Authorization:Audience"]!],
-                        NameClaimType = "preferred_username",
-                        RoleClaimType = ClaimTypes.Role,
                     };
                 })
-                .AddJwtBearer(KeycloakBearerScheme, options =>
+                .AddJwtBearer(RestaurantEmployeePolicy, options =>
                 {
                     options.Authority = keycloakAuthority;
+                    options.Audience = configuration["Authorization:Audience"]!;
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuers = validIssuers,
-                        ValidAudiences = [configuration["Authorization:Audience"]!],
-                        NameClaimType = "preferred_username",
-                        RoleClaimType = ClaimTypes.Role,
+                    };
+                })
+                .AddJwtBearer(RestaurantManagerPolicy, options =>
+                {
+                    options.Authority = keycloakAuthority;
+                    options.Audience = configuration["Authorization:Audience"]!;
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuers = validIssuers,
+                    };
+                })
+                .AddPolicyScheme(JwtBearerDefaults.AuthenticationScheme, null, options =>
+                {
+                    options.ForwardDefaultSelector = context =>
+                    {
+                        string? authorization = context.Request.Headers["Authorization"].FirstOrDefault();
+
+                        if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("RestaurantManager ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return RestaurantManagerPolicy;
+                        }
+                        else if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("RestaurantEmployee ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return RestaurantEmployeePolicy;
+                        }
+                        else if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("RestaurantCustomer ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            return RestaurantCustomerPolicy;
+                        }
+
+                        return RestaurantCustomerPolicy;
                     };
                 });
 

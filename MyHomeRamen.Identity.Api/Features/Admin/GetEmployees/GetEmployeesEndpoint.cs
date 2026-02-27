@@ -18,7 +18,7 @@ public sealed class GetEmployeesEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder.MapStandardGet<GetEmployeesResponse>("/employee", Handler)
-                       .RequireAuthorization(DependencyInjection.AdminPolicy)
+                       .RequireAuthorization(DependencyInjection.RestaurantManagerPolicy)
                        .WithName("GetEmployeesEndpoint")
                        .WithDescription("Handles GetEmployees operations.");
     }

@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace MyHomeRamen.Blazor.Presentation.Authentication;
 
@@ -14,7 +15,7 @@ public class AuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : Deleg
 
         if (!string.IsNullOrWhiteSpace(accessToken))
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
         }
 
         return await base.SendAsync(request, cancellationToken);
