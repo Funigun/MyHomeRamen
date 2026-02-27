@@ -40,7 +40,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 
     public async Task<IEnumerable<KeycloakRoleDto>> GetAvailableRoles(CancellationToken cancellationToken = default)
     {
-        string[] rolesToFilter = ["employee", "customer", "order-admin", "payment-admin", "shopping-cart-admin", "reservation-admin", "menu-admin"];
+        string[] rolesToFilter = ["employee", "customer", "manager"];
 
         string clientId = await GetClientId(cancellationToken);
 

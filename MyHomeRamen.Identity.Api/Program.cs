@@ -64,8 +64,8 @@ try
 
     builder.Services.AddIdentityPersistance(configurationProvider);
 
-    builder.Services.ConfigureAuthentication(builder.Configuration)
-                    .ConfigureAuthorizationPolicies(corsPolicyName);
+    builder.Services.ConfigureAuthorizationPolicies(corsPolicyName)
+                    .ConfigureAuthentication(builder.Configuration);
 
     // Keycloak Admin REST API client (service account via client_credentials)
     builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");

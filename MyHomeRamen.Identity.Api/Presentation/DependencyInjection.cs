@@ -54,7 +54,7 @@ internal static class DependencyInjection
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuers = validIssuers,
-                        ValidAudiences = [configuration["Authorization:Audience"]!, "account"],
+                        ValidAudiences = [configuration["Authorization:Audience"]!],
                         NameClaimType = "preferred_username",
                         RoleClaimType = ClaimTypes.Role,
                     };
@@ -66,7 +66,7 @@ internal static class DependencyInjection
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuers = validIssuers,
-                        ValidAudiences = [configuration["Authorization:Audience"]!, "account"],
+                        ValidAudiences = [configuration["Authorization:Audience"]!],
                         NameClaimType = "preferred_username",
                         RoleClaimType = ClaimTypes.Role,
                     };

@@ -1,6 +1,8 @@
 using Azure;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Identity.Api.Features.Admin.GetEmployees.Models;
 using MyHomeRamen.Identity.Api.Presentation;
@@ -16,13 +18,12 @@ public sealed class GetEmployeesEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder.MapStandardGet<GetEmployeesResponse>("/employee", Handler)
-                       //.RequireAuthorization(DependencyInjection.AdminPolicy)
-                       .AllowAnonymous()
+                       .RequireAuthorization(DependencyInjection.AdminPolicy)
                        .WithName("GetEmployeesEndpoint")
                        .WithDescription("Handles GetEmployees operations.");
     }
 
-    private static async Task<Results<Ok<GetEmployeesResponse>, NotFound>> Handler(IKeycloakAdminService adminService, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<GetEmployeesResponse>, NotFound>> Handler([FromServices] IKeycloakAdminService adminService, [FromServices] ICurrentUser current, CancellationToken cancellationToken)
     {
         IEnumerable<KeycloakUserDto> users = await adminService.GetEmployees(cancellationToken);
 

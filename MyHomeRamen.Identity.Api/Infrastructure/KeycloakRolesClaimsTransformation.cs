@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace MyHomeRamen.Identity.Api.Infrastructure;
 
-internal sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
+public sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
 {
     public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
@@ -14,26 +14,39 @@ internal sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
         }
 
         Claim? realmAccessClaim = principal.FindFirst("realm_access");
-
-        if (realmAccessClaim is null)
+        if (realmAccessClaim != null)
         {
-            return Task.FromResult(principal);
-        }
-
-        using JsonDocument document = JsonDocument.Parse(realmAccessClaim.Value);
-
-        if (!document.RootElement.TryGetProperty("roles", out JsonElement roles))
-        {
-            return Task.FromResult(principal);
-        }
-
-        foreach (JsonElement role in roles.EnumerateArray())
-        {
-            string? roleValue = role.GetString();
-
-            if (!string.IsNullOrEmpty(roleValue))
+            using JsonDocument document = JsonDocument.Parse(realmAccessClaim.Value);
+            if (document.RootElement.TryGetProperty("roles", out JsonElement roles))
             {
-                identity.AddClaim(new Claim(ClaimTypes.Role, roleValue));
+                foreach (JsonElement role in roles.EnumerateArray())
+                {
+                    string? roleValue = role.GetString();
+                    if (!string.IsNullOrEmpty(roleValue))
+                    {
+                        identity.AddClaim(new Claim(ClaimTypes.Role, roleValue));
+                    }
+                }
+            }
+        }
+
+        Claim? resourceAccessClaim = principal.FindFirst("resource_access");
+        if (resourceAccessClaim != null)
+        {
+            using JsonDocument document = JsonDocument.Parse(resourceAccessClaim.Value);
+            foreach (JsonProperty client in document.RootElement.EnumerateObject())
+            {
+                if (client.Value.TryGetProperty("roles", out JsonElement clientRoles))
+                {
+                    foreach (JsonElement role in clientRoles.EnumerateArray())
+                    {
+                        string? roleValue = role.GetString();
+                        if (!string.IsNullOrEmpty(roleValue))
+                        {
+                            identity.AddClaim(new Claim(ClaimTypes.Role, roleValue));
+                        }
+                    }
+                }
             }
         }
 
