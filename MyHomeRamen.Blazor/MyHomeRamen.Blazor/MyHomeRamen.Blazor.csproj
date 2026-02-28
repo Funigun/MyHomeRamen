@@ -17,4 +17,8 @@
     <ProjectReference Include="..\MyHomeRamen.Blazor.Client\MyHomeRamen.Blazor.Client.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Account\Register\" />
+  </ItemGroup>
+
 </Project>

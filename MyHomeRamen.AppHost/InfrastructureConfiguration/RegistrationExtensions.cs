@@ -60,6 +60,7 @@ internal static class RegistrationExtensions
                       .WithContainerName($"{applicationName}-key-cloak")
                       .WithDataVolume("keycloak")
                       .WithRealmImport("./Configurations/Keycloak")
+                      .WithBindMount("./Configurations/Keycloak/themes/my-custom-theme", "/opt/keycloak/themes/my-custom-theme")
                       .WithOtlpExporter()
                       .WithLifetime(ContainerLifetime.Persistent);
     }

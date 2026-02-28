@@ -1,0 +1,47 @@
+{
+  "realm": "my-home-ramen-realm",
+  "displayName": "My Home Ramen",
+  "enabled": true,
+  "loginTheme": "my-custom-theme",
+  "clients": [
+    {
+      "clientId": "blazor-client",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${blazor-client-secret}",
+      "redirectUris": [
+        "https://localhost:5001/*",
+        "http://localhost:5000/*"
+      ],
+      "webOrigins": [
+        "https://localhost:5001",
+        "http://localhost:5000"
+      ],
+      "protocol": "openid-connect",
+      "publicClient": false
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin"
+        }
+      ],
+      "realmRoles": [
+        "admin"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Administrator role"
+      }
+    ]
+  }
+}
