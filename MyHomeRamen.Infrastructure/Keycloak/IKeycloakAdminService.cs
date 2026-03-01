@@ -4,7 +4,7 @@ namespace MyHomeRamen.Infrastructure.Keycloak;
 
 public interface IKeycloakAdminService
 {
-    Task CreateUserAsync(KeycloakUserDto user, CancellationToken cancellationToken = default);
+    Task<string> CreateUserAsync(KeycloakUserDto user, string roleName, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<KeycloakRoleDto>> GetAvailableRoles(CancellationToken cancellationToken = default);
 

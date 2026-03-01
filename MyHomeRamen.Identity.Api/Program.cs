@@ -36,7 +36,7 @@ try
     {
         options.AddDefaultPolicy(policy =>
         {
-            policy.AllowAnyOrigin()
+            policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });

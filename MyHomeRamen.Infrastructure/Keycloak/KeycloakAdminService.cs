@@ -1,29 +1,27 @@
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
-using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
 
 internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<KeycloakAdminOptions> adminOptions) : IKeycloakAdminService
 {
-    private readonly KeycloakAdminOptions _dminOptions = adminOptions.Value;
+    private readonly KeycloakAdminOptions _adminOptions = adminOptions.Value;
 
-    public async Task CreateUserAsync(KeycloakUserDto user, CancellationToken cancellationToken = default)
+    public async Task<string> CreateUserAsync(KeycloakUserDto user, string roleName, CancellationToken cancellationToken = default)
     {
-        string url = $"{_dminOptions.BaseUrl}/admin/realms/{_dminOptions.Realm}/users";
+        string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/users";
 
         using HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, user, cancellationToken);
 
-        if (response.IsSuccessStatusCode)
-        {
-            string userId = response.Headers.Location.ToString().Split("/").Last();
-
-            IEnumerable<KeycloakRoleDto> availableRoles = await GetAvailableRoles(cancellationToken);
-            await AssignRolesToUser(userId, availableRoles.Where(r => r.Name == "employee"), cancellationToken);
-        }
-
         response.EnsureSuccessStatusCode();
+
+        string userId = response.Headers.Location.ToString().Split("/").Last();
+
+        IEnumerable<KeycloakRoleDto> availableRoles = await GetAvailableRoles(cancellationToken);
+        await AssignRolesToUser(userId, availableRoles.Where(r => r.Name == roleName), cancellationToken);
+
+        return userId;
     }
 
     public async Task AssignRolesToUser(string userId, IEnumerable<KeycloakRoleDto> roles, CancellationToken cancellationToken = default)
@@ -32,7 +30,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 
         foreach (KeycloakRoleDto role in roles)
         {
-            string url = $"{_dminOptions.BaseUrl}/admin/realms/{_dminOptions.Realm}/users/{userId}/role-mappings/clients/{clientId}";
+            string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/users/{userId}/role-mappings/clients/{clientId}";
 
             using HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, roles, cancellationToken);
         }
@@ -44,7 +42,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 
         string clientId = await GetClientId(cancellationToken);
 
-        string url = $"{_dminOptions.BaseUrl}/admin/realms/{_dminOptions.Realm}/clients/{clientId}/roles";
+        string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/clients/{clientId}/roles";
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
 
@@ -59,7 +57,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 
         string clientId = await GetClientId(cancellationToken);
 
-        string url = $"{_dminOptions.BaseUrl}/admin/realms/{_dminOptions.Realm}/clients/{clientId}/roles/{employeeRoleName}/users";
+        string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/clients/{clientId}/roles/{employeeRoleName}/users";
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
 
@@ -68,7 +66,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 
     private async Task<string> GetClientId(CancellationToken cancellationToken)
     {
-        string url = $"{_dminOptions.BaseUrl}/admin/realms/{_dminOptions.Realm}/clients?clientid=my-home-ramen-client";
+        string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/clients?clientid=my-home-ramen-client";
 
         using HttpResponseMessage response = await httpClient.GetAsync(url, cancellationToken);
 
@@ -76,7 +74,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 
         if (clients is null)
         {
-            throw new InvalidOperationException($"Client with clientId '{_dminOptions.ClientId}' not found in Keycloak realm '{_dminOptions.Realm}'.");
+            throw new InvalidOperationException($"Client with clientId '{_adminOptions.ClientId}' not found in Keycloak realm '{_adminOptions.Realm}'.");
         }
 
         return clients.First().Id;

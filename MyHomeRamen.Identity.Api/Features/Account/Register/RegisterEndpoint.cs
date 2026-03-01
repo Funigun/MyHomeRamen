@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Domain.Users;
-using MyHomeRamen.Identity.Api.Application.Exceptions;
+using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Identity.Api.Features.Account.Register.Models;
+using MyHomeRamen.Infrastructure.Keycloak;
+using MyHomeRamen.Infrastructure.Keycloak.Dto;
+using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Api.Common.Configuration;
 
 namespace MyHomeRamen.Identity.Api.Features.Account.Register;
 
@@ -21,21 +21,30 @@ public sealed class RegisterEndpoint : IEndpoint
                .WithDescription("Handles user registration");
     }
 
-    private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, [FromServices] UserManager<User> userManager, [FromServices] RestaurantConfigurationProvider configurationProvider, CancellationToken cancellationToken)
+    private static async Task<Results<Ok, BadRequest>> Handler(
+        RegisterRequest request,
+        [FromServices] IKeycloakAdminService keycloakAdminService,
+        [FromServices] IUsersDbContext usersDbContext,
+        [FromServices] RestaurantConfigurationProvider restaurantConfigurationProvider,
+        CancellationToken cancellationToken)
     {
-        User user = request.ToUser(configurationProvider.RestaurantId);
+        KeycloakUserDto keycloakUser = request.ToUserDto();
 
-        if (await userManager.Users.AnyAsync(usr => usr.UserName!.ToUpper() == user.UserName!.ToUpper() || usr.Email.ToUpper() == user.Email.ToUpper(), cancellationToken))
-        {
-            throw IdentityValidationException.UserNameAlreadyInUse();
-        }
+        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Customer, cancellationToken);
 
-        IdentityResult result = await userManager.CreateAsync(user, request.Password);
+        User user = User.Create(
+            restaurantConfigurationProvider.RestaurantId,
+            keycloakUserId,
+            request.UserName,
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.PhoneNumber,
+            RoleConstants.Customer
+            );
 
-        if (!result.Succeeded)
-        {
-            throw IdentityValidationException.RegistrationFailed(result.Errors.Select(error => error.Description));
-        }
+        usersDbContext.Users.Add(user);
+        await usersDbContext.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Ok();
     }

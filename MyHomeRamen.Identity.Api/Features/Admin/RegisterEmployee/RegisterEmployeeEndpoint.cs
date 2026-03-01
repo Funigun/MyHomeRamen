@@ -2,7 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Identity.Api.Features.Account.Register.Models;
 using MyHomeRamen.Identity.Api.Features.Admin.RegisterEmployee.Models;
 using MyHomeRamen.Identity.Api.Presentation;
@@ -18,8 +21,7 @@ public sealed class RegisterEmployeeEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder.MapStandardPost<RegisterEmployeeRequest, Created>("/employee-sign-up", Handler)
-                       //.RequireAuthorization(DependencyInjection.AdminPolicy)
-                       .AllowAnonymous()
+                       .RequireAuthorization(DependencyInjection.RestaurantManagerPolicy)
                        .WithName("CreateEmployeeEndpoint")
                        .WithDescription("Creates an employee account in Keycloak. Requires admin role.");
     }
@@ -27,11 +29,27 @@ public sealed class RegisterEmployeeEndpoint : IEndpoint
     private static async Task<Results<Created, BadRequest>> Handler(
         RegisterEmployeeRequest request,
         [FromServices] IKeycloakAdminService keycloakAdminService,
+        [FromServices] IUsersDbContext usersDbContext,
+        [FromServices] RestaurantConfigurationProvider restaurantConfigurationProvider,
         CancellationToken cancellationToken)
     {
         KeycloakUserDto keycloakUser = request.ToUserDto();
 
-        await keycloakAdminService.CreateUserAsync(keycloakUser, cancellationToken);
+        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Employee, cancellationToken);
+
+        User user = User.Create(
+            restaurantConfigurationProvider.RestaurantId,
+            keycloakUserId,
+            request.Username,
+            request.FirstName,
+            request.LastName,
+            request.Email,
+            request.PhoneNumber,
+            RoleConstants.Customer
+            );
+
+        usersDbContext.Users.Add(user);
+        await usersDbContext.SaveChangesAsync(cancellationToken);
 
         return TypedResults.Created();
     }

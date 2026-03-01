@@ -41,6 +41,14 @@
       {
         "name": "admin",
         "description": "Administrator role"
+      },
+      {
+        "name": "customer",
+        "description": "Customer role"
+      },
+      {
+        "name": "employee",
+        "description": "Employee role"
       }
     ]
   }
