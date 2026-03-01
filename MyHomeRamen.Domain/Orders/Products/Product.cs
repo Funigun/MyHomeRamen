@@ -10,8 +10,6 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
     public ProductId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public ProductId OriginalId { get; private set; }
 
     public string Name { get; private set; } = string.Empty;
@@ -30,18 +28,17 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
     {
     }
 
-    private Product(ProductId id, Guid restaurantId, ProductId originalId, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
+    private Product(ProductId id, ProductId originalId, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
     {
         Id = id;
-        RestaurantId = restaurantId;
         OriginalId = originalId;
         _baseIngredients = baseIngredients;
         _customIngredients = customIngredients;
     }
 
-    public static Product Create(ProductId id, Guid restaurantId, ProductId originalId, string name, decimal price, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
+    public static Product Create(ProductId id, ProductId originalId, string name, decimal price, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
     {
-        Product product = new(id, restaurantId, originalId, baseIngredients, customIngredients)
+        Product product = new(id, originalId, baseIngredients, customIngredients)
         {
             Name = name,
             OriginalPrice = price,

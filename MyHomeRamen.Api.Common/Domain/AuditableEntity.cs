@@ -11,4 +11,9 @@ public abstract class AuditableEntity
     public string? ModifiedBy { get; set; }
 
     public DateTimeOffset? ModifiedOn { get; set; }
+
+    public void SetRestaurantId(Guid restaurantId)
+    {
+        RestaurantId = restaurantId;
+    }
 }

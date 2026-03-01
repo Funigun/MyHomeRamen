@@ -7,5 +7,7 @@ internal class Worker : ICurrentUser
 {
     public string Id { get; init; } = "DB Migrator";
 
+    public Guid RestaurantId { get; init; } = Guid.Empty;
+
     public IEnumerable<Claim> Claims { get; init; } = [];
 }

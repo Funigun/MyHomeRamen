@@ -8,7 +8,6 @@ namespace MyHomeRamen.UnitTests.PaymentsModule.PaymentGroups;
 public class PaymentGroupValidationTests
 {
     private static readonly PaymentGroupId DefaultId = new(Guid.NewGuid());
-    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private const string DefaultName = "Credit Cards";
     private const string DefaultImageUrl = "http://example.com/credit-cards-group.png";
 
@@ -20,7 +19,7 @@ public class PaymentGroupValidationTests
         List<PaymentProvider> paymentProviders = [paymentProvider];
 
         // Act
-        PaymentGroup paymentGroup = PaymentGroup.Create(DefaultId, DefaultRestaurantId, DefaultName, DefaultImageUrl, paymentProviders);
+        PaymentGroup paymentGroup = PaymentGroup.Create(DefaultId, DefaultName, DefaultImageUrl, paymentProviders);
 
         // Assert
         Assert.Equal(DefaultId, paymentGroup.Id);
@@ -58,7 +57,6 @@ public class PaymentGroupValidationTests
     {
         return PaymentGroup.Create(
             DefaultId,
-            DefaultRestaurantId,
             name ?? DefaultName,
             imageUrl ?? DefaultImageUrl,
             paymentProviders ?? []);
@@ -68,7 +66,6 @@ public class PaymentGroupValidationTests
     {
         return PaymentProvider.Create(
             new PaymentProviderId(Guid.NewGuid()),
-            DefaultRestaurantId,
             "Stripe",
             "http://example.com/stripe.png");
     }

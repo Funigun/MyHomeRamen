@@ -22,13 +22,12 @@ public class User : IdentityUser<Guid>
     {
     }
 
-    public static User Create(Guid restaurantId, string keycloakUserId, string userName, string firstName, string lastName, string email, string phoneNumber, string role)
+    public static User Create(string keycloakUserId, string userName, string firstName, string lastName, string email, string phoneNumber, string role)
     {
         return new User
         {
             Id = Guid.CreateVersion7(),
             KeycloakUserId = keycloakUserId,
-            RestaurantId = restaurantId,
             FirstName = firstName,
             LastName = lastName,
             Email = email,
@@ -36,5 +35,10 @@ public class User : IdentityUser<Guid>
             UserName = userName,
             Role = role
         };
+    }
+
+    public void SetRestaurantId(Guid restaurantId)
+    {
+        RestaurantId = restaurantId;
     }
 }

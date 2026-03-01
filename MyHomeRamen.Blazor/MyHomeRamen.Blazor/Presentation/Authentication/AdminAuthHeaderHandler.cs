@@ -16,6 +16,7 @@ public class AdminAuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : 
         if (!string.IsNullOrWhiteSpace(accessToken))
         {
             request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
+            request.Headers.Add("x-scheme", "RestaurantManager");
         }
 
         return await base.SendAsync(request, cancellationToken);

@@ -25,7 +25,6 @@ public sealed class RegisterEndpoint : IEndpoint
         RegisterRequest request,
         [FromServices] IKeycloakAdminService keycloakAdminService,
         [FromServices] IUsersDbContext usersDbContext,
-        [FromServices] RestaurantConfigurationProvider restaurantConfigurationProvider,
         CancellationToken cancellationToken)
     {
         KeycloakUserDto keycloakUser = request.ToUserDto();
@@ -33,7 +32,6 @@ public sealed class RegisterEndpoint : IEndpoint
         string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Customer, cancellationToken);
 
         User user = User.Create(
-            restaurantConfigurationProvider.RestaurantId,
             keycloakUserId,
             request.UserName,
             request.FirstName,

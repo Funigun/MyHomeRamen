@@ -18,7 +18,7 @@ public class BookingValidationTests
         List<Table> tables = [table];
 
         // Act
-        Booking booking = Booking.Create(DefaultId, DefaultRestaurantId, tables);
+        Booking booking = Booking.Create(DefaultId, tables);
 
         // Assert
         Assert.Equal(DefaultId, booking.Id);
@@ -33,7 +33,7 @@ public class BookingValidationTests
         List<Table> tables = [];
 
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, DefaultRestaurantId, tables));
+        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, tables));
         Assert.Equal(BookingErrors.NoTablesAssigned().Message, exception.Message);
     }
 
@@ -46,7 +46,7 @@ public class BookingValidationTests
             .ToList();
 
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, DefaultRestaurantId, tables));
+        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, tables));
         Assert.Equal(BookingErrors.TooManyTables().Message, exception.Message);
     }
 
@@ -58,7 +58,7 @@ public class BookingValidationTests
         List<Table> tables = [table, table];
 
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, DefaultRestaurantId, tables));
+        DomainException exception = Assert.Throws<DomainException>(() => Booking.Create(DefaultId, tables));
         Assert.Equal(BookingErrors.TablesNotUnique().Message, exception.Message);
     }
 
@@ -103,11 +103,11 @@ public class BookingValidationTests
 
     private static Booking CreateBooking()
     {
-        return Booking.Create(DefaultId, DefaultRestaurantId, [CreateTable()]);
+        return Booking.Create(DefaultId, [CreateTable()]);
     }
 
     private static Table CreateTable()
     {
-        return Table.Create(new TableId(Guid.NewGuid()), DefaultRestaurantId, 1, 2, 4);
+        return Table.Create(new TableId(Guid.NewGuid()), 1, 2, 4);
     }
 }

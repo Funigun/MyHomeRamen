@@ -10,8 +10,6 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 
     public UserId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public ICollection<Role> Roles => _roles.ToList();
 
     public ICollection<Permission> Permissions => _permissions.ToList();
@@ -20,17 +18,16 @@ public sealed class User : AuditableEntity, IEntity<UserId>
     {
     }
 
-    private User(UserId id, Guid restaurantId, List<Role> roles, List<Permission> permissions)
+    private User(UserId id, List<Role> roles, List<Permission> permissions)
     {
         Id = id;
-        RestaurantId = restaurantId;
         _roles = roles;
         _permissions = permissions;
     }
 
-    public static User Create(UserId id, Guid restaurantId, List<Role> roles, List<Permission> permissions)
+    public static User Create(UserId id, List<Role> roles, List<Permission> permissions)
     {
-        User user = new(id, restaurantId, roles, permissions);
+        User user = new(id, roles, permissions);
 
         return user;
     }

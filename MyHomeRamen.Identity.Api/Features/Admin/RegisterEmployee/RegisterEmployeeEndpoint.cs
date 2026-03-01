@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
@@ -30,7 +29,6 @@ public sealed class RegisterEmployeeEndpoint : IEndpoint
         RegisterEmployeeRequest request,
         [FromServices] IKeycloakAdminService keycloakAdminService,
         [FromServices] IUsersDbContext usersDbContext,
-        [FromServices] RestaurantConfigurationProvider restaurantConfigurationProvider,
         CancellationToken cancellationToken)
     {
         KeycloakUserDto keycloakUser = request.ToUserDto();
@@ -38,7 +36,6 @@ public sealed class RegisterEmployeeEndpoint : IEndpoint
         string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Employee, cancellationToken);
 
         User user = User.Create(
-            restaurantConfigurationProvider.RestaurantId,
             keycloakUserId,
             request.Username,
             request.FirstName,

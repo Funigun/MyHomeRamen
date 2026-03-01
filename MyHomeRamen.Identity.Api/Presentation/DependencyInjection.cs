@@ -89,22 +89,15 @@ internal static class DependencyInjection
                 {
                     options.ForwardDefaultSelector = context =>
                     {
-                        string? authorization = context.Request.Headers["Authorization"].FirstOrDefault();
+                        string? scheme = context.Request.Headers["x-scheme"].FirstOrDefault();
 
-                        if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("RestaurantManager ", StringComparison.OrdinalIgnoreCase))
+                        return scheme switch
                         {
-                            return RestaurantManagerPolicy;
-                        }
-                        else if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("RestaurantEmployee ", StringComparison.OrdinalIgnoreCase))
-                        {
-                            return RestaurantEmployeePolicy;
-                        }
-                        else if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("RestaurantCustomer ", StringComparison.OrdinalIgnoreCase))
-                        {
-                            return RestaurantCustomerPolicy;
-                        }
-
-                        return RestaurantCustomerPolicy;
+                            RestaurantManagerPolicy => RestaurantManagerPolicy,
+                            RestaurantEmployeePolicy => RestaurantEmployeePolicy,
+                            RestaurantCustomerPolicy => RestaurantCustomerPolicy,
+                            _ => RestaurantCustomerPolicy
+                        };
                     };
                 });
 

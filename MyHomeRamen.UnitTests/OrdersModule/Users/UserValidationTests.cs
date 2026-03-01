@@ -7,7 +7,6 @@ namespace MyHomeRamen.UnitTests.OrdersModule.Users;
 public class UserValidationTests
 {
     private static readonly UserId TestUserId = new(Guid.NewGuid());
-    private static readonly Guid TestRestaurantId = Guid.NewGuid();
 
     private const string ValidFirstName = "John";
     private const string ValidLastName = "Doe";
@@ -21,7 +20,7 @@ public class UserValidationTests
 
     private static readonly List<Role> ValidRoles =
     [
-        Role.CreateCustomerRole(new RoleId(Guid.NewGuid()), TestRestaurantId, ValidPermissions)
+        Role.CreateCustomerRole(new RoleId(Guid.NewGuid()), ValidPermissions)
     ];
 
     [Fact]
@@ -33,7 +32,6 @@ public class UserValidationTests
         // Assert
         Assert.NotNull(user);
         Assert.Equal(TestUserId, user.Id);
-        Assert.Equal(TestRestaurantId, user.RestaurantId);
         Assert.Equal(ValidFirstName, user.FirstName);
         Assert.Equal(ValidLastName, user.LastName);
         Assert.Equal(ValidEmail, user.Email);
@@ -132,7 +130,6 @@ public class UserValidationTests
     {
         return User.Create(
             TestUserId,
-            TestRestaurantId,
             firstName ?? ValidFirstName,
             lastName ?? ValidLastName,
             email ?? ValidEmail,

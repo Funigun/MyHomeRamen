@@ -7,7 +7,6 @@ namespace MyHomeRamen.UnitTests.ReservationsModule.Tables;
 public class TableValidationTests
 {
     private static readonly TableId DefaultId = new(Guid.NewGuid());
-    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private const int DefaultTableNumber = 1;
     private const int DefaultMinSeats = 2;
     private const int DefaultMaxSeats = 4;
@@ -16,7 +15,7 @@ public class TableValidationTests
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
     {
         // Act
-        Table table = Table.Create(DefaultId, DefaultRestaurantId, DefaultTableNumber, DefaultMinSeats, DefaultMaxSeats);
+        Table table = Table.Create(DefaultId, DefaultTableNumber, DefaultMinSeats, DefaultMaxSeats);
 
         // Assert
         Assert.Equal(DefaultId, table.Id);
@@ -77,7 +76,6 @@ public class TableValidationTests
     {
         return Table.Create(
             DefaultId,
-            DefaultRestaurantId,
             tableNumber ?? DefaultTableNumber,
             minSeats ?? DefaultMinSeats,
             maxSeats ?? DefaultMaxSeats);

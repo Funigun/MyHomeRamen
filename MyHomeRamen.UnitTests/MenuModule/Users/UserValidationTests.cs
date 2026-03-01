@@ -7,16 +7,15 @@ namespace MyHomeRamen.UnitTests.MenuModule.Users;
 public class UserValidationTests
 {
     private static readonly UserId TestUserId = new(Guid.NewGuid());
-    private static readonly Guid TestRestaurantId = Guid.NewGuid();
 
     private static readonly List<Permission> ValidPermissions =
     [
-        Permission.Create(new PermissionId(Guid.NewGuid()), TestRestaurantId, PermissionConstants.CanViewProductsManagementView, "Permission description")
+        Permission.Create(new PermissionId(Guid.NewGuid()), PermissionConstants.CanViewProductsManagementView, "Permission description")
     ];
 
     private static readonly List<Role> ValidRoles =
     [
-        Role.CreateEmployeeRole(new RoleId(Guid.NewGuid()), TestRestaurantId, ValidPermissions)
+        Role.CreateEmployeeRole(new RoleId(Guid.NewGuid()), ValidPermissions)
     ];
 
     [Fact]
@@ -28,7 +27,6 @@ public class UserValidationTests
         // Assert
         Assert.NotNull(user);
         Assert.Equal(TestUserId, user.Id);
-        Assert.Equal(TestRestaurantId, user.RestaurantId);
         Assert.Equal(ValidRoles, user.Roles);
         Assert.Equal(ValidPermissions, user.Permissions);
     }
@@ -61,7 +59,7 @@ public class UserValidationTests
         // Arrange
         List<Permission> invalidPermissions =
         [
-            Permission.Create(new PermissionId(Guid.NewGuid()), TestRestaurantId, "InvalidPermissionName", "Description")
+            Permission.Create(new PermissionId(Guid.NewGuid()), "InvalidPermissionName", "Description")
         ];
 
         // Act & Assert
@@ -75,7 +73,6 @@ public class UserValidationTests
     {
         return User.Create(
             TestUserId,
-            TestRestaurantId,
             roles ?? ValidRoles,
             permissions ?? ValidPermissions);
     }
