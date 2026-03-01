@@ -46,6 +46,7 @@ public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> optio
                 case EntityState.Added:
                     entry.Entity.CreatedBy = _currentUser.Id.ToString();
                     entry.Entity.CreatedOn = currentDateTime;
+                    entry.Entity.SetRestaurantId(_currentUser.RestaurantId);
                     break;
 
                 case EntityState.Modified:
@@ -93,11 +94,11 @@ public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> optio
         HashSet<string> existingPermissions = await Permissions.AsNoTracking().Select(permission => permission.Name).ToHashSetAsync(cancellationToken);
 
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed(new RoleId(Guid.NewGuid()), restaurantId, role))
+                                            .Select(role => Role.CreateForSeed(new RoleId(Guid.NewGuid()), role))
                                             .ToList();
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions)
-                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), restaurantId, permission))
+                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         bool anyRolesToAdd = rolesToAdd.Any();

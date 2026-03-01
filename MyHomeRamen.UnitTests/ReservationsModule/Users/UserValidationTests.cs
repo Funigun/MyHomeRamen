@@ -16,12 +16,12 @@ public class UserValidationTests
 
     private static readonly List<Permission> ValidPermissions =
     [
-        Permission.Create(new PermissionId(Guid.NewGuid()), TestRestaurantId, PermissionConstants.CanAddBooking, "Permission description")
+        Permission.Create(new PermissionId(Guid.NewGuid()), PermissionConstants.CanAddBooking, "Permission description")
     ];
 
     private static readonly List<Role> ValidRoles =
     [
-        Role.CreateCustomerRole(new RoleId(Guid.NewGuid()), TestRestaurantId, ValidPermissions)
+        Role.CreateCustomerRole(new RoleId(Guid.NewGuid()), ValidPermissions)
     ];
 
     private static readonly List<Booking> ValidBookings = [];
@@ -160,7 +160,7 @@ public class UserValidationTests
         // Arrange
         List<Permission> invalidPermissions =
         [
-            Permission.Create(new PermissionId(Guid.NewGuid()), TestRestaurantId, "InvalidPermission", "Description")
+            Permission.Create(new PermissionId(Guid.NewGuid()), "InvalidPermission", "Description")
         ];
 
         // Act & Assert
@@ -179,7 +179,6 @@ public class UserValidationTests
     {
         return User.Create(
             TestUserId,
-            TestRestaurantId,
             firstName,
             lastName,
             email,

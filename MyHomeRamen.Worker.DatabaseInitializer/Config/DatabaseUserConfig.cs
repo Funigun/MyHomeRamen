@@ -14,8 +14,8 @@ internal sealed record DatabaseUserConfig
     {
         Schema = schema.ToLower();
         Role = $"{schema}Role";
-        User = configuration[$"CustomConfig:{schema}:User"]!;
-        Password = configuration[$"CustomConfig:{schema}:Password"]!;
+        User = configuration[$"DatabaseConfiguration:{schema}:User"]!;
+        Password = configuration[$"DatabaseConfiguration:{schema}:Password"]!;
     }
 
     internal static DatabaseUserConfig Create(string schema, IConfiguration configuration)

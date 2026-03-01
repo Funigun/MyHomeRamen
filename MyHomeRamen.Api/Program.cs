@@ -14,9 +14,10 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    builder.AddApiServiceDefaults("my-home-ramen-api");
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
+
+    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-api");
 
     builder.Services.AddIdentityPersistance(configurationProvider);
     builder.Services.AddMenuPersistance(configurationProvider);

@@ -7,16 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Reservations\Authorization\**" />
+    <EmbeddedResource Remove="Reservations\Authorization\**" />
+    <None Remove="Reservations\Authorization\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
   
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Reservations\Authorization\" />
   </ItemGroup>
 
 </Project>

@@ -6,8 +6,6 @@ public sealed class Permission : AuditableEntity, IEntity<PermissionId>
 {
     public PermissionId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public string Name { get; private set; }
 
     public string Description { get; private set; }
@@ -16,21 +14,20 @@ public sealed class Permission : AuditableEntity, IEntity<PermissionId>
     {
     }
 
-    private Permission(PermissionId id, Guid restaurantId, string name, string description)
+    private Permission(PermissionId id, string name, string description)
     {
         Id = id;
-        RestaurantId = restaurantId;
         Name = name;
         Description = description;
     }
 
-    public static Permission CreateForSeed(PermissionId id, Guid restaurantId, string name)
+    public static Permission CreateForSeed(PermissionId id, string name)
     {
-        return new Permission(id, restaurantId, name, name);
+        return new Permission(id, name, name);
     }
 
-    public static Permission Create(PermissionId id, Guid restaurantId, string name, string description)
+    public static Permission Create(PermissionId id, string name, string description)
     {
-        return new Permission(id, restaurantId, name, description);
+        return new Permission(id, name, description);
     }
 }

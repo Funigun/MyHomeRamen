@@ -1,8 +1,13 @@
+using Azure;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Identity.Api.Features.Admin.GetEmployees.Models;
+using MyHomeRamen.Identity.Api.Presentation;
+using MyHomeRamen.Infrastructure.Keycloak;
+using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Identity.Api.Features.Admin.GetEmployees;
 
@@ -12,18 +17,17 @@ public sealed class GetEmployeesEndpoint : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardAuthenticatedGet<GetEmployeesResponse>(string.Empty, Handler)
+        endpointBuilder.MapStandardGet<GetEmployeesResponse>("/employee", Handler)
+                       .RequireAuthorization(DependencyInjection.RestaurantManagerPolicy)
                        .WithName("GetEmployeesEndpoint")
                        .WithDescription("Handles GetEmployees operations.");
     }
 
-    private static async Task<Results<Ok<GetEmployeesResponse>, NotFound>> Handler(IUsersDbContext dbContext, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<GetEmployeesResponse>, NotFound>> Handler([FromServices] IKeycloakAdminService adminService, [FromServices] ICurrentUser current, CancellationToken cancellationToken)
     {
-        List<EmployeeDto>? employees = await dbContext.Users
-            .Select(u => u.ToResponse())
-            .ToListAsync(cancellationToken);
+        IEnumerable<KeycloakUserDto> users = await adminService.GetEmployees(cancellationToken);
 
-        GetEmployeesResponse response = new(employees);
+        GetEmployeesResponse response = new(users.Select(s => s.ToResponse()));
 
         return TypedResults.Ok(response);
     }

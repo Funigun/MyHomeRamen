@@ -7,7 +7,6 @@ namespace MyHomeRamen.UnitTests.PaymentsModule.PaymentProviders;
 public class PaymentProviderValidationTests
 {
     private static readonly PaymentProviderId DefaultId = new(Guid.NewGuid());
-    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
     private const string DefaultName = "Stripe";
     private const string DefaultImageUrl = "http://example.com/stripe.png";
 
@@ -15,7 +14,7 @@ public class PaymentProviderValidationTests
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
     {
         // Act
-        PaymentProvider paymentProvider = PaymentProvider.Create(DefaultId, DefaultRestaurantId, DefaultName, DefaultImageUrl);
+        PaymentProvider paymentProvider = PaymentProvider.Create(DefaultId, DefaultName, DefaultImageUrl);
 
         // Assert
         Assert.Equal(DefaultId, paymentProvider.Id);
@@ -51,7 +50,6 @@ public class PaymentProviderValidationTests
     {
         return PaymentProvider.Create(
             DefaultId,
-            DefaultRestaurantId,
             name ?? DefaultName,
             imageUrl ?? DefaultImageUrl);
     }

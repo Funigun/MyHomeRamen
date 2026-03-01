@@ -8,8 +8,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Keycloak.Authentication" />
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Blazor.Client\MyHomeRamen.Blazor.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Account\Register\" />
   </ItemGroup>
 
 </Project>

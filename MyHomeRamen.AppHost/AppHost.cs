@@ -28,7 +28,9 @@ IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
 IResourceBuilder<ProjectResource> blazor = builder.AddBlazor(config)
                                                   .WithReference(identityApiService)
                                                   .WithReference(apiService)
-                                                  .WaitFor(apiService);
+                                                  .WithReference(keyCloak)
+                                                  .WaitFor(apiService)
+                                                  .WithExplicitStart();
 
 identityApiService.WithReference(blazor);
 

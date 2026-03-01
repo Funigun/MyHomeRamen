@@ -1,8 +1,13 @@
-﻿using MyHomeRamen.Api.Common.Authorization;
+﻿using System.Security.Claims;
+using MyHomeRamen.Api.Common.Authorization;
 
 namespace MyHomeRamen.Worker.DatabaseInitializer.Config;
 
 internal class Worker : ICurrentUser
 {
     public string Id { get; init; } = "DB Migrator";
+
+    public Guid RestaurantId { get; init; } = Guid.Empty;
+
+    public IEnumerable<Claim> Claims { get; init; } = [];
 }

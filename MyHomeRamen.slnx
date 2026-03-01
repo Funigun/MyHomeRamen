@@ -1,19 +1,11 @@
 <Solution>
-  <Folder Name="/Api/">
-    <Project Path="MyHomeRamen.Api.Common/MyHomeRamen.Api.Common.csproj" Id="befa9a57-ff72-4c9f-a6fe-6be0475dfb0e" />
-    <Project Path="MyHomeRamen.Api/MyHomeRamen.Api.csproj" />
-    <Project Path="MyHomeRamen.Domain/MyHomeRamen.Domain.csproj" Id="690fccbf-0bbd-4dfc-87f4-279ef5b197af" />
-    <Project Path="MyHomeRamen.Identity.Api/MyHomeRamen.Identity.Api.csproj" />
-    <Project Path="MyHomeRamen.Infrastructure/MyHomeRamen.Infrastructure.csproj" Id="853a229a-8c66-4303-8d66-759a85cae6fb" />
-    <Project Path="MyHomeRamen.Persistance/MyHomeRamen.Persistance.csproj" Id="9ad85f83-8ea5-4d3c-b052-5b65f48b1791" />
+  <Folder Name="/Aspire/">
+    <Project Path="MyHomeRamen.AppHost/MyHomeRamen.AppHost.csproj" />
+    <Project Path="MyHomeRamen.ServiceDefaults/MyHomeRamen.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/Blazor/">
     <Project Path="MyHomeRamen.Blazor/MyHomeRamen.Blazor.Client/MyHomeRamen.Blazor.Client.csproj" />
     <Project Path="MyHomeRamen.Blazor/MyHomeRamen.Blazor/MyHomeRamen.Blazor.csproj" />
-  </Folder>
-  <Folder Name="/Host/">
-    <Project Path="MyHomeRamen.AppHost/MyHomeRamen.AppHost.csproj" />
-    <Project Path="MyHomeRamen.ServiceDefaults/MyHomeRamen.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -25,6 +17,14 @@
     <Project Path="MyHomeRamen.ArchitectureTests/MyHomeRamen.ArchitectureTests.csproj" Id="81301af1-6544-4e3e-bb3e-342fe857e20e" />
     <Project Path="MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj" Id="81c45925-f5aa-4a1c-b28f-5882ed6bc05a" />
     <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />
+  </Folder>
+  <Folder Name="/Web API/">
+    <Project Path="MyHomeRamen.Api.Common/MyHomeRamen.Api.Common.csproj" Id="befa9a57-ff72-4c9f-a6fe-6be0475dfb0e" />
+    <Project Path="MyHomeRamen.Api/MyHomeRamen.Api.csproj" />
+    <Project Path="MyHomeRamen.Domain/MyHomeRamen.Domain.csproj" Id="690fccbf-0bbd-4dfc-87f4-279ef5b197af" />
+    <Project Path="MyHomeRamen.Identity.Api/MyHomeRamen.Identity.Api.csproj" />
+    <Project Path="MyHomeRamen.Infrastructure/MyHomeRamen.Infrastructure.csproj" Id="853a229a-8c66-4303-8d66-759a85cae6fb" />
+    <Project Path="MyHomeRamen.Persistance/MyHomeRamen.Persistance.csproj" Id="9ad85f83-8ea5-4d3c-b052-5b65f48b1791" />
   </Folder>
   <Folder Name="/Workers/">
     <Project Path="MyHomeRamen.Worker.Common/MyHomeRamen.Worker.Common.csproj" Id="26fb0a68-a068-4aa6-a742-f12ca9d6584e" />
@@ -38,7 +38,6 @@
   <Folder Name="/_github/agents/">
     <File Path=".github/agents/adr-expert.agent.md" />
     <File Path=".github/agents/create-feature-structure.agent.md" />
-    <File Path=".github/agents/implement-feature.agent.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />

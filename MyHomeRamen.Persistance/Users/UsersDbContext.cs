@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Configuration;
-using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Common.GuidConvention;
@@ -12,8 +11,8 @@ namespace MyHomeRamen.Persistance.Users;
 
 public class UsersDbContext(DbContextOptions<UsersDbContext> options) : IdentityDbContext<User, Role, Guid>(options), IUsersDbContext
 {
-    private readonly RestaurantConfigurationProvider _restaurantConfiguration;
-    private readonly ICurrentUser _currentUser;
+    private readonly RestaurantConfigurationProvider _restaurantConfiguration = default!;
+    private readonly ICurrentUser _currentUser = default!;
 
     public DbSet<Address> Addresses { get; set; } = default!;
 
@@ -31,20 +30,22 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : Identity
 
     private void UpdateEntities()
     {
-        DateTime currentDateTime = DateTime.UtcNow;
-
-        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<User> entry in ChangeTracker.Entries<User>())
         {
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.CreatedBy = _currentUser.Id.ToString();
-                    entry.Entity.CreatedOn = currentDateTime;
+                    entry.Entity.SetRestaurantId(_currentUser.RestaurantId);
                     break;
+            }
+        }
 
-                case EntityState.Modified:
-                    entry.Entity.ModifiedBy = _currentUser.Id.ToString();
-                    entry.Entity.ModifiedOn = currentDateTime;
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Role> entry in ChangeTracker.Entries<Role>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.SetRestaurantId(_currentUser.RestaurantId);
                     break;
             }
         }

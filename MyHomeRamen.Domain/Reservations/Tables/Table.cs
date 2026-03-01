@@ -6,8 +6,6 @@ public sealed class Table : AuditableEntity, IEntity<TableId>
 {
     public TableId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public int TableNumber { get; private set; }
 
     public int MinNumberOfSeats { get; private set; }
@@ -18,15 +16,14 @@ public sealed class Table : AuditableEntity, IEntity<TableId>
     {
     }
 
-    private Table(TableId id, Guid restaurantId)
+    private Table(TableId id)
     {
         Id = id;
-        RestaurantId = restaurantId;
     }
 
-    public static Table Create(TableId id, Guid restaurantId, int tableNumber, int minNumberOfSeats, int maxNumberOfSeats)
+    public static Table Create(TableId id, int tableNumber, int minNumberOfSeats, int maxNumberOfSeats)
     {
-        Table table = new(id, restaurantId)
+        Table table = new(id)
         {
             TableNumber = tableNumber,
             MinNumberOfSeats = minNumberOfSeats,

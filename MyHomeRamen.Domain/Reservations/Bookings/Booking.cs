@@ -10,8 +10,6 @@ public sealed class Booking : AuditableEntity, IEntity<BookingId>
 
     public BookingId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public BookingStatus Status { get; private set; }
 
     public IReadOnlyList<Table> Tables => _tables.ToList();
@@ -20,16 +18,15 @@ public sealed class Booking : AuditableEntity, IEntity<BookingId>
     {
     }
 
-    private Booking(BookingId id, Guid restaurantId, IEnumerable<Table> tables)
+    private Booking(BookingId id, IEnumerable<Table> tables)
     {
         Id = id;
-        RestaurantId = restaurantId;
         _tables.AddRange(tables);
     }
 
-    public static Booking Create(BookingId id, Guid restaurantId, IEnumerable<Table> tables)
+    public static Booking Create(BookingId id, IEnumerable<Table> tables)
     {
-        Booking booking = new(id, restaurantId, tables)
+        Booking booking = new(id, tables)
         {
             Status = BookingStatus.Created
         };

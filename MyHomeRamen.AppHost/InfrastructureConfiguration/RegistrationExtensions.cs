@@ -6,7 +6,7 @@ namespace MyHomeRamen.AppHost.InfrastructureConfiguration;
 internal static class RegistrationExtensions
 {
     private const string ConfigurationSectionPrefix = "InfrastructureConfig:";
-    private const string ApplicationNameSetting = "CustomConfig:ApplicationName";
+    private const string ApplicationNameSetting = "RestaurantConfiguration:InfrastructurePrefix";
 
     public static IResourceBuilder<RedisResource> ConfigureRedis(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
@@ -58,8 +58,9 @@ internal static class RegistrationExtensions
 
         return builder.AddKeycloak($"{applicationName}-key-cloak", 8080, user, password)
                       .WithContainerName($"{applicationName}-key-cloak")
-                      //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
-                      //.WithBindMount(Path.Combine(AppContext.BaseDirectory, "realm-init-template"), "/opt/keycloak/data/import/realm.json")
+                      .WithDataVolume("keycloak")
+                      .WithRealmImport("./Configurations/Keycloak")
+                      .WithBindMount("./Configurations/Keycloak/themes/my-custom-theme", "/opt/keycloak/themes/my-custom-theme")
                       .WithOtlpExporter()
                       .WithLifetime(ContainerLifetime.Persistent);
     }

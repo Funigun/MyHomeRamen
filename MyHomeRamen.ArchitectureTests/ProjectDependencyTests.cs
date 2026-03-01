@@ -15,7 +15,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper) : Bas
             { AppHostAssembly, new[] { ApiAssembly, BlazorServerAssembly, ServiceDefaultsAssembly } },
             { IdentityApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
             { ApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
-            { InfrastructureAssembly, new[] { DomainAssembly, ServiceDefaultsAssembly } },
+            { InfrastructureAssembly, new[] { DomainAssembly, ApiCommonAssembly } },
             { PersistanceAssembly, new[] { DomainAssembly, ApiCommonAssembly } },
             { WorkerMailSenderAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
             { WorkerMessagesHandlerAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },

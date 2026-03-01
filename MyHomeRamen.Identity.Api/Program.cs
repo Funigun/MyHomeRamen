@@ -7,9 +7,12 @@ using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Presentation;
+using MyHomeRamen.Infrastructure.Cache;
+using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Persistance;
 using Scalar.AspNetCore;
 using Serilog;
+using StackExchange.Redis;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -25,24 +28,22 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    const string corsPolicyName = "RestaurantPolicy";
-
     builder.AddConfiguration();
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
 
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy(corsPolicyName, policy =>
+        options.AddDefaultPolicy(policy =>
         {
-        policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
+            policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
         });
     });
 
-    builder.Services.AddSerilog();
     builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
+    builder.Services.AddSerilog();
 
     builder.Services.AddOpenApi("v1", options =>
     {
@@ -57,16 +58,19 @@ try
                     .AddValidatorsFromAssembly(apiAssembly);
 
     builder.Services.AddIdentityCore<User>()
-                .AddApiEndpoints();
+                    .AddApiEndpoints();
 
     builder.Services.AddIdentityPersistance(configurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
-                    .AddAuthorizationBuilder()
-                    .AddPolicy(corsPolicyName, policy =>
-                    {
-                        policy.RequireAuthenticatedUser();
-                    });
+                    .ConfigureAuthorizationPolicies();
+
+    // Keycloak Admin REST API client (service account via client_credentials)
+    builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");
+    IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
+    builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
+                    .AddCacheService()
+                    .AddKeycloakAdminService(builder.Configuration);
 
     WebApplication app = builder.Build();
 
@@ -82,12 +86,11 @@ try
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseSerilogRequestLogging();
-    app.UseCors(corsPolicyName);
     app.MapDefaultEndpoints();
     app.MapEndpoints();
+    app.UseCors();
     app.UseAuthorization();
 
-    await app.InitDatabase();
     await app.RunAsync();
 }
 catch (Exception ex)

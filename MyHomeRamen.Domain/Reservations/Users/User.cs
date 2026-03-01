@@ -11,8 +11,6 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 
     public UserId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public string FirstName { get; private set; }
 
     public string LastName { get; private set; }
@@ -31,18 +29,17 @@ public sealed class User : AuditableEntity, IEntity<UserId>
     {
     }
 
-    private User(UserId id, Guid restaurantId, List<Booking> bookings, List<Role> roles, List<Permission> permissions)
+    private User(UserId id, List<Booking> bookings, List<Role> roles, List<Permission> permissions)
     {
         Id = id;
-        RestaurantId = restaurantId;
         _bookings = bookings;
         _roles = roles;
         _permissions = permissions;
     }
 
-    public static User Create(UserId id, Guid restaurantId, string firstName, string lastName, string email, string phoneNumber, List<Booking> bookings, List<Role> roles, List<Permission> permissions)
+    public static User Create(UserId id, string firstName, string lastName, string email, string phoneNumber, List<Booking> bookings, List<Role> roles, List<Permission> permissions)
     {
-        User user = new(id, restaurantId, bookings, roles, permissions)
+        User user = new(id, bookings, roles, permissions)
         {
             FirstName = firstName,
             LastName = lastName,

@@ -9,8 +9,6 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
     public BasketId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public User User { get; private set; }
 
     public IReadOnlyList<Product> Products => _products.ToList();
@@ -19,16 +17,15 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
     {
     }
 
-    private Basket(BasketId id, Guid restaurantId, User user)
+    private Basket(BasketId id, User user)
     {
         Id = id;
-        RestaurantId = restaurantId;
         User = user;
     }
 
-    public static Basket Create(BasketId id, Guid restaurantId, User user)
+    public static Basket Create(BasketId id, User user)
     {
-        Basket basket = new(id, restaurantId, user);
+        Basket basket = new(id, user);
 
         BasketValidator.Validate(basket);
 

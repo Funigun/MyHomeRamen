@@ -2,10 +2,10 @@
 
 public sealed record RegisterEmployeeRequest
 (
-    string UserName,
+    string Username,
     string FirstName,
     string LastName,
     string Email,
     string PhoneNumber,
-    string Password
+    string TemporaryPassword
 );

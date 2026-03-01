@@ -61,6 +61,7 @@
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 		<PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server"/>
+		<PackageReference Include="Aspire.Keycloak.Authentication" />
 	</ItemGroup>
 	
 	<!-- Blazor WASM Exclusive -->

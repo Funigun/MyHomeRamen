@@ -11,8 +11,6 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 
     public UserId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public IReadOnlyList<Product> FavoriteProducts => _favoriteProducts.ToList();
 
     public ICollection<Role> Roles => _roles.ToList();
@@ -23,18 +21,17 @@ public sealed class User : AuditableEntity, IEntity<UserId>
     {
     }
 
-    private User(UserId id, Guid restaurantId, List<Role> roles, List<Permission> permissions, List<Product> favoriteProducts)
+    private User(UserId id, List<Role> roles, List<Permission> permissions, List<Product> favoriteProducts)
     {
         Id = id;
-        RestaurantId = restaurantId;
         _roles = roles;
         _permissions = permissions;
         _favoriteProducts = favoriteProducts;
     }
 
-    public static User Create(UserId id, Guid restaurantId, List<Role> roles, List<Permission> permissions)
+    public static User Create(UserId id, List<Role> roles, List<Permission> permissions)
     {
-        User user = new(id, restaurantId, roles, permissions, []);
+        User user = new(id, roles, permissions, []);
 
         UserValidator.Validate(user);
 
