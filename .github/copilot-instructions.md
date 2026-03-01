@@ -18,10 +18,11 @@ Project follows Modular Monolith architecture pattern with Vertical Slice archit
 		- MyHomeRamen.Persistence: Database context and configurations using Entity Framework Core
 		- MyHomeRamen.Infrastructure: Infrastructure services like email, caching, messaging, etc.
 	- Identity:
-		- MyHomeRamen.Identity: ASP.NET Core Identity implementation for user management and authentication
+		- MyHomeRamen.Identity: ASP.NET Core Identity implementation for user management, employees management (via Keycloak admin api) and authentication/authorization
 		
 - Workers:
 	- MyHomeRamen.Worker: Base project for background workers, provides Quarts configuration and common services
+	- MyHomeRamen.Worker.DatabaseInitializer: Worker that starts on application startup which configures Database (schemas, roles, admin accounts, etc), applies pending migrations and seeds roles and permissions
 	- MyHomeRamen.Worker.MailSender: Background worker for email sending
 	- MyHomeRamen.Worker.MessagesHandler: Background worker for RabbitMq messaging handling
 	

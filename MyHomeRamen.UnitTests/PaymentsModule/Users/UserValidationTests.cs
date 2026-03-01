@@ -18,19 +18,18 @@ public class UserValidationTests
     
     private static readonly Payment TestPayment = Payment.Create(
         TestPaymentId,
-        TestRestaurantId,
         TestReferenceId,
         "Credit Card",
         "https://example.com/image.png");
 
     private static readonly List<Permission> ValidPermissions =
     [
-        Permission.Create(new PermissionId(Guid.NewGuid()), TestRestaurantId, PermissionConstants.CanViewPayments, "Permission description")
+        Permission.Create(new PermissionId(Guid.NewGuid()), PermissionConstants.CanViewPayments, "Permission description")
     ];
 
     private static readonly List<Role> ValidRoles =
     [
-        Role.CreateCustomerRole(new RoleId(Guid.NewGuid()), TestRestaurantId, ValidPermissions)
+        Role.CreateCustomerRole(new RoleId(Guid.NewGuid()), ValidPermissions)
     ];
 
     [Fact]
@@ -115,7 +114,6 @@ public class UserValidationTests
     {
         return User.Create(
             TestUserId,
-            TestRestaurantId,
             firstName,
             lastName,
             email,

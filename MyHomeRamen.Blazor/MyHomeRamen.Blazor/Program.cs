@@ -1,4 +1,6 @@
+using MudBlazor.Services;
 using MyHomeRamen.Blazor.Components;
+using MyHomeRamen.Blazor.Presentation;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -13,11 +15,25 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    builder.AddBlazorServiceDefaults("my-home-ramen-blazor");
+    builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                         .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
+
+    string infrastructurePrefix = builder.Configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
+
+    builder.AddBlazorServiceDefaults($"{infrastructurePrefix}-blazor");
 
     builder.Services.AddRazorComponents()
-        .AddInteractiveServerComponents()
-        .AddInteractiveWebAssemblyComponents();
+                    .AddInteractiveServerComponents()
+                    .AddInteractiveWebAssemblyComponents();
+
+    builder.Services.AddHttpContextAccessor()
+                    .AddAuthenticationHandlers()
+                    .AddKeycloackAuthentication(builder)
+                    .AddCascadingAuthenticationState();
+
+    builder.Services.AddMudServices();
+
+    builder.Services.AddApiServices(infrastructurePrefix);
 
     WebApplication app = builder.Build();
 
@@ -39,10 +55,13 @@ try
     app.UseAntiforgery();
 
     app.MapStaticAssets();
+
     app.MapRazorComponents<App>()
-        .AddInteractiveServerRenderMode()
-        .AddInteractiveWebAssemblyRenderMode()
-        .AddAdditionalAssemblies(typeof(MyHomeRamen.Blazor.Client._Imports).Assembly);
+       .AddInteractiveServerRenderMode()
+       .AddInteractiveWebAssemblyRenderMode()
+       .AddAdditionalAssemblies(typeof(MyHomeRamen.Blazor.Client._Imports).Assembly);
+
+    app.MapAutheticationEndpoints();
 
     await app.RunAsync();
 }

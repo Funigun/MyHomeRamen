@@ -9,8 +9,6 @@ public sealed class PaymentGroup : AuditableEntity, IEntity<PaymentGroupId>
 
     public PaymentGroupId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public string Name { get; private set; }
 
     public string ImageUrl { get; private set; }
@@ -21,16 +19,15 @@ public sealed class PaymentGroup : AuditableEntity, IEntity<PaymentGroupId>
     {
     }
 
-    private PaymentGroup(PaymentGroupId id, Guid restaurantId, IEnumerable<PaymentProvider> paymentProviders)
+    private PaymentGroup(PaymentGroupId id, IEnumerable<PaymentProvider> paymentProviders)
     {
         Id = id;
-        RestaurantId = restaurantId;
         _paymentProviders = paymentProviders.ToList();
     }
 
-    public static PaymentGroup Create(PaymentGroupId id, Guid restaurantId, string name, string imageUrl, IEnumerable<PaymentProvider> paymentProviders)
+    public static PaymentGroup Create(PaymentGroupId id, string name, string imageUrl, IEnumerable<PaymentProvider> paymentProviders)
     {
-        PaymentGroup paymentGroup = new(id, restaurantId, paymentProviders)
+        PaymentGroup paymentGroup = new(id, paymentProviders)
         {
             Name = name,
             ImageUrl = imageUrl

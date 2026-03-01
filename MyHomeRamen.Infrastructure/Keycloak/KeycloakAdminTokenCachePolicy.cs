@@ -1,0 +1,15 @@
+using MyHomeRamen.Api.Common.Cache;
+
+namespace MyHomeRamen.Infrastructure.Keycloak;
+
+internal sealed class KeycloakAdminTokenCachePolicy : ICachePolicy<KeycloakAdminOptions, string>
+{
+    internal KeycloakAdminTokenCachePolicy(int tokenLifetimeSeconds) =>
+        ExpirationTime = TimeSpan.FromSeconds(tokenLifetimeSeconds);
+
+    public string Key => "keycloak_admin_access_token";
+
+    public TimeSpan? ExpirationTime { get; }
+
+    public TimeSpan? LocalExpirationTime => null;
+}
