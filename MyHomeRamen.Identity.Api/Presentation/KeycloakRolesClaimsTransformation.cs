@@ -2,7 +2,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 
-namespace MyHomeRamen.Identity.Api.Infrastructure;
+namespace MyHomeRamen.Identity.Api.Presentation;
 
 public sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
 {

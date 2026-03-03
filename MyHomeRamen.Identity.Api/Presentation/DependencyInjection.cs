@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MyHomeRamen.Api.Common.Configuration;
-using MyHomeRamen.Identity.Api.Infrastructure;
 using Scalar.AspNetCore;
 
 namespace MyHomeRamen.Identity.Api.Presentation;

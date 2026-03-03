@@ -1,6 +1,4 @@
-using MyHomeRamen.Api.Common.Cache;
-
-namespace MyHomeRamen.Infrastructure.Cache;
+namespace MyHomeRamen.Api.Common.Cache;
 
 public interface ICacheService
 {
