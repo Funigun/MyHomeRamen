@@ -49,6 +49,7 @@ There are also nuget packages for code analysis and style enforcement:
 
 ## Testing
 Project uses xUnit for unit, integration and architecture tests.
-- Unit Tests: focus on testing individual components in isolation using mocks for dependencies
-- Integration Tests: test the interaction between multiple components and the database using a real database and redis instances using Testcontainers
 - Architecture Tests: enforce architectural rules using NetArchRules
+- Unit Tests: focus on testing domain logic and application services that do not have infrastructure or external dependencies
+- Integration Tests (Test Containers): test individual services in isolation (e.g. API + DB) using TestContainers
+- Integration Tests (Aspire): test complete distributed workflows spanning multiple independent services (API + Identity + Workers + External IdP) orchestrated by .NET Aspire

@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Api.Common.Endpoint;
+﻿namespace MyHomeRamen.Api.Common.Endpoint.Models;
 
 public enum ErrorType
 {
