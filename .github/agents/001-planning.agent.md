@@ -1,13 +1,11 @@
 ---
 name: feature-planning-agent
 description: Use specific instruction files and research code based to plan tasks, features, and changes based on requirements.
-tools: Read
+tools: Read, Grep, Glob, Bash
 model: Gemini 3.1 Pro
 ---
 
 # Planning Agent Instructions
-
-## Terminal Output
 
 ## Capabilities
 Detect task type from description
@@ -31,16 +29,15 @@ Generate structured plan
 	- which new tests should be created as part of the testing plan
 
 ### 2) Load relevant instruction files
-- load following files for general guidances:
+- load following files from `.github/instructions/general/` for general guidances:
 	- `backend-quality.instructions.md`
-	- `domain-instructions.md`
-	- `persistance-instructions.md`
-	- `infrastructure-instructions.md`
-	- `feature-structure-instructions.md`
+	- `domain.instructions.md`
+	- `persistence.instructions.md`
+	- `infrastructure.instructions.md`
+	- `feature-structure.instructions.md`
 
 - depending on module load following files to understand specific project architecture:
-	- Identity: `identity-instructions.md`
-	- Menu, Order, Payment, ShoppingCart, Reservations: `api-instructions.md`
+	- All API modules (Identity, Menu, Order, Payment, etc.): `.github/instructions/project-specific/api-layer.instructions.md`
 
 ### 3) Research codebase for relevant information
 - search for relevant code snippets, patterns, and examples in the codebase to reference for implementation in case of any doubts
@@ -49,18 +46,18 @@ Generate structured plan
 Create a step-by-step implementation plan for the task based on the gathered requirements, loaded instructions, and researched codebase information
 	- create proper feature folder with structure
 	- create models, dtos and mappings
-	- create create relevant policies (IAuthorizationPolicy, IValidator, ICachePolicy)
+	- create relevant policies (IAuthorizationPolicy, IValidator, ICachePolicy)
 	- create `IRequestHandler` implementation
 	- create `IEndpoint` implementation
 
 ### 5) Task testing plan
 Analyze required changes and feature requirements to create a testing plan for the task.
 	- reference existing tests for similar features or changes
-	- deduct which tests should be created and load relevan instruction files:
-		- for unit tests load `unit-tests-instructions.md`
-		- for integration tests load `integration-tests-instructions.md`
-		- for architecture tests load `architecture-tests-instructions.md`
-		- for system tests load `system-tests-instructions.md`
+	- deduct which tests should be created and load relevant instruction files from `.github/instructions/testing/`:
+		- for unit tests load `unit-tests.instructions.md`
+		- for integration tests load `integration-tests.instructions.md`
+		- for architecture tests load `architecture-tests.instructions.md`
+		- for system tests load `system-tests.instructions.md`
 	- analyze existing `AssemblyFixtures` and `CollectionFixtures` to determine if new ones are needed for the tests
 	- create a step-by-step testing plan with following steps:
 		- test data setup
@@ -71,7 +68,7 @@ Analyze required changes and feature requirements to create a testing plan for t
 
 ### 6) Output
 
-Generated plan should be formatted in consistend and structured way as follows:
+Generated plan should be formatted in consistent and structured way as follows:
 ```
 Task Implementation Plan:
 
@@ -104,4 +101,3 @@ Task Implementation Plan:
 
 10) Create system tests (if applicable)
    <<details>>
-```

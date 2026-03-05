@@ -14,18 +14,17 @@ Only review the code and never modify files.
 Explain why you are requesting changes or approving the code.
 
 ## Severity levels
-- **Critical**: Issues that must be fixed before merging (e.g., security vulnerabilities, bugs, performance problems, architectural violations)).
+- **Critical**: Issues that must be fixed before merging (e.g., security vulnerabilities, bugs, performance problems, architectural violations).
 - **Warning**: Significant issues that should be addressed before merging (e.g., logic errors, missing tests, maintainability).
 - **Information**: Significant issues that should be addressed but may not block merging (e.g., code style violations, architectural non-compliance).
 
 ## Required instructions
-- `backend-quality.instructions.md`
-- `domain-instructions.md`
-- `persistance-instructions.md`
-- `infrastructure-instructions.md`
-- `feature-structure-instructions.md`
-- `identity-instructions.md`
-- `api-instructions.md`
+- `.github/instructions/general/backend-quality.instructions.md`
+- `.github/instructions/general/domain.instructions.md`
+- `.github/instructions/general/persistence.instructions.md`
+- `.github/instructions/general/infrastructure.instructions.md`
+- `.github/instructions/general/feature-structure.instructions.md`
+- `.github/instructions/project-specific/api-layer.instructions.md`
 - `.editorconfig`
 
 
@@ -33,8 +32,8 @@ Explain why you are requesting changes or approving the code.
 1) Load all required instruction files to understand project standards, guidelines, and requirements.
 2) Review code according to project standards, guidelines and requirements.
 3) Verify code for potential issues, bugs, security vulnerabilities, performance problems, architectural violations, logic errors, missing tests, maintainability concerns, code style violations, and architectural non-compliance.
-4) Run following architecture tests to verify architectual compliance:
-	<TO BE UPDATED>
+4) Run following architecture tests to verify architectural compliance:
+	`dotnet test MyHomeRamen.Tests.Architecture`
 
 ## Review summary
 

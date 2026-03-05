@@ -11,9 +11,10 @@ Project follows Modular Monolith architecture pattern with Vertical Slice archit
 - Aspire orchiestration that setups Redis and RabbitMQ containers besides API, Blazor and Worker projects
 
 - Backend API
-	- Core Api:
-		- MyHomeRamen.Api: Main API project exposing REST endpoints
-		- MyHomeRamen.Api.Common: Common utilities, extensions and helpers for API project
+- Core Api:
+- MyHomeRamen.Common.Contracts: Shared contracts, DTOs, interfaces, and basic validation rules reusable across API, Worker, and Blazor projects
+- MyHomeRamen.Api: Main API project exposing REST endpoints
+- MyHomeRamen.Api.Common: Common utilities, extensions and helpers for API project
 		- MyHomeRamen.Domain: Domain entities, value objects and domain services
 		- MyHomeRamen.Persistence: Database context and configurations using Entity Framework Core
 		- MyHomeRamen.Infrastructure: Infrastructure services like email, caching, messaging, etc.
