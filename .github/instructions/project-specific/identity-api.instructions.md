@@ -28,7 +28,12 @@ The identity API (`MyHomeRamen.Identity.Api`) handles user management, authentic
 ## Structure
 There are no separate modules defined for Identity API, but features are organized into groups which should follow the same structure:
 
-|-- Features/{GroupName}/
-|   -- {FeatureName1}/
-|   -- {FeatureName2}/
-|	-- {FeatureNameGroup}.cs
+|-- Features/
+|	-- {GroupName}/
+|		-- {FeatureName1}/
+|		-- {FeatureName2}/
+|		-- {FeatureNameGroup}.cs
+|	-- {OtherGroupName}/
+|		-- {FeatureName1}/
+|		-- {FeatureName2}/
+|		-- {FeatureNameGroup}.cs

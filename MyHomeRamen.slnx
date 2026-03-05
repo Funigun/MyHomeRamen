@@ -45,7 +45,6 @@
     <File Path=".github/agents/005-security-reviewer.agent.md" />
     <File Path=".github/agents/006-pr-creator.agent.md" />
     <File Path=".github/agents/adr-expert.agent.md" />
-    <File Path=".github/agents/create-feature-structure.agent.md" />
     <File Path=".github/agents/deployer.agent.md" />
     <File Path=".github/agents/documenter.agent.md" />
   </Folder>

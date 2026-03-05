@@ -25,15 +25,20 @@ The main API (`MyHomeRamen.Api`) exposes REST endpoints for restaurant managemen
 		- Performance monitoring: implemented using `PerformanceMiddleware`
 	- Per feature:
 		- Authorization requires `IAuthorizationPolicy` implementation for the feature
-		- Validation requires `IValidator` implementation (FluentValidation library)
+		- Validation requires `AbstractValidator<T>` implementation (FluentValidation library)
 		- Caching requires `ICachePolicy` implementation for the feature feature handler should use proper repository implementation instead of DbContext abstraction and self cache implementation
 - Feature folders should be organized according to `feature-structure.instructions.md` guidelines
 
 ## Structure
 |-- {Module}
 |	-- Features/
-|		-- {FeatureName1}/
-|		-- {FeatureName2}/
-|		-- {FeatureNameGroup}.cs
+|		-- {DomainModelPlural}/
+|			-- {FeatureName1}/
+|			-- {FeatureName2}/
+|			-- {FeatureName}Group.cs
+|		-- {OtherDomainModelPlural}/
+|			-- {FeatureName1}/
+|			-- {FeatureName2}/
+|			-- {FeatureName}Group.cs
 |	-- Services/ (shared services for the module)
 |	-- ExternalApis/ (integration with other module, expose features for other modules)
