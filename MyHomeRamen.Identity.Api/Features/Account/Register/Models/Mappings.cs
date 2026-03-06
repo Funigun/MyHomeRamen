@@ -7,7 +7,7 @@ internal static class Mappings
 {
     extension(RegisterRequest request)
     {
-        internal KeycloakUserDto ToUserDto()
+        internal KeycloakUserDto ToKeycloakUserDto()
         {
             return new KeycloakUserDto
             {
@@ -26,6 +26,22 @@ internal static class Mappings
                     }
                 ]
             };
+        }
+    }
+
+    extension(RegisterRequest request)
+    {
+        internal User ToUserDto(string keycloakUserId, string role)
+        {
+            return User.Create(
+                keycloakUserId,
+                request.UserName,
+                request.FirstName,
+                request.LastName,
+                request.Email,
+                request.PhoneNumber,
+                role
+            );
         }
     }
 }

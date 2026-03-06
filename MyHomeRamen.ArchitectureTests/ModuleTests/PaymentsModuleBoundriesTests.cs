@@ -4,7 +4,7 @@ using TestResult = NetArchTest.Rules.TestResult;
 
 namespace MyHomeRamen.ArchitectureTests.ModuleTests;
 
-public sealed class PaymentsModuleBoundriesTests : BaseArchitectureTest
+public sealed class PaymentsModuleBoundriesTests(ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
 {
     [Fact]
     public void OrderModule_Should_Not_Access_Other_Modules_Directly()

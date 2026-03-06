@@ -2,14 +2,13 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using MyHomeRamen.Infrastructure.Cache;
+using MyHomeRamen.Api.Common.Cache;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
 
 internal sealed class KeycloakAdminTokenHandler(
     IHttpClientFactory httpClientFactory,
     ICacheService cacheService,
-    IConfiguration configuration,
     IOptions<KeycloakAdminOptions> admninOptions) : DelegatingHandler
 {
     private readonly KeycloakAdminOptions _adminOptions = admninOptions.Value;
