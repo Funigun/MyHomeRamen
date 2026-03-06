@@ -4,7 +4,7 @@ using TestResult = NetArchTest.Rules.TestResult;
 
 namespace MyHomeRamen.ArchitectureTests.ModuleTests;
 
-public sealed class MenuModuleBoundriesTests : BaseArchitectureTest
+public sealed class MenuModuleBoundriesTests(ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
 {
     [Fact]
     public void MenuModule_Should_Not_Access_Other_Modules_Directly()
