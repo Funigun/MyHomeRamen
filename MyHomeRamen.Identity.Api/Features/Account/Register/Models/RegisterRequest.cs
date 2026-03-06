@@ -1,4 +1,6 @@
-﻿namespace MyHomeRamen.Identity.Api.Features.Account.Register.Models;
+﻿using MyHomeRamen.Api.Common.Endpoint.Models;
+
+namespace MyHomeRamen.Identity.Api.Features.Account.Register.Models;
 
 public sealed record RegisterRequest
 (
@@ -9,4 +11,4 @@ public sealed record RegisterRequest
     string PhoneNumber,
     string Password,
     string ConfirmPassword
-);
+) : IRequest;

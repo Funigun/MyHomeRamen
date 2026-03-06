@@ -16,11 +16,13 @@
   <Folder Name="/Tests/">
     <Project Path="MyHomeRamen.ArchitectureTests/MyHomeRamen.ArchitectureTests.csproj" Id="81301af1-6544-4e3e-bb3e-342fe857e20e" />
     <Project Path="MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj" Id="81c45925-f5aa-4a1c-b28f-5882ed6bc05a" />
+    <Project Path="MyHomeRamen.System.Tests/MyHomeRamen.System.Tests.csproj" Id="a76b1b93-977c-4320-832e-f19e8fc4a220" />
     <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />
   </Folder>
   <Folder Name="/Web API/">
     <Project Path="MyHomeRamen.Api.Common/MyHomeRamen.Api.Common.csproj" Id="befa9a57-ff72-4c9f-a6fe-6be0475dfb0e" />
     <Project Path="MyHomeRamen.Api/MyHomeRamen.Api.csproj" />
+    <Project Path="MyHomeRamen.Common.Contracts/MyHomeRamen.Common.Contracts.csproj" Id="bcb8c49d-382c-48e4-af52-366f0e369c58" />
     <Project Path="MyHomeRamen.Domain/MyHomeRamen.Domain.csproj" Id="690fccbf-0bbd-4dfc-87f4-279ef5b197af" />
     <Project Path="MyHomeRamen.Identity.Api/MyHomeRamen.Identity.Api.csproj" />
     <Project Path="MyHomeRamen.Infrastructure/MyHomeRamen.Infrastructure.csproj" Id="853a229a-8c66-4303-8d66-759a85cae6fb" />
@@ -36,11 +38,26 @@
     <File Path=".github/copilot-instructions.md" />
   </Folder>
   <Folder Name="/_github/agents/">
+    <File Path=".github/agents/000-module-initiator.agent.md" />
+    <File Path=".github/agents/001-planning.agent.md" />
+    <File Path=".github/agents/002-implementation.agent.md" />
+    <File Path=".github/agents/003-tester.agent.md" />
+    <File Path=".github/agents/004-reviewer.agent.md" />
+    <File Path=".github/agents/005-security-reviewer.agent.md" />
+    <File Path=".github/agents/006-pr-creator.agent.md" />
     <File Path=".github/agents/adr-expert.agent.md" />
-    <File Path=".github/agents/create-feature-structure.agent.md" />
+    <File Path=".github/agents/deployer.agent.md" />
+    <File Path=".github/agents/documenter.agent.md" />
   </Folder>
-  <Folder Name="/_github/instructions/">
-    <File Path=".github/instructions/architecture-tests.instructions.md" />
+  <Folder Name="/_github/instructions/" />
+  <Folder Name="/_github/instructions/general/">
+    <File Path=".github/instructions/general/backend-quality.instructions.md" />
+    <File Path=".github/instructions/general/feature-structure.instructions.md" />
+    <File Path=".github/instructions/general/frontend-quality.instructions.md" />
+    <File Path=".github/instructions/general/performance.instructions.md" />
+    <File Path=".github/instructions/general/security.instructions.md" />
+  </Folder>
+  <Folder Name="/_github/instructions/modules/">
     <File Path=".github/instructions/blazor.instructions.md" />
     <File Path=".github/instructions/menu.instructions.md" />
     <File Path=".github/instructions/orders.instructions.md" />
@@ -48,6 +65,22 @@
     <File Path=".github/instructions/reservations.instructions.md" />
     <File Path=".github/instructions/shoppingCart.instructions.md" />
     <File Path=".github/instructions/users.instructions.md" />
+  </Folder>
+  <Folder Name="/_github/instructions/projects/">
+    <File Path=".github/instructions/architecture-tests.instructions.md" />
+    <File Path=".github/instructions/project-specific/api-layer.instructions.md" />
+    <File Path=".github/instructions/project-specific/blazor.instructions.md" />
+    <File Path=".github/instructions/project-specific/domain.instructions.md" />
+    <File Path=".github/instructions/project-specific/infrastructure.instructions.md" />
+    <File Path=".github/instructions/project-specific/persistence.instructions.md" />
+    <File Path=".github/instructions/project-specific/workers.instructions.md" />
+  </Folder>
+  <Folder Name="/_github/instructions/testing/">
+    <File Path=".github/instructions/testing/architecture-tests.instructions.md" />
+    <File Path=".github/instructions/testing/e2e-tests.instructions.md" />
+    <File Path=".github/instructions/testing/integration-tests.instructions.md" />
+    <File Path=".github/instructions/testing/system-tests.instructions.md" />
+    <File Path=".github/instructions/testing/unit-tests.instructions.md" />
   </Folder>
   <Folder Name="/_github/prompts/">
     <File Path=".github/prompts/001-create-domain-model.prompt.md" />

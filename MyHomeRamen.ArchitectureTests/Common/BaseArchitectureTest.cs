@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿using ArchUnitNET.Domain;
+using Assembly = System.Reflection.Assembly;
 
 namespace MyHomeRamen.ArchitectureTests.Common;
 
-public abstract class BaseArchitectureTest
+public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuilder) : IAsyncLifetime
 {
     protected static readonly Assembly ApiAssembly = typeof(MyHomeRamen.Api.IApiAssemblyMarker).Assembly;
     protected static readonly Assembly ApiCommonAssembly = typeof(MyHomeRamen.Api.Common.DependencyInjection).Assembly;
@@ -42,4 +43,16 @@ public abstract class BaseArchitectureTest
         WorkerDbInitializerAssembly,
         ArchitectureTestsAssembly
     ];
+
+    protected Architecture Architecture { get; } = architectureBuilder.Architecture;
+
+    public ValueTask InitializeAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

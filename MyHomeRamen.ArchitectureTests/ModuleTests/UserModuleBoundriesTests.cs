@@ -4,7 +4,7 @@ using TestResult = NetArchTest.Rules.TestResult;
 
 namespace MyHomeRamen.ArchitectureTests.ModuleTests;
 
-public sealed class UserModuleBoundriesTests : BaseArchitectureTest
+public sealed class UserModuleBoundriesTests(ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
 {
     [Fact]
     public void UserModule_Should_Not_Access_Other_Modules_Directly()

@@ -11,9 +11,10 @@ Project follows Modular Monolith architecture pattern with Vertical Slice archit
 - Aspire orchiestration that setups Redis and RabbitMQ containers besides API, Blazor and Worker projects
 
 - Backend API
-	- Core Api:
-		- MyHomeRamen.Api: Main API project exposing REST endpoints
-		- MyHomeRamen.Api.Common: Common utilities, extensions and helpers for API project
+- Core Api:
+- MyHomeRamen.Common.Contracts: Shared contracts, DTOs, interfaces, and basic validation rules reusable across API, Worker, and Blazor projects
+- MyHomeRamen.Api: Main API project exposing REST endpoints
+- MyHomeRamen.Api.Common: Common utilities, extensions and helpers for API project
 		- MyHomeRamen.Domain: Domain entities, value objects and domain services
 		- MyHomeRamen.Persistence: Database context and configurations using Entity Framework Core
 		- MyHomeRamen.Infrastructure: Infrastructure services like email, caching, messaging, etc.
@@ -49,6 +50,7 @@ There are also nuget packages for code analysis and style enforcement:
 
 ## Testing
 Project uses xUnit for unit, integration and architecture tests.
-- Unit Tests: focus on testing individual components in isolation using mocks for dependencies
-- Integration Tests: test the interaction between multiple components and the database using a real database and redis instances using Testcontainers
 - Architecture Tests: enforce architectural rules using NetArchRules
+- Unit Tests: focus on testing domain logic and application services that do not have infrastructure or external dependencies
+- Integration Tests (Test Containers): test individual services in isolation (e.g. API + DB) using TestContainers
+- Integration Tests (Aspire): test complete distributed workflows spanning multiple independent services (API + Identity + Workers + External IdP) orchestrated by .NET Aspire

@@ -5,7 +5,7 @@ using TestResult = NetArchTest.Rules.TestResult;
 
 namespace MyHomeRamen.ArchitectureTests;
 
-public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper) : BaseArchitectureTest
+public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
 {
     public static TheoryData<Assembly, Assembly[]> GetProjectDependencies()
     {
