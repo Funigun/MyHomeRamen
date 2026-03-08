@@ -34,6 +34,7 @@
     <PackageVersion Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.1.0" />
     <PackageVersion Include="StackExchange.Redis" Version="2.10.1" />
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.1.0-preview.1.25616.3" />
+	<PackageVersion Include="Aspire.RabbitMQ.Client.v7" Version="9.5.2" />
     <!-- Blazor -->
     <PackageVersion Include="MudBlazor" Version="9.0.0-preview.1" />
     <PackageVersion Include="MudBlazor.Markdown" Version="8.11.0" />

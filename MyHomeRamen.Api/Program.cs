@@ -1,8 +1,22 @@
+using System.Reflection;
+using FluentValidation;
+using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Configuration;
-using MyHomeRamen.Persistance;
+using MyHomeRamen.Api.Menu;
+using MyHomeRamen.Api.Orders;
+using MyHomeRamen.Api.Payments;
+using MyHomeRamen.Api.Reservations;
+using MyHomeRamen.Api.ShoppingCart;
+using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Infrastructure.Cache;
+using MyHomeRamen.Infrastructure.Messaging;
+using Scalar.AspNetCore;
 using Serilog;
+using StackExchange.Redis;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+Assembly apiAssembly = Assembly.GetExecutingAssembly();
 
 Log.Logger = new LoggerConfiguration().ReadFrom
              .Configuration(new ConfigurationBuilder()
@@ -18,28 +32,57 @@ try
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
 
     builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-api");
+    builder.Services.AddSerilog();
 
-    builder.Services.AddIdentityPersistance(configurationProvider);
-    builder.Services.AddMenuPersistance(configurationProvider);
-    builder.Services.AddBasketPersistance(configurationProvider);
-    builder.Services.AddOrdersPersistance(configurationProvider);
-    builder.Services.AddReservationsPersistance(configurationProvider);
-    builder.Services.AddPaymentsPersistance(configurationProvider);
+    builder.Services.AddOpenApi("v1", options =>
+                                {
+                                    options.AddDocumentTransformer<TokenTransformer>();
+                                    options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
+                                })
+                    .AddProblemDetails();
 
-    builder.Services.AddProblemDetails();
+    builder.Services.AddSharedServices()
+                    .AddEndpoints(apiAssembly)
+                    .AddEndpointHandlers(apiAssembly)
+                    .AddAuthorizationPolicies(apiAssembly)
+                    .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.AddOpenApi();
+    builder.Services.AddMenuModule(configurationProvider);
+    builder.Services.AddShoppingCartModule(configurationProvider);
+    builder.Services.AddOrdersModule(configurationProvider);
+    builder.Services.AddReservationsModule(configurationProvider);
+    builder.Services.AddPaymentsModule(configurationProvider);
+
+    //builder.Services.ConfigureAuthentication(builder.Configuration)
+    //                .ConfigureAuthorizationPolicies();
+
+    builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");
+    IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
+
+    builder.AddRabbitMQClient($"{configurationProvider.InfrastructurePrefix}-rabbitmq");
+
+    builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
+                    .AddCacheService()
+                    .AddMessagingService();
 
     WebApplication app = builder.Build();
 
-    app.UseExceptionHandler();
+    app.UseMiddlewares();
+    app.UseRouting();
 
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
+        //app.MapScalarApiReference(options => options.ConfigureScalarOptions(configurationProvider));
     }
 
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseSerilogRequestLogging();
     app.MapDefaultEndpoints();
+    app.MapEndpoints();
+    app.UseCors();
+    app.UseAuthorization();
 
     await app.RunAsync();
 }

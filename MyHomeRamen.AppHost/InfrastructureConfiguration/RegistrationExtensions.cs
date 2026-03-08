@@ -38,7 +38,7 @@ internal static class RegistrationExtensions
         IResourceBuilder<ParameterResource> user = builder.AddParameter($"{applicationName}-messaging-user-name", config.UserName, secret: true);
         IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-messaging-password", config.Password, secret: true);
 
-        return builder.AddRabbitMQ($"{applicationName}-messaging", user, password)
+        return builder.AddRabbitMQ($"{applicationName}-rabbitmq", user, password)
                       .WithContainerName($"{applicationName}-rabbitmq")
                       //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
                       .WithManagementPlugin()

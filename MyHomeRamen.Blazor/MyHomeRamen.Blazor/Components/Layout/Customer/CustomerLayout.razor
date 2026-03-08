@@ -1,0 +1,45 @@
+﻿@inherits LayoutComponentBase
+
+@using MyHomeRamen.Blazor.Common.Configuration
+
+@inject RestaurantConfiguration RestaurantConfiguration
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar>
+        <MudStack>
+            <span>@RestaurantConfiguration.RestaurantName - Customer</span>
+            <MudStack Row="true">
+                <MudIconButton Href="/menu" Color="Color.Primary" Edge="Edge.Start">Menu</MudIconButton>
+                <MudIconButton Href="/orders" Color="Color.Primary" Edge="Edge.Start">Order</MudIconButton>
+                <MudIconButton Href="/reservations" Color="Color.Primary" Edge="Edge.Start">Book table</MudIconButton>
+
+                <MudSpacer />
+
+                <MudIconButton Href="/shopping-cart" Color="Color.Primary" Edge="Edge.Start">Basket</MudIconButton>
+                <MudIconButton Href="/account" Color="Color.Primary" Edge="Edge.Start">Account</MudIconButton>
+                <MudIconButton Color="Color.Primary" Edge="Edge.Start">Sign-out</MudIconButton>
+            </MudStack>
+        </MudStack>
+    </MudAppBar>
+
+    <div class="page">    
+        <main>
+            <div class="top-row px-4">
+                <Login />
+            </div>
+    
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    </div>
+</MudLayout>
+
+@code {
+
+}

@@ -42,6 +42,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
 		<PackageReference Include="Aspire.StackExchange.Redis" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+		<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
 	</ItemGroup>
 
 	<!-- Persistance Exclusive -->

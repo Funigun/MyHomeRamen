@@ -9,6 +9,7 @@ using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Presentation;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Infrastructure.Keycloak;
+using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.Persistance;
 using Scalar.AspNetCore;
 using Serilog;
@@ -46,14 +47,16 @@ try
     builder.Services.AddSerilog();
 
     builder.Services.AddOpenApi("v1", options =>
-    {
-        options.AddDocumentTransformer<TokenTransformer>();
-        options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
-    });
+                                 {
+                                     options.AddDocumentTransformer<TokenTransformer>();
+                                     options.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_1;
+                                 })
+                    .AddProblemDetails();
 
     builder.Services.AddSharedServices()
                     .AddScoped<AuthorizationService>()
                     .AddEndpoints(apiAssembly)
+                    .AddEndpointHandlers(apiAssembly)
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
@@ -65,11 +68,14 @@ try
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .ConfigureAuthorizationPolicies();
 
-    // Keycloak Admin REST API client (service account via client_credentials)
     builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");
     IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
+
+    builder.AddRabbitMQClient($"{configurationProvider.InfrastructurePrefix}-rabbitmq");
+
     builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
                     .AddCacheService()
+                    .AddMessagingService()
                     .AddKeycloakAdminService(builder.Configuration);
 
     WebApplication app = builder.Build();

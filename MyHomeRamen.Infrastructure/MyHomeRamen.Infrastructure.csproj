@@ -9,7 +9,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
-   </ItemGroup>
+	<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
