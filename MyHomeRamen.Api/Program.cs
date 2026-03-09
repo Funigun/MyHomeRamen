@@ -31,6 +31,16 @@ try
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
 
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+    });
+
     builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-api");
     builder.Services.AddSerilog();
 
@@ -53,8 +63,8 @@ try
     builder.Services.AddReservationsModule(configurationProvider);
     builder.Services.AddPaymentsModule(configurationProvider);
 
-    //builder.Services.ConfigureAuthentication(builder.Configuration)
-    //                .ConfigureAuthorizationPolicies();
+    builder.Services.ConfigureAuthentication(builder.Configuration)
+                    .ConfigureAuthorizationPolicies();
 
     builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");
     IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
@@ -73,7 +83,7 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
-        //app.MapScalarApiReference(options => options.ConfigureScalarOptions(configurationProvider));
+        app.MapScalarApiReference(options => options.ConfigureScalarOptions(configurationProvider));
     }
 
     app.UseHttpsRedirection();

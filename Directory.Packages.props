@@ -4,44 +4,54 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- API Documentation -->
-    <PackageVersion Include="Aspire.Hosting.Testing" Version="13.1.2" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.12.4" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+	  
     <!-- AspNetCore and extensions -->
+	<PackageVersion Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
+	  
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery.Yarp" Version="10.3.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.1.0" />
-    <PackageVersion Include="Microsoft.AspNetCore.Routing" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.1.0" />    
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.1.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.1.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.1" />
+	  
     <!-- Aspire with Open Telemetry packs -->
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.1.0" />
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.14.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.14.0-beta.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.14.0-beta.1" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.15.0-beta.1" />
-    <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.1.0" />
-    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.1.0" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.0" />
-    <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.1.0" />
-    <PackageVersion Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.1.0" />
-    <PackageVersion Include="StackExchange.Redis" Version="2.10.1" />
-    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.1.0-preview.1.25616.3" />
+	<PackageVersion Include="Aspire.Hosting.Testing" Version="13.1.2" />
+	  
+	<PackageVersion Include="Aspire.Hosting.Keycloak" Version="13.1.0-preview.1.25616.3" />
+	<PackageVersion Include="Aspire.Keycloak.Authentication" Version="13.1.1-preview.1.26105.8" />
+	  
+	<PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.1.0" />
 	<PackageVersion Include="Aspire.RabbitMQ.Client.v7" Version="9.5.2" />
-    <!-- Blazor -->
+
+	<PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.0" />
+	<PackageVersion Include="Aspire.StackExchange.Redis" Version="13.1.0" />
+	<PackageVersion Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.1.0" />
+	<PackageVersion Include="StackExchange.Redis" Version="2.10.1" />
+	  
+	<PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.1.0" />
+	  
+	<PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0" />
+	<PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.14.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.14.0-beta.1" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.14.0-beta.1" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.Quartz" Version="1.15.0-beta.1" />
+
+	  <!-- Blazor -->
     <PackageVersion Include="MudBlazor" Version="9.0.0-preview.1" />
     <PackageVersion Include="MudBlazor.Markdown" Version="8.11.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.2" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="10.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.2" />
-    <PackageVersion Include="Aspire.Keycloak.Authentication" Version="13.1.1-preview.1.26105.8" />
+    
     <!-- Testing -->
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
@@ -54,16 +64,19 @@
 	<PackageVersion Include="TngTech.ArchUnitNET.xUnitV3" Version="0.13.3" />
     <PackageVersion Include="Testcontainers.Redis" Version="4.10.0" />
     <PackageVersion Include="Respawn" Version="7.0.0" />
+	  
     <!-- Auth and EF Core -->
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.3" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Infrastructure" Version="10.0.0" />
+	<PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
+	  
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3" />
-    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.3" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3" />    
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Infrastructure" Version="10.0.0" />
+	  
     <!-- External Packages -->
     <PackageVersion Include="FluentValidation" Version="12.1.1" />
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />

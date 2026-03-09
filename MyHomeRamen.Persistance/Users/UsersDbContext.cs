@@ -35,7 +35,7 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : Identity
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.SetRestaurantId(_currentUser.RestaurantId);
+                    entry.Entity.SetRestaurantId(_restaurantConfiguration.RestaurantId);
                     break;
             }
         }
@@ -45,7 +45,7 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : Identity
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.SetRestaurantId(_currentUser.RestaurantId);
+                    entry.Entity.SetRestaurantId(_restaurantConfiguration.RestaurantId);
                     break;
             }
         }

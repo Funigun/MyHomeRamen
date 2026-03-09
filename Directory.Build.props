@@ -70,8 +70,8 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly"/>
 	</ItemGroup>
 
-	<!-- Tests Exclusive -->
-	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Tests`))'">
+	<!-- Unit Tests Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`UnitTests`))'">
 		<PackageReference Include="coverlet.collector">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -83,12 +83,57 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NetArchTest.Rules" />
-		<PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+	</ItemGroup>
+
+	<!-- Integration Tests exclusive-->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`IntegrationTests`))'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
 		<PackageReference Include="Testcontainers.Redis" />
 		<PackageReference Include="Respawn" />
+	</ItemGroup>
+	
+	<!-- Architecture Tests exclusive-->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`ArchitectureTests`))'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="NetArchTest.Rules" />
+		<PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+	</ItemGroup>
+
+	<!-- System Tests exclusive-->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`SystemTests`))'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Aspire.Hosting.Testing" />
 	</ItemGroup>
 
 	<!-- Worker Exclusive -->

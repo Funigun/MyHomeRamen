@@ -71,15 +71,23 @@ public static class DependencyInjection
 
         List<Type>? types = assembly.GetExportedTypes()
                                     .Where(t => t.GetInterfaces()
-                                                     .Any(i => i.IsGenericType && 
-                                                          (i.GetGenericTypeDefinition() == handler || i.GetGenericTypeDefinition() == handlerType)
-                                                          ))
+                                                     .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handler))
                                     .ToList();
 
         foreach (Type type in types)
         {
-            Type interfaceType = type.GetInterfaces()
-                                     .First(i => i.GetGenericTypeDefinition() == handler || i.GetGenericTypeDefinition() == handlerType);
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handler);
+            services.AddScoped(interfaceType, type);
+        }
+
+        types = assembly.GetExportedTypes()
+                        .Where(t => t.GetInterfaces()
+                                         .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerType))
+                        .ToList();
+
+        foreach (Type type in types)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerType);
             services.AddScoped(interfaceType, type);
         }
 

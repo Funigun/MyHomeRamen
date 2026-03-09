@@ -32,7 +32,7 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
             cancellationToken: cancellationToken);
     }
 
-    public async Task ConsumeAsync<T>(CancellationToken cancellationToken)
+    public async Task ConsumeAsync<T>(Func<T, CancellationToken, Task> onMessageReceived, CancellationToken cancellationToken = default) where T : class
     {
         logger.LogInformation("Consuming message of type {MessageType} to message broker", typeof(T).Name);
 
@@ -50,12 +50,28 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
 
         consumer.ReceivedAsync += async (sender, eventArgs) =>
         {
-            string message = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
-            T deserializedMessage = System.Text.Json.JsonSerializer.Deserialize<T>(message);
-            logger.LogInformation("Received message of type {MessageType} from message broker", typeof(T).Name);
+            try
+            {
+                string message = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+                T deserializedMessage = System.Text.Json.JsonSerializer.Deserialize<T>(message)!;
+                logger.LogInformation("Received message of type {MessageType} from message broker", typeof(T).Name);
 
-            // Acknowledge the message
-            await channel.BasicAckAsync(eventArgs.DeliveryTag, multiple: false, cancellationToken);
+                await onMessageReceived(deserializedMessage, cancellationToken);
+
+                // Acknowledge the message
+                await channel.BasicAckAsync(eventArgs.DeliveryTag, multiple: false, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error processing message of type {MessageType}", typeof(T).Name);
+
+            }
         };
+
+        await channel.BasicConsumeAsync(
+            queue: "user-events-queue",
+            autoAck: false,
+            consumer: consumer,
+            cancellationToken: cancellationToken);
     }
 }
