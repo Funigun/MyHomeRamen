@@ -12,9 +12,9 @@ public sealed class RegisterEndpoint : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<RegisterRequest, RegisterRequest>("/sign-up", Handler)
-               .WithName("RegisterEndpoint")
-               .WithDescription("Handles user registration");
+        endpointBuilder.MapStandardValidatedPost<RegisterRequest, RegisterRequest>("/sign-up", Handler)
+                       .WithName("RegisterEndpoint")
+                       .WithDescription("Handles user registration");
     }
 
     private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, [FromServices] IRequestHandler<RegisterRequest> handler, CancellationToken cancellationToken)

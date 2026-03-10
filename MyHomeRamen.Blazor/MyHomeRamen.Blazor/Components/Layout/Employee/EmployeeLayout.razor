@@ -3,6 +3,7 @@
 @using MyHomeRamen.Blazor.Common.Configuration
 
 @inject RestaurantConfiguration RestaurantConfiguration
+@inject AuthenticationStateProvider AuthStateProvider
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -12,7 +13,7 @@
 <MudLayout>
     <MudAppBar>
         <MudStack>
-            <span>@RestaurantConfiguration.RestaurantName - Customer</span>
+            <span>@RestaurantConfiguration.RestaurantName - Employee</span>
             <MudStack Row="true">
                 <MudIconButton Href="/menu" Color="Color.Primary" Edge="Edge.Start">Menu</MudIconButton>
                 <MudIconButton Href="/products" Color="Color.Primary" Edge="Edge.Start">Products</MudIconButton>
@@ -23,7 +24,7 @@
                 <MudSpacer />
 
                 <MudIconButton Href="/account" Color="Color.Primary" Edge="Edge.Start">Account</MudIconButton>
-                <MudIconButton Color="Color.Primary" Edge="Edge.Start">Sign-out</MudIconButton>
+                <Login/>
             </MudStack>
         </MudStack>
     </MudAppBar>

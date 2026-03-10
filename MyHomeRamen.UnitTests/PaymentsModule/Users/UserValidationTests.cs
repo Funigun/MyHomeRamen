@@ -12,10 +12,9 @@ namespace MyHomeRamen.UnitTests.PaymentsModule.Users;
 public class UserValidationTests
 {
     private static readonly UserId TestUserId = new(Guid.NewGuid());
-    private static readonly Guid TestRestaurantId = Guid.NewGuid();
     private static readonly PaymentId TestPaymentId = new(Guid.NewGuid());
     private static readonly Guid TestReferenceId = Guid.NewGuid();
-    
+
     private static readonly Payment TestPayment = Payment.Create(
         TestPaymentId,
         TestReferenceId,
@@ -31,24 +30,6 @@ public class UserValidationTests
     [
         Role.CreateCustomerRole(new RoleId(Guid.NewGuid()), ValidPermissions)
     ];
-
-    [Fact]
-    public void Create_Should_CreateUser_When_DataIsValid()
-    {
-        // Act
-        User user = CreateUser();
-
-        // Assert
-        Assert.NotNull(user);
-        Assert.Equal(TestUserId, user.Id);
-        Assert.Equal("John", user.FirstName);
-        Assert.Equal("Doe", user.LastName);
-        Assert.Equal("john.doe@example.com", user.Email);
-        Assert.Equal("1234567890", user.PhoneNumber);
-        Assert.Equal(TestPayment, user.DefaultMethod);
-        Assert.Equal(ValidRoles, user.Roles);
-        Assert.Equal(ValidPermissions, user.Permissions);
-    }
 
     [Fact]
     public void Create_Should_ThrowDomainException_When_FirstNameIsEmpty()

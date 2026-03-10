@@ -1,17 +1,17 @@
+using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler;
+using MyHomeRamen.Worker.MessagesHandler.Common;
 using MyHomeRamen.Worker.MessagesHandler.Menu;
 using MyHomeRamen.Worker.MessagesHandler.Orders;
 using MyHomeRamen.Worker.MessagesHandler.Payments;
 using MyHomeRamen.Worker.MessagesHandler.Reservations;
 using MyHomeRamen.Worker.MessagesHandler.ShoppingCart;
-using MyHomeRamen.Api.Common.Authorization;
 using Serilog;
-using System.Security.Claims;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
@@ -32,7 +32,7 @@ try
     builder.AddWorkerServiceDefaults($"{configurationProvider.InfrastructurePrefix}-messages-worker");
 
     // Add current user mock for DB contexts that require AuditableEntity updates
-    builder.Services.AddScoped<ICurrentUser, DummyWorkerCurrentUser>();
+    builder.Services.AddScoped<ICurrentUser, WorkerUser>();
 
     // Add required database persistence
     builder.Services.AddIdentityPersistance(configurationProvider);
@@ -65,11 +65,4 @@ catch (Exception ex)
 finally
 {
     await Log.CloseAndFlushAsync();
-}
-
-public class DummyWorkerCurrentUser : ICurrentUser
-{
-    public string Id { get; init; } = "Messages Worker";
-    public Guid RestaurantId { get; init; } = Guid.Empty;
-    public IEnumerable<Claim> Claims { get; init; } = [];
 }

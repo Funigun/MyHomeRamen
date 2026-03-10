@@ -38,7 +38,7 @@ try
         );
     });
 
-    builder.Services.AddScoped<ICurrentUser, Worker>();
+    builder.Services.AddScoped<ICurrentUser, WorkerUser>();
 
     builder.Services.AddIdentityPersistance(configurationProvider);
     builder.Services.AddMenuPersistance(configurationProvider);

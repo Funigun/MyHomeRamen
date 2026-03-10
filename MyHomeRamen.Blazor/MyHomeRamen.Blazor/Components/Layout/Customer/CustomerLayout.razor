@@ -3,6 +3,7 @@
 @using MyHomeRamen.Blazor.Common.Configuration
 
 @inject RestaurantConfiguration RestaurantConfiguration
+@inject AuthenticationStateProvider AuthStateProvider
 
 <MudThemeProvider />
 <MudPopoverProvider />
@@ -13,33 +14,27 @@
     <MudAppBar>
         <MudStack>
             <span>@RestaurantConfiguration.RestaurantName - Customer</span>
-            <MudStack Row="true">
-                <MudIconButton Href="/menu" Color="Color.Primary" Edge="Edge.Start">Menu</MudIconButton>
-                <MudIconButton Href="/orders" Color="Color.Primary" Edge="Edge.Start">Order</MudIconButton>
-                <MudIconButton Href="/reservations" Color="Color.Primary" Edge="Edge.Start">Book table</MudIconButton>
+            <MudStack Row="true" Style="width: 800px">
+                <MudIconButton Href="/menu" Color="Color.Secondary" Edge="Edge.Start">Menu</MudIconButton>
+                <MudIconButton Href="/orders" Color="Color.Secondary" Edge="Edge.Start">Order</MudIconButton>
+                <MudIconButton Href="/reservations" Color="Color.Secondary" Edge="Edge.Start">Book table</MudIconButton>
 
                 <MudSpacer />
 
-                <MudIconButton Href="/shopping-cart" Color="Color.Primary" Edge="Edge.Start">Basket</MudIconButton>
-                <MudIconButton Href="/account" Color="Color.Primary" Edge="Edge.Start">Account</MudIconButton>
-                <MudIconButton Color="Color.Primary" Edge="Edge.Start">Sign-out</MudIconButton>
+                <MudIconButton Href="/shopping-cart" Color="Color.Secondary" Edge="Edge.Start">Basket</MudIconButton>
+                <MudIconButton Href="/account" Color="Color.Secondary" Edge="Edge.Start">Account</MudIconButton>
+                <MudIconButton Href="/account/signup" Color="Color.Secondary" Edge="Edge.Start">Sign Up</MudIconButton>
+                <Login />
             </MudStack>
         </MudStack>
     </MudAppBar>
 
-    <div class="page">    
-        <main>
-            <div class="top-row px-4">
-                <Login />
-            </div>
-    
-            <article class="content px-4">
-                @Body
-            </article>
-        </main>
-    </div>
+    <MudMainContent>
+                <div style="justify-self:center; justify-items: center; align-items: center; min-width:25%">
+                    @Body
+                </div>
+    </MudMainContent>
 </MudLayout>
 
 @code {
-
 }

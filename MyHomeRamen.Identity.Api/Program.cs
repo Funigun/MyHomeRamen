@@ -60,9 +60,6 @@ try
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.AddIdentityCore<User>()
-                    .AddApiEndpoints();
-
     builder.Services.AddIdentityPersistance(configurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)

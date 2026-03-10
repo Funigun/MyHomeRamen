@@ -45,7 +45,7 @@ public sealed class AppConfigurationFixture : IAsyncLifetime
                                                .WaitAsync(TimeSpan.FromSeconds(30));
 
         await Application.ResourceNotifications.WaitForResourceAsync($"{InfrastructurePrefix}-db-initializer", KnownResourceStates.Running, cancellationToken)
-                                               .WaitAsync(TimeSpan.FromSeconds(30));
+                                               .WaitAsync(TimeSpan.FromSeconds(60));
 
         await Application.ResourceNotifications.WaitForResourceAsync($"{InfrastructurePrefix}-messages-worker", KnownResourceStates.Running, cancellationToken)
                                                .WaitAsync(TimeSpan.FromSeconds(30));

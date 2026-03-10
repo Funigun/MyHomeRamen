@@ -121,8 +121,6 @@ public static class DependencyInjection
 
     public static IServiceCollection AddIdentityPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
     {
-        services.ConfigureIdentity();
-
         services.AddDbContext<UsersDbContext>(options =>
         {
             string? connectionString = configurationProvider.IdentityConnectionString;
@@ -137,26 +135,6 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUsersDbContext, UsersDbContext>();
-
-        return services;
-    }
-
-    private static IServiceCollection ConfigureIdentity(this IServiceCollection services)
-    {
-        services.AddIdentityCore<User>()
-                .AddRoles<Role>()
-                .AddEntityFrameworkStores<UsersDbContext>();
-
-        services.Configure<IdentityOptions>(options =>
-        {
-            options.Password.RequireDigit = true;
-            options.Password.RequiredLength = 10;
-            options.Password.RequireLowercase = true;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireNonAlphanumeric = true;
-            options.Password.RequiredUniqueChars = 3;
-            options.User.RequireUniqueEmail = true;
-        });
 
         return services;
     }

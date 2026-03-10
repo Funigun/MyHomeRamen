@@ -32,7 +32,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasOne(x => x.DefaultMethod)
                .WithMany()
-               .IsRequired();
+               .IsRequired(false);
 
         builder.HasMany(x => x.Roles)
                .WithMany()

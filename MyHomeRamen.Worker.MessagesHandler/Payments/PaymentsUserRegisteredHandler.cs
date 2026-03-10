@@ -33,7 +33,7 @@ public class PaymentsUserRegisteredHandler(IPaymentsDbContext dbContext) : IInte
             integrationEvent.LastName,
             integrationEvent.Email,
             integrationEvent.PhoneNumber,
-            null!,
+            null,
             roles,
             permissions);
 

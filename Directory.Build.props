@@ -54,6 +54,7 @@
 	
 	<!-- Blazor Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Blazor`))'">
+		<PackageReference Include="FluentValidation" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 		<PackageReference Include="MudBlazor" />
 		<PackageReference Include="MudBlazor.Markdown"/>

@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MyHomeRamen.Blazor.Presentation.Authentication;
 
@@ -11,6 +15,11 @@ internal static class AuthenticationDependencyInjection
     {
         services.AddTransient<AuthHeaderHandler>()
                 .AddTransient<AdminAuthHeaderHandler>();
+
+        services.AddScoped<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
+
+        services.AddScoped<CustomAuthenticationStateProvider>();
+        services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthenticationStateProvider>());
 
         return services;
     }
@@ -37,6 +46,32 @@ internal static class AuthenticationDependencyInjection
                         {
                             options.RequireHttpsMetadata = false;
                         }
+
+                        options.Events = new OpenIdConnectEvents
+                        {
+                            OnTokenValidated = ctx =>
+                            {
+                                string? rawAccessToken = ctx.TokenEndpointResponse?.AccessToken;
+                                if (string.IsNullOrEmpty(rawAccessToken))
+                                {
+                                    return Task.CompletedTask;
+                                }
+
+                                JsonWebToken accessToken = new(rawAccessToken);
+                                ClaimsIdentity identity = (ClaimsIdentity)ctx.Principal!.Identity!;
+
+                                foreach (string claimType in (string[])["resource_access", "realm_access"])
+                                {
+                                    Claim? claim = accessToken.Claims.FirstOrDefault(c => c.Type == claimType);
+                                    if (claim is not null && !identity.HasClaim(c => c.Type == claimType))
+                                    {
+                                        identity.AddClaim(claim);
+                                    }
+                                }
+
+                                return Task.CompletedTask;
+                            }
+                        };
                     })
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme);
 

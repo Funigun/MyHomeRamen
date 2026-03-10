@@ -20,4 +20,24 @@ public static class RoleConstants
         Chef,
         Customer
      ];
+
+    public static Dictionary<string, IEnumerable<string>> DefaultPermissions => new()
+    {
+        { Admin, PermissionConstants.AvailablePermissions },
+        { Employee, PermissionConstants.AvailablePermissions },
+        {
+            Waiter,
+            [PermissionConstants.CanViewBookingsManagementView,
+                  PermissionConstants.CanAddBooking,
+                  PermissionConstants.CanEditBooking,
+                  PermissionConstants.CanCancelBooking,
+                  PermissionConstants.CanViewCustomerBookings,
+                  PermissionConstants.CanViewTablesManagementView]
+        },
+        {
+            Chef,
+            [PermissionConstants.CanViewCustomerBookings]
+        },
+        { Customer, [PermissionConstants.CanAddBooking, PermissionConstants.CanEditBooking, PermissionConstants.CanCancelBooking, PermissionConstants.CanViewBookingsHistory] }
+    };
 }
