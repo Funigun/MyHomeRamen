@@ -1,6 +1,6 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MyHomeRamen.Api.Common.Cache;
 
@@ -17,7 +17,23 @@ internal sealed class KeycloakAdminTokenHandler(
     {
         string accessToken = await GetOrFetchTokenAsync(cancellationToken);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        return await base.SendAsync(request, cancellationToken);
+
+        HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            // Cached token is stale — evict it and fetch a fresh one
+            await cacheService.RemoveAsync(
+                new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
+                cancellationToken);
+
+            accessToken = await GetOrFetchTokenAsync(cancellationToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            response = await base.SendAsync(request, cancellationToken);
+        }
+
+        return response;
     }
 
     private Task<string> GetOrFetchTokenAsync(CancellationToken cancellationToken) =>

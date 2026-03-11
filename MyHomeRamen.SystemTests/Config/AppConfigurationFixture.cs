@@ -12,6 +12,7 @@ public sealed class AppConfigurationFixture : IAsyncLifetime
 {
     public const string InfrastructurePrefix = "my-home-ramen";
     public const string IdentityApiResourceName = $"{InfrastructurePrefix}-identity-api";
+    public const string ConnectionString = "Server=.;Database=MyHomeRamenTest;Trusted_Connection=True;TrustServerCertificate=True";
 
     private static readonly string[] _configuration =
     [
@@ -19,9 +20,9 @@ public sealed class AppConfigurationFixture : IAsyncLifetime
         $"RestaurantConfiguration:InfrastructurePrefix={InfrastructurePrefix}",
     ];
 
-    public IDistributedApplicationTestingBuilder ApplicationBuilder { get; private set; }
+    public IDistributedApplicationTestingBuilder ApplicationBuilder { get; private set; } = default!;
 
-    public DistributedApplication Application { get; private set; }
+    public DistributedApplication Application { get; private set; } = default!;
 
     public async ValueTask InitializeAsync()
     {
