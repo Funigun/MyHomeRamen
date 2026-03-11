@@ -15,7 +15,7 @@ public static class KeycloakAdminExtensions
             // Aspire injects: services:my-home-ramen-key-cloak:http:0 = http://localhost:{dynamic-port}
             // Override BaseUrl so the admin token handler uses the correct dynamic endpoint
             string? dynamicUrl =
-                configuration["services:my-home-ramen-key-cloak:http:0"] ??
+                configuration["services:my-home-ramen-key-cloak:https:0"] ??
                 configuration.GetConnectionString("my-home-ramen-key-cloak") ??
                 configuration["Authorization:BaseUrl"];
 

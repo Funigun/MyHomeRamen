@@ -16,7 +16,7 @@
   <Folder Name="/Tests/">
     <Project Path="MyHomeRamen.ArchitectureTests/MyHomeRamen.ArchitectureTests.csproj" Id="81301af1-6544-4e3e-bb3e-342fe857e20e" />
     <Project Path="MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj" Id="81c45925-f5aa-4a1c-b28f-5882ed6bc05a" />
-    <Project Path="MyHomeRamen.System.Tests/MyHomeRamen.System.Tests.csproj" Id="a76b1b93-977c-4320-832e-f19e8fc4a220" />
+    <Project Path="MyHomeRamen.SystemTests/MyHomeRamen.SystemTests.csproj" />
     <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />
   </Folder>
   <Folder Name="/Web API/">

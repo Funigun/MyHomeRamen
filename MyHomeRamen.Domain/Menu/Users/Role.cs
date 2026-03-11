@@ -24,41 +24,21 @@ public sealed class Role : AuditableEntity, IEntity<RoleId>
         _permissions = permissions;
     }
 
-    public static Role CreateForSeed(RoleId id, string name)
+    public static Role CreateForSeed(RoleId id, string name, List<Permission> permissions)
     {
-        Role role = new(id, [])
+        return new(id, permissions)
         {
             Name = name,
             Description = name
         };
-
-        return role;
     }
 
-    public static Role CreateCustomerRole(RoleId id, List<Permission> permissions)
+    public static Role CreateEmployeeRole(RoleId roleId, List<Permission> validPermissions)
     {
-        return new(id, permissions)
-        {
-            Name = RoleConstants.Customer,
-            Description = "A customer"
-        };
-    }
-
-    public static Role CreateEmployeeRole(RoleId id, List<Permission> permissions)
-    {
-        return new(id, permissions)
+        return new Role(roleId, validPermissions)
         {
             Name = RoleConstants.Employee,
-            Description = "An employee"
-        };
-    }
-
-    public static Role CreateAdminRole(RoleId id, List<Permission> permissions)
-    {
-        return new(id, permissions)
-        {
-            Name = RoleConstants.Admin,
-            Description = "An admin"
+            Description = "Employee role with permissions to manage orders and view reports."
         };
     }
 }

@@ -27,6 +27,34 @@
 		</PackageReference>
 	</ItemGroup>
 
+	<!-- Aspire Hosting Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`AppHost`))'">
+		<PackageReference Include="Aspire.Hosting.AppHost" />
+		<PackageReference Include="Aspire.Hosting.Redis" />
+		<PackageReference Include="Aspire.Hosting.RabbitMQ" />
+		<PackageReference Include="Aspire.Hosting.Azure.Storage" />
+		<PackageReference Include="Aspire.Hosting.Keycloak" />
+		<PackageReference Include="Serilog" />
+	</ItemGroup>
+
+	<!-- Service Defaults Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`ServiceDefaults`))'">
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Quartz" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" />
+		<PackageReference Include="Aspire.StackExchange.Redis" />
+		<PackageReference Include="StackExchange.Redis" />
+		<PackageReference Include="Serilog" />
+	</ItemGroup>
+	
 	<!-- Web API Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Api`))'">
 		<PackageReference Include="Scalar.AspNetCore" />
@@ -42,6 +70,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
 		<PackageReference Include="Aspire.StackExchange.Redis" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+		<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
 	</ItemGroup>
 
 	<!-- Persistance Exclusive -->
@@ -49,10 +78,19 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+	</ItemGroup>
+	
+	<!-- Infrastructure Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Infrastructure`))'">
+		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+		<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
 	</ItemGroup>
 	
 	<!-- Blazor Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Blazor`))'">
+		<PackageReference Include="FluentValidation" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 		<PackageReference Include="MudBlazor" />
 		<PackageReference Include="MudBlazor.Markdown"/>
@@ -69,8 +107,8 @@
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly"/>
 	</ItemGroup>
 
-	<!-- Tests Exclusive -->
-	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Tests`))'">
+	<!-- Unit Tests Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`UnitTests`))'">
 		<PackageReference Include="coverlet.collector">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -82,12 +120,57 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="NetArchTest.Rules" />
-		<PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+	</ItemGroup>
+
+	<!-- Integration Tests exclusive-->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`IntegrationTests`))'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
 		<PackageReference Include="Testcontainers.Redis" />
 		<PackageReference Include="Respawn" />
+	</ItemGroup>
+	
+	<!-- Architecture Tests exclusive-->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`ArchitectureTests`))'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="NetArchTest.Rules" />
+		<PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+	</ItemGroup>
+
+	<!-- System Tests exclusive-->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`SystemTests`))'">
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="coverlet.collector">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="xunit.v3" />
+		<PackageReference Include="xunit.runner.visualstudio">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Aspire.Hosting.Testing" />
 	</ItemGroup>
 
 	<!-- Worker Exclusive -->

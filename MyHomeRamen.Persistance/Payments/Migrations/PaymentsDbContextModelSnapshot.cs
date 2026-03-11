@@ -18,7 +18,7 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("payments")
-                .HasAnnotation("ProductVersion", "10.0.1")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -251,7 +251,7 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("DefaultMethodId")
+                    b.Property<Guid?>("DefaultMethodId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -384,9 +384,7 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                 {
                     b.HasOne("MyHomeRamen.Domain.Payments.Payments.Payment", "DefaultMethod")
                         .WithMany()
-                        .HasForeignKey("DefaultMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DefaultMethodId");
 
                     b.Navigation("DefaultMethod");
                 });

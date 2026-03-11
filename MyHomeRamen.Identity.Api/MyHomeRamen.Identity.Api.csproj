@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
+    <ProjectReference Include="..\MyHomeRamen.Common.Contracts\MyHomeRamen.Common.Contracts.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Infrastructure\MyHomeRamen.Infrastructure.csproj" />

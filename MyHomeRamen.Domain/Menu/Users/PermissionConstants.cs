@@ -2,6 +2,8 @@
 
 public static class PermissionConstants
 {
+    public const string CanManageFavourites = "CanManageFavourites";
+
     public const string CanViewProductsManagementView = "CanViewProductsManagementView";
     public const string CanAddProduct = "CanAddProduct";
     public const string CanEditProduct = "CanEditProduct";
@@ -20,6 +22,7 @@ public static class PermissionConstants
 
     public static IEnumerable<string> AvailablePermissions =>
      [
+        CanManageFavourites,
         CanViewProductsManagementView,
         CanAddProduct,
         CanEditProduct,

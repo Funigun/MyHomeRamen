@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Cache;
 using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.Api.Common.Hateoas.Builder;
 using MyHomeRamen.Api.Common.Hateoas.Common;
 using MyHomeRamen.Api.Common.Middleware;
@@ -44,24 +43,6 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddCacheableQueries(this IServiceCollection services, Assembly assembly)
-    {
-        Type cacheableQueryType = typeof(ICachePolicy<,>);
-
-        List<Type>? types = assembly.GetExportedTypes()
-                                    .Where(t => t.GetInterfaces()
-                                                     .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == cacheableQueryType))
-                                    .ToList();
-
-        foreach (Type type in types)
-        {
-            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == cacheableQueryType);
-            services.AddScoped(interfaceType, type);
-        }
-
-        return services;
-    }
-
     public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly)
     {
         IEnumerable<Type> endpoints = assembly.GetTypes()
@@ -78,6 +59,36 @@ public static class DependencyInjection
         foreach (Type group in groups)
         {
             services.AddTransient(typeof(IGroupEndpoint), group);
+        }
+
+        return services;
+    }
+
+    public static IServiceCollection AddEndpointHandlers(this IServiceCollection services, Assembly assembly)
+    {
+        Type handler = typeof(IRequestHandler<>);
+        Type handlerType = typeof(IRequestHandler<,>);
+
+        List<Type>? types = assembly.GetExportedTypes()
+                                    .Where(t => t.GetInterfaces()
+                                                     .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handler))
+                                    .ToList();
+
+        foreach (Type type in types)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handler);
+            services.AddScoped(interfaceType, type);
+        }
+
+        types = assembly.GetExportedTypes()
+                        .Where(t => t.GetInterfaces()
+                                         .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerType))
+                        .ToList();
+
+        foreach (Type type in types)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerType);
+            services.AddScoped(interfaceType, type);
         }
 
         return services;

@@ -5,6 +5,7 @@ namespace MyHomeRamen.ArchitectureTests.Common;
 
 public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuilder) : IAsyncLifetime
 {
+    protected static readonly Assembly ApiContractsAssembly = typeof(MyHomeRamen.Common.Contracts.ICommonContractsAssemblyMarker).Assembly;
     protected static readonly Assembly ApiAssembly = typeof(MyHomeRamen.Api.IApiAssemblyMarker).Assembly;
     protected static readonly Assembly ApiCommonAssembly = typeof(MyHomeRamen.Api.Common.DependencyInjection).Assembly;
     protected static readonly Assembly AppHostAssembly = typeof(MyHomeRamen.AppHost.IAppHostAssemblyMarker).Assembly;
@@ -26,6 +27,7 @@ public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuild
     protected static readonly Assembly[] ProjectAssemblies =
     [
         ApiAssembly,
+        ApiContractsAssembly,
         ApiCommonAssembly,
         AppHostAssembly,
         BlazorClientAssembly,
@@ -46,13 +48,13 @@ public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuild
 
     protected Architecture Architecture { get; } = architectureBuilder.Architecture;
 
-    public ValueTask InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
-        throw new NotImplementedException();
+
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        throw new NotImplementedException();
+
     }
 }

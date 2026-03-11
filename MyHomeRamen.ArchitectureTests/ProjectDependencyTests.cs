@@ -11,14 +11,14 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         TheoryData<Assembly, Assembly[]> data = new()
         {
-            { BlazorServerAssembly, new[] { BlazorClientAssembly, ServiceDefaultsAssembly } },
+            { BlazorServerAssembly, new[] { BlazorClientAssembly, ServiceDefaultsAssembly, ApiContractsAssembly } },
             { AppHostAssembly, new[] { ApiAssembly, BlazorServerAssembly, ServiceDefaultsAssembly } },
-            { IdentityApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
-            { ApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
+            { IdentityApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly, ApiContractsAssembly } },
+            { ApiAssembly, new[] { ApiCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly, ApiContractsAssembly } },
             { InfrastructureAssembly, new[] { DomainAssembly, ApiCommonAssembly } },
             { PersistanceAssembly, new[] { DomainAssembly, ApiCommonAssembly } },
             { WorkerMailSenderAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
-            { WorkerMessagesHandlerAssembly, new[] { WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } },
+            { WorkerMessagesHandlerAssembly, new[] { ApiCommonAssembly, WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly, ApiContractsAssembly } },
             { WorkerDbInitializerAssembly, new[] { ApiCommonAssembly, WorkerCommonAssembly, DomainAssembly, InfrastructureAssembly, PersistanceAssembly, ServiceDefaultsAssembly } }
         };
         return data;
@@ -36,7 +36,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
                                                      .All(a => allowedDependencies.Any(allowed => allowed.FullName == a.FullName));
 
         // Assert
-        Assert.True(hasOnlyAllowedDependencies, $"{projectAssembly.GetName().Name} should not have project dependencies other than {string.Join(",", allowedDependencies.Select(d => d.GetName()))}");
+        Assert.True(hasOnlyAllowedDependencies, $"{projectAssembly.GetName().Name} should not have project dependencies other than {string.Join("\n", allowedDependencies.Select(d => d.GetName()))}");
     }
 
     [Fact]

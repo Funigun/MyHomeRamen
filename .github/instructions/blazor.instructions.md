@@ -30,6 +30,7 @@ applyTo: '**/*.razor, **/*.razor.cs, **/*.razor.css'
 - Implement proper error handling for Blazor pages and API calls.
 - Use logging for error tracking in the backend and consider capturing UI-level errors in Blazor with tools like ErrorBoundary.
 - Implement validation using FluentValidation or DataAnnotations in forms.
+- Model validator should be built out of validators for pimitive types located in `MyHomeRamen.Common.Contracts` project - single point for both API and Blazor simple validation.
 
 ## Blazor API and Performance Optimization
 

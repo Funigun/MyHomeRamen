@@ -1,6 +1,6 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MyHomeRamen.Api.Common.Cache;
 
@@ -17,7 +17,23 @@ internal sealed class KeycloakAdminTokenHandler(
     {
         string accessToken = await GetOrFetchTokenAsync(cancellationToken);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        return await base.SendAsync(request, cancellationToken);
+
+        HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
+
+        // Retry to get access token in case when Keycloak was restared and the cached token is no longer valid
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            await cacheService.RemoveAsync(
+                new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
+                cancellationToken);
+
+            accessToken = await GetOrFetchTokenAsync(cancellationToken);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            response = await base.SendAsync(request, cancellationToken);
+        }
+
+        return response;
     }
 
     private Task<string> GetOrFetchTokenAsync(CancellationToken cancellationToken) =>
@@ -28,7 +44,6 @@ internal sealed class KeycloakAdminTokenHandler(
 
     private async ValueTask<string> FetchTokenFromKeycloakAsync(CancellationToken cancellationToken)
     {
-        // Uses a plain HttpClient (not the typed one) to avoid circular dependency
         using HttpClient client = httpClientFactory.CreateClient();
         string tokenUrl = $"{_adminOptions.BaseUrl}/realms/{_adminOptions.Realm}/protocol/openid-connect/token";
 
