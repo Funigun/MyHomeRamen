@@ -14,7 +14,8 @@ public sealed class RegisterEndpoint : IEndpoint
     {
         endpointBuilder.MapStandardValidatedPost<RegisterRequest, RegisterRequest>("/sign-up", Handler)
                        .WithName("RegisterEndpoint")
-                       .WithDescription("Handles user registration");
+                       .WithDescription("Handles user registration")
+                       .AllowAnonymous();
     }
 
     private static async Task<Results<Ok, BadRequest>> Handler(RegisterRequest request, [FromServices] IRequestHandler<RegisterRequest> handler, CancellationToken cancellationToken)

@@ -1,4 +1,3 @@
-using MyHomeRamen.Domain.Common.Basket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;

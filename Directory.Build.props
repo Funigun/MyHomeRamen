@@ -27,6 +27,34 @@
 		</PackageReference>
 	</ItemGroup>
 
+	<!-- Aspire Hosting Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`AppHost`))'">
+		<PackageReference Include="Aspire.Hosting.AppHost" />
+		<PackageReference Include="Aspire.Hosting.Redis" />
+		<PackageReference Include="Aspire.Hosting.RabbitMQ" />
+		<PackageReference Include="Aspire.Hosting.Azure.Storage" />
+		<PackageReference Include="Aspire.Hosting.Keycloak" />
+		<PackageReference Include="Serilog" />
+	</ItemGroup>
+
+	<!-- Service Defaults Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`ServiceDefaults`))'">
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Quartz" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" />
+		<PackageReference Include="Aspire.StackExchange.Redis" />
+		<PackageReference Include="StackExchange.Redis" />
+		<PackageReference Include="Serilog" />
+	</ItemGroup>
+	
 	<!-- Web API Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Api`))'">
 		<PackageReference Include="Scalar.AspNetCore" />
@@ -50,6 +78,14 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+	</ItemGroup>
+	
+	<!-- Infrastructure Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Infrastructure`))'">
+		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+		<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
 	</ItemGroup>
 	
 	<!-- Blazor Exclusive -->
