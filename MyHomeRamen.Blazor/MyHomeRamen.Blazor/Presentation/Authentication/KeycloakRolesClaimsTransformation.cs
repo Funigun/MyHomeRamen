@@ -22,6 +22,7 @@ internal sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
                 foreach (JsonElement role in roles.EnumerateArray())
                 {
                     string? roleValue = role.GetString();
+
                     if (!string.IsNullOrEmpty(roleValue) && !identity.HasClaim(ClaimTypes.Role, roleValue))
                     {
                         identity.AddClaim(new Claim(ClaimTypes.Role, roleValue));
@@ -41,6 +42,7 @@ internal sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
                     foreach (JsonElement role in clientRoles.EnumerateArray())
                     {
                         string? roleValue = role.GetString();
+
                         if (!string.IsNullOrEmpty(roleValue) && !identity.HasClaim(ClaimTypes.Role, roleValue))
                         {
                             identity.AddClaim(new Claim(ClaimTypes.Role, roleValue));

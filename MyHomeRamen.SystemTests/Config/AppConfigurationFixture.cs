@@ -12,7 +12,7 @@ public sealed class AppConfigurationFixture : IAsyncLifetime
 {
     public const string InfrastructurePrefix = "my-home-ramen";
     public const string IdentityApiResourceName = $"{InfrastructurePrefix}-identity-api";
-    public const string ConnectionString = "Server=.;Database=MyHomeRamenTest;Trusted_Connection=True;TrustServerCertificate=True";
+    public const string ConnectionString = "<TO_BE_UPDATED>";
 
     private static readonly string[] _configuration =
     [

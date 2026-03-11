@@ -20,9 +20,9 @@ internal sealed class KeycloakAdminTokenHandler(
 
         HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
 
+        // Retry to get access token in case when Keycloak was restared and the cached token is no longer valid
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            // Cached token is stale — evict it and fetch a fresh one
             await cacheService.RemoveAsync(
                 new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
                 cancellationToken);
@@ -44,7 +44,6 @@ internal sealed class KeycloakAdminTokenHandler(
 
     private async ValueTask<string> FetchTokenFromKeycloakAsync(CancellationToken cancellationToken)
     {
-        // Uses a plain HttpClient (not the typed one) to avoid circular dependency
         using HttpClient client = httpClientFactory.CreateClient();
         string tokenUrl = $"{_adminOptions.BaseUrl}/realms/{_adminOptions.Realm}/protocol/openid-connect/token";
 

@@ -3,5 +3,5 @@
 public enum LayoutType
 {
     AppBarNavMenu = 0,
-    DraverNavMenu = 1
+    DrawerNavMenu = 1
 }
