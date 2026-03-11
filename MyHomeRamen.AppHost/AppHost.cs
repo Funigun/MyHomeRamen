@@ -11,6 +11,13 @@ IResourceBuilder<RabbitMQServerResource> rabbitmq = builder.ConfigureRabbitMq(co
 IResourceBuilder<KeycloakResource> keyCloak = builder.ConfigureKeyCloak(config);
 
 IResourceBuilder<ProjectResource> dbMigrator = builder.AddDbinitializer(config);
+IResourceBuilder<ProjectResource> messagesHandler = builder.AddMessagesHandlerWorker(config)
+                                                          .WithReference(rabbitmq)
+                                                          .WaitFor(rabbitmq);
+
+IResourceBuilder<ProjectResource> mailingWorker = builder.AddMailingWorker(config)
+                                                         .WithReference(rabbitmq)
+                                                         .WaitFor(rabbitmq);
 
 IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
                                                               .WithReference(rabbitmq)
@@ -19,21 +26,28 @@ IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiSer
                                                               .WaitFor(rabbitmq)
                                                               .WaitFor(cache)
                                                               .WaitFor(keyCloak)
-                                                              .WaitFor(dbMigrator);
+                                                              .WaitFor(dbMigrator)
+                                                              .WaitFor(messagesHandler);
 
 IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
-                                                      .WithReference(identityApiService)
-                                                      .WaitFor(identityApiService);
+                                                      .WithReference(rabbitmq)
+                                                      .WithReference(cache)
+                                                      .WithReference(keyCloak)
+                                                      .WaitFor(rabbitmq)
+                                                      .WaitFor(cache)
+                                                      .WaitFor(dbMigrator)
+                                                      .WaitFor(messagesHandler);
 
 IResourceBuilder<ProjectResource> blazor = builder.AddBlazor(config)
                                                   .WithReference(identityApiService)
                                                   .WithReference(apiService)
                                                   .WithReference(keyCloak)
+                                                  .WaitFor(identityApiService)
                                                   .WaitFor(apiService)
+                                                  .WaitFor(keyCloak)
                                                   .WithExplicitStart();
 
 identityApiService.WithReference(blazor);
-
-builder.AddWorkers(config, apiService);
+apiService.WithReference(blazor);
 
 await builder.Build().RunAsync();

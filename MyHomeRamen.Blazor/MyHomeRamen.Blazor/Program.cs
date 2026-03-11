@@ -1,4 +1,5 @@
 using MudBlazor.Services;
+using MyHomeRamen.Blazor.Common.Configuration;
 using MyHomeRamen.Blazor.Components;
 using MyHomeRamen.Blazor.Presentation;
 using Serilog;
@@ -18,6 +19,7 @@ try
     builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                          .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
+    builder.Services.AddScoped<RestaurantConfiguration>();
     string infrastructurePrefix = builder.Configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
 
     builder.AddBlazorServiceDefaults($"{infrastructurePrefix}-blazor");

@@ -49,7 +49,16 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
     {
-        return await Database.EnsureCreatedAsync(cancellationToken);
+        IRelationalDatabaseCreator? dbCreator = Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
+
+        bool dbExists = dbCreator != null && await dbCreator.ExistsAsync(cancellationToken);
+
+        if (!dbExists)
+        {
+            await dbCreator!.CreateAsync(cancellationToken);
+        }
+
+        return dbExists;
     }
 
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
@@ -76,32 +85,33 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
         IEnumerable<string> roles = RoleConstants.AvailableRoles;
         IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
 
-        HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
-        HashSet<string> existingPermissions = await Permissions.AsNoTracking().Select(permission => permission.Name).ToHashSetAsync(cancellationToken);
+        HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
-        IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed(new RoleId(Guid.NewGuid()), role))
-                                            .ToList();
-
-        IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions)
+        IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
                                                               .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
-        bool anyRolesToAdd = rolesToAdd.Any();
-        bool anyPermissionsToAdd = permissionsToAdd.Any();
-
-        if (anyRolesToAdd || anyPermissionsToAdd)
+        if (permissionsToAdd.Any())
         {
-            if (anyRolesToAdd)
-            {
-                await Roles.AddRangeAsync(rolesToAdd, cancellationToken);
-            }
+            await Permissions.AddRangeAsync(permissionsToAdd, cancellationToken);
+            await SaveChangesAsync(cancellationToken);
+        }
 
-            if (anyPermissionsToAdd)
-            {
-                await Permissions.AddRangeAsync(permissionsToAdd, cancellationToken);
-            }
+        existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
+        HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
+        IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
+                                            .Select(role => Role.CreateForSeed
+                                                        (
+                                                            new RoleId(Guid.NewGuid()), 
+                                                            role,
+                                                            existingPermissions.Where(p => RoleConstants.DefaultPermissions[role].Contains(p.Name))
+                                                                               .ToList()
+                                                        )
+                                                   );
 
+        if (rolesToAdd.Any())
+        {
+            await Roles.AddRangeAsync(rolesToAdd, cancellationToken);
             await SaveChangesAsync(cancellationToken);
         }
     }

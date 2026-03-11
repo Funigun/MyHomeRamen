@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Client;
 using MyHomeRamen.AppHost.Configurations.Common;
 
 namespace MyHomeRamen.AppHost.InfrastructureConfiguration;
@@ -27,6 +28,9 @@ internal static class ProjectRegistrationExtensions
         return builder.AddProject<Projects.MyHomeRamen_Api>($"{applicationName}-api")
                       .WithModulesAccess(requiredModules, configuration)
                       .WithRestaurantConfig(configuration)
+                      .WithEnvironment(RealmKey, configuration[RealmKey])
+                      .WithEnvironment(AudienceKey, configuration[AudienceKey])
+                      .WithEnvironment(AuthBaseUrlKey, configuration[AuthBaseUrlKey])
                       .WithHttpHealthCheck("/health");
     }
 
@@ -81,20 +85,30 @@ internal static class ProjectRegistrationExtensions
                       .WithUsersConfiguration(requiredModules, configuration);
     }
 
-    public static void AddWorkers(this IDistributedApplicationBuilder builder, IConfiguration configuration, IResourceBuilder<ProjectResource> apiService)
+    public static IResourceBuilder<ProjectResource> AddMessagesHandlerWorker(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
         string applicationName = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
 
-        builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>($"{applicationName}-mailing-worker")
-               .WithReference(apiService)
-               .WaitFor(apiService)
-               .WithRestaurantConfig(configuration)
-               .WithExplicitStart();
+        IEnumerable<string> requiredModules = [
+            ConfigurationConstants.MenuModuleName,
+            ConfigurationConstants.ReservationModuleName,
+            ConfigurationConstants.OrderModuleName,
+            ConfigurationConstants.ShoppingCartModuleName,
+            ConfigurationConstants.PaymentModuleName,
+            ConfigurationConstants.IdentityModuleName
+        ];
 
-        builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{applicationName}-messages-worker")
-               .WithReference(apiService)
-               .WaitFor(apiService)
-               .WithRestaurantConfig(configuration)
-               .WithExplicitStart();
+        return builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{applicationName}-messages-worker")
+                      .WithRestaurantConfig(configuration)
+                      .WithModulesAccess(requiredModules, configuration);
+    }
+
+    public static IResourceBuilder<ProjectResource> AddMailingWorker(this IDistributedApplicationBuilder builder, IConfiguration configuration)
+    {
+        string applicationName = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
+
+        return builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>($"{applicationName}-mailing-worker")
+                      .WithRestaurantConfig(configuration)
+                      .WithExplicitStart();
     }
 }

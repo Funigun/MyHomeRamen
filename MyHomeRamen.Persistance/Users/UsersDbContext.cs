@@ -1,6 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.Configuration;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Domain.Users;
@@ -9,14 +12,14 @@ using MyHomeRamen.Persistance.Common.GuidConvention;
 
 namespace MyHomeRamen.Persistance.Users;
 
-public class UsersDbContext(DbContextOptions<UsersDbContext> options) : IdentityDbContext<User, Role, Guid>(options), IUsersDbContext
+public class UsersDbContext : IdentityDbContext<User, Role, Guid>, IUsersDbContext
 {
-    private readonly RestaurantConfigurationProvider _restaurantConfiguration = default!;
-    private readonly ICurrentUser _currentUser = default!;
+    private readonly RestaurantConfigurationProvider _restaurantConfiguration;
+    private readonly ICurrentUser _currentUser;
 
     public DbSet<Address> Addresses { get; set; } = default!;
 
-    public UsersDbContext(DbContextOptions<UsersDbContext> options, RestaurantConfigurationProvider configFactory, ICurrentUser currentUser) : this(options)
+    public UsersDbContext(DbContextOptions<UsersDbContext> options, RestaurantConfigurationProvider configFactory, ICurrentUser currentUser) : base(options)
     {
         _restaurantConfiguration = configFactory;
         _currentUser = currentUser;
@@ -35,7 +38,7 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : Identity
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.SetRestaurantId(_currentUser.RestaurantId);
+                    entry.Entity.SetRestaurantId(_restaurantConfiguration.RestaurantId);
                     break;
             }
         }
@@ -45,7 +48,7 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : Identity
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.SetRestaurantId(_currentUser.RestaurantId);
+                    entry.Entity.SetRestaurantId(_restaurantConfiguration.RestaurantId);
                     break;
             }
         }
@@ -53,6 +56,8 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : Identity
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
+        base.OnModelCreating(builder);
+
         builder.HasDefaultSchema("identity");
 
         builder.Entity<User>(b =>
@@ -77,7 +82,12 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : Identity
              .UsingEntity("UserAddresses");
         });
 
-        base.OnModelCreating(builder);
+        builder.Entity<Role>().ToTable("Roles");
+        builder.Entity<IdentityUserRole<Guid>>().ToTable("UserRoles");
+        builder.Entity<IdentityUserClaim<Guid>>().ToTable("UserClaims");
+        builder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins");
+        builder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens");
+        builder.Entity<IdentityRoleClaim<Guid>>().ToTable("RoleClaims");
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -104,7 +114,16 @@ public class UsersDbContext(DbContextOptions<UsersDbContext> options) : Identity
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
     {
-        return await Database.EnsureCreatedAsync(cancellationToken);
+        IRelationalDatabaseCreator? dbCreator = Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
+
+        bool dbExists = dbCreator != null && await dbCreator.ExistsAsync(cancellationToken);
+
+        if (!dbExists)
+        {
+            await dbCreator!.CreateAsync(cancellationToken);
+        }
+
+        return dbExists;
     }
 
     public async Task Migrate(CancellationToken cancellationToken)

@@ -19,7 +19,7 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 
     public string PhoneNumber { get; private set; }
 
-    public Payment DefaultMethod { get; private set; }
+    public Payment? DefaultMethod { get; private set; }
 
     public ICollection<Payment> Payments => _payments.ToList();
 
@@ -31,7 +31,7 @@ public sealed class User : AuditableEntity, IEntity<UserId>
     {
     }
 
-    private User(UserId id, Payment defaultMethod, List<Role> roles, List<Permission> permissions)
+    private User(UserId id, Payment? defaultMethod, List<Role> roles, List<Permission> permissions)
     {
         Id = id;
         DefaultMethod = defaultMethod;
@@ -39,7 +39,7 @@ public sealed class User : AuditableEntity, IEntity<UserId>
         _permissions = permissions;
     }
 
-    public static User Create(UserId id, string firstName, string lastName, string email, string phoneNumber, Payment defaultMethod, List<Role> roles, List<Permission> permissions)
+    public static User Create(UserId id, string firstName, string lastName, string email, string phoneNumber, Payment? defaultMethod, List<Role> roles, List<Permission> permissions)
     {
         User user = new(id, defaultMethod, roles, permissions)
         {

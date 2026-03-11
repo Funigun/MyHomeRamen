@@ -20,4 +20,20 @@ public static class RoleConstants
         Chef,
         Customer
      ];
+
+    public static Dictionary<string, IEnumerable<string>> DefaultPermissions => new()
+    {
+        { Admin, PermissionConstants.AvailablePermissions },
+        { Employee, PermissionConstants.AvailablePermissions },
+        {
+            Waiter,
+            [PermissionConstants.CanViewPayments,
+                  PermissionConstants.CanPay]
+        },
+        {
+            Chef,
+            [PermissionConstants.CanViewPayments]
+        },
+        { Customer, [PermissionConstants.CanPay, PermissionConstants.CanViewPayments] }
+    };
 }

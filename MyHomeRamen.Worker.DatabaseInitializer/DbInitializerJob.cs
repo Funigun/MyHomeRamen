@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Menu.Database;
@@ -33,13 +34,10 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
             { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) }
         };
 
-        Guid restaurantId = Guid.Parse(configuration["RestaurantConfiguration:RestaurantId"]!);
-        bool newDatabaseCreated = await userContext.EnsureCreated(cancellationToken);
-        string databaseCreationComment = newDatabaseCreated ? "Database created successfully." : "Database already exists.";
-        logger.LogInformation("{Comment}", databaseCreationComment);
-
         foreach (IBaseDbContext dbContext in dbContexts.Keys)
         {
+            bool dbExists = await dbContext.EnsureCreated(cancellationToken);
+
             DatabaseUserConfig userConfig = dbContexts[dbContext];
 
             await dbContext.ExecuteSql(
@@ -51,9 +49,9 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
                                        cancellationToken);
 
             await dbContext.Migrate(cancellationToken);
-            await dbContext.Seed(restaurantId, cancellationToken);
+            await dbContext.Seed(Guid.Empty, cancellationToken);
 
-            if (newDatabaseCreated)
+            if (!dbExists)
             {
                 await dbContext.ExecuteSql(CreateRawSql($"CREATE LOGIN {userConfig.User} with PASSWORD = '{userConfig.Password}';"), cancellationToken);
                 await dbContext.ExecuteSql(CreateRawSql($"CREATE USER {userConfig.User} FOR LOGIN {userConfig.User};"), cancellationToken);
