@@ -50,3 +50,45 @@ Unit tests (`MyHomeRamen.Tests.Unit`) focus on domain models and simple services
 |		-- IngredientEventsTests.cs
 |	-- Products
 |	-- Categories
+
+## Domain Validation Tests
+
+Domain validation tests verify that domain model factory methods (e.g., `Product.Create(...)`) enforce business rules by throwing `DomainException` on invalid input.
+
+### Conventions
+- One test class per domain model, named `{Model}ValidationTests` (e.g., `ProductValidationTests`).
+- Use a private helper factory method (e.g., `CreateProduct(...)`) with optional named parameters and sensible valid defaults so each test only sets the value under test.
+- Valid defaults must satisfy all domain constraints so that only the property under test is the failure trigger.
+- Each test covers one invalid case and asserts:
+  - `Assert.Throws<DomainException>(() => ...)` is thrown.
+  - The exception message matches the corresponding `{Model}Errors.*().Message` constant.
+- The happy path test (`Create_Should_SetPropertiesCorrectly_When_InputIsValid`) verifies all properties are set correctly.
+
+### Naming pattern
+`Create_Should_ThrowDomainException_When_{Reason}` (e.g., `Create_Should_ThrowDomainException_When_NameIsTooShort`)
+
+### What to cover
+- Every min/max boundary for string lengths, numeric ranges, and collections.
+- Uniqueness constraints within collections (e.g., duplicate ingredients, duplicate categories).
+- Type/enum constraints on related entities (e.g., a `CategoryType.Ingredient` category is invalid for a product).
+
+## API Validator Tests
+
+API validator tests verify that FluentValidation validators in `MyHomeRamen.Common.Contracts` enforce contract-level rules correctly.
+
+### Conventions
+- One test class per validator, named `{Model}ValidatorsTests` (e.g., `ProductValidatorsTests`).
+- Instantiate the validator directly — no mocking required.
+- Call `validator.Validate(value)` and assert on the returned `ValidationResult`.
+- For failure cases assert `result.IsValid == false` and that `result.Errors` contains an error matching the expected message fragment.
+- For success cases assert `result.IsValid == true`.
+- Add a consistency test that verifies each validator constant (e.g., `MaxLength`, `MinLength`, `MinPrice`) matches the corresponding `ProductConstants` value to keep contract and domain in sync.
+
+### Naming pattern
+`{ValidatorName}_Should_{Pass|Fail}_When_{Reason}` (e.g., `ProductNameValidator_Should_Fail_When_NameIsEmpty`)
+
+### What to cover
+- Empty / null input.
+- Each boundary violation (too short, too long, too low, too high).
+- A valid value (happy path).
+- A constant-consistency test per exported constant (e.g., `ProductNameValidator_Should_HaveSameMaxLengthAsDomain`).

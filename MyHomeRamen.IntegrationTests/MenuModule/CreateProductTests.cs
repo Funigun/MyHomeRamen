@@ -1,9 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace MyHomeRamen.IntegrationTests.MenuModule;
 
-namespace MyHomeRamen.IntegrationTests.MenuModule;
-
-internal class CreateProductTests
+public sealed class CreateProductTests
 {
+
+    [Fact]
+    public async Task CreateProduct_ShouldReturnLocationHeader_ForValidRequest()
+    {
+        throw new NotImplementedException();
+    }
+
+    [Fact]
+    public async Task CreateProduct_ShouldReturnNotAuthorized_ForNotAuthenticatedUser()
+    {
+        throw new NotImplementedException();
+    }
+
+    [Fact]
+    public async Task CreateProduct_ShouldReturnForbidden_ForNonAdminUser()
+    {
+        throw new NotImplementedException();
+    }
+
+    [Fact]
+    public async Task CreateProduct_ShouldReturnBadRequest_ForInvalidRequest()
+    {
+        throw new NotImplementedException();
+    }
 }

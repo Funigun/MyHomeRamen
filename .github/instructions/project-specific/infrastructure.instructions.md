@@ -32,9 +32,13 @@ Infrastructure (`MyHomeRamen.Infrastructure`) project provides services for emai
   - `KeycloakAdminTokenCachePolicy`: Defines caching policies for admin tokens to optimize performance and reduce API calls.
   - DTOs (`KeycloakUserDto`, `KeycloakRoleDto`, etc.): Data transfer objects for exchanging data with Keycloak.
   - Dependencies: Relies on `ICacheService` for caching mechanisms and `HttpClient` for API communication.
-	
+
 ### Messaging Service
-<< TO DO >>
+- Interface: `IMessagesService`
+- **Purpose**: Provides an abstraction over application-wide asynchronous messaging (currently wrapping RabbitMQ) to allow components to publish and consume messages/events without knowing the underlying broker's concrete details, such as queue or exchange names.
+- **Guidelines**: 
+  - Contracts (events, commands, messages) must be defined in the `MyHomeRamen.Common.Contracts` project so that publishers (like APIs) and consumers (like Background Workers or Blazor) can easily reuse them.
+  - Implementation handles resource lifetimes (e.g., Channels), serialization of the shared contracts, and message acknowledgements. 
 
 ### Mailing Service
 << TO DO >>

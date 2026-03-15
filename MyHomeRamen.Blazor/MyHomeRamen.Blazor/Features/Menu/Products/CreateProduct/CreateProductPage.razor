@@ -1,0 +1,31 @@
+@page "/menu/products/create"
+@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+
+@using Microsoft.AspNetCore.Authorization
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Products.Components
+
+<PageTitle>Create Product</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Create New Product</MudText>
+    <ProductForm Mode="FormMode.Create"
+                 Categories="_categories"
+                 Ingredients="_ingredients"
+                 OnSuccess="HandleSuccess" />
+</MudPaper>
+
+@code {
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+
+    // TODO: Load from MenuApiClient once GetCategories / GetIngredients endpoints exist
+    private IEnumerable<CategoryOption> _categories = [];
+    private IEnumerable<IngredientOption> _ingredients = [];
+
+    private void HandleSuccess(Guid productId)
+    {
+        Navigation.NavigateTo($"/menu/products/{productId}");
+    }
+}

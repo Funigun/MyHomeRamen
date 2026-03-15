@@ -13,6 +13,9 @@ Integration Tests (`MyHomeRamen.Tests.Integration`) focus on bounded component t
 - Use mocked/stubbed external boundaries (e.g., mock RabbitMQ publishers or Keycloak APIs) to avoid massive testing configurations.
 - Reset database state between tests (using tools like Respawn or EF Core transaction rollbacks) to ensure test isolation.
 - Focus on testing vertical slices within a single module.
+- Test should follow the Arrange-Act-Assert pattern and be self-contained, ensuring they can run independently of each other.
+- Test should follow naming convention in format `MethodName_ExpectedBehavior_StateUnderTest` (e.g., `CreateProductEndpoint_ShouldReturnCreated_ForValidRequest`).
+
 
 ## Tools
 - `WebApplicationFactory`

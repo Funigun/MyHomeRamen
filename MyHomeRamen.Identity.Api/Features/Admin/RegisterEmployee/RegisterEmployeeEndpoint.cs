@@ -9,6 +9,7 @@ using MyHomeRamen.Identity.Api.Features.Account.Register.Models;
 using MyHomeRamen.Identity.Api.Features.Admin.RegisterEmployee.Models;
 using MyHomeRamen.Identity.Api.Presentation;
 using MyHomeRamen.Infrastructure.Keycloak;
+using MyHomeRamen.Infrastructure.Keycloak.Constants;
 using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Identity.Api.Features.Admin.RegisterEmployee;
@@ -33,7 +34,7 @@ public sealed class RegisterEmployeeEndpoint : IEndpoint
     {
         KeycloakUserDto keycloakUser = request.ToUserDto();
 
-        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Employee, cancellationToken);
+        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, KeycloakRoleConstants.Employee, cancellationToken);
 
         User user = User.Create(
             keycloakUserId,
