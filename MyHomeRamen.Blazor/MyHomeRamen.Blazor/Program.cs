@@ -2,6 +2,7 @@ using MudBlazor.Services;
 using MyHomeRamen.Blazor.Common.Configuration;
 using MyHomeRamen.Blazor.Components;
 using MyHomeRamen.Blazor.Presentation;
+using MyHomeRamen.ServiceDefaults;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -20,9 +21,10 @@ try
                          .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
     builder.Services.AddScoped<RestaurantConfiguration>();
+    builder.Services.AddScoped<ThemeProviderService>();
     string infrastructurePrefix = builder.Configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
 
-    builder.AddBlazorServiceDefaults($"{infrastructurePrefix}-blazor");
+    builder.AddBlazorServiceDefaults(ServiceNames.Blazor(infrastructurePrefix));
 
     builder.Services.AddRazorComponents()
                     .AddInteractiveServerComponents()

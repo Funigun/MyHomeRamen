@@ -2,7 +2,6 @@
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 using MyHomeRamen.SystemTests.Config;
-using static System.Net.Mime.MediaTypeNames;
 
 [assembly: AssemblyFixture(typeof(AppConfigurationFixture))]
 

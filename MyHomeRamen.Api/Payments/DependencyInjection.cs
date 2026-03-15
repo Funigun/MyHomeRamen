@@ -5,7 +5,7 @@ namespace MyHomeRamen.Api.Payments;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddPaymentsModule(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddPaymentsModule(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddPaymentsPersistance(configurationProvider);
         return services;

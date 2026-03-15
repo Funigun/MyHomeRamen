@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.User;
 using MyHomeRamen.Domain.Payments.Payments;
 using MyHomeRamen.Domain.Payments.Users;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.PaymentsModule.Users;
 

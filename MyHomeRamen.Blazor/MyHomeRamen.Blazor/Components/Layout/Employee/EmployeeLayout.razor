@@ -4,8 +4,9 @@
 
 @inject RestaurantConfiguration RestaurantConfiguration
 @inject AuthenticationStateProvider AuthStateProvider
+@inject ThemeProviderService ThemeProvider
 
-<MudThemeProvider />
+<MudThemeProvider Theme="_theme" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -31,4 +32,7 @@
 </MudLayout>
 
 @code {
+    private MudTheme _theme = default!;
+
+    protected override void OnInitialized() => _theme = ThemeProvider.GetTheme();
 }

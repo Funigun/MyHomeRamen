@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Client;
 using MyHomeRamen.AppHost.Configurations.Common;
 
 namespace MyHomeRamen.AppHost.InfrastructureConfiguration;
@@ -15,7 +14,7 @@ internal static class ProjectRegistrationExtensions
 
     public static IResourceBuilder<ProjectResource> AddApiService(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        string applicationName = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
 
         IEnumerable<string> requiredModules = [
             ConfigurationConstants.MenuModuleName,
@@ -25,7 +24,7 @@ internal static class ProjectRegistrationExtensions
             ConfigurationConstants.PaymentModuleName
         ];
 
-        return builder.AddProject<Projects.MyHomeRamen_Api>($"{applicationName}-api")
+        return builder.AddProject<Projects.MyHomeRamen_Api>(ServiceNames.Api(prefix))
                       .WithModulesAccess(requiredModules, configuration)
                       .WithRestaurantConfig(configuration)
                       .WithEnvironment(RealmKey, configuration[RealmKey])
@@ -36,13 +35,13 @@ internal static class ProjectRegistrationExtensions
 
     public static IResourceBuilder<ProjectResource> AddIdentityApiService(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        string applicationName = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
 
         IEnumerable<string> requiredModules = [
             ConfigurationConstants.IdentityModuleName
         ];
 
-        return builder.AddProject<Projects.MyHomeRamen_Identity_Api>($"{applicationName}-identity-api")
+        return builder.AddProject<Projects.MyHomeRamen_Identity_Api>(ServiceNames.IdentityApi(prefix))
                       .WithModulesAccess(requiredModules, configuration)
                       .WithRestaurantConfig(configuration)
                       .WithEnvironment(RealmKey, configuration[RealmKey])
@@ -55,9 +54,9 @@ internal static class ProjectRegistrationExtensions
 
     public static IResourceBuilder<ProjectResource> AddBlazor(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        string applicationName = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
 
-        return builder.AddProject<Projects.MyHomeRamen_Blazor>($"{applicationName}-blazor")
+        return builder.AddProject<Projects.MyHomeRamen_Blazor>(ServiceNames.Blazor(prefix))
                       .WithExternalHttpEndpoints()
                       .WithRestaurantConfig(configuration)
                       .WithEnvironment("Authentication:Blazor:ClientId", configuration["Authentication:Blazor:ClientId"])
@@ -68,7 +67,7 @@ internal static class ProjectRegistrationExtensions
 
     public static IResourceBuilder<ProjectResource> AddDbinitializer(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        string applicationName = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
 
         IEnumerable<string> requiredModules = [
             ConfigurationConstants.MenuModuleName,
@@ -79,7 +78,7 @@ internal static class ProjectRegistrationExtensions
             ConfigurationConstants.IdentityModuleName
         ];
 
-        return builder.AddProject<Projects.MyHomeRamen_Worker_DatabaseInitializer>($"{applicationName}-db-initializer")
+        return builder.AddProject<Projects.MyHomeRamen_Worker_DatabaseInitializer>(ServiceNames.DbInitializerWorker(prefix))
                       .WithModulesAccess(requiredModules, configuration)
                       .WithRestaurantConfig(configuration)
                       .WithUsersConfiguration(requiredModules, configuration);
@@ -87,7 +86,7 @@ internal static class ProjectRegistrationExtensions
 
     public static IResourceBuilder<ProjectResource> AddMessagesHandlerWorker(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        string applicationName = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
 
         IEnumerable<string> requiredModules = [
             ConfigurationConstants.MenuModuleName,
@@ -98,16 +97,16 @@ internal static class ProjectRegistrationExtensions
             ConfigurationConstants.IdentityModuleName
         ];
 
-        return builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>($"{applicationName}-messages-worker")
+        return builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>(ServiceNames.MessagesWorker(prefix))
                       .WithRestaurantConfig(configuration)
                       .WithModulesAccess(requiredModules, configuration);
     }
 
     public static IResourceBuilder<ProjectResource> AddMailingWorker(this IDistributedApplicationBuilder builder, IConfiguration configuration)
     {
-        string applicationName = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
 
-        return builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>($"{applicationName}-mailing-worker")
+        return builder.AddProject<Projects.MyHomeRamen_Worker_MailSender>(ServiceNames.MailingWorker(prefix))
                       .WithRestaurantConfig(configuration)
                       .WithExplicitStart();
     }

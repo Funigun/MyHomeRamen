@@ -10,6 +10,7 @@ using MyHomeRamen.Api.ShoppingCart;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Infrastructure.Messaging;
+using MyHomeRamen.ServiceDefaults;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
@@ -29,19 +30,21 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 try
 {
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
+    builder.Services.AddScoped<DatabaseConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
+    DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
     builder.Services.AddCors(options =>
     {
         options.AddDefaultPolicy(policy =>
         {
-            policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
+            policy.WithOrigins(ServiceNames.Blazor(configurationProvider.InfrastructurePrefix))
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
     });
 
-    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-api");
+    builder.AddApiServiceDefaults(ServiceNames.Api(configurationProvider.InfrastructurePrefix));
     builder.Services.AddSerilog();
 
     builder.Services.AddOpenApi("v1", options =>
@@ -57,19 +60,19 @@ try
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.AddMenuModule(configurationProvider);
-    builder.Services.AddShoppingCartModule(configurationProvider);
-    builder.Services.AddOrdersModule(configurationProvider);
-    builder.Services.AddReservationsModule(configurationProvider);
-    builder.Services.AddPaymentsModule(configurationProvider);
+    builder.Services.AddMenuModule(databaseConfigurationProvider);
+    builder.Services.AddShoppingCartModule(databaseConfigurationProvider);
+    builder.Services.AddOrdersModule(databaseConfigurationProvider);
+    builder.Services.AddReservationsModule(databaseConfigurationProvider);
+    builder.Services.AddPaymentsModule(databaseConfigurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .ConfigureAuthorizationPolicies();
 
-    builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");
+    builder.AddRedisClient(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
     IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
 
-    builder.AddRabbitMQClient($"{configurationProvider.InfrastructurePrefix}-rabbitmq");
+    builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
 
     builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
                     .AddCacheService()
