@@ -2,6 +2,6 @@
 
 internal static class AuthorizationConstants
 {
-    internal const string EmployeeRole = "employee";
-    internal const string CustomerRole = "customer";
+    internal const string EmployeeRole = "Employee";
+    internal const string CustomerRole = "Customer";
 }

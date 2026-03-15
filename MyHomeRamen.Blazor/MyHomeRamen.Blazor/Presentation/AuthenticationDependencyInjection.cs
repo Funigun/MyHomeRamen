@@ -40,6 +40,7 @@ internal static class AuthenticationDependencyInjection
                         options.Scope.Add("openid");
                         options.Scope.Add("profile");
                         options.Scope.Add("my-home-ramen-scope");
+                        options.Scope.Add("menu");
                         options.SaveTokens = true;
                         options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                         if (builder.Environment.IsDevelopment())

@@ -1,9 +1,10 @@
 using FluentValidation;
+using MyHomeRamen.Blazor.Common.Models;
 using MyHomeRamen.Common.Contracts.Account;
 
 namespace MyHomeRamen.Blazor.Features.Account.Components;
 
-public sealed class SignUpValidator : AbstractValidator<SignUpModel>
+public sealed class SignUpValidator : BaseValidator<SignUpModel>
 {
     public SignUpValidator()
     {
@@ -31,14 +32,4 @@ public sealed class SignUpValidator : AbstractValidator<SignUpModel>
             .Equal(x => x.Password)
             .WithMessage("Passwords do not match.");
     }
-
-    public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
-    {
-        FluentValidation.Results.ValidationResult? result = await ValidateAsync(
-            ValidationContext<SignUpModel>.CreateWithOptions(
-                (SignUpModel)model,
-                x => x.IncludeProperties(propertyName)));
-
-        return result.IsValid ? [] : result.Errors.Select(e => e.ErrorMessage);
-    };
 }

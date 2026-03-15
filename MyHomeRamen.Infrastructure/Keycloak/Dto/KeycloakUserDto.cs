@@ -15,7 +15,4 @@ public sealed record KeycloakUserDto
     public bool Enabled { get; set; } = true;
 
     public List<KeycloakCredentialDto> Credentials { get; set; } = [];
-
-    [JsonIgnore]
-    public List<KeycloakRoleDto> Roles { get; set; } = [];
 }

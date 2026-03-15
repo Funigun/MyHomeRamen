@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
+using MyHomeRamen.Infrastructure.Keycloak.Constants;
 using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
@@ -10,6 +11,8 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 
     public async Task<string> CreateUserAsync(KeycloakUserDto user, string roleName, CancellationToken cancellationToken = default)
     {
+        IEnumerable<string> rolesToAdd = KeycloakRoleConstants.RoleMappings[roleName];
+
         string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/users";
 
         using HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, user, cancellationToken);
@@ -19,7 +22,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
         string userId = response.Headers.Location.ToString().Split("/").Last();
 
         IEnumerable<KeycloakRoleDto> availableRoles = await GetAvailableRoles(cancellationToken);
-        await AssignRolesToUser(userId, availableRoles.Where(r => r.Name == roleName), cancellationToken);
+        await AssignRolesToUser(userId, availableRoles.Where(r => rolesToAdd.Contains(r.Name)), cancellationToken);
 
         return userId;
     }
@@ -28,18 +31,13 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
     {
         string clientId = await GetClientId(cancellationToken);
 
-        foreach (KeycloakRoleDto role in roles)
-        {
-            string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/users/{userId}/role-mappings/clients/{clientId}";
+        string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/users/{userId}/role-mappings/clients/{clientId}";
 
-            using HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, roles, cancellationToken);
-        }
+        using HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, roles, cancellationToken);
     }
 
     public async Task<IEnumerable<KeycloakRoleDto>> GetAvailableRoles(CancellationToken cancellationToken = default)
     {
-        string[] rolesToFilter = ["employee", "customer", "manager"];
-
         string clientId = await GetClientId(cancellationToken);
 
         string url = $"{_adminOptions.BaseUrl}/admin/realms/{_adminOptions.Realm}/clients/{clientId}/roles";
@@ -48,7 +46,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 
         IEnumerable<KeycloakRoleDto> roles = await response.Content.ReadFromJsonAsync<IEnumerable<KeycloakRoleDto>>(cancellationToken) ?? [];
 
-        return roles.Where(role => rolesToFilter.Contains(role.Name));
+        return roles.Where(role => KeycloakRoleConstants.AllRoles.Contains(role.Name));
     }
 
     public async Task<IEnumerable<KeycloakUserDto>> GetEmployees(CancellationToken cancellationToken = default)

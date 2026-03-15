@@ -10,6 +10,7 @@ applyTo: '**/*.razor, **/*.razor.cs, **/*.razor.css'
 - Use Razor Components appropriately for component-based UI development using MudBlazor library.
 - Prefer inline functions for smaller components but separate complex logic into code-behind or service classes.
 - Async/await should be used where applicable to ensure non-blocking UI operations.
+- For project-specific patterns (HttpClient registration, auth handlers, folder structure, reference implementations), see `.github/instructions/project-specific/blazor.instructions.md`.
 
 ## Naming Conventions
 
@@ -29,8 +30,9 @@ applyTo: '**/*.razor, **/*.razor.cs, **/*.razor.css'
 
 - Implement proper error handling for Blazor pages and API calls.
 - Use logging for error tracking in the backend and consider capturing UI-level errors in Blazor with tools like ErrorBoundary.
-- Implement validation using FluentValidation or DataAnnotations in forms.
-- Model validator should be built out of validators for pimitive types located in `MyHomeRamen.Common.Contracts` project - single point for both API and Blazor simple validation.
+- Implement validation using FluentValidation. Do not use DataAnnotations.
+- Model validators must be composed of primitive type validators from `MyHomeRamen.Common.Contracts` project — single source of truth for both API and Blazor validation.
+- Validators must expose a `ValidateValue` delegate for MudBlazor `MudForm` binding (see project-specific Blazor instructions for the pattern).
 
 ## Blazor API and Performance Optimization
 
@@ -49,7 +51,8 @@ applyTo: '**/*.razor, **/*.razor.cs, **/*.razor.css'
 
 ## API Design and Integration
 
-- Use HttpClient or other appropriate services to communicate with external APIs or your own backend.
+- Use typed `HttpClient` services registered in `Presentation/ApiDependencyInjection.cs` to communicate with backend APIs.
+- See project-specific Blazor instructions for HttpClient registration pattern, auth handler selection, and API route convention.
 - Implement error handling for API calls using try-catch and provide proper user feedback in the UI.
 
 ## Testing and Debugging in Visual Studio
