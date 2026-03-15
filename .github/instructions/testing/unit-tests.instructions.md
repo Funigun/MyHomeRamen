@@ -77,18 +77,31 @@ Domain validation tests verify that domain model factory methods (e.g., `Product
 API validator tests verify that FluentValidation validators in `MyHomeRamen.Common.Contracts` enforce contract-level rules correctly.
 
 ### Conventions
-- One test class per validator, named `{Model}ValidatorsTests` (e.g., `ProductValidatorsTests`).
-- Instantiate the validator directly — no mocking required.
+- One test class per domain model grouping **all** its validators, named `{Model}ValidatorsTests` (e.g., `ProductValidatorsTests` covers `ProductNameValidator`, `ProductDescriptionValidator`, `ProductPriceValidator`).
+- Instantiate each validator directly — no mocking required.
 - Call `validator.Validate(value)` and assert on the returned `ValidationResult`.
-- For failure cases assert `result.IsValid == false` and that `result.Errors` contains an error matching the expected message fragment.
+- For failure cases assert `result.IsValid == false` and that `result.Errors` contains an entry where `string.IsNullOrEmpty(e.PropertyName)` (validators on primitives use `RuleFor(x => x)`) and `e.ErrorMessage` contains the expected FluentValidation message fragment (see fragments below).
 - For success cases assert `result.IsValid == true`.
-- Add a consistency test that verifies each validator constant (e.g., `MaxLength`, `MinLength`, `MinPrice`) matches the corresponding `ProductConstants` value to keep contract and domain in sync.
+- Add one consistency test **per exported constant** that verifies the validator constant matches the corresponding `{Model}Constants` value in the Domain layer to keep contract and domain in sync.
+
+### FluentValidation error message fragments
+| Rule | Fragment to assert |
+|------|--------------------|
+| `NotEmpty` | `"not empty"` |
+| `MinimumLength` | `"minimum length"` |
+| `MaximumLength` | `"maximum length"` |
+| `GreaterThanOrEqualTo` | `"greater than or equal to"` |
+| `LessThanOrEqualTo` | `"less than or equal to"` |
 
 ### Naming pattern
 `{ValidatorName}_Should_{Pass|Fail}_When_{Reason}` (e.g., `ProductNameValidator_Should_Fail_When_NameIsEmpty`)
 
+Consistency tests: `{ValidatorName}_Should_HaveSame{ConstantName}AsDomain` (e.g., `ProductNameValidator_Should_HaveSameMinLengthAsDomain`)
+
 ### What to cover
-- Empty / null input.
-- Each boundary violation (too short, too long, too low, too high).
-- A valid value (happy path).
-- A constant-consistency test per exported constant (e.g., `ProductNameValidator_Should_HaveSameMaxLengthAsDomain`).
+Per validator, add the following tests in order:
+1. Empty / null input (if the validator enforces `NotEmpty`).
+2. **Min boundary violation** — value one unit below the minimum (e.g., `MinLength - 1` chars, `MinPrice - 0.1m`).
+3. **Max boundary violation** — value one unit above the maximum (e.g., `MaxLength + 1` chars, `MaxPrice + 0.1m`).
+4. A valid value (happy path).
+5. **One consistency test per exported constant** — every `MinLength`, `MaxLength`, `MinPrice`, `MaxPrice`, etc. must have its own `_Should_HaveSame{Constant}AsDomain` test.
