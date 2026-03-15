@@ -20,6 +20,7 @@ try
                          .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
 
     builder.Services.AddScoped<RestaurantConfiguration>();
+    builder.Services.AddScoped<ThemeProviderService>();
     string infrastructurePrefix = builder.Configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
 
     builder.AddBlazorServiceDefaults($"{infrastructurePrefix}-blazor");
