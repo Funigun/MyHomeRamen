@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 public sealed record KeycloakUserDto

@@ -3,6 +3,7 @@ using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.Persistance;
+using MyHomeRamen.ServiceDefaults;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler;
 using MyHomeRamen.Worker.MessagesHandler.Common;
@@ -31,7 +32,7 @@ try
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
-    builder.AddWorkerServiceDefaults($"{configurationProvider.InfrastructurePrefix}-messages-worker");
+    builder.AddWorkerServiceDefaults(ServiceNames.MessagesWorker(configurationProvider.InfrastructurePrefix));
 
     // Add current user mock for DB contexts that require AuditableEntity updates
     builder.Services.AddScoped<ICurrentUser, WorkerUser>();
@@ -45,7 +46,7 @@ try
     builder.Services.AddPaymentsPersistance(databaseConfigurationProvider);
 
     // RabbitMq configuration
-    builder.AddRabbitMQClient($"{configurationProvider.InfrastructurePrefix}-rabbitmq");
+    builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
     builder.Services.AddMessagingService();
 
     // Register handlers

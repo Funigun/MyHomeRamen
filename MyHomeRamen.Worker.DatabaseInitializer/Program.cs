@@ -1,6 +1,7 @@
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Persistance;
+using MyHomeRamen.ServiceDefaults;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.DatabaseInitializer;
 using MyHomeRamen.Worker.DatabaseInitializer.Config;
@@ -25,7 +26,7 @@ try
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
-    builder.AddWorkerServiceDefaults($"{configurationProvider.InfrastructurePrefix}-db-initializer-worker");
+    builder.AddWorkerServiceDefaults(ServiceNames.DbInitializerWorker(configurationProvider.InfrastructurePrefix));
 
     builder.Services.AddQuartzServices(q =>
     {

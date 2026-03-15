@@ -1,4 +1,3 @@
-using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Identity.Api.Features.Admin.GetEmployees.Models;
