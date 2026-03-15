@@ -1,6 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Orders.Database;

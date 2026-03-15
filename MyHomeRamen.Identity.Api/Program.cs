@@ -1,16 +1,15 @@
 using System.Reflection;
 using FluentValidation;
-using Microsoft.AspNetCore.Identity;
 using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Extentsions;
-using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Identity.Api.Application.Services;
 using MyHomeRamen.Identity.Api.Presentation;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.Persistance;
+using MyHomeRamen.ServiceDefaults;
 using Scalar.AspNetCore;
 using Serilog;
 using StackExchange.Redis;
@@ -31,19 +30,21 @@ try
 {
     builder.AddConfiguration();
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
+    builder.Services.AddScoped<DatabaseConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
+    DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
     builder.Services.AddCors(options =>
     {
         options.AddDefaultPolicy(policy =>
         {
-            policy.WithOrigins($"{configurationProvider.InfrastructurePrefix}-blazor")
+            policy.WithOrigins(ServiceNames.Blazor(configurationProvider.InfrastructurePrefix))
                   .AllowAnyHeader()
                   .AllowAnyMethod();
         });
     });
 
-    builder.AddApiServiceDefaults($"{configurationProvider.InfrastructurePrefix}-identity-api");
+    builder.AddApiServiceDefaults(ServiceNames.IdentityApi(configurationProvider.InfrastructurePrefix));
     builder.Services.AddSerilog();
 
     builder.Services.AddOpenApi("v1", options =>
@@ -60,15 +61,15 @@ try
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.AddIdentityPersistance(configurationProvider);
+    builder.Services.AddIdentityPersistance(databaseConfigurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .ConfigureAuthorizationPolicies();
 
-    builder.AddRedisClient($"{configurationProvider.InfrastructurePrefix}-cache");
+    builder.AddRedisClient(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
     IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
 
-    builder.AddRabbitMQClient($"{configurationProvider.InfrastructurePrefix}-rabbitmq");
+    builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
 
     builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
                     .AddCacheService()

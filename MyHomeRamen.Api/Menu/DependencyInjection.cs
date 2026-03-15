@@ -5,7 +5,7 @@ namespace MyHomeRamen.Api.Menu;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddMenuModule(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddMenuModule(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddMenuPersistance(configurationProvider);
         return services;

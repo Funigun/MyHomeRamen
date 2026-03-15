@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;

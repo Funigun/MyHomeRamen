@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using MyHomeRamen.AppHost.Configurations;
+using MyHomeRamen.AppHost.Configurations.Common;
 
 namespace MyHomeRamen.AppHost.InfrastructureConfiguration;
 
@@ -12,17 +13,16 @@ internal static class RegistrationExtensions
     {
         const string sectionName = $"{ConfigurationSectionPrefix}RedisConfig";
 
-        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
         RedisConfig config = configuration.GetSection(sectionName).Get<RedisConfig>() ?? new();
 
-        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-cache-password", config.Password, secret: true);
+        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{prefix}-cache-password", config.Password, secret: true);
 
-        return builder.AddRedis($"{applicationName}-cache", null, password)
-                      .WithContainerName($"{applicationName}-redis")
-                      //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
+        return builder.AddRedis(ServiceNames.Cache(prefix), null, password)
+                      .WithContainerName($"{prefix}-redis")
                       .WithRedisInsight(config =>
                       {
-                          config.WithContainerName($"{applicationName}-redis-insight");
+                          config.WithContainerName($"{prefix}-redis-insight");
                           config.WithExplicitStart();
                       })
                       .WithLifetime(ContainerLifetime.Persistent);
@@ -32,15 +32,14 @@ internal static class RegistrationExtensions
     {
         const string sectionName = $"{ConfigurationSectionPrefix}RabbitMqConfig";
 
-        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
         RabbitMqConfig config = configuration.GetSection(sectionName).Get<RabbitMqConfig>() ?? new();
 
-        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{applicationName}-messaging-user-name", config.UserName, secret: true);
-        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-messaging-password", config.Password, secret: true);
+        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{prefix}-messaging-user-name", config.UserName, secret: true);
+        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{prefix}-messaging-password", config.Password, secret: true);
 
-        return builder.AddRabbitMQ($"{applicationName}-rabbitmq", user, password)
-                      .WithContainerName($"{applicationName}-rabbitmq")
-                      //.WithBindMount(config.BindMountFrom!, config.BindMountTo!)
+        return builder.AddRabbitMQ(ServiceNames.RabbitMq(prefix), user, password)
+                      .WithContainerName(ServiceNames.RabbitMq(prefix))
                       .WithManagementPlugin()
                       .WithOtlpExporter()
                       .WithLifetime(ContainerLifetime.Persistent);
@@ -50,14 +49,14 @@ internal static class RegistrationExtensions
     {
         const string sectionName = $"{ConfigurationSectionPrefix}KeyCloakConfig";
 
-        string applicationName = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
+        string prefix = configuration[ApplicationNameSetting] ?? throw new Exception("Application name not configured");
         KeyCloakConfig config = configuration.GetSection(sectionName).Get<KeyCloakConfig>() ?? new();
 
-        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{applicationName}-key-cloak-user-name", config.UserName, secret: true);
-        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{applicationName}-key-cloak-password", config.Password, secret: true);
+        IResourceBuilder<ParameterResource> user = builder.AddParameter($"{prefix}-key-cloak-user-name", config.UserName, secret: true);
+        IResourceBuilder<ParameterResource> password = builder.AddParameter($"{prefix}-key-cloak-password", config.Password, secret: true);
 
-        return builder.AddKeycloak($"{applicationName}-key-cloak", 8080, user, password)
-                      .WithContainerName($"{applicationName}-key-cloak")
+        return builder.AddKeycloak(ServiceNames.KeyCloak(prefix), 8080, user, password)
+                      .WithContainerName(ServiceNames.KeyCloak(prefix))
                       .WithDataVolume("keycloak")
                       .WithRealmImport("./Configurations/Keycloak")
                       .WithBindMount("./Configurations/Keycloak/themes/my-custom-theme", "/opt/keycloak/themes/my-custom-theme")

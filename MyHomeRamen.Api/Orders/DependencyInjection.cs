@@ -5,7 +5,7 @@ namespace MyHomeRamen.Api.Orders;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddOrdersModule(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddOrdersModule(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddOrdersPersistance(configurationProvider);
         return services;

@@ -1,17 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api.Common.Configuration;
-using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.ShoppingCart.Database;
-using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
@@ -24,7 +19,7 @@ namespace MyHomeRamen.Persistance;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddMenuPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddMenuPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddDbContext<MenuDbContext>(options =>
         {
@@ -43,7 +38,7 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddBasketPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddBasketPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddDbContext<ShoppingCartDbContext>(options =>
         {
@@ -62,7 +57,7 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddOrdersPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddOrdersPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddDbContext<OrdersDbContext>(options =>
         {
@@ -81,7 +76,7 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddReservationsPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddReservationsPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddDbContext<ReservationsDbContext>(options =>
         {
@@ -100,7 +95,7 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddPaymentsPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddPaymentsPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddDbContext<PaymentsDbContext>(options =>
         {
@@ -119,7 +114,7 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddIdentityPersistance(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddIdentityPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddDbContext<UsersDbContext>(options =>
         {

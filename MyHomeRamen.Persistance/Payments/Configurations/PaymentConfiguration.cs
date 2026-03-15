@@ -1,7 +1,5 @@
-using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Hosting;
 using MyHomeRamen.Domain.Common.Payment;
 using MyHomeRamen.Domain.Payments.Payments;
 using MyHomeRamen.Domain.Payments.Users;
