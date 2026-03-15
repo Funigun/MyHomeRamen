@@ -49,6 +49,10 @@
     <File Path=".github/agents/deployer.agent.md" />
     <File Path=".github/agents/documenter.agent.md" />
   </Folder>
+  <Folder Name="/_github/agents/output/">
+    <File Path=".github/agents/output/automated-plan.md" />
+    <File Path=".github/agents/output/review-results.md" />
+  </Folder>
   <Folder Name="/_github/instructions/" />
   <Folder Name="/_github/instructions/general/">
     <File Path=".github/instructions/general/backend-quality.instructions.md" />
@@ -60,6 +64,7 @@
   <Folder Name="/_github/instructions/modules/">
     <File Path=".github/instructions/blazor.instructions.md" />
     <File Path=".github/instructions/menu.instructions.md" />
+    <File Path=".github/instructions/module-introduction.instructions.md" />
     <File Path=".github/instructions/orders.instructions.md" />
     <File Path=".github/instructions/payments.instructions.md" />
     <File Path=".github/instructions/reservations.instructions.md" />
@@ -118,5 +123,6 @@
   <Folder Name="/_wiki/Users/">
     <File Path="Wiki/Users ADR/0001-users-domain.md" />
     <File Path="Wiki/Users ADR/0002-users-authentication.md" />
+    <File Path="Wiki/Users ADR/0003-application-scopes.md" />
   </Folder>
 </Solution>

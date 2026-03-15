@@ -16,6 +16,7 @@ This file covers general guidelines which will apply also to other projects like
 - Single file should not exceed 250 lines of code (excluding usings and namespaces).
 - Never use `var` for any type
 - Use latest C# syntax and features where appropriate.
+- clean unused usings
 
 ## Tools
 - .editorconfig

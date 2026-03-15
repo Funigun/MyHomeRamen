@@ -17,6 +17,12 @@ Persistence layer (`MyHomeRamen.Persistance`) handles database operations using 
 - Simple operations should use proper DBContext abstractions (e.g. `IOrdersDbContext`) and specification extenstions.
 - Each module's `DbContext` implementation should inherit from `BaseDbContext` which contains common configurations and logic for all contexts (e.g. multi-tenancy, soft deletes, etc.)
 
+## DB Specifications & Extensions
+- All custom database queries, existence checks, and uniqueness checks MUST be implemented as generic or specific extension methods extending `IQueryable<T>` or specific `DbSet` interfaces.
+- Place these in `MyHomeRamen.Persistance.Common.DbExtensions`.
+- Never write inline `AnyAsync()` or `FirstOrDefaultAsync()` with complex business rules in handlers or validators; abstract them into an extension method (e.g., `_dbContext.Products.IsNameUniqueAsync(name, cancellationToken)`).
+- EF Core Value Converters (e.g. `CategoryIdConverter`) automatically handle strong ID boxing, so DO NOT manually unbox IDs in LINQ Expressions.
+
 ## Structure
 - Each module has its own `DbContext` interface defined in `MyHomeRamen.Domain` project and implementation in the `Persistence` project.
 - Each module has its own folder in the `Persistance` project which contains
