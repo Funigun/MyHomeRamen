@@ -5,7 +5,7 @@ namespace MyHomeRamen.Api.ShoppingCart;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddShoppingCartModule(this IServiceCollection services, RestaurantConfigurationProvider configurationProvider)
+    public static IServiceCollection AddShoppingCartModule(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
         services.AddBasketPersistance(configurationProvider);
         return services;

@@ -21,7 +21,9 @@ try
 {
     builder.AddConfiguration();
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
+    builder.Services.AddScoped<DatabaseConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
+    DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
     builder.AddWorkerServiceDefaults($"{configurationProvider.InfrastructurePrefix}-db-initializer-worker");
 
@@ -40,12 +42,12 @@ try
 
     builder.Services.AddScoped<ICurrentUser, WorkerUser>();
 
-    builder.Services.AddIdentityPersistance(configurationProvider);
-    builder.Services.AddMenuPersistance(configurationProvider);
-    builder.Services.AddBasketPersistance(configurationProvider);
-    builder.Services.AddOrdersPersistance(configurationProvider);
-    builder.Services.AddReservationsPersistance(configurationProvider);
-    builder.Services.AddPaymentsPersistance(configurationProvider);
+    builder.Services.AddIdentityPersistance(databaseConfigurationProvider);
+    builder.Services.AddMenuPersistance(databaseConfigurationProvider);
+    builder.Services.AddBasketPersistance(databaseConfigurationProvider);
+    builder.Services.AddOrdersPersistance(databaseConfigurationProvider);
+    builder.Services.AddReservationsPersistance(databaseConfigurationProvider);
+    builder.Services.AddPaymentsPersistance(databaseConfigurationProvider);
 
     builder.Services.AddQuartzHostedService(options =>
     {

@@ -31,7 +31,9 @@ try
 {
     builder.AddConfiguration();
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
+    builder.Services.AddScoped<DatabaseConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
+    DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
     builder.Services.AddCors(options =>
     {
@@ -60,7 +62,7 @@ try
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.AddIdentityPersistance(configurationProvider);
+    builder.Services.AddIdentityPersistance(databaseConfigurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .ConfigureAuthorizationPolicies();

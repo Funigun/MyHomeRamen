@@ -29,7 +29,9 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 try
 {
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
+    builder.Services.AddScoped<DatabaseConfigurationProvider>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
+    DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
     builder.Services.AddCors(options =>
     {
@@ -57,11 +59,11 @@ try
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.AddMenuModule(configurationProvider);
-    builder.Services.AddShoppingCartModule(configurationProvider);
-    builder.Services.AddOrdersModule(configurationProvider);
-    builder.Services.AddReservationsModule(configurationProvider);
-    builder.Services.AddPaymentsModule(configurationProvider);
+    builder.Services.AddMenuModule(databaseConfigurationProvider);
+    builder.Services.AddShoppingCartModule(databaseConfigurationProvider);
+    builder.Services.AddOrdersModule(databaseConfigurationProvider);
+    builder.Services.AddReservationsModule(databaseConfigurationProvider);
+    builder.Services.AddPaymentsModule(databaseConfigurationProvider);
 
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .ConfigureAuthorizationPolicies();
