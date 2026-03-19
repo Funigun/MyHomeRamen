@@ -4,13 +4,13 @@ public static class RoleConstants
 {
     public const string Admin = "PaymentAdmin";
 
-    public const string Employee = "Employee";
+    public const string Employee = "PaymentEmployee";
 
-    public const string Waiter = "Waiter";
+    public const string Waiter = "PaymentWaiter";
 
-    public const string Chef = "Chef";
+    public const string Chef = "PaymentChef";
 
-    public const string Customer = "Customer";
+    public const string Customer = "PaymentCustomer";
 
     public static IEnumerable<string> AvailableRoles =>
      [

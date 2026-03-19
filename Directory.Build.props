@@ -90,7 +90,6 @@
 	
 	<!-- Blazor Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Blazor`))'">
-		<PackageReference Include="FluentValidation" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" />
 		<PackageReference Include="MudBlazor" />
 		<PackageReference Include="MudBlazor.Markdown"/>
@@ -114,7 +113,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
-		<PackageReference Include="Moq" />
+		<PackageReference Include="NSubstitute" />
 		<PackageReference Include="xunit.v3" />
 		<PackageReference Include="xunit.runner.visualstudio">
 			<PrivateAssets>all</PrivateAssets>
@@ -122,6 +121,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Bogus"/>
 	</ItemGroup>
 
 	<!-- Integration Tests exclusive-->
@@ -138,8 +138,12 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Testcontainers.MsSql" />
 		<PackageReference Include="Testcontainers.Redis" />
 		<PackageReference Include="Respawn" />
+		<PackageReference Include="Bogus" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+		<PackageReference Include="WireMock.Net" />
 	</ItemGroup>
 	
 	<!-- Architecture Tests exclusive-->
@@ -171,6 +175,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Aspire.Hosting.Testing" />
+		<PackageReference Include="Bogus"/>
 	</ItemGroup>
 
 	<!-- Worker Exclusive -->

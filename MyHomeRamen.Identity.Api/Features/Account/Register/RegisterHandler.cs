@@ -5,7 +5,6 @@ using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Identity.Api.Features.Account.Register.Models;
 using MyHomeRamen.Infrastructure.Keycloak;
-using MyHomeRamen.Infrastructure.Keycloak.Constants;
 using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Identity.Api.Features.Account.Register;
@@ -16,7 +15,7 @@ public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IUsersD
     {
         KeycloakUserDto keycloakUser = request.ToKeycloakUserDto();
 
-        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, KeycloakRoleConstants.Customer, cancellationToken);
+        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Customer, cancellationToken);
 
         User user = request.ToUserDto(keycloakUserId, RoleConstants.Customer);
 

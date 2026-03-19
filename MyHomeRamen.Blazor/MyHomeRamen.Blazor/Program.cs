@@ -38,6 +38,7 @@ try
     builder.Services.AddMudServices();
 
     builder.Services.AddApiServices(infrastructurePrefix);
+    builder.Services.AddNavigationServices();
 
     WebApplication app = builder.Build();
 

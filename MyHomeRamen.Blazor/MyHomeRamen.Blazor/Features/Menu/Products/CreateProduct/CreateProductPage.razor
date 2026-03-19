@@ -5,7 +5,10 @@
 @using MyHomeRamen.Blazor.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Constants
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Products.Components
+
+@inject MenuNavigationService MenuNavigation
 
 <PageTitle>Create Product</PageTitle>
 
@@ -18,14 +21,12 @@
 </MudPaper>
 
 @code {
-    [Inject] private NavigationManager Navigation { get; set; } = default!;
-
     // TODO: Load from MenuApiClient once GetCategories / GetIngredients endpoints exist
     private IEnumerable<CategoryOption> _categories = [];
     private IEnumerable<IngredientOption> _ingredients = [];
 
     private void HandleSuccess(Guid productId)
     {
-        Navigation.NavigateTo($"/menu/products/{productId}");
+        MenuNavigation.ToDetail(productId);
     }
 }

@@ -142,7 +142,7 @@ private async Task SubmitAsync()
 |-- Features/
 |   -- {ModuleName}/
 |       -- Common/
-|           -- Services/ (e.g. {ModuleName}ApiClient.cs)
+|           -- Services/ (e.g. {ModuleName}ApiClient.cs, {ModuleName}NavigationService.cs)
 |           -- Models/ (shared models across module features)
 |           -- Constants/ (e.g. Role names)
 |       -- {FeatureName}/
@@ -166,4 +166,48 @@ When building a new feature, use these canonical files as patterns:
 | MudForm with validation + submission | `Features/Account/Components/SignUpForm.razor` |
 | Typed HttpClient (module service) | `Features/Admin/Employees/EmployeeApiClient.cs` |
 | HttpClient DI registration | `Presentation/ApiDependencyInjection.cs` |
+| Navigation service | `Features/Menu/Common/Services/MenuNavigationService.cs` |
+| Navigation service DI registration | `Presentation/NavigationDependencyInjection.cs` |
 | Simple page wrapping a form component | `Features/Account/SignUp/SignUpPage.razor` |
+
+## Navigation
+
+- **Never inject `NavigationManager` directly into page components.** Use a module-scoped `{Module}NavigationService` instead.
+- Each module has a single `{Module}NavigationService` in `Features/{Module}/Common/Services/`.
+- The service exposes a **static nested `Routes` class** (for use in `@page` directives and `href` attributes) and **imperative navigation methods** (for use after async actions).
+- Register all navigation services in `Presentation/NavigationDependencyInjection.cs` and call `services.AddNavigationServices()` from `Program.cs`.
+- Inject the service with `@inject` in Razor components.
+
+```csharp
+// Features/{Module}/Common/Services/{Module}NavigationService.cs
+public sealed class MenuNavigationService(NavigationManager navigation)
+{
+    public static class Routes
+    {
+        public const string List = "/menu/products";
+        public const string Create = "/menu/products/create";
+
+        public static string Detail(Guid id) => $"/menu/products/{id}";
+        public static string Edit(Guid id) => $"/menu/products/{id}/edit";
+    }
+
+    public void ToList() => navigation.NavigateTo(Routes.List);
+    public void ToCreate() => navigation.NavigateTo(Routes.Create);
+    public void ToDetail(Guid id) => navigation.NavigateTo(Routes.Detail(id));
+    public void ToEdit(Guid id) => navigation.NavigateTo(Routes.Edit(id));
+}
+```
+
+Usage in a page:
+```razor
+@inject MenuNavigationService MenuNavigation
+
+@code {
+    private void HandleSuccess(Guid productId) => MenuNavigation.ToDetail(productId);
+}
+```
+
+Usage in markup (static route):
+```razor
+<MudNavLink Href="@MenuNavigationService.Routes.List">Products</MudNavLink>
+```

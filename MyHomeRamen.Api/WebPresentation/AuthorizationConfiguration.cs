@@ -31,17 +31,17 @@ internal static class AuthorizationConfiguration
                 .AddPolicy(RestaurantCustomerPolicy, policy =>
                     policy.AddAuthenticationSchemes(RestaurantCustomerPolicy)
                           .RequireAuthenticatedUser()
-                          .RequireRole("customer"))
+                          .RequireRole("MenuCustomer"))
 
                 .AddPolicy(RestaurantEmployeePolicy, policy =>
                     policy.AddAuthenticationSchemes(RestaurantEmployeePolicy)
                           .RequireAuthenticatedUser()
-                          .RequireRole("employee"))
+                          .RequireRole("MenuEmployee"))
 
                 .AddPolicy(RestaurantManagerPolicy, policy =>
                     policy.AddAuthenticationSchemes(RestaurantManagerPolicy)
                           .RequireAuthenticatedUser()
-                          .RequireRole("manager"));
+                          .RequireRole("MenuAdmin"));
 
         return services;
     }
