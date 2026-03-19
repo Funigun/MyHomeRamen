@@ -1,27 +1,25 @@
-﻿namespace MyHomeRamen.Infrastructure.Keycloak.Constants;
+﻿using IdentityDomain = MyHomeRamen.Domain.Users.RoleConstants;
+using MenuDomain = MyHomeRamen.Domain.Menu.Users.RoleConstants;
+
+namespace MyHomeRamen.Infrastructure.Keycloak.Constants;
 
 public static class KeycloakRoleConstants
 {
-    public const string Employee = "employee";
-    public const string Customer = "customer";
-    public const string Manager = "manager";
-
-    public const string MenuCustomer = "menu_customer";
-    public const string MenuEmployee = "menu_employee";
-    public const string MenuAdmin = "menu_admin";
-
     internal static IEnumerable<string> AllRoles =>
     [
-        Employee, Customer, Manager,
-        MenuCustomer, MenuEmployee, MenuAdmin
+        IdentityDomain.Employee, IdentityDomain.Customer, IdentityDomain.Admin,
+        MenuDomain.Customer, MenuDomain.Employee, MenuDomain.Admin
     ];
 
     internal static Dictionary<string, IEnumerable<string>> RoleMappings => new()
     {
-        [Employee] = [Employee, MenuEmployee],
-        [Customer] = [Customer, MenuCustomer],
-        [Manager] = [Manager, MenuAdmin]
-    };
+        [IdentityDomain.Employee] = [IdentityDomain.Employee,
+                                    MenuDomain.Employee],
 
-    internal static IEnumerable<string> CustomerRoles => [Customer, MenuCustomer];
+        [IdentityDomain.Customer] = [IdentityDomain.Customer,
+                                    MenuDomain.Customer],
+
+        [IdentityDomain.Admin] = [IdentityDomain.Admin,
+                                 MenuDomain.Admin],
+    };
 }
