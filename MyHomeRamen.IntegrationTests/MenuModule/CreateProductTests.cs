@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
@@ -17,10 +16,12 @@ public sealed class CreateProductTests(WebApiFactory apiFactory)
 
         CreateProductRequest request = DataGenerator.GenerateValidProduct().ToCreateProductRequest();
 
-        apiFactory.HttpClient.AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
-        HttpResponseMessage responseMessage = await apiFactory.HttpClient.PostAsJsonAsync("/api/menu/products", request, TestContext.Current.CancellationToken);
+        HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
@@ -35,9 +36,11 @@ public sealed class CreateProductTests(WebApiFactory apiFactory)
 
         CreateProductRequest request = DataGenerator.GenerateValidProduct().ToCreateProductRequest();
 
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products")
+                                                                   .WithJsonContent(request);
+
         // Act
-        apiFactory.HttpClient.ClearAuthorizationHeaders();
-        HttpResponseMessage responseMessage = await apiFactory.HttpClient.PostAsJsonAsync("/api/menu/products", request, TestContext.Current.CancellationToken);
+        HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
@@ -53,10 +56,12 @@ public sealed class CreateProductTests(WebApiFactory apiFactory)
 
         CreateProductRequest request = DataGenerator.GenerateValidProduct().ToCreateProductRequest();
 
-        apiFactory.HttpClient.AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(role);
 
         // Act
-        HttpResponseMessage responseMessage = await apiFactory.HttpClient.PostAsJsonAsync("/api/menu/products", request, TestContext.Current.CancellationToken);
+        HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
@@ -69,10 +74,12 @@ public sealed class CreateProductTests(WebApiFactory apiFactory)
         // Arrange
         HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest;
 
-        apiFactory.HttpClient.AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
-        HttpResponseMessage responseMessage = await apiFactory.HttpClient.PostAsJsonAsync("/api/menu/products", request, TestContext.Current.CancellationToken);
+        HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");

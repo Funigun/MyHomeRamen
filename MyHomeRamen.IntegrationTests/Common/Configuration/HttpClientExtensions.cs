@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace MyHomeRamen.IntegrationTests.Common.Configuration;
@@ -17,7 +18,12 @@ internal static class HttpClientExtensions
         PropertyNameCaseInsensitive = true
     };
 
-    internal static void AddAuthorizationHeader(this HttpClient httpClient, UserRoles userRole)
+    internal static HttpRequestMessage CreatePostMessage(string url)
+    {
+        return new(HttpMethod.Post, url);
+    }
+
+    internal static HttpRequestMessage AddAuthorizationHeader(this HttpRequestMessage requestMessage, UserRoles userRole)
     {
         (string token, string scheme) = userRole switch
         {
@@ -26,15 +32,16 @@ internal static class HttpClientExtensions
             _ => (JwtTokenFactory.GenerateCustomerToken(), CustomerScheme)
         };
 
-        httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        httpClient.DefaultRequestHeaders.Remove(SchemeHeader);
-        httpClient.DefaultRequestHeaders.Add(SchemeHeader, scheme);
+        requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        requestMessage.Headers.Add(SchemeHeader, scheme);
+
+        return requestMessage;
     }
 
-    internal static void ClearAuthorizationHeaders(this HttpClient httpClient)
+    internal static HttpRequestMessage WithJsonContent<T>(this HttpRequestMessage requestMessage, T body)
     {
-        httpClient.DefaultRequestHeaders.Authorization = null;
-        httpClient.DefaultRequestHeaders.Remove(SchemeHeader);
+        requestMessage.Content = JsonContent.Create(body);
+        return requestMessage;
     }
 
     internal static async Task<TDto> ResponseToDto<TDto>(this HttpResponseMessage responseMessage)

@@ -97,7 +97,7 @@ internal static class DataGenerator
         return ValidProductFaker.Generate();
     }
 
-    internal static List<Product> GenerateValidProducts(int count, List<Category> categories, List<Ingredient> ingredients)
+    internal static List<Product> GenerateValidProducts(int count)
     {
         List<Product>? products = [];
 
