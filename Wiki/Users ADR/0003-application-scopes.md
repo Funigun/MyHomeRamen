@@ -26,14 +26,18 @@ We will implement a structured system of roles and scopes within Keycloak, expli
 **The decision includes:**
 
 1. **Global Roles:** Define top-level roles to manage general user classification across the application:
-   - `customer`
-   - `employee`
-   - `admin`
+   - `Customer`
+   - `Employee`
+   - `Admin`
+	
+	Roles above should match with roles defined in `RoleConstants` class in `MyHomeRamen.Domain.Users` to maintain consistency between the domain model and Keycloak configuration.
 
 2. **Per-Module Roles:** Define explicit roles per domain module to determine access levels within that boundary. For example, for a Menu module:
-   - `menu_customer`
-   - `menu_employee`
-   - `menu_admin`
+   - `MenuCustomer`
+   - `MenuEmployee`
+   - `MenuAdmin`
+
+	Module specific roles should match with roles defined in `RoleConstants` class in `MyHomeRamen.Domain.{Module}` to maintain consistency between the domain model and Keycloak configuration.
 
 3. **Application Scopes:** Configure optional scopes in Keycloak (which will be enforced as required by the backend API):
    - **General Scope (`my-home-ramen-scope`):** Provides general context to the token, such as audience and global roles.

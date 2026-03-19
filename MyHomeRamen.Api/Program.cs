@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Api.Menu;
 using MyHomeRamen.Api.Orders;
 using MyHomeRamen.Api.Payments;
@@ -34,17 +35,24 @@ try
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
-    builder.Services.AddCors(options =>
-    {
-        options.AddDefaultPolicy(policy =>
-        {
-            policy.WithOrigins(ServiceNames.Blazor(configurationProvider.InfrastructurePrefix))
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-    });
+    builder.AddConfiguration();
+    bool isTestingEnvironment = builder.IsTesting();
 
-    builder.AddApiServiceDefaults(ServiceNames.Api(configurationProvider.InfrastructurePrefix));
+    if (!isTestingEnvironment)
+    {
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins(ServiceNames.Blazor(configurationProvider.InfrastructurePrefix))
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+        });
+
+        builder.AddApiServiceDefaults(ServiceNames.Api(configurationProvider.InfrastructurePrefix));
+    }
+
     builder.Services.AddSerilog();
 
     builder.Services.AddOpenApi("v1", options =>
@@ -69,14 +77,17 @@ try
     builder.Services.ConfigureAuthentication(builder.Configuration)
                     .ConfigureAuthorizationPolicies();
 
-    builder.AddRedisClient(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
-    IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
+    if (!isTestingEnvironment)
+    {
+        builder.AddRedisClient(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
+        IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
 
-    builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
+        builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
 
-    builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
-                    .AddCacheService()
-                    .AddMessagingService();
+        builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
+                        .AddCacheService()
+                        .AddMessagingService();
+    }
 
     WebApplication app = builder.Build();
 
@@ -94,7 +105,12 @@ try
     app.UseSerilogRequestLogging();
     app.MapDefaultEndpoints();
     app.MapEndpoints();
-    app.UseCors();
+
+    if (!isTestingEnvironment)
+    {
+        app.UseCors();
+    }
+
     app.UseAuthorization();
 
     await app.RunAsync();

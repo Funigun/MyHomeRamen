@@ -4,7 +4,7 @@ namespace MyHomeRamen.Api.Menu.Features.Products;
 
 public sealed class ProductsGroup : IGroupEndpoint
 {
-    public string GroupName { get; init; } = "Menu.Products";
+    public string GroupName { get; init; } = "Menu";
 
     public void Configure(RouteGroupBuilder groupBuilder)
     {
