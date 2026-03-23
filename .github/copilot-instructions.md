@@ -1,42 +1,125 @@
-# Github Copilot instructions for My Home Ramen project
+# GitHub Copilot instructions for My Home Ramen project
 
-## Project overview:
+## 1) Project overview:
 
 This project is an application for complete Ramen restaurant management.
 
-## Architecture & Patterns:
-Project follows Modular Monolith architecture pattern with Vertical Slice architecture principles.
+## 2) Solution Architecture:
 
-## Solution structure:
-- Aspire orchiestration that setups Redis and RabbitMQ containers besides API, Blazor and Worker projects
+```
+┌──────────────────────────────────────────────────────────────────────────-┐
+│                               Aspire AppHost                              │
+│   - Local orchestration                                                   │
+│   - Service discovery                                                     │
+│   - Global configuration and constants (e.g. ServiceName)                 │
+├───────────────────────────────────────────────────────────────────────────┤
+│                               API Layer                                   │
+│   - MyHomeRamen.Api: Main API project exposing REST endpoints             │
+│   - MyHomeRamen.Api.Common: Common utilities, extensions, and helpers     │
+│   - MyHomeRamen.Identity.Api: Identity management via Keycloak            │
+├───────────────────────────────────────────────────────────────────────────┤
+│                               Domain Layer                                │
+│   - MyHomeRamen.Domain: Domain entities, value objects, and services      │
+│     (Modules: Menu, Orders, Payments, Reservations, ShoppingCart, Users)  │
+├───────────────────────────────────────────────────────────────────────────┤
+│                               Infrastructure Layer                        │
+│   - MyHomeRamen.Persistance: Database contexts and EF Core configurations │
+│   - MyHomeRamen.Infrastructure: Services like caching, messaging, email   │
+├───────────────────────────────────────────────────────────────────────────┤
+│                               Worker Services                             │
+│   - MyHomeRamen.Worker: Base worker with Quartz config                    │
+│   - MyHomeRamen.Worker.DatabaseInitializer: DB setup and seeding          │
+│   - MyHomeRamen.Worker.MailSender: Email background worker                │
+│   - MyHomeRamen.Worker.MessagesHandler: RabbitMQ message handler          │
+├───────────────────────────────────────────────────────────────────────────┤
+│                               Frontend                                    │
+│   - MyHomeRamen.Blazor: Blazor Server frontend                            │
+│   - MyHomeRamen.Blazor.Client: Blazor WASM client                         │
+├───────────────────────────────────────────────────────────────────────────┤
+│                               Testing                                     │
+│   - MyHomeRamen.UnitTests: Unit tests                                     │
+│   - MyHomeRamen.IntegrationTests: Integration tests                       │
+│   - MyHomeRamen.ArchitectureTests: Architecture tests                     │
+│   - MyHomeRamen.SystemTests: Tests using Aspire.Hosting.Testing package   │
+│                              to orchestrate comple workflows              │
+└───────────────────────────────────────────────────────────────────────────┘
+```
 
-- Backend API
-- Core Api:
-- MyHomeRamen.Common.Contracts: Shared contracts, DTOs, interfaces, and basic validation rules reusable across API, Worker, and Blazor projects
-- MyHomeRamen.Api: Main API project exposing REST endpoints
-- MyHomeRamen.Api.Common: Common utilities, extensions and helpers for API project
-		- MyHomeRamen.Domain: Domain entities, value objects and domain services
-		- MyHomeRamen.Persistence: Database context and configurations using Entity Framework Core
-		- MyHomeRamen.Infrastructure: Infrastructure services like email, caching, messaging, etc.
-	- Identity:
-		- MyHomeRamen.Identity: ASP.NET Core Identity implementation for user management, employees management (via Keycloak admin api) and authentication/authorization
-		
-- Workers:
-	- MyHomeRamen.Worker: Base project for background workers, provides Quarts configuration and common services
-	- MyHomeRamen.Worker.DatabaseInitializer: Worker that starts on application startup which configures Database (schemas, roles, admin accounts, etc), applies pending migrations and seeds roles and permissions
-	- MyHomeRamen.Worker.MailSender: Background worker for email sending
-	- MyHomeRamen.Worker.MessagesHandler: Background worker for RabbitMq messaging handling
-	
-- Blazor Frontend:
-	- MyHomeRamen.Blazor: Blazor Server frontend project
-	- MyHomeRamen.Blazor.Client: Blazor WASM frontend additional project
+## 3) Solution structure:
+```
+MyHomeRamen.slnx
+├── .editorconfig
+├── .gitignore
+├── Directory.Build.props
+├── Directory.Packages.props
+├── README.md
+├── .github/
+│   ├── copilot-instructions.md
+│   ├── agents/
+│   ├── instructions/
+│   ├── prompts/
+│   └── workflows/
+├── MyHomeRamen.AppHost/                    ← .NET Aspire orchestration (entry point for dev)
+├── MyHomeRamen.ServiceDefaults/            ← Shared Aspire service defaults (telemetry, health checks, global constants)
+├── MyHomeRamen.Api/                        ← Main API project exposing REST endpoints
+│   └── {Module}/
+│       ├── Features/
+│       │   └── {DomainModelPlural}/
+│       │       ├── {FeatureName}/
+│       │       │   ├── Models/
+│       │       │   │   ├── DTOs/
+│       │       │   │   │   ├── {Entity}Dto.cs
+│       │       │   │   │   └── Mappings.cs
+│       │       │   │   ├── {FeatureName}Request.cs
+│       │       │   │   └── {FeatureName}Response.cs
+│       │       │   ├── Policies/
+│       │       │   │   ├── {FeatureName}ValidationPolicy.cs
+│       │       │   │   ├── {FeatureName}AuthorizationPolicy.cs  ← optional
+│       │       │   │   └── {FeatureName}CachePolicy.cs          ← optional
+│       │       │   ├── {FeatureName}Endpoint.cs
+│       │       │   └── {FeatureName}Handler.cs
+│       │       └── {DomainModel}Group.cs
+│       ├── Services/						← Shared services for the module
+│       └── ExternalApis/					← Integration points exposed to other modules
+├── MyHomeRamen.Api.Common/                 ← Common utilities, extensions, and helpers for API
+├── MyHomeRamen.Common.Contracts/           ← Shared validators, messages objects
+├── MyHomeRamen.Domain/                     ← Domain entities, value objects, and services
+├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
+│   ├── Common/
+│   │   └── DbExtensions/                   ← Queryable/DbSet extension methods (e.g. IsNameUniqueAsync)
+│   └── {Module}/
+│       ├── Configurations/                 ← IEntityTypeConfiguration implementations
+│       ├── Converters/                     ← EF Core value converters (e.g. strong-ID converters)
+│       ├── Migrations/                     ← EF Core migrations for the module
+│       └── {Module}DbContext.cs
+├── MyHomeRamen.Infrastructure/             ← Infrastructure services (caching, messaging, email, keycloak)
+├── MyHomeRamen.Identity.Api/               ← Identity management via Keycloak
+├── MyHomeRamen.Worker.Common/              ← Base worker with Quartz config and shared worker services
+├── MyHomeRamen.Worker.DatabaseInitializer/ ← DB setup and seeding worker
+├── MyHomeRamen.Worker.MailSender/          ← Email background worker
+├── MyHomeRamen.Worker.MessagesHandler/     ← RabbitMQ message handler
+├── MyHomeRamen.Blazor/                     ← Blazor Server frontend
+├── MyHomeRamen.Blazor.Client/              ← Blazor WASM frontend
+├── MyHomeRamen.UnitTests/                  ← Unit tests (XUnit, NSubstitute)
+├── MyHomeRamen.IntegrationTests/           ← Integration tests (XUnit, TestContainers)
+├── MyHomeRamen.ArchitectureTests/          ← Architecture tests (XUnit, NetArchRules)
+└── MyHomeRamen.SystemTests/                ← System tests (XUnit, Aspire.Hosting.Testing)
+```
 
-- Testing:
-	- MyHomeRamen.Tests.Unit: Unit tests project
-	- MyHomeRamen.Tests.Integration: Integration tests project
-	- MyHomeRamen.Tests.Architecture: Architecture tests project using NetArchRules
+## 4) Technology
+| Layer | Technology |
+|---|---|
+| Orchestration | Aspire (.NET 10) |
+| Backend | ASP.NET Core Minimal API (.NET 10) |
+| Frontend | Blazor Server (.NET 10) |
+| ORM | Entity Framework Core 10 |
+| Validation | FluentValidation |
+| Mediator | Own implementation (`MyHomeRamen.Api.Common`) |
+| Auth | Keycloak |
+| Testing | XUnit, NSubstitute, TestContainers, NetArchRules, Aspire.Hosting.Testing |
+| CI/CD | GitHub Actions |
 
-## Coding standards
+## 5) Coding standards
 Project uses global files for coding standards and practices:
 - .editorconfig
 - Directory.Build.props
@@ -45,22 +128,22 @@ Project uses global files for coding standards and practices:
 
 In case you need to add new package references, analyzers or change coding styles, please do so in these global files.
 
-There are also nuget packages for code analysis and style enforcement:
+There are also NuGet packages for code analysis and style enforcement:
 - StyleCop.Analyzers
 - SonarAnalyzer.CSharp
 
-## Testing
+## 6) Testing
 Project uses xUnit for unit, integration and architecture tests.
 - Architecture Tests: enforce architectural rules using NetArchRules
 - Unit Tests: focus on testing domain logic and application services that do not have infrastructure or external dependencies
 - Integration Tests (Test Containers): test individual services in isolation (e.g. API + DB) using TestContainers
 - Integration Tests (Aspire): test complete distributed workflows spanning multiple independent services (API + Identity + Workers + External services) orchestrated by .NET Aspire
 
-## Copilot standards
+## 7) Copilot standards
 - Load all relevant instruction files as described in the agent instructions.
 - Follow the instructions and guidelines from the loaded files strictly to ensure high quality output.
 - Always refer to the coding standards, architecture guidelines, and best practices defined in the instruction files when implementing features or making code changes.
-- Include user input and additional detailes gathered during planning, implementation or review processes when applicable
+- Include user input and additional details gathered during planning, implementation or review processes when applicable
 
 IMPORTANT:
 - always learn from user feedback and code review results to improve the quality of your work

@@ -13,7 +13,7 @@ namespace MyHomeRamen.Persistance.Menu;
 
 public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
 {
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentUser _currentUser = default!;
 
     public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser) : this(options)
     {
@@ -119,7 +119,7 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("menu");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(MenuDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Menu.Configurations"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(MenuDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Menu.Configurations", StringComparison.Ordinal));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
