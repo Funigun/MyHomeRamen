@@ -6,6 +6,21 @@ namespace MyHomeRamen.Persistance.Common;
 
 public static class DbExtensions
 {
+    public static async Task<IEnumerable<TEntity>> GetByIds<TEntity, TId>(this IQueryable<TEntity> query, IEnumerable<TId> keys, CancellationToken cancellationToken)
+                  where TEntity : class, IEntity<TId>
+                  where TId : IEntityId
+    {
+        return await query.Where(e => keys.Contains(e.Id))
+                          .ToListAsync(cancellationToken);
+    }
+
+    public static async Task<IEnumerable<TEntity>> GetBySelector<TEntity>(this IQueryable<TEntity> query, Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken)
+                  where TEntity : class, IEntity
+    {
+        return await query.Where(expression)
+                          .ToListAsync(cancellationToken);
+    }
+
     public static async Task<bool> ExistsByIdAsync<TEntity, TId>(
         this IQueryable<TEntity> query,
         TId id,
