@@ -1,7 +1,7 @@
 ﻿<CascadingAuthenticationState>
     <Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }" NotFoundPage="typeof(Pages.NotFound)">
         <Found Context="routeData">
-            <AuthorizeView Roles="admin, employee, manager">
+            <AuthorizeView Roles="Admin, Employee">
                 <Authorized>
                     <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.Employee.EmployeeLayout)" />
                 </Authorized>
