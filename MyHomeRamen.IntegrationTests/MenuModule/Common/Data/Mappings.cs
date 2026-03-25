@@ -1,10 +1,18 @@
-﻿using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
+﻿using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
+using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
+using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Products;
 
 namespace MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
 
 internal static class Mappings
 {
+    internal static CreateCategoryRequest ToCreateCategoryRequest(this Category category) =>
+        new(
+            category.Name,
+            (int)category.CategoryType
+        );
+
     internal static CreateProductRequest ToCreateProductRequest(this Product product) =>
         new(
             product.Name,

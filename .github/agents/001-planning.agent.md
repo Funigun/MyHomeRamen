@@ -36,18 +36,26 @@ Drax Planner: Creating plan...
 Drax Planner: ✓ Work complete
 ```
 
+## Task Type Detection
+
+| Type | Indicators | Plan Additions |
+|---|---|---|
+| **Feature** | "create", "implement" | API or Blazor or both |
+| **Bug** | "fix", "broken", "error" | Steps to reproduce, root cause analysis |
+| **Refactor** | "refactor", "clean" | Breaking changes, migration path |
+| **Chore** | "update" | Minimal steps, validation focus |
+
 ## Planning process
 
 ### 1) Load relevant instruction files
-- load following files from `.github/instructions/projects/` for architecture guidance:
-	- `domain.instructions.md`
-	- `persistence.instructions.md`
-	- `infrastructure.instructions.md`
-	- `api-layer.instructions.md`
+- load following instruction files:
+	- if API involved: `.github/instructions/backend.instructions.md` and `.github/instructions/backend-tests.instructions.md`
+	- if Blazor involved: `.github/instructions/blazor.instructions.md` and `.github/instructions/blazor-tests.instructions.md`
+	- if new module is being created: `.github/instructions/module-introduction.instructions.md/`
 
-- load following files from `.github/instructions/general/`:
-	- `backend-quality.instructions.md`
-	- `feature-structure.instructions.md`
+- load following skills:
+	- `.github/skills/code-quality/skill.md`
+	- `.github/skills/solution-structure/skill.md`
 
 Loading files is crucial for output quality. 
 Do not proceed to next steps before loading all files and analyzing their content for relevant information and guidance.
@@ -92,7 +100,7 @@ Plan should be represent as folder tree with proper folder and file names.
 ### 5) Save feature structure plan
 Update `.github/agents/output/automated-plan.md` with following sections:
 
-Task Implementation Plan:
+Feature {Type} plan:
 - **Date**: <<current date and time>>
 - **Feature**: <<feature name or description>>
 
@@ -117,13 +125,6 @@ Task Implementation Plan:
 
 
 ### 6) Task testing plan
-Use general guidelines from `.github/copilot-instructions.md` to specify testing requirements for the feature or change.
-Load also following files from `.github/instructions/testing/` folder for testing guidance:
-	- `unit-tests.instructions.md`
-	- `integration-tests.instructions.md`
-	- `architecture-tests.instructions.md`
-	- `system-tests.instructions.md`
-
 Include additional details gathered from user on previous steps (if there are any).
 
 Create a step-by-step testing plan with following steps:

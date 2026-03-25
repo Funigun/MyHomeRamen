@@ -67,9 +67,8 @@ MyHomeRamen.slnx
 │       │   └── {DomainModelPlural}/
 │       │       ├── {FeatureName}/
 │       │       │   ├── Models/
-│       │       │   │   ├── DTOs/
-│       │       │   │   │   ├── {Entity}Dto.cs
-│       │       │   │   │   └── Mappings.cs
+│       │       │   │   ├── {Entity}Dto.cs           ← optional
+│       │       │   │   ├── Mappings.cs
 │       │       │   │   ├── {FeatureName}Request.cs
 │       │       │   │   └── {FeatureName}Response.cs
 │       │       │   ├── Policies/

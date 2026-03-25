@@ -9,6 +9,7 @@ public sealed class ProductsGroup : IGroupEndpoint
     public void Configure(RouteGroupBuilder groupBuilder)
     {
         groupBuilder.WithTags("Products")
-                    .WithDescription("Products management operations");
+                    .WithDescription("Products management operations")
+                    .RequireAuthorization();
     }
 }

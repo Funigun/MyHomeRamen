@@ -105,8 +105,8 @@ public static class DependencyInjection
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-        Dictionary<string, IGroupEndpoint> endpointGroups = app.Services.GetServices<IGroupEndpoint>()
-                                                                        .ToDictionary(g => g.GroupName);
+        ILookup<string, IGroupEndpoint> endpointGroups = app.Services.GetServices<IGroupEndpoint>()
+                                                                        .ToLookup(g => g.GroupName);
 
         List<IEndpoint> endpoints = app.Services.GetServices<IEndpoint>().ToList();
 
@@ -141,7 +141,7 @@ public static class DependencyInjection
 #pragma warning restore CA1308 // Normalize strings to uppercase
             RouteGroupBuilder routeGroupBuilder = app.MapGroup(groupRoute);
 
-            if (endpointGroups.TryGetValue(groupName, out IGroupEndpoint? endpointGroup))
+            foreach (IGroupEndpoint endpointGroup in endpointGroups[groupName])
             {
                 endpointGroup.Configure(routeGroupBuilder);
             }

@@ -3,7 +3,7 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 
-namespace MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models.DTOs;
+namespace MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 
 internal static class Mappings
 {
@@ -17,6 +17,6 @@ internal static class Mappings
             string.Empty,
             new Collection<Ingredient>(ingredients.ToList()),
             [],
-             [category]);
+            [category]);
     }
 }

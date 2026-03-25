@@ -46,6 +46,9 @@ We still want to follow CQRS pattern so we need to make sure that each endpoint 
 - does not query database after calling `SaveChangesAsync()`
 - always use `FluentValidation` validators paired with `IValidationPolicy` interface
 
+**Common rules**
+- {Feature}Handler must be public sealed class to be correctly registered in DI container and to prevent inheritance
+
 ### b) Mappings
 
 We do not use AutoMapper or any other mapping library. Whole mapping must be done manually via extension methods.

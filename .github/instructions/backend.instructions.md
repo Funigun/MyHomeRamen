@@ -5,6 +5,9 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 
 # Backend Layer Instructions
 
+## 0) General Conventions
+- Use **primary constructors** by default for dependency injection in all classes (Endpoints, Handlers, Services, etc.).
+
 ## 1) Domain Layer (`MyHomeRamen.Domain`)
 
 ### 1.1) Aggregate roots & entities
@@ -114,7 +117,7 @@ Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Hand
 ### 3.3) Mappings
 - use public sealed record for DTOs and Request/Response objects
 - Never use AutoMapper or similar libraries
-- Mapping logic must be implemented in a static `Mapping` class within the same folder as the DTOs, with explicit mapping methods (e.g. `ToEntity()`, `FromEntity()`).
+- Mapping logic must be implemented in a static `Mappings` class in the `Models/` folder of the feature, with explicit mapping methods (e.g. `ToEntity()`, `FromEntity()`).
 
 ### 3.4) Validation policies
 - Implement `AbstractValidator<T>` in the feature's `Policies/` folder.
@@ -166,9 +169,8 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 │       │   └── {DomainModelPlural}/
 │       │       ├── {FeatureName}/
 │       │       │   ├── Models/
-│       │       │   │   ├── DTOs/
-│       │       │   │   │   ├── {Entity}Dto.cs
-│       │       │   │   │   └── Mappings.cs
+│       │       │   │   ├── {Entity}Dto.cs           ← optional
+│       │       │   │   ├── Mappings.cs
 │       │       │   │   ├── {FeatureName}Request.cs
 │       │       │   │   └── {FeatureName}Response.cs
 │       │       │   ├── Policies/
@@ -185,9 +187,8 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 │       ├── {Module}/
 │       │   ├── {FeatureName}/            
 │       │   │    ├── Models/
-│       │   │    │   ├── DTOs/
-│       │   │    │   │   ├── {Entity}Dto.cs
-│       │   │    │   │   └── Mappings.cs
+│       │   │    │   ├── {Entity}Dto.cs           ← optional
+│       │   │    │   ├── Mappings.cs
 │       │   │    │   ├── {FeatureName}Request.cs
 │       │   │    │   └── {FeatureName}Response.cs
 │       │   │    ├── Policies/
