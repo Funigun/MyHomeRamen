@@ -1,7 +1,6 @@
 using MyHomeRamen.Api.Common.Domain;
-using MyHomeRamen.Domain.ShoppingCart.Users;
 
-namespace MyHomeRamen.Domain.ShoppingCart;
+namespace MyHomeRamen.Domain.ShoppingCart.Users;
 
 public sealed class User : AuditableEntity, IEntity<UserId>
 {

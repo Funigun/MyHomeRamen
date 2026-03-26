@@ -6,23 +6,23 @@ using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace MyHomeRamen.ArchitectureTests.ModuleTests;
 
-public sealed class UserModuleBoundriesTests(ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
+public sealed class PaymentsModuleBoundariesTests(ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
 {
     [Fact]
-    public void UserModule_ShouldNot_DependOn_ShoppingCartModule()
+    public void PaymentsModule_ShouldNot_DependOn_ShoppingCartModule()
     {
         // Arrange
-        IEnumerable<string> usersDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
+        IEnumerable<string> paymentsDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Payments");
         IEnumerable<string> shoppingCartDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.ShoppingCart");
 
-        IEnumerable<IArchRule> rules = usersDomain.SelectMany(userType =>
+        IEnumerable<IArchRule> rules = paymentsDomain.SelectMany(paymentType =>
             shoppingCartDomain.Select(shoppingCartType =>
                 Types().That()
-                    .ResideInNamespace(userType)
+                    .ResideInNamespace(paymentType)
                     .Should()
                     .NotDependOnAnyTypesThat()
                     .ResideInNamespace(shoppingCartType)
-                    .As($"Users type '{userType}' should not depend on ShoppingCart type '{shoppingCartType}'")
+                    .As($"Payments type '{paymentType}' should not depend on ShoppingCart type '{shoppingCartType}'")
             )
         );
 
@@ -34,20 +34,20 @@ public sealed class UserModuleBoundriesTests(ArchitectureBuilder architectureBui
     }
 
     [Fact]
-    public void UserModule_ShouldNot_DependOn_MenuModule()
+    public void PaymentsModule_ShouldNot_DependOn_MenuModule()
     {
         // Arrange
-        IEnumerable<string> usersDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
+        IEnumerable<string> paymentsDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Payments");
         IEnumerable<string> menuDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Menu");
 
-        IEnumerable<IArchRule> rules = usersDomain.SelectMany(userType =>
+        IEnumerable<IArchRule> rules = paymentsDomain.SelectMany(paymentType =>
             menuDomain.Select(menuType =>
                 Types().That()
-                    .ResideInNamespace(userType)
+                    .ResideInNamespace(paymentType)
                     .Should()
                     .NotDependOnAnyTypesThat()
                     .ResideInNamespace(menuType)
-                    .As($"Users type '{userType}' should not depend on Menu type '{menuType}'")
+                    .As($"Payments type '{paymentType}' should not depend on Menu type '{menuType}'")
             )
         );
 
@@ -59,20 +59,20 @@ public sealed class UserModuleBoundriesTests(ArchitectureBuilder architectureBui
     }
 
     [Fact]
-    public void UserModule_ShouldNot_DependOn_OrdersModule()
+    public void PaymentsModule_ShouldNot_DependOn_OrdersModule()
     {
         // Arrange
-        IEnumerable<string> usersDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
+        IEnumerable<string> paymentsDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Payments");
         IEnumerable<string> ordersDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Orders");
 
-        IEnumerable<IArchRule> rules = usersDomain.SelectMany(userType =>
+        IEnumerable<IArchRule> rules = paymentsDomain.SelectMany(paymentType =>
             ordersDomain.Select(orderType =>
                 Types().That()
-                    .ResideInNamespace(userType)
+                    .ResideInNamespace(paymentType)
                     .Should()
                     .NotDependOnAnyTypesThat()
                     .ResideInNamespace(orderType)
-                    .As($"Users type '{userType}' should not depend on Orders type '{orderType}'")
+                    .As($"Payments type '{paymentType}' should not depend on Orders type '{orderType}'")
             )
         );
 
@@ -84,45 +84,45 @@ public sealed class UserModuleBoundriesTests(ArchitectureBuilder architectureBui
     }
 
     [Fact]
-    public void UserModule_ShouldNot_DependOn_PaymentsModule()
+    public void PaymentsModule_ShouldNot_DependOn_ReservationsModule()
     {
         // Arrange
-        IEnumerable<string> usersDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
         IEnumerable<string> paymentsDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Payments");
-
-        IEnumerable<IArchRule> rules = usersDomain.SelectMany(userType =>
-            paymentsDomain.Select(paymentType =>
-                Types().That()
-                    .ResideInNamespace(userType)
-                    .Should()
-                    .NotDependOnAnyTypesThat()
-                    .ResideInNamespace(paymentType)
-                    .As($"Users type '{userType}' should not depend on Payments type '{paymentType}'")
-            )
-        );
-
-        // Act & Assert
-        foreach (IArchRule rule in rules)
-        {
-            rule.Check(Architecture);
-        }
-    }
-
-    [Fact]
-    public void UserModule_ShouldNot_DependOn_ReservationsModule()
-    {
-        // Arrange
-        IEnumerable<string> usersDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
         IEnumerable<string> reservationsDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Reservations");
 
-        IEnumerable<IArchRule> rules = usersDomain.SelectMany(userType =>
+        IEnumerable<IArchRule> rules = paymentsDomain.SelectMany(paymentType =>
             reservationsDomain.Select(reservationType =>
                 Types().That()
-                    .ResideInNamespace(userType)
+                    .ResideInNamespace(paymentType)
                     .Should()
                     .NotDependOnAnyTypesThat()
                     .ResideInNamespace(reservationType)
-                    .As($"Users type '{userType}' should not depend on Reservations type '{reservationType}'")
+                    .As($"Payments type '{paymentType}' should not depend on Reservations type '{reservationType}'")
+            )
+        );
+
+        // Act & Assert
+        foreach (IArchRule rule in rules)
+        {
+            rule.Check(Architecture);
+        }
+    }
+
+    [Fact]
+    public void PaymentsModule_ShouldNot_DependOn_UsersModule()
+    {
+        // Arrange
+        IEnumerable<string> paymentsDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Payments");
+        IEnumerable<string> usersDomain = DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
+
+        IEnumerable<IArchRule> rules = paymentsDomain.SelectMany(paymentType =>
+            usersDomain.Select(userType =>
+                Types().That()
+                    .ResideInNamespace(paymentType)
+                    .Should()
+                    .NotDependOnAnyTypesThat()
+                    .ResideInNamespace(userType)
+                    .As($"Payments type '{paymentType}' should not depend on Users type '{userType}'")
             )
         );
 

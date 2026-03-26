@@ -12,7 +12,7 @@ public sealed class CategoryValidator : BaseValidator<CategoryModel>
             .SetValidator(new CategoryNameValidator());
 
         RuleFor(x => x.CategoryType)
-            .Must(v => v is 1 or 2)
+            .IsInEnum()
             .WithMessage("Please select a valid category type.");
     }
 }

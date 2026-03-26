@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Messaging;
-using MyHomeRamen.Domain.ShoppingCart;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Users;

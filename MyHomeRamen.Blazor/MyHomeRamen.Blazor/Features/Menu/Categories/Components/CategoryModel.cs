@@ -6,10 +6,10 @@ public sealed class CategoryModel
 {
     public string Name { get; set; } = string.Empty;
 
-    public int CategoryType { get; set; }
+    public CategoryType CategoryType { get; set; }
 
     public CreateCategoryRequest ToCreateRequest()
     {
-        return new CreateCategoryRequest(Name, CategoryType);
+        return new CreateCategoryRequest(Name, (int)CategoryType);
     }
 }

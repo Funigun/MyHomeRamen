@@ -1,7 +1,10 @@
-﻿using System.Reflection;
+﻿using ArchUnitNET.Domain;
+using ArchUnitNET.Fluent;
+using ArchUnitNET.xUnitV3;
 using MyHomeRamen.ArchitectureTests.Common;
-using NetArchTest.Rules;
-using TestResult = NetArchTest.Rules.TestResult;
+using Assembly = System.Reflection.Assembly;
+
+using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace MyHomeRamen.ArchitectureTests;
 
@@ -60,50 +63,36 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     public void Domain_Should_OnlyUse_ApiCommonDomain_Namespace()
     {
         // Arrange
-        string[] allowedNamespace = ["MyHomeRamen.Api.Common.Domain", "MyHomeRamen.Api.Common.Exceptions"];
-        Type[] apiCommonTypes = ApiCommonAssembly.GetTypes();
+        // Forbidden = all Api.Common types that are NOT in the allowed sub-namespaces (Domain, Exceptions)
+        IObjectProvider<IType> forbiddenApiCommonTypes = Types().That()
+            .ResideInNamespace("MyHomeRamen.Api.Common")
+            .And()
+            .DoNotResideInNamespace("MyHomeRamen.Api.Common.Domain")
+            .And()
+            .DoNotResideInNamespace("MyHomeRamen.Api.Common.Exceptions")
+            .As("Forbidden Api.Common types");
 
-        string[] forbiddenNamespacesOrTypes = apiCommonTypes
-            .Where(t => t.FullName != null && t.Namespace != null && t.Namespace.StartsWith("MyHomeRamen.Api.Common"))
-            .Select(t =>
-            {
-                // If the type is in the allowed namespace or a child of it, it is not forbidden.
-                if (allowedNamespace.Any(ns => t.Namespace == ns || t.Namespace!.StartsWith(ns + ".", StringComparison.Ordinal)))
-                {
-                    return null;
-                }
-
-                // If the type is in the root namespace "MyHomeRamen.Api.Common", we must block the Type specifically
-                // because blocking the namespace blocks the allowed child "Domain".
-                if (t.Namespace == "MyHomeRamen.Api.Common")
-                {
-                    return t.FullName;
-                }
-
-                // For sibling namespaces (e.g. .Middleware), we can block the namespace.
-                return t.Namespace;
-            })
-            .Where(x => x != null)
-            .Distinct()
-            .ToArray()!;
+        IArchRule domainShouldNotUseForbiddenApiCommon =
+            Classes().That()
+                     .Are(DomainLayer)
+                     .Should()
+                     .NotDependOnAnyTypesThat()
+                     .Are(forbiddenApiCommonTypes);
 
         // Act
-        TestResult result = Types.InAssembly(DomainAssembly)
-                                 .Should()
-                                 .NotHaveDependencyOnAny(forbiddenNamespacesOrTypes)
-                                 .GetResult();
+        List<EvaluationResult> failures = [..domainShouldNotUseForbiddenApiCommon.Evaluate(Architecture).Where(r => !r.Passed)];
 
-        if (result.FailingTypes is not null && result.FailingTypes.Any())
+        if (failures.Count != 0)
         {
             outputHelper.WriteLine("The following types in the Domain assembly have forbidden dependencies:");
 
-            foreach (Type failingType in result.FailingTypes)
+            foreach (EvaluationResult failure in failures)
             {
-                outputHelper.WriteLine($"- {failingType.FullName}");
+                outputHelper.WriteLine($"- {failure.Description}");
             }
         }
 
         // Assert
-        Assert.True(result.IsSuccessful, "Domain assembly should only use items from 'MyHomeRamen.Api.Common.Domain' namespaces, but no others from Api.Common.");
+        domainShouldNotUseForbiddenApiCommon.Check(Architecture);
     }
 }
