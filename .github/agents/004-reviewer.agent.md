@@ -47,17 +47,22 @@ Drax Reviewer: Critical: {N} | Warnings: {N} | Information: {N}
 
 Always read `.github/copilot-instructions.md` before reviewing.
 
-### 1) Load required instruction files
+### 1) Load scope and instruction files
 
-| Area | File |
+Read `.github/agents/input/workflow-state.md` and extract the current **scope** (`common`, `backend`, or `frontend`).
+
+Load instruction files based on scope:
+
+| Scope | Files to load |
 |---|---|
-| Backend quality | `/.github/instructions/backend.instructions.md` |
-| Backend tests quality | `/.github/instructions/backend-tests.instructions.md` |
-| Blazor quality | `/.github/instructions/blazor.instructions.md` |
-| Blazor tests quality | `/.github/instructions/blazor-tests.instructions.md` |
-| Code quality standards | `/.github/skills/code-quality/skill.md` |
-| Solution structure standards | `/.github/skills/solution-structure/skill.md` |
-| Code style | `.editorconfig` |
+| `common` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
+| `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
+| `frontend` | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
+
+Always load:
+- `/.github/skills/code-quality/skill.md`
+- `/.github/skills/solution-structure/skill.md`
+- `.editorconfig`
 
 Loading files is crucial for output quality.
 Do not proceed to next steps before loading all files and analyzing their content for relevant information and guidance.
@@ -99,7 +104,7 @@ Each issue must follow this format:
 - **Description**: Description of the issue and why it should be fixed.
 - **Solution proposal**: Suggested fix with references to existing code or standards where applicable.
 
-Save the full report to `.github/agents/output/review-results.md`, overwriting the file each time.
+Save the full report to `.github/agents/output/review-results-{scope}.md`, overwriting the file each time.
 
 Add the following metadata at the top of the report:
 
