@@ -19,7 +19,7 @@ internal static class RegistrationExtensions
         IResourceBuilder<ParameterResource> password = builder.AddParameter($"{prefix}-cache-password", config.Password, secret: true);
 
         return builder.AddRedis(ServiceNames.Cache(prefix), null, password)
-                      .WithImage("redis:8.2")
+                      .WithImage("redis", "8.2")
                       .WithContainerName($"{prefix}-redis")
                       .WithRedisInsight(config =>
                       {
@@ -40,9 +40,9 @@ internal static class RegistrationExtensions
         IResourceBuilder<ParameterResource> password = builder.AddParameter($"{prefix}-messaging-password", config.Password, secret: true);
 
         return builder.AddRabbitMQ(ServiceNames.RabbitMq(prefix), user, password)
-                      .WithImage("rabbitmq:4.2-management")
+                      .WithImage("rabbitmq", "4.2-management")
                       .WithContainerName(ServiceNames.RabbitMq(prefix))
-                      .WithManagementPlugin()
+                      .WithHttpEndpoint(targetPort: 15672, name: "management")
                       .WithOtlpExporter()
                       .WithLifetime(ContainerLifetime.Persistent);
     }
@@ -58,7 +58,7 @@ internal static class RegistrationExtensions
         IResourceBuilder<ParameterResource> password = builder.AddParameter($"{prefix}-key-cloak-password", config.Password, secret: true);
 
         return builder.AddKeycloak(ServiceNames.KeyCloak(prefix), 8080, user, password)
-                      .WithImage("quay.io/keycloak/keycloak:26.4")
+                      .WithImage("keycloak/keycloak", "26.4")
                       .WithContainerName(ServiceNames.KeyCloak(prefix))
                       .WithDataVolume("keycloak")
                       .WithRealmImport("./Configurations/Keycloak")

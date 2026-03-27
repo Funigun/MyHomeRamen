@@ -1,6 +1,8 @@
 ﻿using System.Security.Cryptography;
 using Bogus;
+using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories;
 using MyHomeRamen.Common.Contracts.Menu.Products;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Common.Ingredient;
@@ -152,6 +154,27 @@ internal static class DataGenerator
         GeneratedUsers = GeneratedUsers.Append(customer);
 
         return GeneratedUsers;
+    }
+
+    public static TheoryData<CreateCategoryRequest> InvalidCreateCategoryRequests()
+    {
+        Faker faker = new();
+        const int validCategoryType = (int)CategoryType.Product;
+
+        return
+        [
+            // Name: empty
+            new CreateCategoryRequest(string.Empty, validCategoryType),
+
+            // Name: too short
+            new CreateCategoryRequest(faker.Random.String2(1, CategoryNameValidator.MinLength - 1), validCategoryType),
+
+            // Name: too long
+            new CreateCategoryRequest(faker.Random.String2(CategoryNameValidator.MaxLength + 1, CategoryNameValidator.MaxLength + 10), validCategoryType),
+
+            // CategoryType: invalid
+            new CreateCategoryRequest(faker.Random.String2(CategoryNameValidator.MinLength, CategoryNameValidator.MaxLength), 999),
+        ];
     }
 
     public static TheoryData<CreateProductRequest> InvalidCreateProductRequests()

@@ -1,5 +1,6 @@
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 
 namespace MyHomeRamen.Domain.ShoppingCart.Baskets;
 

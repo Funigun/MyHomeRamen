@@ -39,15 +39,22 @@ Drax Implementer: ✓ Work complete
 
 Always read `.github/copilot-instructions.md` before implementing.
 
-### 1) Load implementation plan
-Load plan from `.github/agents/plans/automated-plan.md` and extract scope of work (backend, backend tests, Blazor, Blazor tests).
+### 1) Load scope and implementation plan
 
-### 2) Load relevant instruction files depending on scope of work
+Read `.github/agents/input/workflow-state.md` and extract:
+- **Scope** (`common`, `backend`, or `frontend`)
+- **Mode** (`feature` or `review-fixes`)
+- **Iteration** (1, 2, or 3)
 
-| Plan involves | Load skill / Read file |
+Load plan from `.github/agents/output/automated-plan-{scope}.md`.
+
+### 2) Load relevant instruction files based on scope
+
+| Scope | Load skill / Read file |
 |---|---|
-| Backend changes | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
-| Blazor changes | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
+| `common` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
+| `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
+| `frontend` | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
 
 Always load:
 - `.github/skills/code-quality/skill.md`
@@ -58,14 +65,23 @@ Do not proceed to next steps before loading all files and analyzing their conten
 
 Extract information from given instructions (`# {xx} Example`) about existing features implementations.
 
-### 3) Research
-Analyze existing features before proceeding with implementation.
+### 3) Load research report
+
+Skip if `mode = review-fixes` — the research was already completed during the initial feature run.
+
+Load `.github/agents/output/research-report-{scope}.md` if it exists. Use it as the primary source for:
+- Exact file paths and code snippets for the reference feature
+- Discovered conventions (naming, error handling, DI registration)
+- Common utilities available in `Api.Common`, `Persistance.Common`, `Domain.Common`
+- Potential pitfalls flagged by the researcher
+
+If the research report is not available, fall back to analyzing existing features manually before proceeding.
 
 ### 4) Implementation
 
 For each step:
 1. Announce the step with `Drax Implementer: Step {N}/{Total}: {step_title}`
-2. Find a reference pattern
+2. Use reference patterns from the research report (or find them manually if unavailable)
 3. Implement following plan + conventions
 4. Add migrations if needed
 
@@ -86,6 +102,24 @@ dotnet ef migrations add {Name} \
     --context UsersDbContext \
     --output-dir Users/Migrations
 ```
+
+### 4b) Update review issue status (review-fixes mode only)
+
+Skip if `mode = feature`.
+
+After each fix attempt, update `.github/agents/output/review-results-{scope}.md` by appending an `Implementation status` line to the relevant issue, directly after its `- **Solution proposal**:` line.
+
+**On success:**
+```
+- **Implementation status**: ✅ Fixed in iteration {N} — {brief description of what changed and in which file(s)}
+```
+
+**On failure** (e.g., EF Core incompatibility, design constraint, build error):
+```
+- **Implementation status**: ⚠️ Cannot implement (iteration {N}) — {reason}. {detail of what was attempted and why it fails}
+```
+
+If an `Implementation status` line already exists from a previous iteration, replace it rather than adding a second one.
 
 ### 5) Verification
 ```bash

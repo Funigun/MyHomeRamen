@@ -6,19 +6,28 @@ public sealed class MenuNavigationService(NavigationManager navigation)
 {
     public static class Routes
     {
-        public const string List = "/menu/products";
-        public const string Create = "/menu/products/create";
+        public static class Admin
+        {
+            public const string ProductsIndex = "/admin/menu/products";
+            public const string CreateProduct = "/admin/menu/products/create";
+            public const string CategoriesIndex = "/admin/menu/categories";
 
-        public static string Detail(Guid id) => $"/menu/products/{id}";
+            public static string EditProduct(Guid id) => $"/admin/menu/products/{id}/edit";
+        }
 
-        public static string Edit(Guid id) => $"/menu/products/{id}/edit";
+        public static class Public
+        {
+            public static string ProductDetail(Guid id) => $"/menu/products/{id}";
+        }
     }
 
-    public void ToList() => navigation.NavigateTo(Routes.List);
+    public void ToAdminProductsIndex() => navigation.NavigateTo(Routes.Admin.ProductsIndex);
 
-    public void ToCreate() => navigation.NavigateTo(Routes.Create);
+    public void ToCreateProduct() => navigation.NavigateTo(Routes.Admin.CreateProduct);
 
-    public void ToDetail(Guid id) => navigation.NavigateTo(Routes.Detail(id));
+    public void ToAdminCategoriesIndex() => navigation.NavigateTo(Routes.Admin.CategoriesIndex);
 
-    public void ToEdit(Guid id) => navigation.NavigateTo(Routes.Edit(id));
+    public void ToEditProduct(Guid id) => navigation.NavigateTo(Routes.Admin.EditProduct(id));
+
+    public void ToProductDetail(Guid id) => navigation.NavigateTo(Routes.Public.ProductDetail(id));
 }

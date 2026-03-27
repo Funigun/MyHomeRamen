@@ -40,17 +40,23 @@
   </Folder>
   <Folder Name="/_github/agents/">
     <File Path=".github/agents/000-module-initiator.agent.md" />
+    <File Path=".github/agents/000-researcher.agent.md" />
     <File Path=".github/agents/001-planning.agent.md" />
     <File Path=".github/agents/002-implementation.agent.md" />
     <File Path=".github/agents/003-formatter.agent.md" />
     <File Path=".github/agents/004-reviewer.agent.md" />
     <File Path=".github/agents/adr-expert.agent.md" />
   </Folder>
+  <Folder Name="/_github/agents/input/">
+    <File Path=".github/agents/input/feature-brief-template.md" />
+    <File Path=".github/agents/input/workflow-state.md" />
+  </Folder>
   <Folder Name="/_github/agents/output/">
     <File Path=".github/agents/output/automated-plan.md" />
     <File Path=".github/agents/output/review-results.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
+    <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />
     <File Path=".github/instructions/backend.instructions.md" />
     <File Path=".github/instructions/blazor-tests.instructions.md" />

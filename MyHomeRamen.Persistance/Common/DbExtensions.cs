@@ -44,4 +44,27 @@ public static class DbExtensions
     {
         return !await query.AnyAsync(p => p.Name.ToLower() == name.ToLower(), cancellationToken);
     }
+
+    public static async Task<bool> IsCategoryNameUniqueAsync(
+        this IQueryable<MyHomeRamen.Domain.Menu.Categories.Category> query,
+        string name,
+        CancellationToken cancellationToken = default)
+    {
+        return !await query.AnyAsync(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
+    }
+
+    public static async Task<int> GetNextSortOrderAsync(
+        this IQueryable<MyHomeRamen.Domain.Menu.Categories.Category> query,
+        MyHomeRamen.Domain.Menu.Categories.CategoryType categoryType,
+        CancellationToken cancellationToken = default)
+    {
+        bool any = await query.AnyAsync(c => c.CategoryType == categoryType, cancellationToken);
+        if (!any)
+        {
+            return MyHomeRamen.Domain.Common.Category.CategoryConstants.MinSortOrder;
+        }
+
+        return await query.Where(c => c.CategoryType == categoryType)
+                          .MaxAsync(c => c.SortOrder, cancellationToken) + 1;
+    }
 }

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
-using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models.DTOs;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;

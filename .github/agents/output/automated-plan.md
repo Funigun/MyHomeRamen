@@ -1,322 +1,304 @@
-# Task Implementation Plan — Blazor: Create Product
+Feature implementation plan:
+- **Date**: 24.03.2026 22:40
+- **Feature**: CreateCategory endpoint for menu categories management
 
-- **Date**: 2025-07-14
-- **Feature**: CreateProduct — Blazor frontend for creating a new product (Admin only)
-- **Backend Endpoint**: `POST /api/menu.products` (group `Menu.Products`, requires `Admin` role)
-- **Backend Request**: `CreateProductRequest(Name, Description, Price, CategoryId, IngredientIds)`
-- **Backend Response**: `CreateProductResponse(Id)` — returns `201 Created`
+## 1) Create feature folder and structure
+
+```
+MyHomeRamen.Api/
+??? Menu/
+    ??? Features/
+        ??? Categories/
+            ??? CategoriesGroup.cs
+            ??? CreateCategory/
+                ??? Models/
+                ?   ??? DTOs/
+                ?   ?   ??? Mappings.cs
+                ?   ??? CreateCategoryRequest.cs
+                ?   ??? CreateCategoryResponse.cs
+                ??? Policies/
+                ?   ??? CreateCategoryValidator.cs
+                ??? CreateCategoryEndpoint.cs
+                ??? CreateCategoryHandler.cs
+```
+
+## 2) Create primitive rules and contracts
+
+Create `CategoryNameValidator` in `MyHomeRamen.Common.Contracts/Menu/Categories/`:
+- `AbstractValidator<string>` reusing `CategoryConstants.MinNameLength` / `CategoryConstants.MaxNameLength`
+- Exports `MinLength` and `MaxLength` constants matching domain constants
+- Rules: `NotEmpty()`, `MinimumLength(MinLength)`, `MaximumLength(MaxLength)`
+
+Create `CategorySortOrderValidator` in `MyHomeRamen.Common.Contracts/Menu/Categories/`:
+- `AbstractValidator<int>` reusing `CategoryConstants.MinSortOrder`
+- Exports `MinSortOrder` constant
+- Rules: `GreaterThanOrEqualTo(MinSortOrder)`
+
+```
+MyHomeRamen.Common.Contracts/
+??? Menu/
+    ??? Categories/
+        ??? CategoryNameValidator.cs
+        ??? CategorySortOrderValidator.cs
+```
+
+## 3) Create models, DTOs and mappings
+
+### CreateCategoryRequest
+```csharp
+public sealed record CreateCategoryRequest(
+    string Name,
+    int CategoryType) : IRequest<Guid>;
+```
+- **Note**: `SortOrder` is NOT part of the request. It is auto-calculated in the handler as `max SortOrder + 1` for the given `CategoryType`.
+- `CategoryType` is sent as `int` matching the enum value (`1 = Product`, `2 = Ingredient`).
+
+### CreateCategoryResponse
+```csharp
+public sealed record CreateCategoryResponse(Guid Id);
+```
+
+### Mappings (DTOs/Mappings.cs)
+```csharp
+internal static class Mappings
+{
+    public static Category ToDomain(this CreateCategoryRequest request, int nextSortOrder)
+    {
+        return Category.Create(
+            Guid.NewGuid(),
+            request.Name,
+            nextSortOrder,
+            (CategoryType)request.CategoryType);
+    }
+}
+```
+
+## 4) Create IRequestHandler implementation
+
+### CreateCategoryHandler
+- Inject `IMenuDbContext`
+- Calculate next sort order: query `dbContext.Categories` via `GetNextSortOrderAsync` extension
+- Map request to domain via `Mappings.ToDomain(request, nextSortOrder)`
+- Add to `dbContext.Categories`
+- Call `SaveChangesAsync`
+- Return `category.Id.Value`
+
+### DbExtensions addition
+Add to `MyHomeRamen.Persistance/Common/DbExtensions.cs`:
+```csharp
+public static async Task<bool> IsCategoryNameUniqueAsync(
+    this IQueryable<Category> query,
+    string name,
+    CancellationToken cancellationToken = default)
+{
+    return !await query.AnyAsync(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
+}
+
+public static async Task<int> GetNextSortOrderAsync(
+    this IQueryable<Category> query,
+    CategoryType categoryType,
+    CancellationToken cancellationToken = default)
+{
+    bool any = await query.AnyAsync(c => c.CategoryType == categoryType, cancellationToken);
+    if (!any) return CategoryConstants.MinSortOrder;
+    return await query.Where(c => c.CategoryType == categoryType)
+                      .MaxAsync(c => c.SortOrder, cancellationToken) + 1;
+}
+```
+
+## 5) Create CategoriesGroup (IGroupEndpoint)
+
+### CategoriesGroup.cs
+```csharp
+public sealed class CategoriesGroup : IGroupEndpoint
+{
+    public string GroupName { get; init; } = "Menu";
+
+    public void Configure(RouteGroupBuilder groupBuilder)
+    {
+        groupBuilder.WithTags("Categories")
+                    .WithDescription("Categories management operations")
+                    .RequireAuthorization();  // ? mandatory per backend.instructions �3.2
+    }
+}
+```
+
+## 6) Create IEndpoint implementation
+
+### CreateCategoryEndpoint
+- GroupName: `"Menu"`
+- Route: `"categories"` (resolves to `/api/menu.categories`)
+- Method: `MapStandardValidatedPost<CreateCategoryRequest, CreateCategoryResponse>`
+- Name: `"CreateCategoryEndpoint"`
+- Authorization: `.RequireAuthorization(AuthorizationConfiguration.RestaurantManagerPolicy)`
+- Handler returns `Results.Created($"/api/menu/categories/{id}", response)`
+
+### CreateCategoryValidator (Policies/)
+FluentValidation `AbstractValidator<CreateCategoryRequest>`:
+- `RuleFor(x => x.Name)` ? `.SetValidator(new CategoryNameValidator())`
+- `RuleFor(x => x.Name)` ? `.MustAsync(BeUniqueNameAsync)` using `IMenuDbContext` + `IsCategoryNameUniqueAsync`
+- `RuleFor(x => x.CategoryType)` ? `.Must(BeValidCategoryType)` checking `Enum.IsDefined((CategoryType)value)`
 
 ---
 
-## 1) Existing Primitive Validators (in `MyHomeRamen.Common.Contracts`)
+## 7) Create unit tests
 
-The following validators already exist and **must be reused** in the Blazor `ProductValidator`:
+### CategoryValidatorsTests (new file)
+Location: `MyHomeRamen.UnitTests/MenuModule/Categories/CategoryValidatorsTests.cs`
 
-| Validator | File | Rules |
-|---|---|---|
-| `ProductNameValidator` | `Common.Contracts/Menu/Products/ProductNameValidator.cs` | NotEmpty, MinLength(15), MaxLength(100) |
-| `ProductDescriptionValidator` | `Common.Contracts/Menu/Products/ProductDescriptionValidator.cs` | NotEmpty, MinLength(50), MaxLength(500) |
-| `ProductPriceValidator` | `Common.Contracts/Menu/Products/ProductPriceValidator.cs` | GreaterThanOrEqualTo(0.5), LessThanOrEqualTo(100.0) |
+Tests for `CategoryNameValidator` and `CategorySortOrderValidator` from `Common.Contracts`:
+- **CategoryNameValidator**:
+  - `CategoryNameValidator_ShouldHaveSameMinLengthAsDomain` � asserts `CategoryNameValidator.MinLength == CategoryConstants.MinNameLength`
+  - `CategoryNameValidator_ShouldHaveSameMaxLengthAsDomain` � asserts `CategoryNameValidator.MaxLength == CategoryConstants.MaxNameLength`
+  - `CategoryNameValidator_ShouldFail_WhenNameIsEmpty` � validates empty string, asserts error contains `"not empty"`
+  - `CategoryNameValidator_ShouldFail_WhenNameIsTooShort` � validates string of length `MinLength - 1`, asserts error contains `"minimum length"`
+  - `CategoryNameValidator_ShouldFail_WhenNameIsTooLong` � validates string of length `MaxLength + 1`, asserts error contains `"maximum length"`
+  - `CategoryNameValidator_ShouldPass_WhenNameIsValid` � validates string of valid length, asserts valid
+
+- **CategorySortOrderValidator**:
+  - `CategorySortOrderValidator_ShouldHaveSameMinSortOrderAsDomain` � asserts `CategorySortOrderValidator.MinSortOrder == CategoryConstants.MinSortOrder`
+  - `CategorySortOrderValidator_ShouldFail_WhenSortOrderIsBelowMinimum` � validates `MinSortOrder - 1`, asserts error contains `"greater than or equal to"`
+  - `CategorySortOrderValidator_ShouldPass_WhenSortOrderIsValid` � validates `MinSortOrder`, asserts valid
+
+## 8) Create integration tests
+
+### CreateCategoryTests
+Location: `MyHomeRamen.IntegrationTests/MenuModule/CreateCategoryTests.cs`
+
+**Prerequisites** (updates to existing files):
+- `DataGenerator.cs` � add `InvalidCreateCategoryRequests()` returning `TheoryData<CreateCategoryRequest>` with cases:
+  - Name empty, Name too short, Name too long, CategoryType invalid (e.g., `999`)
+- `Mappings.cs` � add `ToCreateCategoryRequest(this Category category)` mapping
+
+**Test cases**:
+- `CreateCategory_ShouldReturnCreated_ForValidRequest` � Admin auth, valid request, assert 201 + Location header
+- `CreateCategory_ShouldReturnUnauthorized_ForNotAuthenticatedUser` � no auth, assert 401
+- `CreateCategory_ShouldReturnForbidden_ForNonAdminUser` � Theory with Employee/Customer roles, assert 403
+- `CreateCategory_ShouldReturnBadRequest_ForInvalidRequest` � MemberData from `InvalidCreateCategoryRequests()`, assert 400
+- `CreateCategory_ShouldReturnBadRequest_ForDuplicateName` � create with existing category name, assert 400
+- `CreateCategory_ShouldAssignSequentialSortOrder_ForCategoryType` � create two categories of same type, verify second has SortOrder = first + 1
+
+## 9) Create architecture tests
+
+Architecture tests should be skipped � existing architecture tests already enforce module boundaries and project dependencies generically. No new category-specific architecture rules are needed.
+
+## 10) Create system tests
+
+System tests should be skipped � CreateCategory does not span multiple distributed services. Integration tests provide sufficient coverage.
 
 ---
 
-## 2) Create Feature Folder Structure
+## 11) Create frontend feature structure
 
 ```
 MyHomeRamen.Blazor/MyHomeRamen.Blazor/
-├── Common/
-│   └── Models/
-│       └── FormMode.cs                            # Shared form mode enum (Create/View/Edit)
-└── Features/C
-    └── Menu/
-        ├── Common/
-        │   └── Services/
-        │       └── MenuApiClient.cs               # Typed HttpClient for Menu API module
-        └── Products/
-            ├── Components/
-            │   ├── ProductForm.razor               # Unified form (Create/Edit/View via FormMode)
-            │   ├── ProductModel.cs                 # UI form model (decoupled from API DTO)
-            │   └── ProductValidator.cs             # FluentValidation validator for ProductModel
-            └── CreateProduct/
-                ├── CreateProductPage.razor          # Routable page @page "/menu/products/create"
-                └── CreateProductRequest.cs          # API request DTO for POST
+??? Features/
+    ??? Menu/
+        ??? Categories/
+            ??? Components/
+            ?   ??? CreateCategoryForm.razor
+            ?   ??? CategoryModel.cs
+            ?   ??? CategoryValidator.cs
+            ??? CreateCategory/
+            ?   ??? CreateCategoryRequest.cs
+            ??? CategoriesIndex/
+                ??? CategoriesIndexPage.razor
 ```
 
----
+## 12) Create or update models, DTOs and mappings
 
-## 3) Create `FormMode` Enum (shared)
-
-**File**: `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Common/Models/FormMode.cs`
-
+### CreateCategoryRequest (Blazor DTO)
+Location: `Features/Menu/Categories/CreateCategory/CreateCategoryRequest.cs`
 ```csharp
-namespace MyHomeRamen.Blazor.Common.Models;
-
-public enum FormMode
-{
-    Create = 0,
-    View = 1,
-    Edit = 2
-}
+public sealed record CreateCategoryRequest(string Name, int CategoryType);
 ```
 
-> This enum does not exist yet in the codebase. It's a shared concern used by all unified forms per the Blazor layer instructions.
-
----
-
-## 4) Create API Request DTO
-
-**File**: `Features/Menu/Products/CreateProduct/CreateProductRequest.cs`
-
+### CategoryModel (UI Model)
+Location: `Features/Menu/Categories/Components/CategoryModel.cs`
 ```csharp
-namespace MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
-
-public sealed record CreateProductRequest(
-    string Name,
-    string? Description,
-    decimal Price,
-    Guid CategoryId,
-    IEnumerable<Guid> IngredientIds);
-```
-
-> Mirrors the backend `CreateProductRequest` but lives in the Blazor project. This is the network payload DTO — **not** used for form binding.
-
----
-
-## 5) Create UI Model
-
-**File**: `Features/Menu/Products/Components/ProductModel.cs`
-
-```csharp
-using MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
-
-namespace MyHomeRamen.Blazor.Features.Menu.Products.Components;
-
-public sealed class ProductModel
+public sealed class CategoryModel
 {
     public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public decimal Price { get; set; }
-    public Guid CategoryId { get; set; }
-    public ICollection<Guid> IngredientIds { get; set; } = [];
+    public int CategoryType { get; set; }
 
-    public CreateProductRequest ToCreateRequest()
+    public CreateCategoryRequest ToCreateRequest()
     {
-        return new CreateProductRequest(
-            Name,
-            string.IsNullOrWhiteSpace(Description) ? null : Description,
-            Price,
-            CategoryId,
-            IngredientIds);
+        return new CreateCategoryRequest(Name, CategoryType);
     }
 }
 ```
 
-> Follows the `SignUpModel` → `SignUpRequest` mapping pattern already established in the codebase. Manual mapping via `ToCreateRequest()`.
+### CategoryValidator (UI Validator)
+Location: `Features/Menu/Categories/Components/CategoryValidator.cs`
+- Extends `BaseValidator<CategoryModel>`
+- `RuleFor(x => x.Name)` ? `.SetValidator(new CategoryNameValidator())` (from Common.Contracts)
+- `RuleFor(x => x.CategoryType)` ? `.Must(v => Enum.IsDefined((CategoryType)v))` with message `"Please select a valid category type."`
 
----
+## 13) Create or update API communication services
 
-## 6) Create Validator
-
-**File**: `Features/Menu/Products/Components/ProductValidator.cs`
-
+### MenuApiClient update
+Add to existing `MenuApiClient.cs`:
 ```csharp
-using FluentValidation;
-using MyHomeRamen.Common.Contracts.Menu.Products;
-
-namespace MyHomeRamen.Blazor.Features.Menu.Products.Components;
-
-public sealed class ProductValidator : AbstractValidator<ProductModel>
+public async Task<Guid> CreateCategoryAsync(CreateCategoryRequest request, CancellationToken ct = default)
 {
-    public ProductValidator()
-    {
-        RuleFor(x => x.Name)
-            .SetValidator(new ProductNameValidator());
-
-        RuleFor(x => x.Description)
-            .SetValidator(new ProductDescriptionValidator());
-
-        RuleFor(x => x.Price)
-            .SetValidator(new ProductPriceValidator());
-
-        RuleFor(x => x.CategoryId)
-            .NotEmpty()
-            .WithMessage("Please select a category.");
-
-        RuleFor(x => x.IngredientIds)
-            .NotEmpty()
-            .WithMessage("Please select at least one ingredient.");
-    }
-
-    public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
-    {
-        FluentValidation.Results.ValidationResult result = await ValidateAsync(
-            ValidationContext<ProductModel>.CreateWithOptions(
-                (ProductModel)model,
-                x => x.IncludeProperties(propertyName)));
-
-        return result.IsValid ? [] : result.Errors.Select(e => e.ErrorMessage);
-    };
+    using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu.categories", request, ct);
+    response.EnsureSuccessStatusCode();
+    CreateCategoryResponse? result = await response.Content.ReadFromJsonAsync<CreateCategoryResponse>(ct);
+    return result?.Id ?? throw new InvalidOperationException("Failed to deserialize category creation response.");
 }
 ```
 
-> Reuses all three primitive validators from `MyHomeRamen.Common.Contracts`. Follows the `SignUpValidator` pattern with `ValidateValue` delegate for MudBlazor integration.
-
----
-
-## 7) Create `MenuApiClient` (Module-Specific HTTP Client)
-
-**File**: `Features/Menu/Common/Services/MenuApiClient.cs`
-
+Also add response record:
 ```csharp
-using MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
-
-namespace MyHomeRamen.Blazor.Features.Menu.Common.Services;
-
-public sealed class MenuApiClient(HttpClient httpClient)
-{
-    public async Task<Guid> CreateProductAsync(CreateProductRequest request, CancellationToken ct = default)
-    {
-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu.products", request, ct);
-        response.EnsureSuccessStatusCode();
-
-        CreateProductResponse? result = await response.Content.ReadFromJsonAsync<CreateProductResponse>(ct);
-        return result?.Id ?? throw new InvalidOperationException("Failed to deserialize product creation response.");
-    }
-}
-
-public sealed record CreateProductResponse(Guid Id);
+public sealed record CreateCategoryResponse(Guid Id);
 ```
 
-> Follows the `EmployeeApiClient` / `CustomerAccountApiClient` pattern. Uses `AdminAuthHeaderHandler` since CreateProduct requires `Admin` role.
-
----
-
-## 8) Register `MenuApiClient` in DI
-
-**File**: `Presentation/ApiDependencyInjection.cs`
-
-Add registration targeting the main API service (not Identity API):
-
+### MenuNavigationService update
+Add category routes to existing `MenuNavigationService.cs`:
 ```csharp
-services.AddHttpClient<MenuApiClient>(client =>
-    {
-        client.BaseAddress = new Uri($"https+http://{infrastructurePrefix}-api");
-    }
-).AddHttpMessageHandler<AdminAuthHeaderHandler>();
+public const string Categories = "/menu/categories";
 ```
-
-> The API project is registered as `{prefix}-api` in Aspire (see `ProjectRegistrationExtensions.AddApiService`). Uses `AdminAuthHeaderHandler` since this is an Admin-only endpoint.
-
----
-
-## 9) Create `ProductForm.razor` (Unified Form Component)
-
-**File**: `Features/Menu/Products/Components/ProductForm.razor`
-
-Key aspects:
-- Accepts `[Parameter] public FormMode Mode { get; set; }` to control Create/View/Edit behavior
-- Uses `MudForm` with `ProductValidator.ValidateValue` for validation
-- Fields: `MudTextField` for Name, `MudTextField` (multiline) for Description, `MudNumericField` for Price, `MudSelect` for CategoryId, `MudSelect` (multi) for IngredientIds
-- Shows submit button only in Create/Edit modes
-- Disables all fields in View mode
-- Uses `_isBusy` / `_errorMessage` pattern from `SignUpForm.razor`
-- Exposes `[Parameter] public EventCallback<Guid> OnSuccess { get; set; }` to notify parent page
-- Injects `MenuApiClient` and calls `CreateProductAsync` on submission
-- Keeps submission logic in `@code {}` block (no code-behind needed per instructions)
-
-**Note**: CategoryId and IngredientIds dropdowns will need data sources. For the initial implementation, these can accept `[Parameter]` collections:
-- `[Parameter] public IEnumerable<CategoryOption> Categories { get; set; }`
-- `[Parameter] public IEnumerable<IngredientOption> Ingredients { get; set; }`
-
-These option types can be simple records defined alongside the form or in the Common models folder:
-
+And navigation method:
 ```csharp
-public sealed record CategoryOption(Guid Id, string Name);
-public sealed record IngredientOption(Guid Id, string Name);
+public void ToCategories() => navigation.NavigateTo(Routes.Categories);
 ```
 
-> **Dependency note**: Category and Ingredient listing endpoints may not exist yet on the backend. The plan assumes they will be available. If not, stub data or a TODO should be left for those `MenuApiClient` methods.
+## 14) Create or update Blazor components and pages
+
+### CreateCategoryForm.razor
+Location: `Features/Menu/Categories/Components/CreateCategoryForm.razor`
+- MudForm with validation via `CategoryValidator.ValidateValue`
+- Fields: `MudTextField` for Name, `MudSelect<int>` for CategoryType (dropdown with "Product" and "Ingredient" options)
+- Submit button with busy state pattern
+- `[Parameter] public EventCallback<Guid> OnSuccess { get; set; }` � invoked after successful API call
+- Injects `MenuApiClient` for API call
+
+### CategoriesIndexPage.razor
+Location: `Features/Menu/Categories/CategoriesIndex/CategoriesIndexPage.razor`
+- Route: `@page "/menu/categories"`
+- Authorization: `@attribute [Authorize(Roles = MenuRoleConstants.Admin)]`
+- Layout:
+  1. `<MudPaper>` wrapper
+  2. Page title "Category Management"
+  3. `<CreateCategoryForm>` component at the top with `OnSuccess` callback to show success message
+  4. `<MudDivider Class="my-6" />`
+  5. `<MudText Typo="Typo.h5">Product Categories</MudText>` section header
+  6. `<MudAlert Severity="Severity.Info">Category list coming soon.</MudAlert>` placeholder
+  7. `<MudDivider Class="my-6" />`
+  8. `<MudText Typo="Typo.h5">Ingredient Categories</MudText>` section header
+  9. `<MudAlert Severity="Severity.Info">Category list coming soon.</MudAlert>` placeholder
+
+## 15) Create Unit tests for Blazor components and services
+
+Blazor tests should be skipped � blazor-tests instructions are not yet defined (`TODO` in instructions file). Tests will be added when the testing framework for Blazor is established.
 
 ---
 
-## 10) Create `CreateProductPage.razor`
+## Implementation Order
 
-**File**: `Features/Menu/Products/CreateProduct/CreateProductPage.razor`
-
-```razor
-@page "/menu/products/create"
-@attribute [Authorize(Roles = "admin")]
-
-@using MyHomeRamen.Blazor.Common.Models
-@using MyHomeRamen.Blazor.Features.Menu.Products.Components
-
-<PageTitle>Create Product</PageTitle>
-
-<MudContainer MaxWidth="MaxWidth.Medium">
-    <MudText Typo="Typo.h4" Class="mb-4">Create New Product</MudText>
-    <ProductForm Mode="FormMode.Create"
-                 Categories="_categories"
-                 Ingredients="_ingredients"
-                 OnSuccess="HandleSuccess" />
-</MudContainer>
-
-@code {
-    [Inject] private NavigationManager Navigation { get; set; } = default!;
-
-    private IEnumerable<CategoryOption> _categories = [];
-    private IEnumerable<IngredientOption> _ingredients = [];
-
-    // TODO: Load categories and ingredients from MenuApiClient on OnInitializedAsync
-
-    private void HandleSuccess(Guid productId)
-    {
-        Navigation.NavigateTo($"/menu/products/{productId}");
-    }
-}
-```
-
-> Simple page — no code-behind needed. Role-gated to `admin`. On success navigates to the product detail page (future feature).
-
----
-
-## 11) Summary of Files to Create/Modify
-
-### New Files:
-
-| # | File | Purpose |
-|---|---|---|
-| 1 | `Common/Models/FormMode.cs` | Shared form mode enum |
-| 2 | `Features/Menu/Common/Services/MenuApiClient.cs` | Typed HTTP client for Menu API |
-| 3 | `Features/Menu/Products/Components/ProductModel.cs` | UI form model |
-| 4 | `Features/Menu/Products/Components/ProductValidator.cs` | FluentValidation validator |
-| 5 | `Features/Menu/Products/Components/ProductForm.razor` | Unified product form |
-| 6 | `Features/Menu/Products/CreateProduct/CreateProductRequest.cs` | API request DTO |
-| 7 | `Features/Menu/Products/CreateProduct/CreateProductPage.razor` | Routable page |
-
-### Modified Files:
-
-| # | File | Change |
-|---|---|---|
-| 1 | `Presentation/ApiDependencyInjection.cs` | Register `MenuApiClient` with `AdminAuthHeaderHandler` |
-
----
-
-## 12) Reference Patterns Used
-
-| Pattern | Reference File |
-|---|---|
-| UI Model with manual mapping | `Features/Account/Components/SignUpModel.cs` |
-| FluentValidation with `ValidateValue` | `Features/Account/Components/SignUpValidator.cs` |
-| MudForm with validation binding | `Features/Account/Components/SignUpForm.razor` |
-| Typed HttpClient (module service) | `Features/Admin/Employees/EmployeeApiClient.cs` |
-| DI registration with auth handler | `Presentation/ApiDependencyInjection.cs` |
-| Simple page wrapping form component | `Features/Account/SignUp/SignUpPage.razor` |
-
----
-
-## 13) Decisions
-
-1. **Category & Ingredient listing endpoints**: Do not exist and are **out of scope**. The `ProductForm` should accept `[Parameter]` collections for categories and ingredients. The `CreateProductPage` should leave a TODO for loading this data once the endpoints are available.
-2. **Navigation**: Nav menu does **not** require updates.
-3. **Product listing page**: **Not** part of scope.
-4. **FormMode for future use**: The `ProductForm` is designed as a unified form. When Edit/View features are added later, the same form component will be reused with different `FormMode` values.
+1. **Common.Contracts** � `CategoryNameValidator`, `CategorySortOrderValidator`
+2. **Persistance** � `DbExtensions` additions (`IsCategoryNameUniqueAsync`, `GetNextSortOrderAsync`)
+3. **API** � `CategoriesGroup`, `CreateCategory` feature folder (Request, Response, Mappings, Validator, Handler, Endpoint)
+4. **Unit Tests** � `CategoryValidatorsTests`
+5. **Integration Tests** � `DataGenerator` updates, `Mappings` update, `CreateCategoryTests`
+6. **Blazor** � `CreateCategoryRequest`, `CategoryModel`, `CategoryValidator`, `CreateCategoryForm.razor`, `CategoriesIndexPage.razor`, `MenuApiClient` update, `MenuNavigationService` update

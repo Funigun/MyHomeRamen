@@ -1,0 +1,39 @@
+@page "/admin/menu/categories"
+
+@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Components
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+
+<PageTitle>Category Management</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Category Management</MudText>
+
+    <CreateCategoryForm OnSuccess="OnCategoryCreated" />
+
+    @if (_successMessage is not null)
+    {
+        <MudAlert Severity="Severity.Success" Class="mt-4" Dense="true">@_successMessage</MudAlert>
+    }
+
+    <MudDivider Class="my-6" />
+
+    <MudText Typo="Typo.h5">Product Categories</MudText>
+    <MudAlert Severity="Severity.Info" Class="mt-2">Category list coming soon.</MudAlert>
+
+    <MudDivider Class="my-6" />
+
+    <MudText Typo="Typo.h5">Ingredient Categories</MudText>
+    <MudAlert Severity="Severity.Info" Class="mt-2">Category list coming soon.</MudAlert>
+</MudPaper>
+
+@code {
+    private string? _successMessage;
+
+    private Task OnCategoryCreated(Guid id)
+    {
+        _successMessage = $"Category created successfully.";
+        return Task.CompletedTask;
+    }
+}
