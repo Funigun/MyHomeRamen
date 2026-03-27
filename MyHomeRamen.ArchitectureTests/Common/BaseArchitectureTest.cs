@@ -1,60 +1,60 @@
 ﻿using ArchUnitNET.Domain;
-using Assembly = System.Reflection.Assembly;
+using ArchUnitNET.Fluent;
+using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace MyHomeRamen.ArchitectureTests.Common;
 
-public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuilder) : IAsyncLifetime
+public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuilder)
 {
-    protected static readonly Assembly ApiContractsAssembly = typeof(MyHomeRamen.Common.Contracts.ICommonContractsAssemblyMarker).Assembly;
-    protected static readonly Assembly ApiAssembly = typeof(MyHomeRamen.Api.IApiAssemblyMarker).Assembly;
-    protected static readonly Assembly ApiCommonAssembly = typeof(MyHomeRamen.Api.Common.DependencyInjection).Assembly;
-    protected static readonly Assembly AppHostAssembly = typeof(MyHomeRamen.AppHost.IAppHostAssemblyMarker).Assembly;
-    protected static readonly Assembly BlazorClientAssembly = typeof(MyHomeRamen.Blazor.Client.IBlazorClientAssemblyMarker).Assembly;
-    protected static readonly Assembly BlazorServerAssembly = typeof(MyHomeRamen.Blazor.Components.App).Assembly;
-    protected static readonly Assembly DomainAssembly = typeof(MyHomeRamen.Domain.IDomainAssemblyMarker).Assembly;
-    protected static readonly Assembly IdentityApiAssembly = typeof(MyHomeRamen.Identity.Api.IIdentityApiAssemblyMarker).Assembly;
-    protected static readonly Assembly InfrastructureAssembly = typeof(MyHomeRamen.Infrastructure.IInfrastructureAssemblyMarker).Assembly;
-    protected static readonly Assembly IntegrationTestsAssembly = typeof(MyHomeRamen.IntegrationTests.IIntegrationTestsAssemblyMarker).Assembly;
-    protected static readonly Assembly PersistanceAssembly = typeof(MyHomeRamen.Persistance.IPersistanceAssemblyMarker).Assembly;
-    protected static readonly Assembly ServiceDefaultsAssembly = typeof(MyHomeRamen.ServiceDefaults.IServiceDefaultsAssemblyMarker).Assembly;
-    protected static readonly Assembly UnitTestsAssembly = typeof(MyHomeRamen.UnitTests.IUnitTestsAssemblyMarker).Assembly;
-    protected static readonly Assembly WorkerCommonAssembly = typeof(MyHomeRamen.Worker.Common.IWorkerCommonAssemblyMarker).Assembly;
-    protected static readonly Assembly WorkerMailSenderAssembly = typeof(MyHomeRamen.Worker.MailSender.IWorkerMailSenderAssemblyMarker).Assembly;
-    protected static readonly Assembly WorkerMessagesHandlerAssembly = typeof(MyHomeRamen.Worker.MessagesHandler.IWorkerMessagesHandlerAssemblyMarker).Assembly;
-    protected static readonly Assembly WorkerDbInitializerAssembly = typeof(MyHomeRamen.Worker.DatabaseInitializer.IDbInitializerWorkerAssemblyMarker).Assembly;
-    protected static readonly Assembly ArchitectureTestsAssembly = typeof(BaseArchitectureTest).Assembly;
+    protected ArchitectureBuilder ArchitectureBuilder { get; } = architectureBuilder;
 
-    protected static readonly Assembly[] ProjectAssemblies =
-    [
-        ApiAssembly,
-        ApiContractsAssembly,
-        ApiCommonAssembly,
-        AppHostAssembly,
-        BlazorClientAssembly,
-        BlazorServerAssembly,
-        DomainAssembly,
-        IdentityApiAssembly,
-        InfrastructureAssembly,
-        IntegrationTestsAssembly,
-        PersistanceAssembly,
-        ServiceDefaultsAssembly,
-        UnitTestsAssembly,
-        WorkerCommonAssembly,
-        WorkerMailSenderAssembly,
-        WorkerMessagesHandlerAssembly,
-        WorkerDbInitializerAssembly,
-        ArchitectureTestsAssembly
-    ];
+    protected IObjectProvider<IType> ApiLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiAssembly).As("API Layer");
 
-    protected Architecture Architecture { get; } = architectureBuilder.Architecture;
+    protected IObjectProvider<IType> ApiContractsLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiContractsAssembly).As("API Contracts Layer");
 
-    public async ValueTask InitializeAsync()
+    protected IObjectProvider<IType> ApiCommonLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiCommonAssembly).As("API Common Layer");
+
+    protected IObjectProvider<IType> AppHostLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.AppHostAssembly).As("App Host Layer");
+
+    protected IObjectProvider<IType> BlazorClientLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.BlazorClientAssembly).As("Blazor Client Layer");
+
+    protected IObjectProvider<IType> BlazorServerLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.BlazorServerAssembly).As("Blazor Server Layer");
+
+    protected IObjectProvider<IType> DomainLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.DomainAssembly).As("Domain Layer");
+
+    protected IObjectProvider<IType> IdentityApiLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.IdentityApiAssembly).As("Identity API Layer");
+
+    protected IObjectProvider<IType> InfrastructureLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.InfrastructureAssembly).As("Infrastructure Layer");
+
+    protected IObjectProvider<IType> IntegrationTestsLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.IntegrationTestsAssembly).As("Integration Tests Layer");
+
+    protected IObjectProvider<IType> PersistanceLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.PersistanceAssembly).As("Persistance Layer");
+
+    protected IObjectProvider<IType> ServiceDefaultsLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ServiceDefaultsAssembly).As("Service Defaults Layer");
+
+    protected IObjectProvider<IType> UnitTestsLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.UnitTestsAssembly).As("Unit Tests Layer");
+
+    protected IObjectProvider<IType> WorkerCommonLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.WorkerCommonAssembly).As("Worker Common Layer");
+
+    protected IObjectProvider<IType> WorkerMailSenderLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.WorkerMailSenderAssembly).As("Worker Mail Sender Layer");
+
+    protected IObjectProvider<IType> WorkerMessagesHandlerLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.WorkerMessagesHandlerAssembly).As("Worker Messages Handler Layer");
+
+    protected IObjectProvider<IType> WorkerDbInitializerLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.WorkerDbInitializerAssembly).As("Worker DB Initializer Layer");
+
+    protected IObjectProvider<IType> ArchitectureTestsLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ArchitectureTestsAssembly).As("Architecture Tests Layer");
+
+    protected static IEnumerable<IArchRule> GetForbiddenDependenciesRules(IEnumerable<string> testedTypes, IEnumerable<string> forbiddenTypes, string ruleDescription)
     {
-
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-
+        return testedTypes.SelectMany(testedType =>
+            forbiddenTypes.Select(forbiddenType =>
+                Types().That()
+                    .ResideInNamespace(testedType)
+                    .Should()
+                    .NotDependOnAnyTypesThat()
+                    .ResideInNamespace(forbiddenType)
+                    .As(string.Format(ruleDescription, testedType, forbiddenType))
+            )
+        );
     }
 }

@@ -36,47 +36,92 @@ Drax Planner: Creating plan...
 Drax Planner: ✓ Work complete
 ```
 
+## Task Type Detection
+
+| Type | Indicators | Plan Additions |
+|---|---|---|
+| **Feature** | "create", "implement" | API or Blazor or both |
+| **Bug** | "fix", "broken", "error" | Steps to reproduce, root cause analysis |
+| **Refactor** | "refactor", "clean" | Breaking changes, migration path |
+| **Chore** | "update" | Minimal steps, validation focus |
+
 ## Planning process
 
-### 1) Load relevant instruction files
-- load following files from `.github/instructions/projects/` for architecture guidance:
-	- `domain.instructions.md`
-	- `persistence.instructions.md`
-	- `infrastructure.instructions.md`
-	- `api-layer.instructions.md`
+### 1) Load workflow state, research report, and instruction files
 
-- load following files from `.github/instructions/general/`:
-	- `backend-quality.instructions.md`
-	- `feature-structure.instructions.md`
+**Step 1a — Load workflow state:**
+Read `.github/agents/input/workflow-state.md` and extract:
+- **Scope** (`common`, `backend`, or `frontend`) — controls instruction files and output file names
+- **Mode** (`feature` or `review-fixes`) — controls planning strategy
+- **Iteration** (1, 2, or 3) — current iteration number
 
-Loading files is crucial for output quality. 
+**Step 1b — Load research report:**
+Load the scoped research report: `.github/agents/output/research-report-{scope}.md`
+
+If the report exists, use it as the primary source for:
+- Reference feature file paths and code patterns
+- Discovered conventions and common utilities
+- Existing architecture boundaries
+- Potential pitfalls
+
+If the report does not exist, log a warning and proceed — you will discover patterns manually during planning.
+
+**Step 1c — Load instruction files based on scope:**
+
+| Scope | Instruction files to load |
+|---|---|
+| `common` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
+| `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
+| `frontend` | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
+
+If a new module is being created, also load: `.github/instructions/module-introduction.instructions.md`
+
+Always load:
+- `.github/skills/code-quality/skill.md`
+- `.github/skills/solution-structure/skill.md`
+
+Loading files is crucial for output quality.
 Do not proceed to next steps before loading all files and analyzing their content for relevant information and guidance.
 
 ### 2) Gather requirements and context
-- gather basic details about the task:
+
+**If mode = `review-fixes`:**
+Load `.github/agents/output/review-results-{scope}.md` and extract all issues that need addressing:
+- Issues with no `Implementation status` line — not yet attempted
+- Issues with `⚠️ Cannot implement` status — previously failed; re-evaluate only if the stated reason is no longer valid
+
+Treat each extracted issue as a work item for the fix plan. Do not gather interactive input — the reviewer report is the complete specification.
+
+**If mode = `feature`:**
+First, attempt to load `.github/agents/input/feature-brief.md`. If the file exists and all sections are filled (not `TBD` or blank), extract all requirements from it and skip interactive gathering.
+
+If the feature brief is missing or incomplete, gather the following interactively:
+
+- Basic details:
 	- which module is implementing the feature or change
 	- what is the feature or change to be implemented
 	- which authorization policy should be applied (Anonymous, Admin, Employee, Customer)
 	- which policies are applicable (IAuthorizationPolicy, IValidator, ICachePolicy)
 
-- gather advanced details about the task:
+- Advanced details:
 	- should any events be produced
-	- is asynchronous messaging involved - specify which (RabbitMq, SSE, SignalR)
+	- is asynchronous messaging involved — specify which (RabbitMq, SSE, SignalR)
 	- which existing tests should be referenced for testing
 	- which new tests should be created as part of the testing plan
-	
-- gather details if frontend requires changes:
-	- is there any frontend implementation needed (Blazor Server or Blazor WASM)
+
+- Frontend details (if `scope` is `frontend`):
 	- which components or pages should be changed or created
 	- which feature can be used as reference for frontend implementation
 
-Information above should be gather from user input. Do not proceed further before gathering all necessary information.
+If the feature brief was loaded successfully with all sections filled, proceed immediately without asking the user. Otherwise, do not proceed further before gathering all necessary information.
 
-### 3) automated-plan.md cleanup
+### 3) Scoped plan cleanup
 
-clear `.github/agents/output/automated-plan.md`  file to save the output of the planning process
+Clear the scoped plan file: `.github/agents/output/automated-plan-{scope}.md`
 
 ### 4) Task implementation plan
+
+**If mode = `feature`:**
 Prepare step by step implementation plan for the task in structured way:
 	- create feature folder and structure
 	- create models, DTOs and mappings
@@ -87,12 +132,21 @@ Prepare step by step implementation plan for the task in structured way:
 
 In case of any doubts or missing information ask user for clarification first before trying to find solution in codebase.
 
-Plan should be represent as folder tree with proper folder and file names.
+Plan should be represented as a folder tree with proper folder and file names.
 
-### 5) Save feature structure plan
-Update `.github/agents/output/automated-plan.md` with following sections:
+**If mode = `review-fixes`:**
+For each issue extracted in step 2, create a targeted fix entry:
+- **Issue reference**: [{N}] from review-results — exact title
+- **Files to change**: list exact file paths to create or modify
+- **Change description**: what specifically to add, remove, or modify
+- **Risk notes**: flag any side effects or known incompatibilities (e.g., `StringComparison` overloads not supported by EF Core LINQ translation)
 
-Task Implementation Plan:
+### 5) Save implementation plan
+
+**If mode = `feature`:**
+Update `.github/agents/output/automated-plan-{scope}.md` with following sections:
+
+Feature {Type} plan:
 - **Date**: <<current date and time>>
 - **Feature**: <<feature name or description>>
 
@@ -115,15 +169,26 @@ Task Implementation Plan:
 6) Create IEndpoint implementation
    <<details>>
 
+**If mode = `review-fixes`:**
+Update `.github/agents/output/automated-plan-{scope}.md` with following sections:
+
+Review Fixes plan — Iteration {N}:
+- **Date**: <<current date and time>>
+- **Feature**: <<feature name or description>>
+- **Based on**: `review-results-{scope}.md`
+- **Issues to address**: {count}
+
+For each issue:
+
+Fix {N}: [{issue number}] {issue title}
+- **File(s)**: {exact file paths}
+- **Change**: {specific change description}
+- **Risk**: {risk notes or "None"}
+
 
 ### 6) Task testing plan
-Use general guidelines from `.github/copilot-instructions.md` to specify testing requirements for the feature or change.
-Load also following files from `.github/instructions/testing/` folder for testing guidance:
-	- `unit-tests.instructions.md`
-	- `integration-tests.instructions.md`
-	- `architecture-tests.instructions.md`
-	- `system-tests.instructions.md`
 
+**If mode = `feature`:**
 Include additional details gathered from user on previous steps (if there are any).
 
 Create a step-by-step testing plan with following steps:
@@ -132,8 +197,11 @@ Create a step-by-step testing plan with following steps:
 	- additional configurations e.g. updating WebApplicationFactory, setting Redis with test containers etc.
 	- test cases to cover
 
+**If mode = `review-fixes`:**
+Only plan test changes explicitly required by the review issues (e.g., fixing wrong assertions, adding missing test cases flagged by the reviewer). Skip if no test-related issues were identified.
+
 ### 7) Save testing plan
-Following sections should be added at the bottom of `.github/agents/output/automated-plan.md` file:
+Following sections should be added at the bottom of `.github/agents/output/automated-plan-{scope}.md` file:
 
 7) Create unit tests 
    <<details>> or information that unit tests should be skipped
@@ -147,16 +215,11 @@ Following sections should be added at the bottom of `.github/agents/output/autom
 10) Create system tests (if applicable)
    <<details>> or information that architecture system should be skipped
 	
-### 8) Blazor frontend implementation plan (if applicable)
+### 8) Blazor frontend implementation plan (scope = `frontend` only)
 
-If blazor updates were not requested then ignore instructions below.
+Skip this section entirely if scope is `common` or `backend`.
 
-Create a step-by-step implementation plan for Blazor frontend as well.
-
-To get Blazor specific guidance, load following files:
-	- `.github/instructions/general/frontend-quality.instructions.md` for Blazor specific guidance.
-	- `.github/instructions/modules/blazor.instructions.md` for Blazor specific guidance.
-	- `.github/instructions/projects/blazor.instructions.md` for Blazor specific guidance.
+Create a step-by-step implementation plan for Blazor frontend changes. Instruction files were already loaded in step 1c.
 
 Prepare a step by step implementation plan for Blazor frontend changes in structured way:
 	- identify components or pages to be changed or created
@@ -167,17 +230,17 @@ Prepare a step by step implementation plan for Blazor frontend changes in struct
 	- create unit tests for Blazor components and services
 
 ### 9) Save Blazor plan
-Following sections should be added at the bottom of `.github/agents/output/automated-plan.md` file:
+Following sections should be added at the bottom of `.github/agents/output/automated-plan-{scope}.md` file:
 
 11) Create frontend feature structure
    <<details>> or information if not needed (e.g. updating existing feature)
 	
-13) Create or update models, DTOs and mappings
+14) Create or update API communication services and API Response model
    <<details>> or information if not needed
 
-14) Create or update API communication services
+14) Create or update models, DTOs and mappings
    <<details>> or information if not needed
-	
+
 15) Create or update Blazor components and pages
    <<details>> or information if not needed
 

@@ -1,6 +1,6 @@
 ---
 name: solution-structure
-description: Project, folder organization, naming conventions, and layer boundaries for MyHomeRamen application. Stack: Aspire AppHost, ASP.NET Core Minimal API (modular monolith + clean architecture + vertical slices), Blazor App, shared contracts and backround workers. Detects existing patterns first, enforces consistency.
+description: Project, folder organization, naming conventions, and layer boundaries for MyHomeRamen application including Aspire AppHost, ASP.NET Core Minimal API (modular monolith + clean architecture + vertical slices), Blazor App, shared contracts and background workers. Detects existing patterns first, enforces consistency.
 ---
 
 # 1) Solution Structure
@@ -37,9 +37,8 @@ MyHomeRamen.slnx
 │       │   └── {DomainModelPlural}/
 │       │       ├── {FeatureName}/
 │       │       │   ├── Models/
-│       │       │   │   ├── DTOs/
-│       │       │   │   │   ├── {Entity}Dto.cs
-│       │       │   │   │   └── Mappings.cs
+│       │       │   │   ├── {Entity}Dto.cs           ← optional
+│       │       │   │   ├── Mappings.cs
 │       │       │   │   ├── {FeatureName}Request.cs
 │       │       │   │   └── {FeatureName}Response.cs
 │       │       │   ├── Policies/

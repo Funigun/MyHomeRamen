@@ -2,6 +2,7 @@ using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Basket;
 using MyHomeRamen.Domain.ShoppingCart;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 
 namespace MyHomeRamen.UnitTests.ShoppingCartModule.Baskets;
 

@@ -1,0 +1,85 @@
+@using MyHomeRamen.Blazor.Features.Menu.Categories
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Components
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+
+@inject MenuApiClient MenuApiClient
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudTextField Label="Name" @bind-Value="_model.Name" For="@(() => _model.Name)"
+                          Variant="Variant.Outlined"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudSelect T="CategoryType" Label="Category Type" @bind-Value="_model.CategoryType" For="@(() => _model.CategoryType)"
+                       Variant="Variant.Outlined"
+                       Required="true">
+                @foreach (CategoryType type in Enum.GetValues<CategoryType>())
+                {
+                    <MudSelectItem T="CategoryType" Value="type">@type</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        @if (_errorMessage is not null)
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Error" Dense="true">@_errorMessage</MudAlert>
+            </MudItem>
+        }
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Disabled="_isBusy"
+                       OnClick="SubmitAsync">
+                @if (_isBusy)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Create Category</MudText>
+                }
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudForm>
+
+@code {
+    private MudForm _form = default!;
+    private readonly CategoryModel _model = new();
+    private readonly CategoryValidator _validator = new();
+    private bool _isBusy;
+    private string? _errorMessage;
+
+    [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        _isBusy = true;
+        _errorMessage = null;
+
+        try
+        {
+            Guid id = await MenuApiClient.CreateCategoryAsync(_model.ToCreateRequest());
+            await OnSuccess.InvokeAsync(id);
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to create category. Please try again.";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}

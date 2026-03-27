@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Domain;
-using MyHomeRamen.Domain.ShoppingCart;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
