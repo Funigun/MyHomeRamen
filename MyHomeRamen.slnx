@@ -51,6 +51,7 @@
     <File Path=".github/agents/output/review-results.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
+    <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />
     <File Path=".github/instructions/backend.instructions.md" />
     <File Path=".github/instructions/blazor-tests.instructions.md" />
