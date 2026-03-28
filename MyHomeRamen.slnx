@@ -51,8 +51,10 @@
     <File Path=".github/agents/input/feature-brief.md" />
   </Folder>
   <Folder Name="/_github/agents/output/">
-    <File Path=".github/agents/output/automated-plan.md" />
-    <File Path=".github/agents/output/review-results.md" />
+    <File Path=".github/agents/output/automated-plan-backend.md" />
+    <File Path=".github/agents/output/automated-plan-frontend.md" />
+    <File Path=".github/agents/output/research-report-backend.md" />
+    <File Path=".github/agents/output/research-report-frontend.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
