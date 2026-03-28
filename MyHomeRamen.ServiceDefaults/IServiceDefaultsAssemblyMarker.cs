@@ -1,0 +1,3 @@
+namespace MyHomeRamen.ServiceDefaults;
+
+public interface IServiceDefaultsAssemblyMarker;

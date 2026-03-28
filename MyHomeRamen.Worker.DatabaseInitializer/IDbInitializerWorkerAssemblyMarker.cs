@@ -1,0 +1,3 @@
+﻿namespace MyHomeRamen.Worker.DatabaseInitializer;
+
+public interface IDbInitializerWorkerAssemblyMarker;

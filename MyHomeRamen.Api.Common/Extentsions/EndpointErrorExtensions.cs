@@ -1,4 +1,4 @@
-﻿using MyHomeRamen.Api.Common.Endpoint;
+﻿using MyHomeRamen.Api.Common.Endpoint.Models;
 
 namespace MyHomeRamen.Api.Common.Extentsions;
 
