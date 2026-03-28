@@ -56,6 +56,13 @@ public static class EndpointBuilderExtensions
         return routeHandler;
     }
 
+    public static RouteHandlerBuilder MapStandardValidatedGet<TRequest, TResponse>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)
+    {
+        return builder.MapStandardGet<TResponse>(pattern, handler)
+                      .WithValidationFilter<TRequest>()
+                      .ProducesProblem(StatusCodes.Status400BadRequest);
+    }
+
     public static RouteHandlerBuilder MapStandardAuthenticatedGet<TResponse>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)
     {
         return builder.MapStandardGet<TResponse>(pattern, handler)

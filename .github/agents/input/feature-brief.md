@@ -11,6 +11,8 @@
 | **Feature name** | `GetCategoriesForDropdown` |
 | **Short description** | Returns a lightweight list of categories filtered by `CategoryType`, ordered by `SortOrder`, for use in dropdown selectors (e.g. product creation form). |
 | **Reference feature** | `CreateCategory` |
+| **Source branch** | `feature/get_categories_options` |
+| **Target branch** | `feature/get_categories_options` |
 
 ---
 
