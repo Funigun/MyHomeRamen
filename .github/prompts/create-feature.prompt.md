@@ -1,12 +1,14 @@
 ---
 agent: agent
-model: Gemini 3 Pro (Preview)
-description: Create classes for a new feature in a specified module.
+model: cloude-sonnet-4.6
 ---
 
-Create classes for {FeatureName} feature for {Module} under {Module}/Features/{FeatureName}/ folder.
+Read `.github/agents/input/feature-brief.md` and `.github/agents/input/workflow-state.md` to understand the feature requirements and current workflow state.
+Use feature/get_categories_options as current branch and target branch for PR.
 
-Create the following classes:
-- {FeatureName}Endpoint.cs
-- {FeatureName}ValidationPolicy.cs
-- {FeatureName}AuthorizationPolicy.cs
+Based on user input follow proper scope (backend, frontend, common) by:
+- creating proper branch based on current branch
+- updating workflow state with current scope and mode
+- creating a Draft PR with proper title and description (see below for details)
+- executing workflow according to `.github/agents/input/workflow-state.md` for proper scope
+
