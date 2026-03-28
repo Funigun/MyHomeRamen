@@ -2,11 +2,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.Api.Common.Hateoas.Builder;
 using MyHomeRamen.Api.Common.Hateoas.Common;
 using MyHomeRamen.Api.Common.Middleware;
@@ -64,6 +64,36 @@ public static class DependencyInjection
         return services;
     }
 
+    public static IServiceCollection AddEndpointHandlers(this IServiceCollection services, Assembly assembly)
+    {
+        Type handler = typeof(IRequestHandler<>);
+        Type handlerType = typeof(IRequestHandler<,>);
+
+        List<Type>? types = assembly.GetExportedTypes()
+                                    .Where(t => t.GetInterfaces()
+                                                     .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handler))
+                                    .ToList();
+
+        foreach (Type type in types)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handler);
+            services.AddScoped(interfaceType, type);
+        }
+
+        types = assembly.GetExportedTypes()
+                        .Where(t => t.GetInterfaces()
+                                         .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerType))
+                        .ToList();
+
+        foreach (Type type in types)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerType);
+            services.AddScoped(interfaceType, type);
+        }
+
+        return services;
+    }
+
     public static IApplicationBuilder UseMiddlewares(this IApplicationBuilder app)
     {
         app.UseMiddleware<ExceptionMiddleware>();
@@ -75,8 +105,8 @@ public static class DependencyInjection
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-        Dictionary<string, IGroupEndpoint> endpointGroups = app.Services.GetServices<IGroupEndpoint>()
-                                                                        .ToDictionary(g => g.GroupName);
+        ILookup<string, IGroupEndpoint> endpointGroups = app.Services.GetServices<IGroupEndpoint>()
+                                                                        .ToLookup(g => g.GroupName);
 
         List<IEndpoint> endpoints = app.Services.GetServices<IEndpoint>().ToList();
 
@@ -85,7 +115,7 @@ public static class DependencyInjection
 
         foreach (IEndpoint endpoint in endpoints)
         {
-            if (string.IsNullOrEmpty(endpoint.GroupName))
+            if (!string.IsNullOrEmpty(endpoint.GroupName))
             {
                 if (!groupedEndpoints.TryGetValue(endpoint.GroupName, out List<IEndpoint>? groupEndpoints))
                 {
@@ -111,7 +141,7 @@ public static class DependencyInjection
 #pragma warning restore CA1308 // Normalize strings to uppercase
             RouteGroupBuilder routeGroupBuilder = app.MapGroup(groupRoute);
 
-            if (endpointGroups.TryGetValue(groupName, out IGroupEndpoint? endpointGroup))
+            foreach (IGroupEndpoint endpointGroup in endpointGroups[groupName])
             {
                 endpointGroup.Configure(routeGroupBuilder);
             }
@@ -128,13 +158,5 @@ public static class DependencyInjection
         }
 
         return app;
-    }
-
-    public static WebApplicationBuilder AddConfiguration(this WebApplicationBuilder builder)
-    {
-        builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                             .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
-
-        return builder;
     }
 }

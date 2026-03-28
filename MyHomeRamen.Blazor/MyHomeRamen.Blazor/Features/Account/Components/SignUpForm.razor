@@ -1,0 +1,137 @@
+﻿@using MyHomeRamen.Blazor.Features.Account
+@using MyHomeRamen.Blazor.Features.Account.SignUp
+
+@inject CustomerAccountApiClient AccountApiClient
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudGrid>
+        <MudItem xs="12" sm="6">
+            <MudTextField Label="First Name" @bind-Value="_model.FirstName" For="@(() => _model.FirstName)" 
+                          Variant="Variant.Outlined"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudTextField Label="Last Name" @bind-Value="_model.LastName" For="@(() => _model.LastName)"
+                          Variant="Variant.Outlined"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField Label="Username" @bind-Value="_model.UserName" For="@(() => _model.UserName)"
+                          Variant="Variant.Outlined"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField Label="Email" @bind-Value="_model.Email" For="@(() => _model.Email)"
+                          Variant="Variant.Outlined"
+                          InputType="InputType.Email"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField Label="Phone Number" @bind-Value="_model.PhoneNumber" For="@(() => _model.PhoneNumber)"
+                          Variant="Variant.Outlined"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField Label="Password" @bind-Value="_model.Password" For="@(() => _model.Password)"
+                          Variant="Variant.Outlined"
+                          InputType="@_passwordInputType"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@_passwordInputIcon"
+                          OnAdornmentClick="TogglePasswordVisibility"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField Label="Confirm Password" @bind-Value="_model.ConfirmPassword" For="@(() => _model.ConfirmPassword)"
+                          Variant="Variant.Outlined"
+                          InputType="@_confirmPasswordInputType"
+                          Adornment="Adornment.End"
+                          AdornmentIcon="@_confirmPasswordInputIcon"
+                          OnAdornmentClick="ToggleConfirmPasswordVisibility"
+                          Required="true" />
+        </MudItem>
+        @if (_errorMessage is not null)
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Error" Dense="true">@_errorMessage</MudAlert>
+            </MudItem>
+        }
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Disabled="_isBusy"
+                       OnClick="SubmitAsync">
+                @if (_isBusy)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Sign Up</MudText>
+                }
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudForm>
+
+@code {
+    private MudForm _form = default!;
+    private readonly SignUpModel _model = new();
+    private readonly SignUpValidator _validator = new();
+    private bool _isBusy;
+    private string? _errorMessage;
+
+    private bool _showPassword;
+    private InputType _passwordInputType = InputType.Password;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    private bool _showConfirmPassword;
+    private InputType _confirmPasswordInputType = InputType.Password;
+    private string _confirmPasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    [Parameter] public EventCallback OnSuccess { get; set; }
+
+    private void TogglePasswordVisibility()
+    {
+        _showPassword = !_showPassword;
+        _passwordInputType = _showPassword ? InputType.Text : InputType.Password;
+        _passwordInputIcon = _showPassword ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
+    }
+
+    private void ToggleConfirmPasswordVisibility()
+    {
+        _showConfirmPassword = !_showConfirmPassword;
+        _confirmPasswordInputType = _showConfirmPassword ? InputType.Text : InputType.Password;
+        _confirmPasswordInputIcon = _showConfirmPassword ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
+    }
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        _isBusy = true;
+        _errorMessage = null;
+
+        try
+        {
+            await AccountApiClient.CreateAsync(_model.ToSignUpRequest());
+
+            await OnSuccess.InvokeAsync();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Registration failed. Please try again.";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}
+
