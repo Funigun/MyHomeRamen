@@ -47,30 +47,42 @@ Drax Planner: ✓ Work complete
 
 ## Planning process
 
-### 1) Load workflow state, research report, and instruction files
+### 1) Load research report and instruction files
 
-**Step 1a — Load workflow state:**
-Read `.github/agents/input/workflow-state.md` and extract:
-- **Scope** (`common`, `backend`, or `frontend`) — controls instruction files and output file names
-- **Mode** (`feature` or `review-fixes`) — controls planning strategy
-- **Iteration** (1, 2, or 3) — current iteration number
+**Step 1a — Determine mode and scope:**
+Load `.github/agents/input/feature-brief.md` and determine:
+
+- **Mode**:
+  - `feature` — if `feature-brief.md` exists and all required fields are filled
+  - `review-fixes` — if `review-results-backend.md` or `review-results-frontend.md` exists with unresolved issues
+
+- **Scope** (from Section 2 of `feature-brief.md`; for `review-fixes` mode, infer from which of `review-results-backend.md` / `review-results-frontend.md` contain open issues):
+  - `backend` — if the `backend` row is "yes"
+  - `frontend` — if the `frontend` row is "yes"
+  - Both scopes can be active simultaneously
+
+- **Iteration** (for `review-fixes` mode only): infer from existing `Implementation status` lines in the review-results files:
+  - No status lines → iteration 1
+  - All statuses reference iteration 1 → iteration 2
+  - All statuses reference iteration 2 → iteration 3
 
 **Step 1b — Load research report:**
-Load the scoped research report: `.github/agents/output/research-report-{scope}.md`
+For each active scope, load the corresponding research report:
+- Backend: `.github/agents/output/research-report-backend.md`
+- Frontend: `.github/agents/output/research-report-frontend.md`
 
-If the report exists, use it as the primary source for:
+If a report exists, use it as the primary source for:
 - Reference feature file paths and code patterns
 - Discovered conventions and common utilities
 - Existing architecture boundaries
 - Potential pitfalls
 
-If the report does not exist, log a warning and proceed — you will discover patterns manually during planning.
+If a report does not exist, log a warning and proceed — you will discover patterns manually during planning.
 
-**Step 1c — Load instruction files based on scope:**
+**Step 1c — Load instruction files based on active scopes:**
 
 | Scope | Instruction files to load |
 |---|---|
-| `common` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
 | `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
 | `frontend` | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
 
@@ -86,7 +98,11 @@ Do not proceed to next steps before loading all files and analyzing their conten
 ### 2) Gather requirements and context
 
 **If mode = `review-fixes`:**
-Load `.github/agents/output/review-results-{scope}.md` and extract all issues that need addressing:
+Load the review results for each active scope:
+- Backend: `.github/agents/output/review-results-backend.md`
+- Frontend: `.github/agents/output/review-results-frontend.md`
+
+From each loaded file, extract all issues that need addressing:
 - Issues with no `Implementation status` line — not yet attempted
 - Issues with `⚠️ Cannot implement` status — previously failed; re-evaluate only if the stated reason is no longer valid
 
@@ -115,9 +131,11 @@ If the feature brief is missing or incomplete, gather the following interactivel
 
 If the feature brief was loaded successfully with all sections filled, proceed immediately without asking the user. Otherwise, do not proceed further before gathering all necessary information.
 
-### 3) Scoped plan cleanup
+### 3) Plan cleanup
 
-Clear the scoped plan file: `.github/agents/output/automated-plan-{scope}.md`
+Clear the plan file for each active scope:
+- Backend: `.github/agents/output/automated-plan-backend.md`
+- Frontend: `.github/agents/output/automated-plan-frontend.md`
 
 ### 4) Task implementation plan
 
@@ -144,7 +162,7 @@ For each issue extracted in step 2, create a targeted fix entry:
 ### 5) Save implementation plan
 
 **If mode = `feature`:**
-Update `.github/agents/output/automated-plan-{scope}.md` with following sections:
+Update `.github/agents/output/automated-plan-backend.md` with following sections:
 
 Feature {Type} plan:
 - **Date**: <<current date and time>>
@@ -170,7 +188,7 @@ Feature {Type} plan:
    <<details>>
 
 **If mode = `review-fixes`:**
-Update `.github/agents/output/automated-plan-{scope}.md` with following sections:
+Update the plan file for the relevant scope (`automated-plan-backend.md` for backend issues, `automated-plan-frontend.md` for frontend issues) with the following sections:
 
 Review Fixes plan — Iteration {N}:
 - **Date**: <<current date and time>>
@@ -201,7 +219,7 @@ Create a step-by-step testing plan with following steps:
 Only plan test changes explicitly required by the review issues (e.g., fixing wrong assertions, adding missing test cases flagged by the reviewer). Skip if no test-related issues were identified.
 
 ### 7) Save testing plan
-Following sections should be added at the bottom of `.github/agents/output/automated-plan-{scope}.md` file:
+Following sections should be added at the bottom of `.github/agents/output/automated-plan-backend.md` file:
 
 7) Create unit tests 
    <<details>> or information that unit tests should be skipped
@@ -215,9 +233,9 @@ Following sections should be added at the bottom of `.github/agents/output/autom
 10) Create system tests (if applicable)
    <<details>> or information that architecture system should be skipped
 	
-### 8) Blazor frontend implementation plan (scope = `frontend` only)
+### 8) Blazor frontend implementation plan (frontend scope only)
 
-Skip this section entirely if scope is `common` or `backend`.
+Skip this section entirely if the frontend scope is not active.
 
 Create a step-by-step implementation plan for Blazor frontend changes. Instruction files were already loaded in step 1c.
 
@@ -230,7 +248,7 @@ Prepare a step by step implementation plan for Blazor frontend changes in struct
 	- create unit tests for Blazor components and services
 
 ### 9) Save Blazor plan
-Following sections should be added at the bottom of `.github/agents/output/automated-plan-{scope}.md` file:
+Following sections should be added at the bottom of `.github/agents/output/automated-plan-frontend.md` file:
 
 11) Create frontend feature structure
    <<details>> or information if not needed (e.g. updating existing feature)
