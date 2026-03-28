@@ -22,8 +22,21 @@ public sealed class MenuApiClient(HttpClient httpClient)
         CreateCategoryResponse? result = await response.Content.ReadFromJsonAsync<CreateCategoryResponse>(ct);
         return result?.Id ?? throw new InvalidOperationException("Failed to deserialize category creation response.");
     }
+
+    public async Task<IEnumerable<GetCategoriesForDropdownResponse>> GetCategoriesForDropdownAsync(
+        int categoryType,
+        CancellationToken ct = default)
+    {
+        IEnumerable<GetCategoriesForDropdownResponse>? result = await httpClient
+            .GetFromJsonAsync<IEnumerable<GetCategoriesForDropdownResponse>>(
+                $"/api/menu/categories/dropdown?categoryType={categoryType}", ct);
+
+        return result ?? [];
+    }
 }
 
 public sealed record CreateProductResponse(Guid Id);
 
 public sealed record CreateCategoryResponse(Guid Id);
+
+public sealed record GetCategoriesForDropdownResponse(Guid Id, string Name);

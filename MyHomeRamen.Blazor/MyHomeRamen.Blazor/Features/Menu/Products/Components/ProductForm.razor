@@ -1,4 +1,5 @@
 @using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Categories
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Products.Components
@@ -42,7 +43,7 @@
                        Variant="Variant.Outlined"
                        Disabled="Mode == FormMode.View"
                        Required="true">
-                @foreach (CategoryOption category in Categories)
+                @foreach (CategoryOption category in _categories)
                 {
                     <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
                 }
@@ -96,11 +97,19 @@
     private readonly ProductValidator _validator = new();
     private bool _isBusy;
     private string? _errorMessage;
+    private IEnumerable<CategoryOption> _categories = [];
 
     [Parameter] public FormMode Mode { get; set; } = FormMode.Create;
-    [Parameter] public IEnumerable<CategoryOption> Categories { get; set; } = [];
     [Parameter] public IEnumerable<IngredientOption> Ingredients { get; set; } = [];
     [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IEnumerable<GetCategoriesForDropdownResponse> response =
+            await MenuApiClient.GetCategoriesForDropdownAsync((int)CategoryType.Product);
+
+        _categories = response.Select(c => new CategoryOption(c.Id, c.Name));
+    }
 
     private async Task SubmitAsync()
     {
