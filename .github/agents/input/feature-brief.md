@@ -18,7 +18,6 @@
 
 | Scope | Include? |
 |---|---|
-| `common` — shared contracts (`Common.Contracts`) | no |
 | `backend` — API + Domain + Persistence | yes |
 | `frontend` — Blazor Server / WASM | yes |
 
