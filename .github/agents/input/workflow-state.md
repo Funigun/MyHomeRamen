@@ -8,9 +8,9 @@
 
 | Field | Value |
 |---|---|
-| **Feature branch** | `feature/` |
-| **Backend sub-branch** | `feature/_backend` |
-| **Frontend sub-branch** | `feature/_frontend` |
+| **Feature branch** | `feature/get_categories_options` |
+| **Backend sub-branch** | `feature/get_categories_options_backend` |
+| **Frontend sub-branch** | `feature/get_categories_options_frontend` |
 
 ---
 
@@ -20,9 +20,9 @@
 
 | Scope | Active |
 |---|---|
-| `common` — shared contracts (`Common.Contracts`; no API/Blazor changes) | yes / no |
-| `backend` — API + Domain + Persistence + Worker changes (no Blazor) | yes / no |
-| `frontend` — Blazor Server / WASM changes only | yes / no |
+| `common` — shared contracts (`Common.Contracts`; no API/Blazor changes) | no |
+| `backend` — API + Domain + Persistence + Worker changes (no Blazor) | yes |
+| `frontend` — Blazor Server / WASM changes only | yes |
 
 ---
 
