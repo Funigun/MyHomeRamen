@@ -1,0 +1,23 @@
+@page "/admin/menu/ingredients/create"
+@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+
+@using Microsoft.AspNetCore.Authorization
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
+
+@inject MenuNavigationService MenuNavigation
+
+<PageTitle>Create Ingredient</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Create New Ingredient</MudText>
+    <IngredientForm OnSuccess="HandleSuccess" />
+</MudPaper>
+
+@code {
+    private void HandleSuccess(Guid ingredientId)
+    {
+        MenuNavigation.ToAdminIngredientsIndex();
+    }
+}

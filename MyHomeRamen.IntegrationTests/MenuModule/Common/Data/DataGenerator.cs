@@ -1,8 +1,10 @@
 ﻿using System.Security.Cryptography;
 using Bogus;
 using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
+using MyHomeRamen.Api.Menu.Features.Ingredients.CreateIngredient.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.Common.Contracts.Menu.Categories;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients;
 using MyHomeRamen.Common.Contracts.Menu.Products;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Common.Ingredient;
@@ -228,6 +230,45 @@ internal static class DataGenerator
 
             // IngredientIds: empty
             new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, validCategoryId, []),
+        ];
+    }
+
+    public static TheoryData<CreateIngredientRequest> InvalidCreateIngredientRequests()
+    {
+        Faker faker = new();
+        Guid validCategoryId = GetRandomIngredientCategory().Id;
+        List<Guid> validCategoryIds = [validCategoryId];
+        string validName = faker.Random.String2(IngredientNameValidator.MinLength, IngredientNameValidator.MaxLength);
+        string validDescription = faker.Random.String2(IngredientDescriptionValidator.MinLength, IngredientDescriptionValidator.MaxLength);
+
+        return
+        [
+            // Name: empty
+            new CreateIngredientRequest(string.Empty, validDescription, IngredientPriceValidator.MinPrice, validCategoryIds),
+
+            // Name: too short
+            new CreateIngredientRequest(faker.Random.String2(1, IngredientNameValidator.MinLength - 1), validDescription, IngredientPriceValidator.MinPrice, validCategoryIds),
+
+            // Name: too long
+            new CreateIngredientRequest(faker.Random.String2(IngredientNameValidator.MaxLength + 1, IngredientNameValidator.MaxLength + 10), validDescription, IngredientPriceValidator.MinPrice, validCategoryIds),
+
+            // Description: empty
+            new CreateIngredientRequest(validName, string.Empty, IngredientPriceValidator.MinPrice, validCategoryIds),
+
+            // Description: too short
+            new CreateIngredientRequest(validName, faker.Random.String2(1, IngredientDescriptionValidator.MinLength - 1), IngredientPriceValidator.MinPrice, validCategoryIds),
+
+            // Description: too long
+            new CreateIngredientRequest(validName, faker.Random.String2(IngredientDescriptionValidator.MaxLength + 1, IngredientDescriptionValidator.MaxLength + 10), IngredientPriceValidator.MinPrice, validCategoryIds),
+
+            // Price: above maximum
+            new CreateIngredientRequest(validName, validDescription, IngredientPriceValidator.MaxPrice + 0.01m, validCategoryIds),
+
+            // CategoryIds: empty
+            new CreateIngredientRequest(validName, validDescription, IngredientPriceValidator.MinPrice, []),
+
+            // CategoryIds: invalid (empty Guid)
+            new CreateIngredientRequest(validName, validDescription, IngredientPriceValidator.MinPrice, [Guid.Empty]),
         ];
     }
 }

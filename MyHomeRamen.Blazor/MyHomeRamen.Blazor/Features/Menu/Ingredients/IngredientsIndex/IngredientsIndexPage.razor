@@ -1,0 +1,34 @@
+@page "/admin/menu/ingredients"
+
+@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+
+@using Microsoft.AspNetCore.Authorization
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
+
+@inject MenuNavigationService MenuNavigation
+
+<PageTitle>Ingredient Management</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Ingredient Management</MudText>
+
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               Class="mb-4"
+               OnClick="NavigateToCreate">
+        Create Ingredient
+    </MudButton>
+
+    <MudDivider Class="my-4" />
+
+    <MudAlert Severity="Severity.Info">Ingredient list coming soon.</MudAlert>
+</MudPaper>
+
+@code {
+    private void NavigateToCreate()
+    {
+        MenuNavigation.ToCreateIngredient();
+    }
+}
