@@ -1,49 +1,114 @@
 <Solution>
-  <Folder Name="/Api/">
-    <Project Path="MyHomeRamen.Api.Common/MyHomeRamen.Api.Common.csproj" Id="befa9a57-ff72-4c9f-a6fe-6be0475dfb0e" />
-    <Project Path="MyHomeRamen.Api/MyHomeRamen.Api.csproj" />
-    <Project Path="MyHomeRamen.Domain/MyHomeRamen.Domain.csproj" Id="690fccbf-0bbd-4dfc-87f4-279ef5b197af" />
-    <Project Path="MyHomeRamen.Identity.Api/MyHomeRamen.Identity.Api.csproj" />
-    <Project Path="MyHomeRamen.Infrastructure/MyHomeRamen.Infrastructure.csproj" Id="853a229a-8c66-4303-8d66-759a85cae6fb" />
-    <Project Path="MyHomeRamen.Persistance/MyHomeRamen.Persistance.csproj" Id="9ad85f83-8ea5-4d3c-b052-5b65f48b1791" />
+  <Folder Name="/Aspire/">
+    <Project Path="MyHomeRamen.AppHost/MyHomeRamen.AppHost.csproj" />
+    <Project Path="MyHomeRamen.ServiceDefaults/MyHomeRamen.ServiceDefaults.csproj" />
   </Folder>
   <Folder Name="/Blazor/">
     <Project Path="MyHomeRamen.Blazor/MyHomeRamen.Blazor.Client/MyHomeRamen.Blazor.Client.csproj" />
     <Project Path="MyHomeRamen.Blazor/MyHomeRamen.Blazor/MyHomeRamen.Blazor.csproj" />
   </Folder>
-  <Folder Name="/Host/">
-    <Project Path="MyHomeRamen.AppHost/MyHomeRamen.AppHost.csproj" />
-    <Project Path="MyHomeRamen.ServiceDefaults/MyHomeRamen.ServiceDefaults.csproj" />
-  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="MyHomeRamen.ArchitectureTests/MyHomeRamen.ArchitectureTests.csproj" Id="81301af1-6544-4e3e-bb3e-342fe857e20e" />
+    <Project Path="MyHomeRamen.BlazorTests/MyHomeRamen.BlazorTests.csproj" Id="b596964e-80e4-453a-8de7-e24a2ac61410" />
     <Project Path="MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj" Id="81c45925-f5aa-4a1c-b28f-5882ed6bc05a" />
+    <Project Path="MyHomeRamen.SystemTests/MyHomeRamen.SystemTests.csproj" />
     <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />
+  </Folder>
+  <Folder Name="/Web API/">
+    <Project Path="MyHomeRamen.Api.Common/MyHomeRamen.Api.Common.csproj" Id="befa9a57-ff72-4c9f-a6fe-6be0475dfb0e" />
+    <Project Path="MyHomeRamen.Api/MyHomeRamen.Api.csproj" />
+    <Project Path="MyHomeRamen.Common.Contracts/MyHomeRamen.Common.Contracts.csproj" Id="bcb8c49d-382c-48e4-af52-366f0e369c58" />
+    <Project Path="MyHomeRamen.Domain/MyHomeRamen.Domain.csproj" Id="690fccbf-0bbd-4dfc-87f4-279ef5b197af" />
+    <Project Path="MyHomeRamen.Identity.Api/MyHomeRamen.Identity.Api.csproj" />
+    <Project Path="MyHomeRamen.Infrastructure/MyHomeRamen.Infrastructure.csproj" Id="853a229a-8c66-4303-8d66-759a85cae6fb" />
+    <Project Path="MyHomeRamen.Persistance/MyHomeRamen.Persistance.csproj" Id="9ad85f83-8ea5-4d3c-b052-5b65f48b1791" />
   </Folder>
   <Folder Name="/Workers/">
     <Project Path="MyHomeRamen.Worker.Common/MyHomeRamen.Worker.Common.csproj" Id="26fb0a68-a068-4aa6-a742-f12ca9d6584e" />
+    <Project Path="MyHomeRamen.Worker.DatabaseInitializer/MyHomeRamen.Worker.DatabaseInitializer.csproj" />
     <Project Path="MyHomeRamen.Worker.MailSender/MyHomeRamen.Worker.MailSender.csproj" Id="e76618b6-bbca-4d85-bc19-63c7c5bfe94a" />
     <Project Path="MyHomeRamen.Worker.MessagesHandler/MyHomeRamen.Worker.MessagesHandler.csproj" Id="913d105a-90ab-485f-848d-71c361d1afb7" />
   </Folder>
   <Folder Name="/_github/">
     <File Path=".github/copilot-instructions.md" />
   </Folder>
+  <Folder Name="/_github/agents/">
+    <File Path=".github/agents/000-module-initiator.agent.md" />
+    <File Path=".github/agents/000-researcher.agent.md" />
+    <File Path=".github/agents/001-planning.agent.md" />
+    <File Path=".github/agents/002-implementation.agent.md" />
+    <File Path=".github/agents/003-formatter.agent.md" />
+    <File Path=".github/agents/004-reviewer.agent.md" />
+    <File Path=".github/agents/adr-expert.agent.md" />
+  </Folder>
+  <Folder Name="/_github/agents/input/">
+    <File Path=".github/agents/input/feature-brief.md" />
+  </Folder>
+  <Folder Name="/_github/agents/output/">
+    <File Path=".github/agents/output/automated-plan-backend.md" />
+    <File Path=".github/agents/output/automated-plan-frontend.md" />
+    <File Path=".github/agents/output/research-report-backend.md" />
+    <File Path=".github/agents/output/research-report-frontend.md" />
+    <File Path=".github/agents/output/review-results-backend.md" />
+    <File Path=".github/agents/output/review-results-frontend.md" />
+  </Folder>
   <Folder Name="/_github/instructions/">
-    <File Path=".github/instructions/basket.instructions.md.md" />
-    <File Path=".github/instructions/menu.instructions.md.md" />
-    <File Path=".github/instructions/orders.instructions.md.md" />
-    <File Path=".github/instructions/payments.instructions.md.md" />
-    <File Path=".github/instructions/reservations.instructions.md.md" />
-    <File Path=".github/instructions/users.instructions.md.md" />
+    <File Path=".github/instructions/architecture-tests.instructions.md" />
+    <File Path=".github/instructions/backend-tests.instructions.md" />
+    <File Path=".github/instructions/backend.instructions.md" />
+    <File Path=".github/instructions/blazor-tests.instructions.md" />
+    <File Path=".github/instructions/blazor.instructions.md" />
+    <File Path=".github/instructions/module-introduction.instructions.md" />
   </Folder>
   <Folder Name="/_github/prompts/">
+    <File Path=".github/prompts/001-create-domain-model.prompt.md" />
+    <File Path=".github/prompts/002-create-domain-model-rules.prompt.md" />
+    <File Path=".github/prompts/003-create-domain-model-unit-tests.prompt.md" />
+    <File Path=".github/prompts/004-create-domain-db-context.prompt.md" />
     <File Path=".github/prompts/create-domain-event.prompt.md" />
-    <File Path=".github/prompts/create-domain-model.prompt.md" />
-    <File Path=".github/prompts/create-feature.prompt.md" />
+    <File Path=".github/prompts/plan-feature-prompt.prompt.md" />
+  </Folder>
+  <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/skills/code-quality/">
+    <File Path=".github/skills/code-quality/skill.md" />
+  </Folder>
+  <Folder Name="/_github/skills/solution-structure/">
+    <File Path=".github/skills/solution-structure/skill.md" />
+  </Folder>
+  <Folder Name="/_github/workflows/">
+    <File Path=".github/workflows/pr-checks.yml" />
+  </Folder>
+  <Folder Name="/_wiki/" />
+  <Folder Name="/_wiki/Architecture/">
+    <File Path="Wiki/Architecture/0001-modular-monolith-architecture.md" />
+    <File Path="Wiki/Architecture/0002-aspire-orchestration.md" />
+    <File Path="Wiki/Architecture/0003-module-specific-database-contexts.md" />
+    <File Path="Wiki/Architecture/0004-restaurant-configuration.md" />
+  </Folder>
+  <Folder Name="/_wiki/Menu/">
+    <File Path="Wiki/Menu ADR/0001-menu-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Orders/">
+    <File Path="Wiki/Orders ADR/0001-orders-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Payments/">
+    <File Path="Wiki/Payments ADR/0001-payments-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Reservations/">
+    <File Path="Wiki/Reservations ADR/0001-reservations-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Shopping Cart/">
+    <File Path="Wiki/Shopping Cart ADR/0001-shopping-cart-domain.md" />
+  </Folder>
+  <Folder Name="/_wiki/Users/">
+    <File Path="Wiki/Users ADR/0001-users-domain.md" />
+    <File Path="Wiki/Users ADR/0002-users-authentication.md" />
+    <File Path="Wiki/Users ADR/0003-application-scopes.md" />
   </Folder>
 </Solution>

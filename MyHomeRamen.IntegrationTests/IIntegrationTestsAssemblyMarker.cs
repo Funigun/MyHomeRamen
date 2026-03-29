@@ -1,0 +1,3 @@
+namespace MyHomeRamen.IntegrationTests;
+
+public interface IIntegrationTestsAssemblyMarker;

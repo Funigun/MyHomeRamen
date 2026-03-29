@@ -1,9 +1,29 @@
 using MyHomeRamen.Worker.MailSender;
+using Serilog;
 
-var builder = Host.CreateApplicationBuilder(args);
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-builder.AddServiceDefaults();
-builder.Services.AddHostedService<Worker>();
+Log.Logger = new LoggerConfiguration().ReadFrom
+             .Configuration(new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                .Build())
+             .CreateLogger();
 
-var host = builder.Build();
-host.Run();
+try
+{
+    builder.AddWorkerServiceDefaults("my-home-ramen-mailing-worker");
+    builder.Services.AddHostedService<Worker>();
+
+    IHost host = builder.Build();
+    await host.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}

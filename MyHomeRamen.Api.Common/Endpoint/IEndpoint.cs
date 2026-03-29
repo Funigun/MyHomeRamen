@@ -6,5 +6,5 @@ public interface IEndpoint
 {
     string GroupName { get; init; }
 
-    void MapEndpoint(IEndpointRouteBuilder endpoints);
+    void MapEndpoint(IEndpointRouteBuilder endpointBuilder);
 }

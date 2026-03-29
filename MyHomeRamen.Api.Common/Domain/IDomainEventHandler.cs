@@ -3,5 +3,5 @@
 public interface IDomainEventHandler<in TEvent>
            where TEvent : IDomainEvent
 {
-    Task HandleAsync(TEvent domainEvent, CancellationToken cancellationToken = default);
+    Task HandleEvent(TEvent domainEvent, CancellationToken cancellationToken = default);
 }

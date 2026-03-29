@@ -1,0 +1,140 @@
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Categories
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Products.Components
+
+@inject MenuApiClient MenuApiClient
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudTextField Label="Name"
+                          @bind-Value="_model.Name"
+                          For="@(() => _model.Name)"
+                          Variant="Variant.Outlined"
+                          Disabled="Mode == FormMode.View"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField Label="Description"
+                          @bind-Value="_model.Description"
+                          For="@(() => _model.Description)"
+                          Variant="Variant.Outlined"
+                          Lines="4"
+                          Disabled="Mode == FormMode.View" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudNumericField Label="Price"
+                             @bind-Value="_model.Price"
+                             For="@(() => _model.Price)"
+                             Variant="Variant.Outlined"
+                             Adornment="Adornment.Start"
+                             AdornmentText="$"
+                             Min="0.5m"
+                             Max="100.0m"
+                             Disabled="Mode == FormMode.View"
+                             Required="true" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect Label="Category"
+                       @bind-Value="_model.CategoryId"
+                       For="@(() => _model.CategoryId)"
+                       Variant="Variant.Outlined"
+                       Disabled="Mode == FormMode.View"
+                       Required="true">
+                @foreach (CategoryOption category in _categories)
+                {
+                    <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12">
+            <MudSelect T="Guid"
+                       Label="Ingredients"
+                       @bind-SelectedValues="_model.IngredientIds"
+                       MultiSelection="true"
+                       Variant="Variant.Outlined"
+                       Disabled="Mode == FormMode.View">
+                @foreach (IngredientOption ingredient in Ingredients)
+                {
+                    <MudSelectItem Value="@ingredient.Id">@ingredient.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        @if (_errorMessage is not null)
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Error" Dense="true">@_errorMessage</MudAlert>
+            </MudItem>
+        }
+        @if (Mode != FormMode.View)
+        {
+            <MudItem xs="12">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           FullWidth="true"
+                           Disabled="_isBusy"
+                           OnClick="SubmitAsync">
+                    @if (_isBusy)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">Saving</MudText>
+                    }
+                    else
+                    {
+                        <MudText>@(Mode == FormMode.Create ? "Create Product" : "Save Changes")</MudText>
+                    }
+                </MudButton>
+            </MudItem>
+        }
+    </MudGrid>
+</MudForm>
+
+@code {
+    private MudForm _form = default!;
+    private readonly ProductModel _model = new();
+    private readonly ProductValidator _validator = new();
+    private bool _isBusy;
+    private string? _errorMessage;
+    private IEnumerable<CategoryOption> _categories = [];
+
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Create;
+    [Parameter] public IEnumerable<IngredientOption> Ingredients { get; set; } = [];
+    [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IEnumerable<GetCategoriesForDropdownResponse> response =
+            await MenuApiClient.GetCategoriesForDropdownAsync((int)CategoryType.Product);
+
+        _categories = response.Select(c => new CategoryOption(c.Id, c.Name));
+    }
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        _isBusy = true;
+        _errorMessage = null;
+
+        try
+        {
+            Guid productId = await MenuApiClient.CreateProductAsync(_model.ToCreateRequest());
+            await OnSuccess.InvokeAsync(productId);
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to create product. Please try again.";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}

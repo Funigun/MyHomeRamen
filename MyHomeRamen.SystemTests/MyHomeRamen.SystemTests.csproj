@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Api\MyHomeRamen.Api.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.AppHost\MyHomeRamen.AppHost.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Common.Contracts\MyHomeRamen.Common.Contracts.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Identity.Api\MyHomeRamen.Identity.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,3 @@
+namespace MyHomeRamen.Worker.MessagesHandler;
+
+public interface IWorkerMessagesHandlerAssemblyMarker;
