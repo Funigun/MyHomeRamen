@@ -56,7 +56,7 @@
                        MultiSelection="true"
                        Variant="Variant.Outlined"
                        Disabled="Mode == FormMode.View">
-                @foreach (IngredientOption ingredient in Ingredients)
+                @foreach (IngredientOption ingredient in _ingredients)
                 {
                     <MudSelectItem Value="@ingredient.Id">@ingredient.Name</MudSelectItem>
                 }
@@ -98,17 +98,20 @@
     private bool _isBusy;
     private string? _errorMessage;
     private IEnumerable<CategoryOption> _categories = [];
+    private IEnumerable<IngredientOption> _ingredients = [];
 
     [Parameter] public FormMode Mode { get; set; } = FormMode.Create;
-    [Parameter] public IEnumerable<IngredientOption> Ingredients { get; set; } = [];
     [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        IEnumerable<GetCategoriesForDropdownResponse> response =
+        IEnumerable<GetCategoriesForDropdownResponse> categoriesResponse =
             await MenuApiClient.GetCategoriesForDropdownAsync((int)CategoryType.Product);
+        _categories = categoriesResponse.Select(c => new CategoryOption(c.Id, c.Name));
 
-        _categories = response.Select(c => new CategoryOption(c.Id, c.Name));
+        IEnumerable<GetIngredientsForDropdownResponse> ingredientsResponse =
+            await MenuApiClient.GetIngredientsForDropdownAsync();
+        _ingredients = ingredientsResponse.Select(i => new IngredientOption(i.Id, i.Name));
     }
 
     private async Task SubmitAsync()
