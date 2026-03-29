@@ -15,14 +15,11 @@
 <MudPaper Elevation="3" Class="pa-6">
     <MudText Typo="Typo.h4" Class="mb-6">Create New Product</MudText>
     <ProductForm Mode="FormMode.Create"
-                 Categories="_categories"
                  Ingredients="_ingredients"
                  OnSuccess="HandleSuccess" />
 </MudPaper>
 
 @code {
-    // TODO: Load from MenuApiClient once GetCategories / GetIngredients endpoints exist
-    private IEnumerable<CategoryOption> _categories = [];
     private IEnumerable<IngredientOption> _ingredients = [];
 
     private void HandleSuccess(Guid productId)

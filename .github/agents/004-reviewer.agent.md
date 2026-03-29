@@ -49,13 +49,14 @@ Always read `.github/copilot-instructions.md` before reviewing.
 
 ### 1) Load scope and instruction files
 
-Read `.github/agents/input/workflow-state.md` and extract the current **scope** (`common`, `backend`, or `frontend`).
+Determine active scopes from `.github/agents/input/feature-brief.md` (Section 2):
+- `backend` — if the `backend` row is "yes"
+- `frontend` — if the `frontend` row is "yes"
 
-Load instruction files based on scope:
+Load instruction files for each active scope:
 
 | Scope | Files to load |
 |---|---|
-| `common` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
 | `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
 | `frontend` | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
 
@@ -104,9 +105,11 @@ Each issue must follow this format:
 - **Description**: Description of the issue and why it should be fixed.
 - **Solution proposal**: Suggested fix with references to existing code or standards where applicable.
 
-Save the full report to `.github/agents/output/review-results-{scope}.md`, overwriting the file each time.
+Save a separate report per active scope, overwriting each file:
+- Backend: `.github/agents/output/review-results-backend.md`
+- Frontend: `.github/agents/output/review-results-frontend.md`
 
-Add the following metadata at the top of the report:
+Add the following metadata at the top of each report:
 
 ```
 - **Date**: <<current date and time>>

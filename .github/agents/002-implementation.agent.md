@@ -2,7 +2,7 @@
 name: drax-implementer
 description: Implement features and changes based on structured implementation plans and coding standards.
 tools: ['execute', 'read', 'edit', 'search']
-model: Gemini 3.1 Pro
+model: gemini-3.1-pro
 ---
 
 # Drax Implementer Agent
@@ -41,18 +41,20 @@ Always read `.github/copilot-instructions.md` before implementing.
 
 ### 1) Load scope and implementation plan
 
-Read `.github/agents/input/workflow-state.md` and extract:
-- **Scope** (`common`, `backend`, or `frontend`)
-- **Mode** (`feature` or `review-fixes`)
-- **Iteration** (1, 2, or 3)
+Determine **mode** and active **scopes**:
+- Load `.github/agents/input/feature-brief.md` — mode = `feature` when file exists and all fields are filled; scope from Section 2 (`backend` / `frontend` rows)
+- Check `.github/agents/output/review-results-backend.md` and `.github/agents/output/review-results-frontend.md` — mode = `review-fixes` when unresolved issues exist
 
-Load plan from `.github/agents/output/automated-plan-{scope}.md`.
+**Iteration** (for `review-fixes` mode): infer from existing `Implementation status` lines — no status lines → iteration 1; all reference iteration 1 → iteration 2; etc.
+
+Load plan(s) for active scopes:
+- Backend: `.github/agents/output/automated-plan-backend.md`
+- Frontend: `.github/agents/output/automated-plan-frontend.md`
 
 ### 2) Load relevant instruction files based on scope
 
 | Scope | Load skill / Read file |
 |---|---|
-| `common` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
 | `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
 | `frontend` | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
 
@@ -69,7 +71,11 @@ Extract information from given instructions (`# {xx} Example`) about existing fe
 
 Skip if `mode = review-fixes` — the research was already completed during the initial feature run.
 
-Load `.github/agents/output/research-report-{scope}.md` if it exists. Use it as the primary source for:
+Load the research report for each active scope if it exists:
+- Backend: `.github/agents/output/research-report-backend.md`
+- Frontend: `.github/agents/output/research-report-frontend.md`
+
+Use each report as the primary source for:
 - Exact file paths and code snippets for the reference feature
 - Discovered conventions (naming, error handling, DI registration)
 - Common utilities available in `Api.Common`, `Persistance.Common`, `Domain.Common`
@@ -107,7 +113,7 @@ dotnet ef migrations add {Name} \
 
 Skip if `mode = feature`.
 
-After each fix attempt, update `.github/agents/output/review-results-{scope}.md` by appending an `Implementation status` line to the relevant issue, directly after its `- **Solution proposal**:` line.
+After each fix attempt, update the relevant review-results file (`review-results-backend.md` for backend issues, `review-results-frontend.md` for frontend issues) by appending an `Implementation status` line to the relevant issue, directly after its `- **Solution proposal**:` line.
 
 **On success:**
 ```

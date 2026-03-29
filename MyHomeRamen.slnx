@@ -48,12 +48,14 @@
     <File Path=".github/agents/adr-expert.agent.md" />
   </Folder>
   <Folder Name="/_github/agents/input/">
-    <File Path=".github/agents/input/feature-brief-template.md" />
-    <File Path=".github/agents/input/workflow-state.md" />
+    <File Path=".github/agents/input/feature-brief.md" />
   </Folder>
   <Folder Name="/_github/agents/output/">
-    <File Path=".github/agents/output/automated-plan.md" />
-    <File Path=".github/agents/output/review-results.md" />
+    <File Path=".github/agents/output/automated-plan-backend.md" />
+    <File Path=".github/agents/output/automated-plan-frontend.md" />
+    <File Path=".github/agents/output/research-report-backend.md" />
+    <File Path=".github/agents/output/research-report-frontend.md" />
+    <File Path=".github/agents/output/review-results-backend.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
@@ -69,7 +71,6 @@
     <File Path=".github/prompts/003-create-domain-model-unit-tests.prompt.md" />
     <File Path=".github/prompts/004-create-domain-db-context.prompt.md" />
     <File Path=".github/prompts/create-domain-event.prompt.md" />
-    <File Path=".github/prompts/create-feature.prompt.md" />
   </Folder>
   <Folder Name="/_github/skills/" />
   <Folder Name="/_github/skills/code-quality/">

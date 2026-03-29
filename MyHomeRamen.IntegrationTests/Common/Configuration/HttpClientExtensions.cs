@@ -18,6 +18,11 @@ internal static class HttpClientExtensions
         PropertyNameCaseInsensitive = true
     };
 
+    internal static HttpRequestMessage CreateGetMessage(string url)
+    {
+        return new(HttpMethod.Get, url);
+    }
+
     internal static HttpRequestMessage CreatePostMessage(string url)
     {
         return new(HttpMethod.Post, url);
