@@ -43,6 +43,16 @@ public sealed class MenuApiClient(HttpClient httpClient)
 
         return result ?? [];
     }
+
+    public async Task<IEnumerable<GetIngredientsForDropdownResponse>> GetIngredientsForDropdownAsync(
+        CancellationToken ct = default)
+    {
+        IEnumerable<GetIngredientsForDropdownResponse>? result = await httpClient
+            .GetFromJsonAsync<IEnumerable<GetIngredientsForDropdownResponse>>(
+                "/api/menu/ingredients/dropdown", ct);
+
+        return result ?? [];
+    }
 }
 
 public sealed record CreateProductResponse(Guid Id);
@@ -52,3 +62,5 @@ public sealed record CreateCategoryResponse(Guid Id);
 public sealed record CreateIngredientResponse(Guid Id);
 
 public sealed record GetCategoriesForDropdownResponse(Guid Id, string Name);
+
+public sealed record GetIngredientsForDropdownResponse(Guid Id, string Name);
