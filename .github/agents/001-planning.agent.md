@@ -47,10 +47,10 @@ Drax Planner: ✓ Work complete
 
 ## Planning process
 
-### 1) Load research report and instruction files
+### 1) Load instruction files
 
 **Step 1a — Determine mode and scope:**
-Load `.github/agents/input/feature-brief.md` and determine:
+Load `.github/agents/input/feature-brief.md` determine:
 
 - **Mode**:
   - `feature` — if `feature-brief.md` exists and all required fields are filled
@@ -66,20 +66,7 @@ Load `.github/agents/input/feature-brief.md` and determine:
   - All statuses reference iteration 1 → iteration 2
   - All statuses reference iteration 2 → iteration 3
 
-**Step 1b — Load research report:**
-For each active scope, load the corresponding research report:
-- Backend: `.github/agents/output/research-report-backend.md`
-- Frontend: `.github/agents/output/research-report-frontend.md`
-
-If a report exists, use it as the primary source for:
-- Reference feature file paths and code patterns
-- Discovered conventions and common utilities
-- Existing architecture boundaries
-- Potential pitfalls
-
-If a report does not exist, log a warning and proceed — you will discover patterns manually during planning.
-
-**Step 1c — Load instruction files based on active scopes:**
+**Step 1b — Load instruction files based on active scopes:**
 
 | Scope | Instruction files to load |
 |---|---|
