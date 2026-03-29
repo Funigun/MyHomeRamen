@@ -8,11 +8,11 @@
 |---|---|
 | **Task type** | `Feature` |
 | **Module** | `Menu` |
-| **Feature name** | `GetCategoriesForDropdown` |
-| **Short description** | Returns a lightweight list of categories filtered by `CategoryType`, ordered by `SortOrder`, for use in dropdown selectors (e.g. product creation form). |
+| **Feature name** | `CreateIngredient` |
+| **Short description** | Creates a new ingredient with name, description, price, and associated categories. |
 | **Reference feature** | `CreateCategory` |
-| **Source branch** | `feature/get_categories_options` |
-| **Target branch** | `feature/get_categories_options` |
+| **Source branch** | `feature/create_ingredient` |
+| **Target branch** | `feature/create_ingredient` |
 
 ---
 
@@ -29,10 +29,10 @@
 
 | Field | Value |
 |---|---|
-| **HTTP method** | `GET` |
-| **Route** | `/api/menu/categories/dropdown` |
+| **HTTP method** | `POST` |
+| **Route** | `/api/menu/ingredients` |
 | **Authorization policy** | `RestaurantManager` |
-| **Applies IValidator** | yes — validate `categoryType` is a defined `CategoryType` enum value |
+| **Applies IValidator** | yes — validate name, description, price, and categoryIds |
 | **Applies ICachePolicy** | no |
 | **Applies IAuthorizationPolicy** | no |
 
@@ -42,7 +42,7 @@
 
 | Field | Value |
 |---|---|
-| **Aggregate / entity** | `Category` |
+| **Aggregate / entity** | `Ingredient` |
 | **New domain entity needed** | no |
 | **Domain events produced** | none |
 | **Asynchronous messaging** | none |
@@ -63,10 +63,10 @@
 
 | Field | Value |
 |---|---|
-| **Pages to create or update** | none |
-| **Components to create or update** | `ProductForm.razor` — replace static `Categories` parameter with a call to the new endpoint on component init, filtering by `CategoryType.Product` |
-| **API service to create or update** | `MenuApiClient` — add `GetCategoriesForDropdownAsync(int categoryType)` method |
-| **Reference frontend feature** | `ProductForm.razor` (existing product form) |
+| **Pages to create or update** | `admin/ingredients` (index page), `admin/ingredients/create` |
+| **Components to create or update** | `IngredientForm.razor` |
+| **API service to create or update** | `MenuApiClient` — add `CreateIngredientAsync(CreateIngredientRequest request)` method |
+| **Reference frontend feature** | `CreateCategoryForm.razor` |
 
 ---
 
@@ -75,7 +75,7 @@
 | Test type | Required | Notes |
 |---|---|---|
 | Unit tests | no | — |
-| Integration tests | yes | Reference `CreateCategoryTests` — cover: returns ordered list for valid type, returns empty list when no match, returns 400 for invalid `categoryType` value, requires authentication |
+| Integration tests | yes | Reference `CreateCategoryTests` — cover: creates ingredient successfully, validates input (name, description, price, categoryIds), returns 201 with created ingredient, returns 400 for invalid input, requires RestaurantManager auth |
 | Architecture tests | no | — |
 | System tests | no | — |
 
@@ -83,7 +83,6 @@
 
 ## 8) Additional Notes
 
-- `CategoryType` enum: `Product = 1`, `Ingredient = 2` — both defined in `MyHomeRamen.Domain.Menu.Categories` and mirrored in Blazor at `MyHomeRamen.Blazor.Features.Menu.Categories`.
-- Results must be ordered ascending by `SortOrder`.
-- Response shape must align with existing `CategoryOption(Guid Id, string Name)` record used in `ProductForm.razor`.
-- `ProductForm.razor` currently receives `Categories` as a `[Parameter]` from its parent page — that parent page call site will also need updating to stop passing categories and let the form load them internally via `MenuApiClient`.
+- Ingredient requires Name, Description, Price, and Categories (list of CategoryIds for Ingredient type).
+- Validators exist: `IngredientNameValidator`, `IngredientDescriptionValidator`, `IngredientPriceValidator`.
+- Categories must be of type `CategoryType.Ingredient`.
