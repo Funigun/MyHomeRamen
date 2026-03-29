@@ -44,9 +44,11 @@ Always read `.github/copilot-instructions.md` first to understand project archit
 
 ### 1) Load scope and task context
 
-Read `.github/agents/input/workflow-state.md` and extract the current **scope** (`common`, `backend`, or `frontend`).
+Read `.github/agents/input/feature-brief.md` and determine active scopes from Section 2:
+- `backend` — if the `backend` row is "yes"
+- `frontend` — if the `frontend` row is "yes"
 
-Then read `.github/agents/input/feature-brief.md` if it exists, otherwise gather task context from user input.
+If the feature brief is missing, gather task context from user input to determine which scopes are involved.
 
 Determine:
 - Which module is being worked on
@@ -66,7 +68,7 @@ If not, find the most similar existing feature by:
 
 For each layer in scope, document the reference feature's full implementation:
 
-#### Backend patterns (scope = `common` or `backend`)
+#### Backend patterns (scope = `backend`)
 
 Analyze and document:
 
@@ -116,7 +118,9 @@ Document what boundaries are already enforced and whether the new feature might 
 
 ### 6) Save research report
 
-Write the complete report to `.github/agents/output/research-report-{scope}.md`, overwriting any existing content.
+Write a separate research report for each active scope, overwriting any existing content:
+- Backend: `.github/agents/output/research-report-backend.md`
+- Frontend: `.github/agents/output/research-report-frontend.md`
 
 ## Report format
 

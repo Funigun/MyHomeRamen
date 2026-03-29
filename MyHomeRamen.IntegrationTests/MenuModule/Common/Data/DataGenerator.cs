@@ -20,8 +20,7 @@ internal static class DataGenerator
 
     internal static IEnumerable<Ingredient> GeneratedIngredients { get; private set; } = [];
 
-    internal static IEnumerable<User> GeneratedUsers { get; private set; }   = [];
-
+    internal static IEnumerable<User> GeneratedUsers { get; private set; } = [];
 
     private static readonly Faker<Category> ValidCategoryFaker = new Faker<Category>()
         .CustomInstantiator(f => Category.Create(
@@ -55,6 +54,18 @@ internal static class DataGenerator
     internal static Category GenerateValidCategory()
     {
         Category category = ValidCategoryFaker.Generate();
+        GeneratedCategories = GeneratedCategories.Append(category);
+        return category;
+    }
+
+    internal static Category GenerateValidCategory(CategoryType categoryType)
+    {
+        Faker f = new();
+        Category category = Category.Create(
+            Guid.NewGuid(),
+            f.Random.String2(CategoryConstants.MinNameLength, CategoryConstants.MaxNameLength),
+            f.Random.Int(CategoryConstants.MinSortOrder, 1000),
+            categoryType);
         GeneratedCategories = GeneratedCategories.Append(category);
         return category;
     }
