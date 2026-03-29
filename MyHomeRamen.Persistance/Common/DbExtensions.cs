@@ -70,4 +70,9 @@ public static class DbExtensions
             .Where(c => c.CategoryType == categoryType)
             .OrderBy(c => c.SortOrder);
     }
+
+    public static async Task<bool> IsIngredientNameUniqueAsync(this IQueryable<Domain.Menu.Ingredients.Ingredient> query, string name, CancellationToken cancellationToken = default)
+    {
+        return !await query.AnyAsync(i => i.Name.ToLower() == name.ToLower(), cancellationToken);
+    }
 }
