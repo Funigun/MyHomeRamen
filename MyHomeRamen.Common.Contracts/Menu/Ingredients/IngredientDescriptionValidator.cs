@@ -11,8 +11,8 @@ public sealed class IngredientDescriptionValidator : AbstractValidator<string>
     public IngredientDescriptionValidator()
     {
         RuleFor(x => x)
-            .NotEmpty()
-            .MinimumLength(MinLength)
-            .MaximumLength(MaxLength);
+            .NotEmpty().WithMessage("Ingredient description cannot be empty.")
+            .MinimumLength(MinLength).WithMessage($"Ingredient description minimum length is {MinLength}.")
+            .MaximumLength(MaxLength).WithMessage($"Ingredient description maximum length is {MaxLength}.");
     }
 }

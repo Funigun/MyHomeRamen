@@ -47,7 +47,7 @@ API validator tests verify that FluentValidation validators in `MyHomeRamen.Comm
 Verify FluentValidation messages fragment as per table:
 | Rule | Fragment to assert |
 |------|--------------------|
-| `NotEmpty` | `"not empty"` |
+| `NotEmpty` | `"not be empty"` |
 | `MinimumLength` | `"minimum length"` |
 | `MaximumLength` | `"maximum length"` |
 | `GreaterThanOrEqualTo` | `"greater than or equal to"` |

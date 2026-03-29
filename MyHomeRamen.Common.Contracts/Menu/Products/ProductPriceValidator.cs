@@ -11,7 +11,7 @@ public sealed class ProductPriceValidator : AbstractValidator<decimal>
     public ProductPriceValidator()
     {
         RuleFor(x => x)
-            .GreaterThanOrEqualTo(MinPrice)
-            .LessThanOrEqualTo(MaxPrice);
+            .LessThanOrEqualTo(MaxPrice).WithMessage($"Product price cannot be greater than or equal to {MaxPrice}.")
+            .GreaterThanOrEqualTo(MinPrice).WithMessage($"Product price cannot be less than or equal to {MinPrice}");
     }
 }

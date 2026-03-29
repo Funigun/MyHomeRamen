@@ -11,7 +11,7 @@ public sealed class IngredientPriceValidator : AbstractValidator<decimal>
     public IngredientPriceValidator()
     {
         RuleFor(x => x)
-            .GreaterThanOrEqualTo(MinPrice)
-            .LessThanOrEqualTo(MaxPrice);
+            .LessThanOrEqualTo(MaxPrice).WithMessage($"Ingredient price cannot be greater than or equal to {MaxPrice}.")
+            .GreaterThanOrEqualTo(MinPrice).WithMessage($"Ingredient price cannot be less than or equal to {MinPrice}");
     }
 }

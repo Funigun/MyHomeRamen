@@ -11,8 +11,8 @@ public sealed class ProductNameValidator : AbstractValidator<string>
     public ProductNameValidator()
     {
         RuleFor(x => x)
-            .NotEmpty()
-            .MinimumLength(MinLength)
-            .MaximumLength(MaxLength);
+            .NotEmpty().WithMessage("Product name cannot be empty.")
+            .MinimumLength(MinLength).WithMessage($"Product name minimum length is {MinLength}.")
+            .MaximumLength(MaxLength).WithMessage($"Product name maximum length is {MaxLength}.");
     }
 }

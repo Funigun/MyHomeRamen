@@ -67,23 +67,7 @@ Do not proceed to next steps before loading all files and analyzing their conten
 
 Extract information from given instructions (`# {xx} Example`) about existing features implementations.
 
-### 3) Load research report
-
-Skip if `mode = review-fixes` — the research was already completed during the initial feature run.
-
-Load the research report for each active scope if it exists:
-- Backend: `.github/agents/output/research-report-backend.md`
-- Frontend: `.github/agents/output/research-report-frontend.md`
-
-Use each report as the primary source for:
-- Exact file paths and code snippets for the reference feature
-- Discovered conventions (naming, error handling, DI registration)
-- Common utilities available in `Api.Common`, `Persistance.Common`, `Domain.Common`
-- Potential pitfalls flagged by the researcher
-
-If the research report is not available, fall back to analyzing existing features manually before proceeding.
-
-### 4) Implementation
+### 3) Implementation
 
 For each step:
 1. Announce the step with `Drax Implementer: Step {N}/{Total}: {step_title}`
@@ -109,7 +93,7 @@ dotnet ef migrations add {Name} \
     --output-dir Users/Migrations
 ```
 
-### 4b) Update review issue status (review-fixes mode only)
+### 3b) Update review issue status (review-fixes mode only)
 
 Skip if `mode = feature`.
 
@@ -127,7 +111,7 @@ After each fix attempt, update the relevant review-results file (`review-results
 
 If an `Implementation status` line already exists from a previous iteration, replace it rather than adding a second one.
 
-### 5) Verification
+### 4) Verification
 ```bash
 dotnet build MyHomeRamen.sln
 dotnet test Tests/MyHomeRamen.ArchitectureTests/ --no-build
@@ -140,7 +124,7 @@ If unresolvable - stop and provide detailed information in format:
 
 Drax Implementer: Unable to resolve implementation due to {reason}.
 
-### 6) Summary
+### 5) Summary
 Display summary of work done, including:
 - which files (except tests) were created or updated
 - which tests were created or updated

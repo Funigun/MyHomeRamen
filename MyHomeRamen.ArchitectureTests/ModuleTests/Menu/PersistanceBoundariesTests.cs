@@ -1,7 +1,6 @@
 ﻿using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnitV3;
 using MyHomeRamen.ArchitectureTests.Common;
-using Xunit.v3;
 
 namespace MyHomeRamen.ArchitectureTests.ModuleTests.Menu;
 

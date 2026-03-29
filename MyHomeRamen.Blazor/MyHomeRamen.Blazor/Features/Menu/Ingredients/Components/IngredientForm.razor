@@ -1,0 +1,121 @@
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Categories
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
+
+@inject MenuApiClient MenuApiClient
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudGrid>
+        <MudItem xs="12">
+            <MudTextField Label="Name"
+                          @bind-Value="_model.Name"
+                          For="@(() => _model.Name)"
+                          Variant="Variant.Outlined"
+                          Required="true" />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField Label="Description"
+                          @bind-Value="_model.Description"
+                          For="@(() => _model.Description)"
+                          Variant="Variant.Outlined"
+                          Lines="4" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudNumericField Label="Price"
+                             @bind-Value="_model.Price"
+                             For="@(() => _model.Price)"
+                             Variant="Variant.Outlined"
+                             Adornment="Adornment.Start"
+                             AdornmentText="$"
+                             Min="0.0m"
+                             Max="50.0m"
+                             Required="true" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="Guid"
+                       Label="Categories"
+                       @bind-SelectedValues="_model.CategoryIds"
+                       MultiSelection="true"
+                       Variant="Variant.Outlined"
+                       Required="true">
+                @foreach (CategoryOption category in _categories)
+                {
+                    <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+
+        @if (_errorMessage is not null)
+        {
+            <MudItem xs="12">
+                <MudAlert Severity="Severity.Error" Dense="true">@_errorMessage</MudAlert>
+            </MudItem>
+        }
+
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Disabled="_isBusy"
+                       OnClick="SubmitAsync">
+                @if (_isBusy)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Saving</MudText>
+                }
+                else
+                {
+                    <MudText>Create Ingredient</MudText>
+                }
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudForm>
+
+@code {
+    private MudForm _form = default!;
+    private readonly IngredientModel _model = new();
+    private readonly IngredientValidator _validator = new();
+    private bool _isBusy;
+    private string? _errorMessage;
+    private IEnumerable<CategoryOption> _categories = [];
+
+    [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        IEnumerable<GetCategoriesForDropdownResponse> response =
+            await MenuApiClient.GetCategoriesForDropdownAsync((int)CategoryType.Ingredient);
+
+        _categories = response.Select(c => new CategoryOption(c.Id, c.Name));
+    }
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        _isBusy = true;
+        _errorMessage = null;
+
+        try
+        {
+            Guid id = await MenuApiClient.CreateIngredientAsync(_model.ToCreateRequest());
+            await OnSuccess.InvokeAsync(id);
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to create ingredient. Please try again.";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}

@@ -1,7 +1,6 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
-using MyHomeRamen.Common.Contracts.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;

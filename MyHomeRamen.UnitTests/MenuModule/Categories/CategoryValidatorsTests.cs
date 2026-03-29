@@ -38,7 +38,7 @@ public sealed class CategoryValidatorsTests
         Assert.False(result.IsValid);
         Assert.Contains(
             result.Errors,
-            e => string.IsNullOrEmpty(e.PropertyName) && e.ErrorMessage.Contains("not empty", StringComparison.OrdinalIgnoreCase));
+            e => string.IsNullOrEmpty(e.PropertyName) && e.ErrorMessage.Contains("not be empty", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
