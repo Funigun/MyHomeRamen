@@ -70,7 +70,47 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 ### 2.2) DB Extensions (mandatory)
 - All custom queries, existence checks, and uniqueness checks **must** be extension methods on `IQueryable<T>` or specific `DbSet<T>` types.
 - Place them in `MyHomeRamen.Persistance.Common.DbExtensions`.
-- Never write raw inline `AnyAsync()` or `FirstOrDefaultAsync()` with business predicates in handlers or validators.
+- Never write raw inline `AnyAsync()`, `FirstOrDefaultAsync()`, or multi-predicate `Where`/`OrderBy` chains with business predicates in handlers or validators.
+- **Layer boundary**: persistence extensions must **never** return API layer types (DTOs, response records). The persistence layer has no reference to `MyHomeRamen.Api` — returning a DTO would create a circular dependency. Query-shape extensions return `IQueryable<TEntity>`; the handler owns the final projection.
+
+```csharp
+// ✅ Existence check — returns bool, no DTO involved
+public static async Task<bool> IsCategoryNameUniqueAsync(
+	this IQueryable<Category> query,
+	string name,
+	CancellationToken cancellationToken = default)
+{
+	return !await query.AnyAsync(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
+}
+
+// ✅ Query-shape extension — returns IQueryable<TEntity>, no projection to DTO
+internal static IQueryable<Category> ForDropdown(
+	this DbSet<Category> categories,
+	CategoryType categoryType)
+{
+	return categories
+		.AsNoTracking()
+		.Where(c => c.CategoryType == categoryType)
+		.OrderBy(c => c.SortOrder);
+}
+
+// ✅ Handler owns the projection using Mappings — the only layer that knows both Category and the response DTO
+return await dbContext.Categories
+	.ForDropdown(categoryType)
+	.Select(c => c.ToResponse())
+	.ToListAsync(cancellationToken);
+
+// ❌ Extension returns a DTO — persistence layer cannot reference API types
+internal static Task<List<GetCategoriesForDropdownResponse>> GetForDropdownAsync(...) { ... }
+
+// ❌ Inline query with business predicates directly in the handler
+return await dbContext.Categories
+	.AsNoTracking()
+	.Where(c => c.CategoryType == categoryType)
+	.OrderBy(c => c.SortOrder)
+	.Select(c => new GetCategoriesForDropdownResponse(c.Id.Value, c.Name))
+	.ToListAsync(cancellationToken);
+```
 
 ### 2.3) Common patterns
 - Use `AsNoTracking()` for read-only queries.

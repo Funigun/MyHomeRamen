@@ -45,6 +45,7 @@ public sealed class GetCategoriesForDropdownTests(WebApiFactory apiFactory)
         // Assert
         Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
         Assert.NotNull(result);
+        Assert.NotEmpty(result);
     }
 
     [Fact]
@@ -52,13 +53,9 @@ public sealed class GetCategoriesForDropdownTests(WebApiFactory apiFactory)
     {
         // Arrange
         const int categoryType = (int)CategoryType.Product;
-        string firstName = $"OrderTestCat{Guid.NewGuid():N}";
-        string secondName = $"OrderTestCat{Guid.NewGuid():N}";
-        string thirdName = $"OrderTestCat{Guid.NewGuid():N}";
-
-        CreateCategoryRequest firstRequest = new(firstName, categoryType);
-        CreateCategoryRequest secondRequest = new(secondName, categoryType);
-        CreateCategoryRequest thirdRequest = new(thirdName, categoryType);
+        CreateCategoryRequest firstRequest = DataGenerator.GenerateValidCategory(CategoryType.Product).ToCreateCategoryRequest();
+        CreateCategoryRequest secondRequest = DataGenerator.GenerateValidCategory(CategoryType.Product).ToCreateCategoryRequest();
+        CreateCategoryRequest thirdRequest = DataGenerator.GenerateValidCategory(CategoryType.Product).ToCreateCategoryRequest();
 
         using HttpRequestMessage firstHttpRequest = HttpClientExtensions
             .CreatePostMessage("/api/menu/categories")
@@ -138,7 +135,7 @@ public sealed class GetCategoriesForDropdownTests(WebApiFactory apiFactory)
     [Theory]
     [InlineData(UserRoles.Employee)]
     [InlineData(UserRoles.Customer)]
-    public async Task GetCategoriesForDropdown_ShouldReturnForbidden_ForNonAdminUser(UserRoles role)
+    public async Task GetCategoriesForDropdown_ShouldReturnForbidden_ForNonManagerRole(UserRoles role)
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions

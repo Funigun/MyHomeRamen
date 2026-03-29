@@ -3,6 +3,7 @@ using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesForDropdown.Models;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
+using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesForDropdown;
 
@@ -16,10 +17,8 @@ public sealed class GetCategoriesForDropdownHandler(IMenuDbContext dbContext)
         CategoryType categoryType = (CategoryType)request.CategoryType;
 
         return await dbContext.Categories
-            .AsNoTracking()
-            .Where(c => c.CategoryType == categoryType)
-            .OrderBy(c => c.SortOrder)
-            .Select(c => new GetCategoriesForDropdownResponse(c.Id.Value, c.Name))
+            .ForDropdown(categoryType)
+            .Select(c => c.ToResponse())
             .ToListAsync(cancellationToken);
     }
 }
