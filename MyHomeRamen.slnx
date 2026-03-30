@@ -68,6 +68,7 @@
     <File Path=".github/prompts/003-create-domain-model-unit-tests.prompt.md" />
     <File Path=".github/prompts/004-create-domain-db-context.prompt.md" />
     <File Path=".github/prompts/create-domain-event.prompt.md" />
+    <File Path=".github/prompts/implement-feature-prompt.prompt.md" />
     <File Path=".github/prompts/plan-feature-prompt.prompt.md" />
   </Folder>
   <Folder Name="/_github/skills/" />

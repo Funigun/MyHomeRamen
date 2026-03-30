@@ -8,11 +8,11 @@
 |---|---|
 | **Task type** | `Feature` |
 | **Module** | `Menu` |
-| **Feature name** | `CreateIngredient` |
-| **Short description** | Creates a new ingredient with name, description, price, and associated categories. |
-| **Reference feature** | `CreateCategory` |
-| **Source branch** | `feature/create_ingredient` |
-| **Target branch** | `feature/create_ingredient` |
+| **Feature name** | `GetIngredientsForDropdown` |
+| **Short description** | Returns a list of ingredients (id + name) for use in dropdown selectors (e.g. in the Product form). |
+| **Reference feature** | `GetCategoriesForDropdown` |
+| **Source branch** | `feature/get_ingredients_options` |
+| **Target branch** | `feature/get_ingredients_options` |
 
 ---
 
@@ -29,10 +29,10 @@
 
 | Field | Value |
 |---|---|
-| **HTTP method** | `POST` |
-| **Route** | `/api/menu/ingredients` |
+| **HTTP method** | `GET` |
+| **Route** | `/api/menu/ingredients/dropdown` |
 | **Authorization policy** | `RestaurantManager` |
-| **Applies IValidator** | yes — validate name, description, price, and categoryIds |
+| **Applies IValidator** | no — no query parameters to validate |
 | **Applies ICachePolicy** | no |
 | **Applies IAuthorizationPolicy** | no |
 
@@ -55,7 +55,7 @@
 |---|---|
 | **EF migration needed** | no |
 | **New DbContext configuration needed** | no |
-| **New DB extension method needed** | no |
+| **New DB extension method needed** | yes — add `ForDropdown()` extension on `DbSet<Ingredient>` in `DbExtensions.cs` (returns `IQueryable<Ingredient>` filtered `AsNoTracking`, ordered by `Name`) |
 
 ---
 
@@ -63,10 +63,10 @@
 
 | Field | Value |
 |---|---|
-| **Pages to create or update** | `admin/ingredients` (index page), `admin/ingredients/create` |
-| **Components to create or update** | `IngredientForm.razor` |
-| **API service to create or update** | `MenuApiClient` — add `CreateIngredientAsync(CreateIngredientRequest request)` method |
-| **Reference frontend feature** | `CreateCategoryForm.razor` |
+| **Pages to create or update** | none |
+| **Components to create or update** | `ProductForm.razor` — remove `[Parameter] Ingredients` and load ingredients via API in `OnInitializedAsync`; also update `CreateProductPage.razor` to remove the `Ingredients` parameter pass-through |
+| **API service to create or update** | `MenuApiClient` — add `GetIngredientsForDropdownAsync()` method and `GetIngredientsForDropdownResponse(Guid Id, string Name)` record |
+| **Reference frontend feature** | `ProductForm.razor` pattern for `GetCategoriesForDropdownAsync` call in `OnInitializedAsync` |
 
 ---
 
@@ -75,7 +75,7 @@
 | Test type | Required | Notes |
 |---|---|---|
 | Unit tests | no | — |
-| Integration tests | yes | Reference `CreateCategoryTests` — cover: creates ingredient successfully, validates input (name, description, price, categoryIds), returns 201 with created ingredient, returns 400 for invalid input, requires RestaurantManager auth |
+| Integration tests | yes | Reference `GetCategoriesForDropdownTests` — cover: returns 200 with list of ingredients, returns 200 for authenticated manager, returns 401 for unauthenticated user, returns 403 for non-manager roles (Employee, Customer) |
 | Architecture tests | no | — |
 | System tests | no | — |
 
@@ -83,6 +83,7 @@
 
 ## 8) Additional Notes
 
-- Ingredient requires Name, Description, Price, and Categories (list of CategoryIds for Ingredient type).
-- Validators exist: `IngredientNameValidator`, `IngredientDescriptionValidator`, `IngredientPriceValidator`.
-- Categories must be of type `CategoryType.Ingredient`.
+- Response shape: `GetIngredientsForDropdownResponse(Guid Id, string Name)` — same pattern as `GetCategoriesForDropdownResponse`.
+- Handler queries `dbContext.Ingredients.ForDropdown()` (new extension) and projects each ingredient via a `ToResponse()` mapping.
+- `ProductForm.razor` currently accepts `[Parameter] public IEnumerable<IngredientOption> Ingredients { get; set; }` — after this feature the form will self-load ingredients from the API, removing the external parameter dependency.
+- `CreateProductPage.razor` passes `Ingredients="_ingredients"` to `ProductForm` — this binding must be removed once `ProductForm` self-loads.

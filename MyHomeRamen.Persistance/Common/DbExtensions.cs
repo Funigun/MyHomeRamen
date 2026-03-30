@@ -78,4 +78,11 @@ public static class DbExtensions
             .Where(c => c.CategoryType == categoryType)
             .OrderBy(c => c.SortOrder);
     }
+
+    public static IQueryable<Domain.Menu.Ingredients.Ingredient> ForDropdown(this DbSet<Domain.Menu.Ingredients.Ingredient> ingredients)
+    {
+        return ingredients
+            .AsNoTracking()
+            .OrderBy(i => i.Name);
+    }
 }
