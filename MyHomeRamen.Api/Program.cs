@@ -32,8 +32,10 @@ try
 {
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     builder.Services.AddScoped<DatabaseConfigurationProvider>();
+    builder.Services.AddScoped<AuthorizationConfiguration>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
+    AuthorizationConfiguration authorizationConfiguration = new(builder.Configuration);
 
     builder.AddConfiguration();
     bool isTestingEnvironment = builder.IsTesting();
@@ -74,7 +76,7 @@ try
     builder.Services.AddReservationsModule(databaseConfigurationProvider);
     builder.Services.AddPaymentsModule(databaseConfigurationProvider);
 
-    builder.Services.ConfigureAuthentication(builder.Configuration)
+    builder.Services.ConfigureAuthentication(authorizationConfiguration)
                     .ConfigureAuthorizationPolicies();
 
     if (!isTestingEnvironment)

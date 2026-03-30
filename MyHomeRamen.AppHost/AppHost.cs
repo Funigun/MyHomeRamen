@@ -50,4 +50,10 @@ IResourceBuilder<ProjectResource> blazor = builder.AddBlazor(config)
 identityApiService.WithReference(blazor);
 apiService.WithReference(blazor);
 
+builder.Eventing.Subscribe<BeforeStartEvent>((_, _) =>
+{
+    keyCloak.WithEndpoint("https", ep => ep.Port = 12000);
+    return Task.CompletedTask;
+});
+
 await builder.Build().RunAsync();

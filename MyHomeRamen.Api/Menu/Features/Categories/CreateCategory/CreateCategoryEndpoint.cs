@@ -15,7 +15,7 @@ public sealed class CreateCategoryEndpoint : IEndpoint
         endpointBuilder.MapStandardValidatedPost<CreateCategoryRequest, CreateCategoryResponse>("categories", HandleAsync)
                        .WithName("CreateCategoryEndpoint")
                        .WithDescription("Handles Create Category operations.")
-                       .RequireAuthorization(AuthorizationConfiguration.RestaurantManagerPolicy);
+                       .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

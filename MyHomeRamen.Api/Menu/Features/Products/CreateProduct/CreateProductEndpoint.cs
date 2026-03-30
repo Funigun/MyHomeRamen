@@ -15,7 +15,7 @@ public sealed class CreateProductEndpoint : IEndpoint
         endpointBuilder.MapStandardValidatedPost<CreateProductRequest, CreateProductResponse>("products", HandleAsync)
                        .WithName("CreateProductEndpoint")
                        .WithDescription("Handles Create Product operations.")
-                       .RequireAuthorization(AuthorizationConfiguration.RestaurantManagerPolicy);
+                       .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

@@ -1,6 +1,6 @@
 using MyHomeRamen.Blazor.Features.Menu.Categories.CreateCategory;
-using MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
 using MyHomeRamen.Blazor.Features.Menu.Ingredients.CreateIngredient;
+using MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Common.Services;
 
@@ -8,7 +8,7 @@ public sealed class MenuApiClient(HttpClient httpClient)
 {
     public async Task<Guid> CreateProductAsync(CreateProductRequest request, CancellationToken ct = default)
     {
-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu.products", request, ct);
+        using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu/products", request, ct);
         response.EnsureSuccessStatusCode();
 
         CreateProductResponse? result = await response.Content.ReadFromJsonAsync<CreateProductResponse>(ct);
@@ -17,7 +17,7 @@ public sealed class MenuApiClient(HttpClient httpClient)
 
     public async Task<Guid> CreateCategoryAsync(CreateCategoryRequest request, CancellationToken ct = default)
     {
-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu.categories", request, ct);
+        using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu/categories", request, ct);
         response.EnsureSuccessStatusCode();
 
         CreateCategoryResponse? result = await response.Content.ReadFromJsonAsync<CreateCategoryResponse>(ct);
@@ -26,7 +26,7 @@ public sealed class MenuApiClient(HttpClient httpClient)
 
     public async Task<Guid> CreateIngredientAsync(CreateIngredientRequest request, CancellationToken ct = default)
     {
-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu.ingredients", request, ct);
+        using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu/ingredients", request, ct);
         response.EnsureSuccessStatusCode();
 
         CreateIngredientResponse? result = await response.Content.ReadFromJsonAsync<CreateIngredientResponse>(ct);

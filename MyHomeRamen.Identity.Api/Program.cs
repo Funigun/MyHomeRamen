@@ -31,8 +31,10 @@ try
     builder.AddConfiguration();
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     builder.Services.AddScoped<DatabaseConfigurationProvider>();
+    builder.Services.AddScoped<AuthorizationConfiguration>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
+    AuthorizationConfiguration authorizationConfigurationProvider = new(builder.Configuration);
 
     builder.Services.AddCors(options =>
     {
@@ -63,7 +65,7 @@ try
 
     builder.Services.AddIdentityPersistance(databaseConfigurationProvider);
 
-    builder.Services.ConfigureAuthentication(builder.Configuration)
+    builder.Services.ConfigureAuthentication(authorizationConfigurationProvider)
                     .ConfigureAuthorizationPolicies();
 
     builder.AddRedisClient(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));

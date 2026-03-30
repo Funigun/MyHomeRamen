@@ -15,7 +15,7 @@ public sealed class CreateIngredientEndpoint : IEndpoint
         endpointBuilder.MapStandardValidatedPost<CreateIngredientRequest, CreateIngredientResponse>("ingredients", HandleAsync)
                        .WithName("CreateIngredientEndpoint")
                        .WithDescription("Handles Create Ingredient operations.")
-                       .RequireAuthorization(AuthorizationConfiguration.RestaurantManagerPolicy);
+                       .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
     private static async Task<IResult> HandleAsync([FromBody] CreateIngredientRequest request, [FromServices] IRequestHandler<CreateIngredientRequest, Guid> handler, CancellationToken cancellationToken)

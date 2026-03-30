@@ -17,7 +17,7 @@ public sealed class GetCategoriesForDropdownEndpoint : IEndpoint
                 "categories/dropdown", HandleAsync)
             .WithName("GetCategoriesForDropdownEndpoint")
             .WithDescription("Returns a filtered and ordered list of categories for use in dropdown selectors.")
-            .RequireAuthorization(AuthorizationConfiguration.RestaurantManagerPolicy);
+            .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

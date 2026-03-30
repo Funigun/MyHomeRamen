@@ -6,7 +6,7 @@ using Scalar.AspNetCore;
 
 namespace MyHomeRamen.Api.WebPresentation;
 
-internal static class AuthorizationConfiguration
+internal static class AuthorizationDependencyInjection
 {
     internal const string RestaurantCustomerPolicy = "RestaurantCustomer";
     internal const string RestaurantEmployeePolicy = "RestaurantEmployee";
@@ -46,16 +46,15 @@ internal static class AuthorizationConfiguration
         return services;
     }
 
-    internal static IServiceCollection ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
+    internal static IServiceCollection ConfigureAuthentication(this IServiceCollection services, AuthorizationConfiguration authConfig)
     {
-        string keycloakAuthority = ResolveKeycloakAuthority(configuration);
-        string[] validIssuers = ResolveValidIssuers(configuration, keycloakAuthority);
+        string[] validIssuers = [authConfig.Issuer];
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(RestaurantCustomerPolicy, options =>
                 {
-                    options.Authority = keycloakAuthority;
-                    options.Audience = configuration["Authorization:Audience"]!;
+                    options.Authority = authConfig.Authority;
+                    options.Audience = authConfig.Audience;
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -64,8 +63,8 @@ internal static class AuthorizationConfiguration
                 })
                 .AddJwtBearer(RestaurantEmployeePolicy, options =>
                 {
-                    options.Authority = keycloakAuthority;
-                    options.Audience = configuration["Authorization:Audience"]!;
+                    options.Authority = authConfig.Authority;
+                    options.Audience = authConfig.Audience;
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -74,8 +73,8 @@ internal static class AuthorizationConfiguration
                 })
                 .AddJwtBearer(RestaurantManagerPolicy, options =>
                 {
-                    options.Authority = keycloakAuthority;
-                    options.Audience = configuration["Authorization:Audience"]!;
+                    options.Authority = authConfig.Authority;
+                    options.Audience = authConfig.Audience;
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
@@ -101,39 +100,5 @@ internal static class AuthorizationConfiguration
         services.AddTransient<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
 
         return services;
-    }
-
-    private static string ResolveKeycloakAuthority(IConfiguration configuration)
-    {
-        string prefix = configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
-
-        string keycloakBaseUrl =
-            configuration[$"services:{prefix}-key-cloak:https:0"] ??
-            configuration.GetConnectionString($"{prefix}-key-cloak") ??
-            configuration["Authorization:BaseUrl"] ??
-            throw new InvalidOperationException(
-                "Keycloak base URL is not configured. Ensure the Aspire reference or 'Authorization:BaseUrl' is set.");
-
-        string realm = configuration["Authorization:Realm"]
-            ?? throw new InvalidOperationException("'Authorization:Realm' is not configured.");
-
-        return $"{keycloakBaseUrl.TrimEnd('/')}/realms/{realm}";
-    }
-
-    private static string[] ResolveValidIssuers(IConfiguration configuration, string httpAuthority)
-    {
-        string prefix = configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
-
-        List<string> issuers = [httpAuthority];
-
-        string? httpsBaseUrl = configuration[$"services:{prefix}-key-cloak:https:0"];
-        string? realm = configuration["Authorization:Realm"];
-
-        if (!string.IsNullOrEmpty(httpsBaseUrl) && !string.IsNullOrEmpty(realm))
-        {
-            issuers.Add($"{httpsBaseUrl.TrimEnd('/')}/realms/{realm}");
-        }
-
-        return [.. issuers];
     }
 }
