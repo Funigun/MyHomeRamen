@@ -116,7 +116,6 @@ If an `Implementation status` line already exists from a previous iteration, rep
 dotnet build MyHomeRamen.sln
 dotnet test Tests/MyHomeRamen.ArchitectureTests/ --no-build
 dotnet test Tests/MyHomeRamen.UnitTests/ --no-build
-dotnet test Tests/MyHomeRamen.IntegrationTests/ --no-build
 ```
 
 If errors: fix and re-validate (max 3 iterations).

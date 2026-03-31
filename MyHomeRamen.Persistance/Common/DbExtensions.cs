@@ -79,6 +79,14 @@ public static class DbExtensions
             .OrderBy(c => c.SortOrder);
     }
 
+    public static IQueryable<Domain.Menu.Categories.Category> ForManage(this DbSet<Domain.Menu.Categories.Category> categories, Domain.Menu.Categories.CategoryType categoryType)
+    {
+        return categories
+            .AsNoTracking()
+            .Where(c => c.CategoryType == categoryType)
+            .OrderBy(c => c.SortOrder);
+    }
+
     public static IQueryable<Domain.Menu.Ingredients.Ingredient> ForDropdown(this DbSet<Domain.Menu.Ingredients.Ingredient> ingredients)
     {
         return ingredients
