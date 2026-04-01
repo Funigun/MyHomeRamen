@@ -86,10 +86,19 @@ Review test files rigorously with the following checks:
 - **Meaningful Testing**: Verify tests actually validate the intended behavior and do not contain dummy or bypassed assertions.
 - **Proper Data Setup**: Check if Arrange/Given blocks configure the exact state needed for the scenario being tested.
 
-### 4) Run architecture tests
+### 4) Run tests
+
+- Always run architecture tests to verify no architectural rules are violated
+- Always run unit tests to verify domain logic, validations and contracts are correctly implemented
+- Run integration tests if any were added or modified to verify end-to-end behavior of the feature
+- Run blazor tests if frontend changes were made or tests were modified or new tests were added
 
 ```bash
+dotnet build MyHomeRamen.sln
 dotnet test MyHomeRamen.ArchitectureTests/ --no-build
+dotnet test Tests/MyHomeRamen.UnitTests/ --no-build
+dotnet test Tests/MyHomeRamen.IntegrationTests/ --no-build
+dotnet test Tests/MyHomeRamen.BlazorTests/ --no-build
 ```
 
 Report any failures as **Critical** issues.

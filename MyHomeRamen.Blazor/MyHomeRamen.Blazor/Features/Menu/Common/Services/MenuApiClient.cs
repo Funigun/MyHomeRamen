@@ -53,6 +53,15 @@ public sealed class MenuApiClient(HttpClient httpClient)
 
         return result ?? [];
     }
+
+    public async Task<GetCategoriesForManageResponse> GetCategoriesForManageAsync(CancellationToken ct = default)
+    {
+        GetCategoriesForManageResponse? result = await httpClient
+            .GetFromJsonAsync<GetCategoriesForManageResponse>(
+                "/api/menu/categories/manage", ct);
+
+        return result ?? new GetCategoriesForManageResponse([], []);
+    }
 }
 
 public sealed record CreateProductResponse(Guid Id);
@@ -64,3 +73,9 @@ public sealed record CreateIngredientResponse(Guid Id);
 public sealed record GetCategoriesForDropdownResponse(Guid Id, string Name);
 
 public sealed record GetIngredientsForDropdownResponse(Guid Id, string Name);
+
+public sealed record GetCategoriesForManageResponse(
+    IEnumerable<CategoryForManageDto> ProductCategories,
+    IEnumerable<CategoryForManageDto> IngredientCategories);
+
+public sealed record CategoryForManageDto(Guid Id, string Name, int SortOrder);

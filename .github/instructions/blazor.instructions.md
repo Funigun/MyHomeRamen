@@ -57,6 +57,8 @@ Example: group `Menu.Products` → route `/api/menu.products`. Use this when bui
 
 ## Pages
 - Every routable `@page` component must wrap its main content in a `<MudPaper>` to ensure consistent visual structure, widths, and margins across the application.
+- **Keep pages thin**: Pages are responsible for orchestration (loading data, handling state, routing callbacks). They should not embed complex or repeated markup directly. Extract any non-trivial UI block — especially one that appears more than once — into a dedicated component in the feature's `Components/` folder.
+- **Compose with components**: A page's `@body` should read as a flat list of high-level component calls (`<CreateCategoryForm>`, `<CategoryTable>`, etc.), making the intent clear at a glance.
 - Example structure:
   ```razor
   @page "/my-feature"
@@ -65,7 +67,12 @@ Example: group `Menu.Products` → route `/api/menu.products`. Use this when bui
 
   <MudPaper Elevation="3" Class="pa-6">
       <MudText Typo="Typo.h4" Class="mb-6">My Feature</MudText>
-      <!-- content / forms / tables -->
+
+      <MyFeatureForm OnSuccess="OnCreated" />
+
+      <MudDivider Class="my-6" />
+
+      <MyFeatureTable Title="Items" Items="_items" IsLoading="_isLoading" />
   </MudPaper>
 
   ```
@@ -164,11 +171,13 @@ When building a new feature, use these canonical files as patterns:
 | UI Model with `ToXxxRequest()` mapping | `Features/Account/Components/SignUpModel.cs` |
 | Validator with `ValidateValue` delegate | `Features/Account/Components/SignUpValidator.cs` |
 | MudForm with validation + submission | `Features/Account/Components/SignUpForm.razor` |
+| Reusable display component (list/table) | `Features/Menu/Categories/Components/CategoryTable.razor` |
 | Typed HttpClient (module service) | `Features/Admin/Employees/EmployeeApiClient.cs` |
 | HttpClient DI registration | `Presentation/ApiDependencyInjection.cs` |
 | Navigation service | `Features/Menu/Common/Services/MenuNavigationService.cs` |
 | Navigation service DI registration | `Presentation/NavigationDependencyInjection.cs` |
 | Simple page wrapping a form component | `Features/Account/SignUp/SignUpPage.razor` |
+| Thin page composing multiple components | `Features/Menu/Categories/CategoriesIndex/CategoriesIndexPage.razor` |
 
 ## Navigation
 

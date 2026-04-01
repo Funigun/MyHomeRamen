@@ -1,237 +1,236 @@
 # Feature Implementation Plan — Frontend
 
-- **Date**: 2025-07-14
-- **Feature**: CreateIngredient
+- **Date**: 2025-07-17
+- **Feature**: GetCategoriesForManage
 - **Module**: Menu
-- **Reference**: CreateCategoryForm.razor, ProductForm.razor, CreateProductPage.razor
+- **Reference**: CategoriesIndexPage.razor, GetCategoriesForDropdown Blazor integration
 
 ---
 
 ## 11) Create frontend feature structure
 
-```
-MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/
-??? Components/
-?   ??? IngredientForm.razor          ? Form component with MudForm + validation
-?   ??? IngredientModel.cs            ? UI model with ToCreateRequest() mapping
-?   ??? IngredientValidator.cs        ? FluentValidation validator extending BaseValidator<IngredientModel>
-??? CreateIngredient/
-?   ??? CreateIngredientPage.razor    ? Page wrapping IngredientForm
-?   ??? CreateIngredientRequest.cs    ? API DTO record
-```
+No new feature folders needed — this feature updates the existing `CategoriesIndex` page and the shared `MenuApiClient`.
 
-No new folders needed for `Common/Services/` or `Common/Models/` — existing `MenuApiClient`, `MenuNavigationService`, and `CategoryOption` are reused.
+Existing structure remains:
+```
+MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/
+??? Categories/
+?   ??? CategoriesIndex/
+?   ?   ??? CategoriesIndexPage.razor          ? UPDATE: replace placeholder alerts with category tables
+?   ??? Components/
+?       ??? (existing: CreateCategoryForm.razor, CategoryModel.cs, CategoryValidator.cs)
+??? Common/
+?   ??? Services/
+?   ?   ??? MenuApiClient.cs                   ? UPDATE: add GetCategoriesForManageAsync method + response records
+```
 
 ---
 
 ## 12) Create or update API communication services and API Response model
 
-### `MenuApiClient.cs` — add `CreateIngredientAsync` method
+### `MenuApiClient.cs` — add `GetCategoriesForManageAsync` method
 
 Add to `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Common/Services/MenuApiClient.cs`:
-```csharp
-public async Task<Guid> CreateIngredientAsync(CreateIngredientRequest request, CancellationToken ct = default)
-{
-    using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu.ingredients", request, ct);
-    response.EnsureSuccessStatusCode();
 
-    CreateIngredientResponse? result = await response.Content.ReadFromJsonAsync<CreateIngredientResponse>(ct);
-    return result?.Id ?? throw new InvalidOperationException("Failed to deserialize ingredient creation response.");
+```csharp
+public async Task<GetCategoriesForManageResponse> GetCategoriesForManageAsync(CancellationToken ct = default)
+{
+    GetCategoriesForManageResponse? result = await httpClient
+        .GetFromJsonAsync<GetCategoriesForManageResponse>(
+            "/api/menu/categories/manage", ct);
+
+    return result ?? new GetCategoriesForManageResponse([], []);
 }
 ```
 
-Add response record at bottom of file (following existing pattern with `CreateProductResponse`, `CreateCategoryResponse`):
-```csharp
-public sealed record CreateIngredientResponse(Guid Id);
-```
+Add response records at bottom of file (following existing pattern with other response records):
 
-Add `using` for `CreateIngredientRequest`:
 ```csharp
-using MyHomeRamen.Blazor.Features.Menu.Ingredients.CreateIngredient;
-```
+public sealed record GetCategoriesForManageResponse(
+    IEnumerable<CategoryForManageDto> ProductCategories,
+    IEnumerable<CategoryForManageDto> IngredientCategories);
 
-### `MenuNavigationService.cs` — add ingredient routes
-
-Add to `Routes.Admin` class:
-```csharp
-public const string IngredientsIndex = "/admin/menu/ingredients";
-public const string CreateIngredient = "/admin/menu/ingredients/create";
-```
-
-Add navigation methods:
-```csharp
-public void ToAdminIngredientsIndex() => navigation.NavigateTo(Routes.Admin.IngredientsIndex);
-public void ToCreateIngredient() => navigation.NavigateTo(Routes.Admin.CreateIngredient);
+public sealed record CategoryForManageDto(Guid Id, string Name, int SortOrder);
 ```
 
 ---
 
 ## 13) Create or update models, DTOs and mappings
 
-### `CreateIngredient/CreateIngredientRequest.cs` (API DTO)
-```csharp
-namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.CreateIngredient;
-
-public sealed record CreateIngredientRequest(
-    string Name,
-    string Description,
-    decimal Price,
-    IEnumerable<Guid> CategoryIds);
-```
-
-### `Components/IngredientModel.cs` (UI Model)
-```csharp
-namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.Components;
-
-public sealed class IngredientModel
-{
-    public string Name { get; set; } = string.Empty;
-
-    public string Description { get; set; } = string.Empty;
-
-    public decimal Price { get; set; }
-
-    public IEnumerable<Guid> CategoryIds { get; set; } = [];
-
-    public CreateIngredientRequest ToCreateRequest()
-    {
-        return new CreateIngredientRequest(Name, Description, Price, CategoryIds);
-    }
-}
-```
-- Follows `CategoryModel` and `ProductModel` pattern
-- Exposes `ToCreateRequest()` for manual mapping to API DTO
-
-### `Components/IngredientValidator.cs`
-```csharp
-namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.Components;
-
-public sealed class IngredientValidator : BaseValidator<IngredientModel>
-{
-    public IngredientValidator()
-    {
-        RuleFor(x => x.Name)
-            .SetValidator(new IngredientNameValidator());
-
-        RuleFor(x => x.Description)
-            .SetValidator(new IngredientDescriptionValidator());
-
-        RuleFor(x => x.Price)
-            .SetValidator(new IngredientPriceValidator());
-
-        RuleFor(x => x.CategoryIds)
-            .NotEmpty()
-            .WithMessage("Please select at least one category.");
-    }
-}
-```
-- Extends `BaseValidator<IngredientModel>` (provides `ValidateValue` delegate for MudForm)
-- Reuses primitive validators from `MyHomeRamen.Common.Contracts.Menu.Ingredients`
+**No new UI models or DTOs needed** beyond the API response records added to `MenuApiClient.cs` in step 12. The page directly consumes the API response for display.
 
 ---
 
 ## 14) Create or update Blazor components and pages
 
-### `Components/IngredientForm.razor`
+### `CategoriesIndex/CategoriesIndexPage.razor` — UPDATE
 
-Form component following the `CreateCategoryForm.razor` and `ProductForm.razor` patterns:
+Replace the placeholder `<MudAlert>` sections with data-driven category tables. The page should:
 
-- Injects `MenuApiClient`
-- Uses `MudForm` with `_validator.ValidateValue`
-- Fields:
-  - `MudTextField` for Name (required)
-  - `MudTextField` for Description (required, multiline with `Lines="4"`)
-  - `MudNumericField` for Price (required, with `$` adornment, Min=0.0m, Max=50.0m)
-  - `MudSelect<Guid>` for Categories (MultiSelection=true, required) — loads `CategoryType.Ingredient` categories from `MenuApiClient.GetCategoriesForDropdownAsync((int)CategoryType.Ingredient)`
-- Error alert (`MudAlert`) for API failure
-- Submit button with busy state (`MudProgressCircular`)
-- `[Parameter] public EventCallback<Guid> OnSuccess` — invoked after successful creation
-- `OnInitializedAsync` loads ingredient categories from API
+#### Data loading
+- Inject `MenuApiClient`
+- In `OnInitializedAsync`, call `MenuApiClient.GetCategoriesForManageAsync()` to load both category lists
+- Store results in `_productCategories` and `_ingredientCategories` fields (type `List<CategoryForManageDto>`)
+- Show a loading indicator while data is being fetched
 
-Follows the submission pattern:
-```csharp
-private async Task SubmitAsync()
-{
-    await _form.Validate();
-    if (!_form.IsValid) return;
+#### Product Categories table
+Replace the "Category list coming soon." alert under **Product Categories** with:
+- `<MudTable>` bound to `_productCategories`
+- Columns:
+  | Column | Header | Source |
+  |---|---|---|
+  | LP | `#` | Row index (1-based) |
+  | Name | `Name` | `category.Name` |
+  | Actions | `Actions` | Edit + Delete icon buttons |
+- Edit button: `<MudIconButton Icon="@Icons.Material.Filled.Edit">` — placeholder (no action yet)
+- Delete button: `<MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error">` — placeholder (no action yet)
+- Table should support drag-and-drop reordering (use `MudDropContainer` or `AllowReorder` if available in MudBlazor, otherwise note as TODO)
 
-    _isBusy = true;
-    _errorMessage = null;
-    try
-    {
-        Guid id = await MenuApiClient.CreateIngredientAsync(_model.ToCreateRequest());
-        await OnSuccess.InvokeAsync(id);
-    }
-    catch (HttpRequestException)
-    {
-        _errorMessage = "Failed to create ingredient. Please try again.";
-    }
-    finally
-    {
-        _isBusy = false;
-    }
-}
-```
+#### Ingredient Categories table
+Same structure as Product Categories table, bound to `_ingredientCategories`.
 
-### `CreateIngredient/CreateIngredientPage.razor`
+#### Reordering support
+- Both tables should allow reordering via drag-and-drop or up/down buttons
+- Implementation options (choose based on MudBlazor capabilities):
+  - **Option A**: Use `<MudDropContainer>` with `<MudDropZone>` and `<MudDynamicDropItem>` for drag-and-drop
+  - **Option B**: Add Up/Down `<MudIconButton>` in each row to move items manually
+- Reordering is **visual only** for now — no API call to persist order changes (that would be a separate feature: `UpdateCategorySortOrder`)
 
-Page component following the `CreateProductPage.razor` pattern:
+#### Error handling
+- Wrap API call in try-catch for `HttpRequestException`
+- Display `<MudAlert Severity="Severity.Error">` if the API call fails
+
+#### Success message
+- Keep existing `OnCategoryCreated` callback — after category creation, refresh the category lists by calling `GetCategoriesForManageAsync` again
+
+#### Component structure (pseudo-code)
 
 ```razor
-@page "/admin/menu/ingredients/create"
+@page "/admin/menu/categories"
 @attribute [Authorize(Roles = MenuRoleConstants.Admin)]
 
-<PageTitle>Create Ingredient</PageTitle>
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Components
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+
+@inject MenuApiClient MenuApiClient
+
+<PageTitle>Category Management</PageTitle>
 
 <MudPaper Elevation="3" Class="pa-6">
-    <MudText Typo="Typo.h4" Class="mb-6">Create New Ingredient</MudText>
-    <IngredientForm OnSuccess="HandleSuccess" />
+    <MudText Typo="Typo.h4" Class="mb-6">Category Management</MudText>
+
+    <CreateCategoryForm OnSuccess="OnCategoryCreated" />
+
+    @if (_successMessage is not null)
+    {
+        <MudAlert Severity="Severity.Success" Class="mt-4" Dense="true">@_successMessage</MudAlert>
+    }
+
+    @if (_errorMessage is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4" Dense="true">@_errorMessage</MudAlert>
+    }
+
+    <MudDivider Class="my-6" />
+
+    <MudText Typo="Typo.h5">Product Categories</MudText>
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mt-2" />
+    }
+    else if (_productCategories.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="mt-2">No product categories found.</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_productCategories" Dense="true" Hover="true" Class="mt-2">
+            <HeaderContent>
+                <MudTh>#</MudTh>
+                <MudTh>Name</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@((_productCategories.IndexOf(context) + 1))</MudTd>
+                <MudTd>@context.Name</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" />
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+
+    <MudDivider Class="my-6" />
+
+    <MudText Typo="Typo.h5">Ingredient Categories</MudText>
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mt-2" />
+    }
+    else if (_ingredientCategories.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="mt-2">No ingredient categories found.</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_ingredientCategories" Dense="true" Hover="true" Class="mt-2">
+            <!-- Same structure as Product Categories table -->
+        </MudTable>
+    }
 </MudPaper>
 
 @code {
-    @inject MenuNavigationService MenuNavigation
+    private List<CategoryForManageDto> _productCategories = [];
+    private List<CategoryForManageDto> _ingredientCategories = [];
+    private bool _isLoading = true;
+    private string? _successMessage;
+    private string? _errorMessage;
 
-    private void HandleSuccess(Guid ingredientId)
+    protected override async Task OnInitializedAsync()
     {
-        MenuNavigation.ToAdminIngredientsIndex();
+        await LoadCategoriesAsync();
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        try
+        {
+            var response = await MenuApiClient.GetCategoriesForManageAsync();
+            _productCategories = response.ProductCategories.ToList();
+            _ingredientCategories = response.IngredientCategories.ToList();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to load categories. Please try again.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnCategoryCreated(Guid id)
+    {
+        _successMessage = "Category created successfully.";
+        await LoadCategoriesAsync();
     }
 }
 ```
-- Route: `/admin/menu/ingredients/create`
-- Authorization: `MenuRoleConstants.Admin`
-- On success navigates to ingredients index page
+
+#### Reordering implementation notes
+
+For reordering, add Up/Down icon buttons in the Actions column:
+- `<MudIconButton Icon="@Icons.Material.Filled.ArrowUpward">` — swap with previous item
+- `<MudIconButton Icon="@Icons.Material.Filled.ArrowDownward">` — swap with next item
+- Disable Up on first item, Down on last item
+- Reordering updates the local list only (visual) — persisting order requires a separate `UpdateCategorySortOrder` API endpoint (future feature)
 
 ---
 
-## 15) Create Unit tests for Blazor components and services
+## 15) Unit tests for Blazor components and services
 
-**No frontend unit tests required** — `blazor-tests.instructions.md` is `TODO` status and no test infrastructure is in place for Blazor yet.
-
----
-
-## Summary of files to create/modify
-
-### New files:
-| File | Description |
-|---|---|
-| `MyHomeRamen.Api/Menu/Features/Ingredients/CreateIngredient/Models/CreateIngredientRequest.cs` | API request record |
-| `MyHomeRamen.Api/Menu/Features/Ingredients/CreateIngredient/Models/CreateIngredientResponse.cs` | API response record |
-| `MyHomeRamen.Api/Menu/Features/Ingredients/CreateIngredient/Models/Mappings.cs` | Request ? Domain mapping |
-| `MyHomeRamen.Api/Menu/Features/Ingredients/CreateIngredient/Policies/CreateIngredientValidator.cs` | FluentValidation validator |
-| `MyHomeRamen.Api/Menu/Features/Ingredients/CreateIngredient/CreateIngredientEndpoint.cs` | Minimal API endpoint |
-| `MyHomeRamen.Api/Menu/Features/Ingredients/CreateIngredient/CreateIngredientHandler.cs` | Request handler |
-| `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Components/IngredientForm.razor` | Blazor form component |
-| `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Components/IngredientModel.cs` | UI model |
-| `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Components/IngredientValidator.cs` | Blazor FluentValidation validator |
-| `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/CreateIngredient/CreateIngredientPage.razor` | Create page |
-| `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/CreateIngredient/CreateIngredientRequest.cs` | Blazor API DTO |
-| `MyHomeRamen.IntegrationTests/MenuModule/CreateIngredientTests.cs` | Integration tests |
-
-### Modified files:
-| File | Change |
-|---|---|
-| `MyHomeRamen.Persistance/Common/DbExtensions.cs` | Add `IsIngredientNameUniqueAsync` extension method |
-| `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Common/Services/MenuApiClient.cs` | Add `CreateIngredientAsync` method + `CreateIngredientResponse` record |
-| `MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Common/Services/MenuNavigationService.cs` | Add ingredient routes and navigation methods |
-| `MyHomeRamen.IntegrationTests/MenuModule/Common/Data/DataGenerator.cs` | Add `InvalidCreateIngredientRequests()` theory data |
-| `MyHomeRamen.IntegrationTests/MenuModule/Common/Data/Mappings.cs` | Add `ToCreateIngredientRequest()` mapping extension |
+**No Blazor unit tests required.** The Blazor test instructions are marked as `TODO` and no testing framework is established for Blazor components yet.

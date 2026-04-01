@@ -49,24 +49,12 @@ Drax Planner: ✓ Work complete
 
 ### 1) Load instruction files
 
-**Step 1a — Determine mode and scope:**
 Load `.github/agents/input/feature-brief.md` determine:
 
 - **Mode**:
   - `feature` — if `feature-brief.md` exists and all required fields are filled
-  - `review-fixes` — if `review-results-backend.md` or `review-results-frontend.md` exists with unresolved issues
-
-- **Scope** (from Section 2 of `feature-brief.md`; for `review-fixes` mode, infer from which of `review-results-backend.md` / `review-results-frontend.md` contain open issues):
-  - `backend` — if the `backend` row is "yes"
-  - `frontend` — if the `frontend` row is "yes"
-  - Both scopes can be active simultaneously
-
-- **Iteration** (for `review-fixes` mode only): infer from existing `Implementation status` lines in the review-results files:
-  - No status lines → iteration 1
   - All statuses reference iteration 1 → iteration 2
   - All statuses reference iteration 2 → iteration 3
-
-**Step 1b — Load instruction files based on active scopes:**
 
 | Scope | Instruction files to load |
 |---|---|

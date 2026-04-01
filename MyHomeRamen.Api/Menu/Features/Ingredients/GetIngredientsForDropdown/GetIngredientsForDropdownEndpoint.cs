@@ -16,7 +16,7 @@ public sealed class GetIngredientsForDropdownEndpoint : IEndpoint
             .MapStandardGet<IEnumerable<GetIngredientsForDropdownResponse>>("ingredients/dropdown", HandleAsync)
             .WithName("GetIngredientsForDropdownEndpoint")
             .WithDescription("Returns an ordered list of ingredients for use in dropdown selectors.")
-            .RequireAuthorization(AuthorizationConfiguration.RestaurantManagerPolicy);
+            .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

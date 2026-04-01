@@ -1,0 +1,59 @@
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+
+<MudText Typo="Typo.h5">@Title</MudText>
+@if (IsLoading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+}
+else if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="mt-2">No @Title.ToLowerInvariant() found.</MudAlert>
+}
+else
+{
+    <MudPaper Outlined="true" Class="mt-2">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-2">
+            <MudText Style="width: 24px;" />
+            <MudText Style="width: 40px;" Typo="Typo.subtitle2">#</MudText>
+            <MudText Style="flex: 1;" Typo="Typo.subtitle2">Name</MudText>
+            <MudText Style="min-width: 88px;" Typo="Typo.subtitle2">Actions</MudText>
+        </MudStack>
+        <MudDivider />
+        <MudDropContainer T="CategoryForManageDto"
+                          Items="Items"
+                          ItemsSelector="@((_, _) => true)"
+                          ItemDropped="OnItemDropped"
+                          Class="d-flex flex-column">
+            <ChildContent>
+                <MudDropZone T="CategoryForManageDto" Identifier="items" AllowReorder="true" />
+            </ChildContent>
+            <ItemRenderer>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-1">
+                    <MudIcon Icon="@Icons.Material.Filled.DragIndicator"
+                             Size="Size.Small"
+                             Style="width: 24px; cursor: grab;"
+                             Class="mud-secondary-text" />
+                    <MudText Style="width: 40px;">@(Items.IndexOf(context) + 1)</MudText>
+                    <MudText Style="flex: 1;">@context.Name</MudText>
+                    <div style="min-width: 88px;">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" />
+                    </div>
+                </MudStack>
+            </ItemRenderer>
+        </MudDropContainer>
+    </MudPaper>
+}
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = default!;
+    [Parameter, EditorRequired] public List<CategoryForManageDto> Items { get; set; } = default!;
+    [Parameter] public bool IsLoading { get; set; }
+
+    private void OnItemDropped(MudItemDropInfo<CategoryForManageDto> dropInfo)
+    {
+        int oldIndex = Items.IndexOf(dropInfo.Item);
+        Items.RemoveAt(oldIndex);
+        Items.Insert(dropInfo.IndexInZone, dropInfo.Item);
+    }
+}
