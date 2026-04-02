@@ -1,0 +1,22 @@
+@using MyHomeRamen.Blazor.Common.Configuration
+
+@inject RestaurantConfiguration RestaurantConfiguration
+
+<footer class="footer-container">
+    <MudGrid Justify="Justify.SpaceBetween" Class="footer-grid">
+        <MudItem xs="12" md="4">
+            <MudText Typo="Typo.h6" Class="footer-brand-name">@RestaurantConfiguration.RestaurantName.ToUpperInvariant()</MudText>
+            <MudText Typo="Typo.caption" Class="footer-copyright">@RestaurantConfiguration.Copyright</MudText>
+        </MudItem>
+        <MudItem xs="12" md="4" Class="footer-nav">
+            <MudLink Href="#" Color="Color.Inherit" Class="footer-link">Privacy Policy</MudLink>
+            <MudLink Href="#" Color="Color.Inherit" Class="footer-link">Terms of Service</MudLink>
+            <MudLink Href="#" Color="Color.Inherit" Class="footer-link">Press Kit</MudLink>
+            <MudLink Href="#" Color="Color.Inherit" Class="footer-link">Contact</MudLink>
+        </MudItem>
+        <MudItem xs="12" md="4" Class="footer-social">
+            <MudIconButton Icon="@Icons.Material.Filled.Public" Color="Color.Inherit" />
+            <MudIconButton Icon="@Icons.Material.Filled.LocalLibrary" Color="Color.Inherit" />
+        </MudItem>
+    </MudGrid>
+</footer>

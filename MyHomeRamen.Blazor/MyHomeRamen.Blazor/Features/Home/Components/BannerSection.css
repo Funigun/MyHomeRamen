@@ -1,0 +1,76 @@
+.banner-section {
+    position: relative;
+    min-height: 870px;
+    display: flex;
+    align-items: center;
+    padding: 96px 48px;
+    overflow: hidden;
+}
+
+.banner-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.banner-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+}
+
+.banner-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, #fff8f6 0%, rgba(255, 248, 246, 0.6) 50%, transparent 100%);
+}
+
+.banner-content {
+    position: relative;
+    z-index: 10;
+    max-width: 42rem;
+}
+
+.banner-subtitle {
+    font-size: 0.75rem !important;
+    letter-spacing: 0.3em !important;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 24px;
+}
+
+.banner-headline {
+    font-family: Newsreader, serif;
+    font-size: clamp(3.5rem, 7vw, 7rem);
+    font-style: italic;
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    line-height: 1;
+    margin-bottom: 32px;
+    margin-top: 0;
+}
+
+.banner-headline-bold {
+    font-weight: 600;
+    font-style: normal;
+}
+
+.banner-description {
+    font-size: 1.125rem !important;
+    max-width: 32rem;
+    margin-bottom: 40px !important;
+    line-height: 1.75 !important;
+}
+
+.banner-actions {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.banner-btn-primary {
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+}

@@ -1,0 +1,36 @@
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Home.Models
+@using MyHomeRamen.Blazor.Components.Common
+
+<MudItem xs="12" md="@ColSpan" Class="menu-item-col">
+    <MudCard Class="@CardClass" Elevation="2">
+        <div class="menu-item-image-wrapper">
+            <ImageDisplay Image="Image" Class="menu-item-image" Style="width:100%; height:100%; object-fit:cover;" />
+            @if (Badge is not null)
+            {
+                <div class="menu-item-badge">
+                    <MudText Typo="Typo.caption" Class="badge-text">@Badge</MudText>
+                </div>
+            }
+        </div>
+        <MudCardContent>
+            <div class="menu-item-header">
+                <MudText Typo="Typo.h6" Class="menu-item-title">@Title</MudText>
+                <MudText Typo="Typo.body2" Class="menu-item-price">@Price</MudText>
+            </div>
+            <MudText Typo="Typo.body2" Class="menu-item-description">@Description</MudText>
+        </MudCardContent>
+    </MudCard>
+</MudItem>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Description { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Price { get; set; } = string.Empty;
+    [Parameter] public ImageModel? Image { get; set; }
+    [Parameter] public string? Badge { get; set; }
+    [Parameter] public bool UseAltBackground { get; set; }
+    [Parameter] public int ColSpan { get; set; } = 3;
+
+    private string CardClass => UseAltBackground ? "menu-item-card-alt menu-item-card" : "menu-item-card";
+}

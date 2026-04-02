@@ -1,0 +1,66 @@
+.menu-item-card {
+    height: 100%;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+}
+
+.menu-item-card:hover {
+    box-shadow: 0 8px 32px rgba(108, 47, 0, 0.15) !important;
+}
+
+.menu-item-card-alt {
+    background-color: #e9e3c7 !important;
+}
+
+.menu-item-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item-image {
+    transition: transform 0.7s ease;
+}
+
+.menu-item-card:hover .menu-item-image {
+    transform: scale(1.05);
+}
+
+.menu-item-badge {
+    position: absolute;
+    top: 24px;
+    right: 0;
+    background-color: #584324;
+    padding: 16px 8px;
+    writing-mode: vertical-rl;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-text {
+    font-size: 0.6rem !important;
+    letter-spacing: 0.2em !important;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #ffffff !important;
+}
+
+.menu-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+
+.menu-item-title {
+    font-style: italic;
+}
+
+.menu-item-price {
+    color: var(--mud-palette-text-secondary);
+}
+
+.menu-item-description {
+    font-size: 0.875rem !important;
+    line-height: 1.6 !important;
+}

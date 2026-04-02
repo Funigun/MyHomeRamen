@@ -1,0 +1,34 @@
+@using MyHomeRamen.Blazor.Common.Configuration
+@using MyHomeRamen.Blazor.Features.Home.Models
+
+@inject RestaurantConfiguration RestaurantConfiguration
+
+@if (Model is not null)
+{
+    <section class="menu-highlights-section">
+        <div class="menu-highlights-header">
+            <div>
+                <MudText Typo="Typo.h4" Class="menu-highlights-title">@Model.Title</MudText>
+                <MudText Typo="Typo.body2" Class="menu-highlights-subtitle">@Model.Subtitle</MudText>
+            </div>
+            <MudText Typo="Typo.overline" Class="menu-highlights-season">@RestaurantConfiguration.RestaurantName / @RestaurantConfiguration.SeasonLabel</MudText>
+        </div>
+        <MudGrid>
+            @foreach (MenuItemModel item in Model.Items)
+            {
+                <MenuItemCard
+                    Title="@item.Title"
+                    Description="@item.Description"
+                    Price="@item.Price"
+                    Image="@item.Image"
+                    Badge="@item.Badge"
+                    UseAltBackground="@item.UseAltBackground"
+                    ColSpan="@(item.ColSpan * 3)" />
+            }
+        </MudGrid>
+    </section>
+}
+
+@code {
+    [Parameter, EditorRequired] public MenuHighlightsSectionModel? Model { get; set; }
+}

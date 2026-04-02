@@ -1,0 +1,44 @@
+@using MyHomeRamen.Blazor.Common.Configuration
+@using MyHomeRamen.Blazor.Features.Home.Models
+@using MyHomeRamen.Blazor.Components.Common
+
+@inject RestaurantConfiguration RestaurantConfiguration
+
+@if (Model is not null)
+{
+    <section class="story-section">
+        <MudGrid Class="story-grid">
+            <MudItem xs="12" md="5" Class="story-image-col">
+                <div class="story-image-frame">
+                    <ImageDisplay Image="Model.Image" Class="story-image" Style="width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:8px;" />
+                </div>
+                <div class="story-badge">
+                    <MudText Typo="Typo.h6" Class="story-badge-est">Est.</MudText>
+                    <MudText Typo="Typo.h6" Class="story-badge-year">@RestaurantConfiguration.EstablishedYear</MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" md="7" Class="story-content-col">
+                <MudText Typo="Typo.h4" Class="story-title">@Model.Title</MudText>
+                <div class="story-paragraphs">
+                    @foreach (string paragraph in Model.Paragraphs)
+                    {
+                        <MudText Typo="Typo.body1" Class="story-paragraph">@paragraph</MudText>
+                    }
+                </div>
+                @if (Model.Stats.Count > 0)
+                {
+                    <div class="story-stats">
+                        @foreach (StatHighlightModel stat in Model.Stats)
+                        {
+                            <StatHighlight Value="@stat.Value" Label="@stat.Label" />
+                        }
+                    </div>
+                }
+            </MudItem>
+        </MudGrid>
+    </section>
+}
+
+@code {
+    [Parameter, EditorRequired] public StorySectionModel? Model { get; set; }
+}

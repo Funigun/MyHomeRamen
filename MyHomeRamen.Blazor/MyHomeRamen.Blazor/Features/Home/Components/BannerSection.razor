@@ -1,0 +1,27 @@
+@using MyHomeRamen.Blazor.Features.Home.Models
+@using MyHomeRamen.Blazor.Components.Common
+
+@if (Model is not null)
+{
+    <section class="banner-section">
+        <div class="banner-background">
+            @if (Model.BackgroundImage?.Url is { Length: > 0 })
+            {
+                <img src="@Model.BackgroundImage.Url" alt="@Model.BackgroundImage.Alt" class="banner-bg-image" />
+            }
+            <div class="banner-overlay"></div>
+        </div>
+        <div class="banner-content">
+            <MudText Typo="Typo.overline" Class="banner-subtitle">@Model.Subtitle</MudText>
+            <h1 class="banner-headline">
+                @Model.HeadlineLine1<br />
+                <span class="banner-headline-bold">@Model.HeadlineLine2</span>
+            </h1>
+            <MudText Typo="Typo.body1" Class="banner-description">@Model.Description</MudText>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter, EditorRequired] public BannerSectionModel? Model { get; set; }
+}

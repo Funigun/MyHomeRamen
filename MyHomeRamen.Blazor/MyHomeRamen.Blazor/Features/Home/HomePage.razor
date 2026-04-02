@@ -1,0 +1,76 @@
+@page "/"
+@page "/home"
+
+@attribute [AllowAnonymous]
+
+@using MyHomeRamen.Blazor.Common.Configuration
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Home.Components
+@using MyHomeRamen.Blazor.Features.Home.Models
+
+@inject RestaurantConfiguration RestaurantConfiguration
+
+<PageTitle>@RestaurantConfiguration.RestaurantName — Home</PageTitle>
+
+<BannerSection Model="_model.Hero" />
+<StorySection Model="_model.Story" />
+<MenuHighlightsSection Model="_model.MenuHighlights" />
+<SeasonalHighlightSection Model="_model.SeasonalHighlight" />
+<LocationSection Model="_model.Atmosphere" />
+
+@code {
+    private readonly HomePageModel _model = new()
+    {
+        Hero = new BannerSectionModel
+        {
+            Subtitle = "The Spirit of My Home Ramen",
+            HeadlineLine1 = "<HEADLINE 1>",
+            HeadlineLine2 = "<HEADLINE 2>",
+            Description = "<DESCRIPTION>",
+            BackgroundImage = null,
+        },
+        Story = new StorySectionModel
+        {
+            Image = null,
+            Title = "<STORY TITLE>",
+            Paragraphs =
+            [
+                "<STORY PARAGRAPH 1>",
+                "<STORY PARAGRAPH 2>",
+            ],
+            Stats = [],
+        },
+        MenuHighlights = new MenuHighlightsSectionModel
+        {
+            Title = "<MENU SPECIAL>",
+            Subtitle = "<MENU SPECIAL SUBTITLE>",
+            Items =
+            [
+                new MenuItemModel
+                {
+                    Title = "<Menu Item Title>",
+                    Description = "<Menu Item Description>",
+                    Price = "<Menu Item Price>",
+                    ColSpan = 2,
+                    Badge = "<Menu Item Badge>",
+                    Image = null,
+                }
+            ],
+        },
+        SeasonalHighlight = new SeasonalHighlightSectionModel
+        {
+            Label = "<SEASON SPECIAL>",
+            Title = "<SEASON SPECIAL TITLE>",
+            Description = "<SEASON SPECIAL DESCRIPTION>",
+            LinkText = "<SEASON SPECIAL LINK TEXT>",
+            LinkHref = "<SEASON SPECIAL LINK HREF>",
+            Image = null
+        },
+        Atmosphere = new AtmosphereSectionModel
+        {
+            Title = "<ATMOSPHERE TITLE>",
+            Description = "<ATMOSPHERE DESCRIPTION>",
+            AtmosphereImage = null,
+        },
+    };
+}
