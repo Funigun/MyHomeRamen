@@ -1,0 +1,16 @@
+@using MyHomeRamen.Blazor.Common.Configuration
+
+@inject RestaurantConfiguration RestaurantConfiguration
+
+<MudAppBar Elevation="1" Style="height:128px;">
+    <MudStack Style="width:100%;align-self: center;">
+        <MudText Typo="Typo.h3" Style="text-align:center; margin-top: 50px">@RestaurantConfiguration.RestaurantName</MudText>
+        <MudStack Row="true" Style="align-items: center;">
+            <MudSpacer />
+            <MudButton Href="/menu" Color="Color.Inherit" Variant="Variant.Text">Menu</MudButton>
+            <MudSpacer />
+            <MudButton Href="/account" Color="Color.Inherit" Variant="Variant.Text">Account</MudButton>
+            <Login />
+        </MudStack>
+    </MudStack>
+</MudAppBar>

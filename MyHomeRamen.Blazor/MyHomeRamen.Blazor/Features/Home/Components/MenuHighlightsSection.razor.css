@@ -1,0 +1,31 @@
+.menu-highlights-section {
+    padding: 96px 48px;
+    background-color: #fff8f6;
+}
+
+.menu-highlights-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 64px;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.menu-highlights-title {
+    font-style: italic;
+    margin-bottom: 8px !important;
+}
+
+.menu-highlights-subtitle {
+    color: var(--mud-palette-text-secondary);
+}
+
+.menu-highlights-season {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.4em !important;
+    text-transform: uppercase;
+    color: var(--mud-palette-text-secondary) !important;
+    white-space: nowrap;
+}

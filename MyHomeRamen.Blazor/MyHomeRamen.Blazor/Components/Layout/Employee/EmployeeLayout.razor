@@ -1,9 +1,8 @@
 ﻿@inherits LayoutComponentBase
 
 @using MyHomeRamen.Blazor.Common.Configuration
+@using MyHomeRamen.Blazor.Components.Common
 
-@inject RestaurantConfiguration RestaurantConfiguration
-@inject AuthenticationStateProvider AuthStateProvider
 @inject ThemeProviderService ThemeProvider
 
 <MudThemeProvider Theme="_theme" />
@@ -12,29 +11,13 @@
 <MudSnackbarProvider />
 
 <MudLayout>
-    <MudAppBar>
-        <MudStack>
-            <span>@RestaurantConfiguration.RestaurantName - Employee</span>
-            <MudStack Row="true">
-                <MudIconButton Href="/menu" Color="Color.Primary" Edge="Edge.Start">Menu</MudIconButton>
-                <MudIconButton Href="/products" Color="Color.Primary" Edge="Edge.Start">Products</MudIconButton>
-                <MudIconButton Href="/orders" Color="Color.Primary" Edge="Edge.Start">Orders</MudIconButton>
-                <MudIconButton Href="/reservations" Color="Color.Primary" Edge="Edge.Start">Reservations</MudIconButton>
-                <MudIconButton Href="/tables" Color="Color.Primary" Edge="Edge.Start">Tables</MudIconButton>
-
-                <MudSpacer />
-
-                <MudIconButton Href="/account" Color="Color.Primary" Edge="Edge.Start">Account</MudIconButton>
-                <Login/>
-            </MudStack>
-        </MudStack>
-    </MudAppBar>
+    <EmployeeAppBar />
 
     <MudMainContent>
-        <div style="justify-self:center; justify-items: center; align-items: center; min-width:25%">
-            @Body
-        </div>
+        @Body
     </MudMainContent>
+
+    <Footer />
 </MudLayout>
 
 @code {

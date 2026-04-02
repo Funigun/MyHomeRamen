@@ -1,0 +1,86 @@
+.story-section {
+    padding: 96px 48px;
+    background-color: #fff0ee;
+}
+
+.story-grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    align-items: flex-start;
+}
+
+.story-image-col {
+    position: relative;
+    padding-bottom: 48px;
+}
+
+.story-image-frame {
+    transform: rotate(-2deg);
+    background-color: #ffdad4;
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(43, 22, 19, 0.15);
+}
+
+.story-image {
+    border-radius: 8px;
+}
+
+.story-badge {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    background-color: var(--mud-palette-primary);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #fff8f6;
+    box-shadow: 0 8px 32px rgba(43, 22, 19, 0.2);
+}
+
+.story-badge-est {
+    font-style: italic;
+    font-size: 1.25rem !important;
+    color: #ffffff !important;
+    line-height: 1;
+}
+
+.story-badge-year {
+    font-weight: 700;
+    font-size: 1rem !important;
+    color: #ffffff !important;
+    line-height: 1;
+}
+
+.story-content-col {
+    padding-top: 48px;
+}
+
+.story-title {
+    font-style: italic;
+    margin-bottom: 32px !important;
+    line-height: 1.2 !important;
+}
+
+.story-paragraphs {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.story-paragraph {
+    font-size: 1.125rem !important;
+    line-height: 1.75 !important;
+}
+
+.story-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 48px;
+}

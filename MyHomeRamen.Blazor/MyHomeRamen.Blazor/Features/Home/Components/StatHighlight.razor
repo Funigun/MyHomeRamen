@@ -1,0 +1,11 @@
+@using MyHomeRamen.Blazor.Features.Home.Models
+
+<div class="stat-highlight">
+    <MudText Typo="Typo.h5" Color="Color.Primary" Class="stat-value">@Value</MudText>
+    <MudText Typo="Typo.caption" Class="stat-label">@Label</MudText>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Value { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+}
