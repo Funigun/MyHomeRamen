@@ -49,7 +49,10 @@
     <File Path=".github/agents/input/feature-brief-example.md" />
     <File Path=".github/agents/input/feature-brief-template.md" />
   </Folder>
-  <Folder Name="/_github/agents/output/" />
+  <Folder Name="/_github/agents/output/">
+    <File Path=".github/agents/output/delete-category-brief.md" />
+    <File Path=".github/agents/output/update-categories-order-brief.md" />
+  </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />
@@ -66,6 +69,7 @@
     <File Path=".github/prompts/create-domain-event.prompt.md" />
     <File Path=".github/prompts/implement-feature-prompt.prompt.md" />
     <File Path=".github/prompts/plan-feature-prompt.prompt.md" />
+    <File Path=".github/prompts/prepare-feature-brief.prompt.md" />
   </Folder>
   <Folder Name="/_github/skills/" />
   <Folder Name="/_github/skills/code-quality/">
