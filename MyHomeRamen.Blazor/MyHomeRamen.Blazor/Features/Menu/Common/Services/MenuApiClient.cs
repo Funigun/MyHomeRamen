@@ -51,4 +51,10 @@ public sealed class MenuApiClient(HttpClient httpClient)
 
         return result ?? [];
     }
+
+    public async Task DeleteCategoryAsync(Guid id, CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/menu/categories/{id}", ct);
+        response.EnsureSuccessStatusCode();
+    }
 }

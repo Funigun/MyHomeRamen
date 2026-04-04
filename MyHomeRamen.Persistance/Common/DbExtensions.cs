@@ -85,4 +85,48 @@ public static class DbExtensions
             .AsNoTracking()
             .OrderBy(i => i.Name);
     }
+
+    public static async Task<TEntity?> FindByIdAsync<TEntity, TId>(
+        this IQueryable<TEntity> query,
+        TId id,
+        CancellationToken cancellationToken = default)
+        where TEntity : class, IEntity<TId>
+        where TId : IEntityId
+    {
+        ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
+        MemberExpression property = Expression.Property(parameter, nameof(IEntity<TId>.Id));
+        ConstantExpression constant = Expression.Constant(id, typeof(TId));
+        BinaryExpression body = Expression.Equal(property, constant);
+        Expression<Func<TEntity, bool>> lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+
+        return await query.FirstOrDefaultAsync(lambda, cancellationToken);
+    }
+
+    public static async Task<bool> IsCategoryUsedByProductAsync(
+        this IQueryable<Domain.Menu.Products.Product> query,
+        Domain.Menu.Categories.CategoryId categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(p => p.Categories.Any(c => c.Id == categoryId), cancellationToken);
+    }
+
+    public static async Task<bool> IsCategoryUsedByIngredientAsync(
+        this IQueryable<Domain.Menu.Ingredients.Ingredient> query,
+        Domain.Menu.Categories.CategoryId categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(i => i.Categories.Any(c => c.Id == categoryId), cancellationToken);
+    }
+
+    public static Task<List<Domain.Menu.Categories.Category>> GetRemainingForResequencingAsync(
+        this DbSet<Domain.Menu.Categories.Category> categories,
+        Domain.Menu.Categories.CategoryType categoryType,
+        Domain.Menu.Categories.CategoryId excludeId,
+        CancellationToken cancellationToken = default)
+    {
+        return categories
+            .Where(c => c.CategoryType == categoryType && c.Id != excludeId)
+            .OrderBy(c => c.SortOrder)
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -11,6 +11,11 @@ internal static class CategoryValidator
         CheckCategoryType(category);
     }
 
+    internal static void ValidateSortOrder(Category category)
+    {
+        CheckSortOrder(category);
+    }
+
     private static void CheckName(Category category)
     {
         if (category.Name.Length < CategoryConstants.MinNameLength)
