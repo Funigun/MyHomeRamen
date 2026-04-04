@@ -1,0 +1,72 @@
+@page "/admin/menu/ingredients-management"
+
+@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+
+@using MyHomeRamen.Blazor.Features.Menu.Categories
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Components
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+
+@inject MenuApiClient MenuApiClient
+
+<PageTitle>Ingredient Categories</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Ingredient Categories</MudText>
+
+    <CreateCategoryForm CategoryType="CategoryType.Ingredient" OnSuccess="OnCategoryCreated" />
+
+    @if (_successMessage is not null)
+    {
+        <MudAlert Severity="Severity.Success" Class="mt-4" Dense="true">@_successMessage</MudAlert>
+    }
+
+    @if (_errorMessage is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4" Dense="true">@_errorMessage</MudAlert>
+    }
+
+    <MudDivider Class="my-6" />
+
+    <CategoryTable Title="Ingredient Categories" Items="_categories" IsLoading="_isLoading" />
+
+</MudPaper>
+
+@code {
+    private List<GetCategoriesByTypeResponse> _categories = [];
+    private bool _isLoading = true;
+    private string? _successMessage;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategoriesAsync();
+    }
+
+    private async Task LoadCategoriesAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        try
+        {
+            IEnumerable<GetCategoriesByTypeResponse> response =
+                await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
+            _categories = response.ToList();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to load categories. Please try again.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnCategoryCreated(Guid id)
+    {
+        _successMessage = "Category created successfully.";
+        await LoadCategoriesAsync();
+    }
+}

@@ -1,12 +1,12 @@
 using FluentValidation;
-using MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesForDropdown.Models;
+using MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Models;
 using MyHomeRamen.Domain.Menu.Categories;
 
-namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesForDropdown.Policies;
+namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Policies;
 
-public sealed class GetCategoriesForDropdownValidator : AbstractValidator<GetCategoriesForDropdownRequest>
+public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategoriesByTypeRequest>
 {
-    public GetCategoriesForDropdownValidator()
+    public GetCategoriesByTypeValidator()
     {
         RuleFor(x => x.CategoryType)
             .Must(BeValidCategoryType).WithMessage("Please select a valid category type.");

@@ -11,16 +11,6 @@
                           Variant="Variant.Outlined"
                           Required="true" />
         </MudItem>
-        <MudItem xs="12">
-            <MudSelect T="CategoryType" Label="Category Type" @bind-Value="_model.CategoryType" For="@(() => _model.CategoryType)"
-                       Variant="Variant.Outlined"
-                       Required="true">
-                @foreach (CategoryType type in Enum.GetValues<CategoryType>())
-                {
-                    <MudSelectItem T="CategoryType" Value="type">@type</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
         @if (_errorMessage is not null)
         {
             <MudItem xs="12">
@@ -54,7 +44,13 @@
     private bool _isBusy;
     private string? _errorMessage;
 
+    [Parameter] public CategoryType CategoryType { get; set; }
     [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _model.CategoryType = CategoryType;
+    }
 
     private async Task SubmitAsync()
     {

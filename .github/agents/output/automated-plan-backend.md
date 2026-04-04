@@ -1,90 +1,131 @@
-# Feature Implementation Plan — Backend
+# Feature Refactor Plan - Backend
 
-- **Date**: 2025-07-17
-- **Feature**: GetCategoriesForManage
+- **Date**: 2025-07-21
+- **Feature**: GetCategoriesByType (replaces GetCategoriesForDropdown + GetCategoriesForManage)
 - **Module**: Menu
-- **Reference**: GetCategoriesForDropdown, GetIngredientsForDropdown
+- **Type**: Refactor
+- **Reference features**: GetCategoriesForDropdown, GetCategoriesForManage
+
+---
+
+## Summary
+
+Replace two separate endpoints (`GetCategoriesForDropdown` and `GetCategoriesForManage`) with a single `GetCategoriesByType` endpoint that accepts a `CategoryType` parameter. Consolidate the two `DbExtensions` methods (`ForDropdown` and `ForManage`) into a single `ForCategoryType` method.
+
+### Breaking changes
+- `GET /api/menu/categories/dropdown?categoryType={int}` - REMOVED
+- `GET /api/menu/categories/manage` - REMOVED
+- `GET /api/menu/categories/by-type?categoryType={int}` - NEW (replaces both)
+- Response shape changes from two different response types to a single `GetCategoriesByTypeResponse` list
 
 ---
 
 ## 1) Create feature folder and structure
 
+### New folder:
 ```
 MyHomeRamen.Api/Menu/Features/Categories/
-??? GetCategoriesForManage/
-?   ??? Models/
-?   ?   ??? GetCategoriesForManageRequest.cs
-?   ?   ??? GetCategoriesForManageResponse.cs
-?   ?   ??? Mappings.cs
-?   ??? GetCategoriesForManageEndpoint.cs
-?   ??? GetCategoriesForManageHandler.cs
+    GetCategoriesByType/
+        Models/
+            GetCategoriesByTypeRequest.cs
+            GetCategoriesByTypeResponse.cs
+            Mappings.cs
+        Policies/
+            GetCategoriesByTypeValidator.cs
+        GetCategoriesByTypeEndpoint.cs
+        GetCategoriesByTypeHandler.cs
 ```
 
-**Notes:**
-- No `Policies/` folder needed — no query parameters to validate, no custom authorization policy, no cache policy.
-- Marker request record (no properties) is still required for the `IRequestHandler<TRequest, TResponse>` generic contract — follows `GetIngredientsForDropdownRequest` pattern.
+### Folders to remove:
+```
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForDropdown/   (entire folder)
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForManage/     (entire folder)
+```
 
 ---
 
 ## 2) Create primitive rules and contracts
 
-**No new contracts needed.** This is a read-only query endpoint returning existing categories. No input requires validation.
+**No new contracts needed.** The `CategoryType` validation is inline (enum check) and does not warrant a shared contract validator.
 
 ---
 
 ## 3) Create models, DTOs and mappings
 
-### `Models/GetCategoriesForManageRequest.cs`
+### `Models/GetCategoriesByTypeRequest.cs`
 
-Marker request record (no properties) following `GetIngredientsForDropdownRequest` pattern:
-
-```csharp
-namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesForManage.Models;
-
-public sealed record GetCategoriesForManageRequest : IRequest<GetCategoriesForManageResponse>;
-```
-
-### `Models/GetCategoriesForManageResponse.cs`
-
-Response containing two `IEnumerable` lists — one for product categories, one for ingredient categories:
+Request record with `CategoryType` as an `int` query parameter (same pattern as existing `GetCategoriesForDropdownRequest`):
 
 ```csharp
-namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesForManage.Models;
+namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Models;
 
-public sealed record GetCategoriesForManageResponse(
-    IEnumerable<CategoryForManageDto> ProductCategories,
-    IEnumerable<CategoryForManageDto> IngredientCategories);
-
-public sealed record CategoryForManageDto(Guid Id, string Name, int SortOrder);
+public sealed record GetCategoriesByTypeRequest(int CategoryType) 
+    : IRequest<IEnumerable<GetCategoriesByTypeResponse>>;
 ```
 
-**Design decisions:**
-- `SortOrder` is included because the frontend needs it for reordering functionality.
-- A shared `CategoryForManageDto` is used for both lists since product and ingredient categories have the same shape.
-- Response wraps both lists in a single object rather than requiring two API calls.
+### `Models/GetCategoriesByTypeResponse.cs`
+
+Unified response containing `Id`, `Name`, and `SortOrder` (superset of both old responses):
+
+```csharp
+namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Models;
+
+public sealed record GetCategoriesByTypeResponse(Guid Id, string Name, int SortOrder);
+```
+
+**Design decision:** The new response includes `SortOrder` (from `GetCategoriesForManage`) and keeps `Id` + `Name` (from `GetCategoriesForDropdown`). This unified shape serves both dropdown and management use cases.
 
 ### `Models/Mappings.cs`
 
 ```csharp
 internal static class Mappings
 {
-    public static CategoryForManageDto ToManageDto(this Category category)
+    public static GetCategoriesByTypeResponse ToResponse(this Category category)
     {
-        return new CategoryForManageDto(category.Id.Value, category.Name, category.SortOrder);
+        return new GetCategoriesByTypeResponse(category.Id.Value, category.Name, category.SortOrder);
     }
 }
 ```
 
 ---
 
-## 4) Create Persistence DB Extension
+## 4) Create validation policy
 
-### `DbExtensions.cs` — add `ForManage` extension on `DbSet<Category>`
+### `Policies/GetCategoriesByTypeValidator.cs`
 
-Add to `MyHomeRamen.Persistance/Common/DbExtensions.cs`:
+Reuse the same validation logic from `GetCategoriesForDropdownValidator`:
 
 ```csharp
-internal static IQueryable<Category> ForManage(
+public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategoriesByTypeRequest>
+{
+    public GetCategoriesByTypeValidator()
+    {
+        RuleFor(x => x.CategoryType)
+            .Must(BeValidCategoryType)
+            .WithMessage("Please select a valid category type.");
+    }
+
+    private static bool BeValidCategoryType(int categoryType)
+    {
+        return Enum.IsDefined(typeof(CategoryType), (CategoryType)categoryType);
+    }
+}
+```
+
+---
+
+## 5) Consolidate Persistence DB Extensions
+
+### `MyHomeRamen.Persistance/Common/DbExtensions.cs`
+
+**Remove** both existing methods:
+- `ForDropdown(this DbSet<Category> categories, CategoryType categoryType)`
+- `ForManage(this DbSet<Category> categories, CategoryType categoryType)`
+
+**Add** single consolidated method:
+
+```csharp
+internal static IQueryable<Category> ForCategoryType(
     this DbSet<Category> categories,
     CategoryType categoryType)
 {
@@ -96,129 +137,144 @@ internal static IQueryable<Category> ForManage(
 ```
 
 **Notes:**
-- Follows the existing `ForDropdown` pattern exactly.
-- Returns `IQueryable<Category>` — handler owns the final projection to DTO (per persistence layer boundary rules).
-- Ordered by `SortOrder` to support frontend reordering display.
-- Could potentially reuse `ForDropdown` since the query shape is identical, but a separate extension provides clearer intent and allows the manage query to diverge in the future (e.g., including soft-deleted items, additional filters).
+- Both `ForDropdown` and `ForManage` had identical query logic (same filtering and ordering).
+- The new `ForCategoryType` method replaces both with clearer intent.
+- Returns `IQueryable<Category>` - handler owns the final projection.
 
 ---
 
-## 5) Create `GetCategoriesForManageHandler` (IRequestHandler)
+## 6) Create `GetCategoriesByTypeHandler` (IRequestHandler)
 
-### `GetCategoriesForManageHandler.cs`
+### `GetCategoriesByTypeHandler.cs`
 
 ```csharp
-public sealed class GetCategoriesForManageHandler(IMenuDbContext dbContext)
-    : IRequestHandler<GetCategoriesForManageRequest, GetCategoriesForManageResponse>
+public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext)
+    : IRequestHandler<GetCategoriesByTypeRequest, IEnumerable<GetCategoriesByTypeResponse>>
 {
-    public async Task<GetCategoriesForManageResponse> Handle(
-        GetCategoriesForManageRequest request,
+    public async Task<IEnumerable<GetCategoriesByTypeResponse>> Handle(
+        GetCategoriesByTypeRequest request,
         CancellationToken cancellationToken)
     {
-        IEnumerable<CategoryForManageDto> productCategories = await dbContext.Categories
-            .ForManage(CategoryType.Product)
-            .Select(c => c.ToManageDto())
-            .ToListAsync(cancellationToken);
+        CategoryType categoryType = (CategoryType)request.CategoryType;
 
-        IEnumerable<CategoryForManageDto> ingredientCategories = await dbContext.Categories
-            .ForManage(CategoryType.Ingredient)
-            .Select(c => c.ToManageDto())
+        return await dbContext.Categories
+            .ForCategoryType(categoryType)
+            .Select(c => c.ToResponse())
             .ToListAsync(cancellationToken);
-
-        return new GetCategoriesForManageResponse(productCategories, ingredientCategories);
     }
 }
 ```
 
 **Design decisions:**
-- Two separate queries (one per `CategoryType`) to populate both lists — keeps queries simple and translatable.
-- Uses `AsNoTracking()` via the `ForManage` extension (read-only query, CQRS query rules).
-- No `SaveChangesAsync()` — pure query with no side effects.
-- Handler owns the projection via `Select(c => c.ToManageDto())`.
+- Same pattern as `GetCategoriesForDropdownHandler` but using the consolidated `ForCategoryType` extension.
+- Single query per call - the frontend will call this endpoint once per category type it needs.
+- Cast `int` -> `CategoryType` is safe because the validator ensures the value is valid.
 
 ---
 
-## 6) Create `GetCategoriesForManageEndpoint` (IEndpoint)
+## 7) Create `GetCategoriesByTypeEndpoint` (IEndpoint)
 
-### `GetCategoriesForManageEndpoint.cs`
+### `GetCategoriesByTypeEndpoint.cs`
 
 ```csharp
-public sealed class GetCategoriesForManageEndpoint : IEndpoint
+public sealed class GetCategoriesByTypeEndpoint : IEndpoint
 {
     public string GroupName { get; init; } = "Menu";
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<GetCategoriesForManageResponse>("categories/manage", HandleAsync)
-            .WithName("GetCategoriesForManageEndpoint")
-            .WithDescription("Returns all categories grouped by type for admin management.")
+            .MapStandardValidatedGet<GetCategoriesByTypeRequest, IEnumerable<GetCategoriesByTypeResponse>>(
+                "categories/by-type", HandleAsync)
+            .WithName("GetCategoriesByTypeEndpoint")
+            .WithDescription("Returns a filtered and ordered list of categories for the specified category type.")
             .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromServices] IRequestHandler<GetCategoriesForManageRequest, GetCategoriesForManageResponse> handler,
+        [AsParameters] GetCategoriesByTypeRequest request,
+        [FromServices] IRequestHandler<GetCategoriesByTypeRequest, IEnumerable<GetCategoriesByTypeResponse>> handler,
         CancellationToken cancellationToken)
     {
-        GetCategoriesForManageResponse response = await handler.Handle(
-            new GetCategoriesForManageRequest(), cancellationToken);
+        IEnumerable<GetCategoriesByTypeResponse> response = await handler.Handle(request, cancellationToken);
         return Results.Ok(response);
     }
 }
 ```
 
 **Design decisions:**
-- Route: `GET /api/menu/categories/manage` (GroupName "Menu" + segment "categories/manage").
-- Uses `MapStandardGet<TResponse>` (no validation filter needed) — same pattern as `GetIngredientsForDropdownEndpoint`.
-- Authorization: `RestaurantManagerPolicy` (Admin role only) — per user requirement: "available for admin".
-- No `[AsParameters]` needed since there are no request parameters.
-- Instantiates marker `GetCategoriesForManageRequest` inline — same pattern as `GetIngredientsForDropdownEndpoint`.
+- Route: `GET /api/menu/categories/by-type?categoryType={int}`
+- Uses `MapStandardValidatedGet` (has request parameters that need validation) - same pattern as old `GetCategoriesForDropdown`.
+- Authorization: `RestaurantManagerPolicy` (Admin role only) - carried over from both old endpoints.
+- `[AsParameters]` to bind query string parameter.
 
 ---
 
-## 7) Unit tests
+## 8) Cleanup - Remove old features
 
-**No unit tests required.** This is a pure read-only query with no domain logic, no validation, and no contracts to test.
+### Files to delete:
+```
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForDropdown/GetCategoriesForDropdownEndpoint.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForDropdown/GetCategoriesForDropdownHandler.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForDropdown/Models/GetCategoriesForDropdownRequest.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForDropdown/Models/GetCategoriesForDropdownResponse.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForDropdown/Models/Mappings.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForDropdown/Policies/GetCategoriesForDropdownValidator.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForManage/GetCategoriesForManageEndpoint.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForManage/GetCategoriesForManageHandler.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForManage/Models/GetCategoriesForManageRequest.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForManage/Models/GetCategoriesForManageResponse.cs
+MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesForManage/Models/Mappings.cs
+```
 
 ---
 
-## 8) Integration tests
+## 9) Unit tests
 
-### File: `MyHomeRamen.IntegrationTests/MenuModule/GetCategoriesForManageTests.cs`
+**No unit tests required.** Per feature brief: unit tests = no.
 
-Reference: `GetCategoriesForDropdownTests.cs`
+---
 
-#### Test cases
+## 10) Integration tests
+
+### File: `MyHomeRamen.IntegrationTests/MenuModule/GetCategoriesByTypeTests.cs` (NEW)
+
+Reference: `GetCategoriesForDropdownTests.cs`, `GetCategoriesForManageTests.cs`
+
+#### Test cases (from feature brief)
 
 | # | Test method | Type | Expected | Description |
 |---|---|---|---|---|
-| 1 | `GetCategoriesForManage_ShouldReturnOk_ForAuthenticatedAdmin` | Fact | 200 OK | Admin user calls endpoint, asserts status code. |
-| 2 | `GetCategoriesForManage_ShouldReturnBothNonEmptyLists_ForSeededData` | Fact | 200 OK | Deserialize response, verify `ProductCategories` and `IngredientCategories` are both non-null and non-empty (seeded data exists for both types). |
-| 3 | `GetCategoriesForManage_ShouldReturnProductCategoriesOrderedBySortOrder` | Fact | 200 OK | Compare returned product categories order against DB query ordered by `SortOrder`. |
-| 4 | `GetCategoriesForManage_ShouldReturnIngredientCategoriesOrderedBySortOrder` | Fact | 200 OK | Compare returned ingredient categories order against DB query ordered by `SortOrder`. |
-| 5 | `GetCategoriesForManage_ShouldReturnUnauthorized_ForNotAuthenticatedUser` | Fact | 401 | No auth header. |
-| 6 | `GetCategoriesForManage_ShouldReturnForbidden_ForNonManagerRole` | Theory | 403 | `[InlineData(UserRoles.Employee)]`, `[InlineData(UserRoles.Customer)]`. |
+| 1 | `GetCategoriesByType_ShouldReturnOkWithList_ForIngredientType` | Fact | 200 OK | Authenticated manager calls with `CategoryType.Ingredient`, asserts non-empty list returned. |
+| 2 | `GetCategoriesByType_ShouldReturnOk_ForAuthenticatedManager` | Fact | 200 OK | Authenticated manager calls with `CategoryType.Product`, asserts 200 status. |
+| 3 | `GetCategoriesByType_ShouldReturnUnauthorized_ForUnauthenticatedUser` | Fact | 401 | No auth header, asserts 401. |
+| 4 | `GetCategoriesByType_ShouldReturnForbidden_ForNonManagerRoles` | Theory | 403 | `[InlineData(UserRoles.Employee)]`, `[InlineData(UserRoles.Customer)]` |
 
-All tests use:
-- Route: `GET /api/menu/categories/manage`
-- `HttpClientExtensions.CreateGetMessage(...)` pattern
-- `AddAuthorizationHeader(UserRoles.Admin)` for valid auth
-- `WebApiFactory` injected via primary constructor
+#### Endpoint URL
+```
+/api/menu/categories/by-type?categoryType={int}
+```
 
-#### Response deserialization
+#### Pattern
+Follow `GetCategoriesForDropdownTests.cs` pattern:
+- Use `HttpClientExtensions.CreateGetMessage()` with `AddAuthorizationHeader()`
+- Use `apiFactory.HttpClient.SendAsync()` 
+- Deserialize with `ReadFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>()`
 
-Tests should deserialize using the API response types directly:
-- `GetCategoriesForManageResponse` (contains `ProductCategories` and `IngredientCategories`)
-- `CategoryForManageDto` (contains `Id`, `Name`, `SortOrder`)
-
----
-
-## 9) Architecture tests
-
-**No architecture tests required.**
+### Files to delete:
+```
+MyHomeRamen.IntegrationTests/MenuModule/GetCategoriesForDropdownTests.cs
+MyHomeRamen.IntegrationTests/MenuModule/GetCategoriesForManageTests.cs
+```
 
 ---
 
-## 10) System tests
+## 11) Architecture tests
 
-**No system tests required.**
+**No architecture tests required.** Per feature brief: architecture tests = no.
+
+---
+
+## 12) System tests
+
+**No system tests required.** Per feature brief: system tests = no.

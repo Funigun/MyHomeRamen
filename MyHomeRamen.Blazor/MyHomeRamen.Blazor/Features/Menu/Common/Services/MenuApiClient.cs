@@ -1,4 +1,5 @@
 using MyHomeRamen.Blazor.Features.Menu.Categories.CreateCategory;
+using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses;
 using MyHomeRamen.Blazor.Features.Menu.Ingredients.CreateIngredient;
 using MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
 
@@ -33,19 +34,16 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return result?.Id ?? throw new InvalidOperationException("Failed to deserialize ingredient creation response.");
     }
 
-    public async Task<IEnumerable<GetCategoriesForDropdownResponse>> GetCategoriesForDropdownAsync(
-        int categoryType,
-        CancellationToken ct = default)
+    public async Task<IEnumerable<GetCategoriesByTypeResponse>> GetCategoriesByTypeAsync(int categoryType, CancellationToken ct = default)
     {
-        IEnumerable<GetCategoriesForDropdownResponse>? result = await httpClient
-            .GetFromJsonAsync<IEnumerable<GetCategoriesForDropdownResponse>>(
-                $"/api/menu/categories/dropdown?categoryType={categoryType}", ct);
+        IEnumerable<GetCategoriesByTypeResponse>? result = await httpClient
+            .GetFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>(
+                $"/api/menu/categories/by-type?categoryType={categoryType}", ct);
 
         return result ?? [];
     }
 
-    public async Task<IEnumerable<GetIngredientsForDropdownResponse>> GetIngredientsForDropdownAsync(
-        CancellationToken ct = default)
+    public async Task<IEnumerable<GetIngredientsForDropdownResponse>> GetIngredientsForDropdownAsync(CancellationToken ct = default)
     {
         IEnumerable<GetIngredientsForDropdownResponse>? result = await httpClient
             .GetFromJsonAsync<IEnumerable<GetIngredientsForDropdownResponse>>(
@@ -53,29 +51,4 @@ public sealed class MenuApiClient(HttpClient httpClient)
 
         return result ?? [];
     }
-
-    public async Task<GetCategoriesForManageResponse> GetCategoriesForManageAsync(CancellationToken ct = default)
-    {
-        GetCategoriesForManageResponse? result = await httpClient
-            .GetFromJsonAsync<GetCategoriesForManageResponse>(
-                "/api/menu/categories/manage", ct);
-
-        return result ?? new GetCategoriesForManageResponse([], []);
-    }
 }
-
-public sealed record CreateProductResponse(Guid Id);
-
-public sealed record CreateCategoryResponse(Guid Id);
-
-public sealed record CreateIngredientResponse(Guid Id);
-
-public sealed record GetCategoriesForDropdownResponse(Guid Id, string Name);
-
-public sealed record GetIngredientsForDropdownResponse(Guid Id, string Name);
-
-public sealed record GetCategoriesForManageResponse(
-    IEnumerable<CategoryForManageDto> ProductCategories,
-    IEnumerable<CategoryForManageDto> IngredientCategories);
-
-public sealed record CategoryForManageDto(Guid Id, string Name, int SortOrder);

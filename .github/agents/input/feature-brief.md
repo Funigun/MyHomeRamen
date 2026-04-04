@@ -6,16 +6,16 @@
 
 | Field | Value |
 |---|---|
-| **Task type** | `Feature` |
+| **Task type** | `Refactor` |
 | **Module** | `Menu` |
-| **Feature name** | `GetIngredientsForDropdown` |
-| **Short description** | Returns a list of ingredients (id + name) for use in dropdown selectors (e.g. in the Product form). |
-| **Reference feature** | `GetCategoriesForDropdown` |
-| **Source branch** | `feature/get_ingredients_options` |
-| **Target branch** | `feature/get_ingredients_options` |
+| **Feature name** | `GetCategoriesByType` |
+| **Short backend description** | Replaces `GetCategoriesForDropdown` and `GetCategoriesForManage` endpoints |
+| **Short frontend description** | Replaces `CategoriesIndexPage` with `ProductsMaanagementPage` and `IngredientsManagementPage` |
+| **Reference feature** | `GetCategoriesForDropdown`, `GetCategoriesForManage` |
 
 ---
 
+---
 ## 2) Scope
 
 | Scope | Include? |
@@ -27,46 +27,22 @@
 
 ## 3) API Details (backend scope)
 
-| Field | Value |
-|---|---|
-| **HTTP method** | `GET` |
-| **Route** | `/api/menu/ingredients/dropdown` |
-| **Authorization policy** | `RestaurantManager` |
-| **Applies IValidator** | no — no query parameters to validate |
-| **Applies ICachePolicy** | no |
-| **Applies IAuthorizationPolicy** | no |
+Endpoints `GetCategoriesForDropdown` and `GetCategoriesForManage` should be replaced with single `GetCategoriesByType` endpoint
+that accepts a int `CategoryType` parameter that should be translated to `CategoryType` enum.
 
----
-
-## 4) Domain Details (backend scope)
-
-| Field | Value |
-|---|---|
-| **Aggregate / entity** | `Ingredient` |
-| **New domain entity needed** | no |
-| **Domain events produced** | none |
-| **Asynchronous messaging** | none |
-
----
-
-## 5) Persistence Details (backend scope)
-
-| Field | Value |
-|---|---|
-| **EF migration needed** | no |
-| **New DbContext configuration needed** | no |
-| **New DB extension method needed** | yes — add `ForDropdown()` extension on `DbSet<Ingredient>` in `DbExtensions.cs` (returns `IQueryable<Ingredient>` filtered `AsNoTracking`, ordered by `Name`) |
-
----
+Currently there are two extension methods in `DbExtensions.cs` for filtering categories by type: `ForDropdown()` and `ForManage()`. 
+These should be consolidated into a single `ForCategoryType(CategoryType categoryType)` extension method that applies the appropriate filtering and ordering based on the category type.
 
 ## 6) Frontend Details (frontend scope)
 
-| Field | Value |
-|---|---|
-| **Pages to create or update** | none |
-| **Components to create or update** | `ProductForm.razor` — remove `[Parameter] Ingredients` and load ingredients via API in `OnInitializedAsync`; also update `CreateProductPage.razor` to remove the `Ingredients` parameter pass-through |
-| **API service to create or update** | `MenuApiClient` — add `GetIngredientsForDropdownAsync()` method and `GetIngredientsForDropdownResponse(Guid Id, string Name)` record |
-| **Reference frontend feature** | `ProductForm.razor` pattern for `GetCategoriesForDropdownAsync` call in `OnInitializedAsync` |
+`ProductsMaanagementPage` and `IngredientsManagementPage` should be created to replace `CategoriesIndexPage`. 
+These pages will use the new `GetCategoriesByType` endpoint to load categories based on the type (Product or Ingredient) and display them in a dropdown for selection when creating or managing products and ingredients.
+
+Additionally `CreateCategoryForm` component should now accept a `CategoryType` parameter to determine which type of category is being created (Product or Ingredient) and use the appropriate API endpoint to submit the form data.
+Dropdown for CategoryType in this form should be removed due to parameterization.
+
+We also want to update `EmployeeLayout` to include links to both `ProductsMaanagementPage` and `IngredientsManagementPage` for easier navigation.
+These links should be added as child elements under `Menu Management` section in the layout.
 
 ---
 
@@ -75,15 +51,8 @@
 | Test type | Required | Notes |
 |---|---|---|
 | Unit tests | no | — |
-| Integration tests | yes | Reference `GetCategoriesForDropdownTests` — cover: returns 200 with list of ingredients, returns 200 for authenticated manager, returns 401 for unauthenticated user, returns 403 for non-manager roles (Employee, Customer) |
+| Integration tests | yes | Reference `GetCategoriesByType` — cover: returns 200 with list of ingredients, returns 200 for authenticated manager, returns 401 for unauthenticated user, returns 403 for non-manager roles (Employee, Customer), remove tests for `GetCategorieForDropdown` and `GetCategoriesForManage` |
 | Architecture tests | no | — |
 | System tests | no | — |
 
 ---
-
-## 8) Additional Notes
-
-- Response shape: `GetIngredientsForDropdownResponse(Guid Id, string Name)` — same pattern as `GetCategoriesForDropdownResponse`.
-- Handler queries `dbContext.Ingredients.ForDropdown()` (new extension) and projects each ingredient via a `ToResponse()` mapping.
-- `ProductForm.razor` currently accepts `[Parameter] public IEnumerable<IngredientOption> Ingredients { get; set; }` — after this feature the form will self-load ingredients from the API, removing the external parameter dependency.
-- `CreateProductPage.razor` passes `Ingredients="_ingredients"` to `ProductForm` — this binding must be removed once `ProductForm` self-loads.

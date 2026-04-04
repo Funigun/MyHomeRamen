@@ -71,15 +71,7 @@ public static class DbExtensions
                           .MaxAsync(c => c.SortOrder, cancellationToken) + 1;
     }
 
-    public static IQueryable<Domain.Menu.Categories.Category> ForDropdown(this DbSet<Domain.Menu.Categories.Category> categories, Domain.Menu.Categories.CategoryType categoryType)
-    {
-        return categories
-            .AsNoTracking()
-            .Where(c => c.CategoryType == categoryType)
-            .OrderBy(c => c.SortOrder);
-    }
-
-    public static IQueryable<Domain.Menu.Categories.Category> ForManage(this DbSet<Domain.Menu.Categories.Category> categories, Domain.Menu.Categories.CategoryType categoryType)
+    public static IQueryable<Domain.Menu.Categories.Category> ForCategoryType(this DbSet<Domain.Menu.Categories.Category> categories, Domain.Menu.Categories.CategoryType categoryType)
     {
         return categories
             .AsNoTracking()
