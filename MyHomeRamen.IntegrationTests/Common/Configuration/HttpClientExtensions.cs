@@ -28,6 +28,11 @@ internal static class HttpClientExtensions
         return new(HttpMethod.Post, url);
     }
 
+    internal static HttpRequestMessage CreatePutMessage(string url)
+    {
+        return new(HttpMethod.Put, url);
+    }
+
     internal static HttpRequestMessage AddAuthorizationHeader(this HttpRequestMessage requestMessage, UserRoles userRole)
     {
         (string token, string scheme) = userRole switch

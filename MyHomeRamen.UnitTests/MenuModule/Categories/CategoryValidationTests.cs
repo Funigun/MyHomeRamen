@@ -4,7 +4,7 @@ using MyHomeRamen.Domain.Menu.Categories;
 
 namespace MyHomeRamen.UnitTests.MenuModule.Categories;
 
-public class CategoryValidationTests
+public sealed class CategoryValidationTests
 {
     private static readonly CategoryId DefaultId = new(Guid.NewGuid());
     private const string DefaultName = "Soups";
@@ -66,6 +66,32 @@ public class CategoryValidationTests
         // Act & Assert
         DomainException exception = Assert.Throws<DomainException>(() => CreateCategory(categoryType: categoryType));
         Assert.Equal(CategoryErrors.CategoryTypeInvalid().Message, exception.Message);
+    }
+
+    [Fact]
+    public void UpdateSortOrder_Should_UpdateSortOrder_When_SortOrderIsValid()
+    {
+        // Arrange
+        Category category = CreateCategory();
+        const int newSortOrder = 5;
+
+        // Act
+        category.UpdateSortOrder(newSortOrder);
+
+        // Assert
+        Assert.Equal(newSortOrder, category.SortOrder);
+    }
+
+    [Fact]
+    public void UpdateSortOrder_Should_ThrowDomainException_When_SortOrderIsBelowMinimum()
+    {
+        // Arrange
+        Category category = CreateCategory();
+        int invalidSortOrder = CategoryConstants.MinSortOrder - 1;
+
+        // Act & Assert
+        DomainException exception = Assert.Throws<DomainException>(() => category.UpdateSortOrder(invalidSortOrder));
+        Assert.Equal(CategoryErrors.SortOrderTooSmall().Message, exception.Message);
     }
 
     private static Category CreateCategory(

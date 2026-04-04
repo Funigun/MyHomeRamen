@@ -43,6 +43,14 @@ else
                 </MudStack>
             </ItemRenderer>
         </MudDropContainer>
+        @if (_hasPendingChanges && OnOrderChanged.HasDelegate)
+        {
+            <MudStack Row="true" JustifyContent="JustifyContent.FlexEnd" Class="pa-3">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="SaveOrderAsync">Save Order</MudButton>
+            </MudStack>
+        }
     </MudPaper>
 }
 
@@ -50,11 +58,23 @@ else
     [Parameter, EditorRequired] public string Title { get; set; } = default!;
     [Parameter, EditorRequired] public List<GetCategoriesByTypeResponse> Items { get; set; } = default!;
     [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public EventCallback<List<GetCategoriesByTypeResponse>> OnOrderChanged { get; set; }
+
+    private bool _hasPendingChanges;
 
     private void OnItemDropped(MudItemDropInfo<GetCategoriesByTypeResponse> dropInfo)
     {
         int oldIndex = Items.IndexOf(dropInfo.Item);
         Items.RemoveAt(oldIndex);
         Items.Insert(dropInfo.IndexInZone, dropInfo.Item);
+
+        _hasPendingChanges = true;
+    }
+
+    private async Task SaveOrderAsync()
+    {
+        await OnOrderChanged.InvokeAsync(Items);
+        _hasPendingChanges = false;
     }
 }
+

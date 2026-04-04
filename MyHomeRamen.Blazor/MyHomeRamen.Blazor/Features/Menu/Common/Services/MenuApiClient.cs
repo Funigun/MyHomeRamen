@@ -1,4 +1,5 @@
 using MyHomeRamen.Blazor.Features.Menu.Categories.CreateCategory;
+using MyHomeRamen.Blazor.Features.Menu.Categories.UpdateCategoriesOrder;
 using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses;
 using MyHomeRamen.Blazor.Features.Menu.Ingredients.CreateIngredient;
 using MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
@@ -50,5 +51,11 @@ public sealed class MenuApiClient(HttpClient httpClient)
                 "/api/menu/ingredients/dropdown", ct);
 
         return result ?? [];
+    }
+
+    public async Task UpdateCategoriesOrderAsync(UpdateCategoriesOrderRequest request, CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.PutAsJsonAsync("/api/menu/categories/order", request, ct);
+        response.EnsureSuccessStatusCode();
     }
 }

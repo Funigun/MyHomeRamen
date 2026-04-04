@@ -4,6 +4,7 @@
 
 @using MyHomeRamen.Blazor.Features.Menu.Categories
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Components
+@using MyHomeRamen.Blazor.Features.Menu.Categories.UpdateCategoriesOrder
 @using MyHomeRamen.Blazor.Features.Menu.Common.Constants
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
@@ -29,7 +30,7 @@
 
     <MudDivider Class="my-6" />
 
-    <CategoryTable Title="Product Categories" Items="_categories" IsLoading="_isLoading" />
+    <CategoryTable Title="Product Categories" Items="_categories" IsLoading="_isLoading" OnOrderChanged="OnCategoriesOrderChangedAsync" />
 
 </MudPaper>
 
@@ -68,5 +69,25 @@
     {
         _successMessage = "Category created successfully.";
         await LoadCategoriesAsync();
+    }
+
+    private async Task OnCategoriesOrderChangedAsync(List<GetCategoriesByTypeResponse> items)
+    {
+        _successMessage = null;
+        _errorMessage = null;
+        try
+        {
+            List<CategoryOrderItem> orderItems = items
+                .Select((item, index) => new CategoryOrderItem(item.Id, index))
+                .ToList();
+
+            UpdateCategoriesOrderRequest request = new(orderItems);
+            await MenuApiClient.UpdateCategoriesOrderAsync(request);
+            _successMessage = "Category order saved successfully.";
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to save category order. Please try again.";
+        }
     }
 }
