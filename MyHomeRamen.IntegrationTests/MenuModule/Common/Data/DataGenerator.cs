@@ -20,6 +20,8 @@ internal static class DataGenerator
 
     internal static IEnumerable<Ingredient> GeneratedIngredients { get; private set; } = [];
 
+    internal static IEnumerable<Product> GeneratedProducts { get; private set; } = [];
+
     internal static IEnumerable<User> GeneratedUsers { get; private set; } = [];
 
     private static readonly Faker<Category> ValidCategoryFaker = new Faker<Category>()
@@ -84,6 +86,26 @@ internal static class DataGenerator
         return categories;
     }
 
+    internal static List<Category> GenerateValidCategories(int count, CategoryType categoryType)
+    {
+        List<Category> categories = [];
+        Faker f = new();
+
+        for (int i = 0; i < count; i++)
+        {
+            Category category = Category.Create(
+                Guid.NewGuid(),
+                f.Random.String2(CategoryConstants.MinNameLength, CategoryConstants.MaxNameLength),
+                f.Random.Int(CategoryConstants.MinSortOrder, 1000),
+                categoryType);
+            categories.Add(category);
+        }
+
+        GeneratedCategories = GeneratedCategories.Concat(categories);
+
+        return categories;
+    }
+
     internal static Ingredient GenerateValidIngredient()
     {
         Ingredient ingredient = ValidIngredientFaker.Generate();
@@ -107,7 +129,9 @@ internal static class DataGenerator
 
     internal static Product GenerateValidProduct()
     {
-        return ValidProductFaker.Generate();
+        Product product = ValidProductFaker.Generate();
+        GeneratedProducts = GeneratedProducts.Append(product);
+        return product;
     }
 
     internal static List<Product> GenerateValidProducts(int count)
@@ -119,6 +143,8 @@ internal static class DataGenerator
             Product product = ValidProductFaker.Generate();
             products.Add(product);
         }
+
+        GeneratedProducts = GeneratedProducts.Concat(products);
 
         return products;
     }

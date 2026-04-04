@@ -34,4 +34,10 @@ public sealed class Category : AuditableEntity, IEntity<CategoryId>
 
         return category;
     }
+
+    public void UpdateSortOrder(int sortOrder)
+    {
+        SortOrder = sortOrder;
+        CategoryValidator.ValidateSortOrder(this);
+    }
 }

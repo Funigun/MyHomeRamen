@@ -29,7 +29,7 @@
 
     <MudDivider Class="my-6" />
 
-    <CategoryTable Title="Ingredient Categories" Items="_categories" IsLoading="_isLoading" />
+    <CategoryTable Title="Ingredient Categories" Items="_categories" IsLoading="_isLoading" OnDelete="OnCategoryDeletedAsync" />
 
 </MudPaper>
 
@@ -68,5 +68,21 @@
     {
         _successMessage = "Category created successfully.";
         await LoadCategoriesAsync();
+    }
+
+    private async Task OnCategoryDeletedAsync(Guid id)
+    {
+        _successMessage = null;
+        _errorMessage = null;
+        try
+        {
+            await MenuApiClient.DeleteCategoryAsync(id);
+            _successMessage = "Category deleted successfully.";
+            await LoadCategoriesAsync();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to delete category. It may still be in use.";
+        }
     }
 }

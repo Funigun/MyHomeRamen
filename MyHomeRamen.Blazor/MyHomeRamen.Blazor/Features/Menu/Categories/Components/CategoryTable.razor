@@ -1,5 +1,6 @@
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@inject IDialogService DialogService
 
 <MudText Typo="Typo.h5">@Title</MudText>
 @if (IsLoading)
@@ -38,7 +39,10 @@ else
                     <MudText Style="flex: 1;">@context.Name</MudText>
                     <div style="min-width: 88px;">
                         <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       OnClick="@(() => HandleDeleteClickAsync(context.Id))" />
                     </div>
                 </MudStack>
             </ItemRenderer>
@@ -50,11 +54,26 @@ else
     [Parameter, EditorRequired] public string Title { get; set; } = default!;
     [Parameter, EditorRequired] public List<GetCategoriesByTypeResponse> Items { get; set; } = default!;
     [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public EventCallback<Guid> OnDelete { get; set; }
 
     private void OnItemDropped(MudItemDropInfo<GetCategoriesByTypeResponse> dropInfo)
     {
         int oldIndex = Items.IndexOf(dropInfo.Item);
         Items.RemoveAt(oldIndex);
         Items.Insert(dropInfo.IndexInZone, dropInfo.Item);
+    }
+
+    private async Task HandleDeleteClickAsync(Guid id)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            "Confirm Delete",
+            "Are you sure you want to delete this category? This action cannot be undone.",
+            yesText: "Delete",
+            cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            await OnDelete.InvokeAsync(id);
+        }
     }
 }
