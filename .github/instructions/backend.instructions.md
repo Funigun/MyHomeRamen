@@ -161,7 +161,7 @@ Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Hand
 
 ### 3.4) Validation policies
 - Implement `AbstractValidator<T>` in the feature's `Policies/` folder.
-- Rules requiring DB access use repository interfaces or `DbExtensions` (e.g., `_dbContext.Products.IsNameUniqueAsync(name, ct)`).
+- Rules requiring DB access use repository interfaces or `DbExtensions` (e.g., `_dbContext.Products.IsNameUniqueAsync(name, ct)`) including entity existence, uniqueness, usage checks etc.
 - Primitive/format rules live in `MyHomeRamen.Common.Contracts` validators, they must always specify the `WithMessage()` for consistent error responses.
 
 ### 3.5) Endpoint configuration

@@ -12,19 +12,13 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardDelete<DeleteCategoryRequest>("categories/{id}", HandleAsync)
-                       .WithValidationFilter<DeleteCategoryRequest>()
-                       .ProducesProblem(StatusCodes.Status400BadRequest)
-                       .ProducesProblem(StatusCodes.Status409Conflict)
+        endpointBuilder.MapStandardValidatedDelete<DeleteCategoryRequest>("categories/{id}", HandleAsync)
                        .WithName("DeleteCategoryEndpoint")
                        .WithDescription("Handles Delete Category operations.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
-    private static async Task<IResult> HandleAsync(
-        DeleteCategoryRequest request,
-        [FromServices] IRequestHandler<DeleteCategoryRequest, IResult> handler,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(DeleteCategoryRequest request, [FromServices] IRequestHandler<DeleteCategoryRequest, IResult> handler, CancellationToken cancellationToken)
     {
         return await handler.Handle(request, cancellationToken);
     }

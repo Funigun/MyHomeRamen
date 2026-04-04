@@ -99,10 +99,17 @@ public static class EndpointBuilderExtensions
         RouteHandlerBuilder routeHandler = builder.MapDelete(pattern, handler)
                                                   .Produces(StatusCodes.Status204NoContent)
                                                   .ProducesProblem(StatusCodes.Status404NotFound)
+                                                  .ProducesProblem(StatusCodes.Status400BadRequest)
                                                   .ProducesProblem(StatusCodes.Status500InternalServerError)
                                                   .WithMetadata(typeof(TRequest).DeclaringType!);
 
         return routeHandler;
+    }
+
+    public static RouteHandlerBuilder MapStandardValidatedDelete<TRequest>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)
+    {
+        return builder.MapStandardDelete<TRequest>(pattern, handler)
+                      .WithValidationFilter<TRequest>();
     }
 
     public static RouteHandlerBuilder MapStandardAuthenticatedDelete<TMarker, TRequest>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)
