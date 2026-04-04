@@ -99,8 +99,9 @@ internal static class DataGenerator
                 f.Random.Int(CategoryConstants.MinSortOrder, 1000),
                 categoryType);
             categories.Add(category);
-            GeneratedCategories = GeneratedCategories.Append(category);
         }
+
+        GeneratedCategories = GeneratedCategories.Concat(categories);
 
         return categories;
     }
@@ -141,8 +142,9 @@ internal static class DataGenerator
         {
             Product product = ValidProductFaker.Generate();
             products.Add(product);
-            GeneratedProducts = GeneratedProducts.Append(product);
         }
+
+        GeneratedProducts = GeneratedProducts.Concat(products);
 
         return products;
     }
