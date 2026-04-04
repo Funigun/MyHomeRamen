@@ -1,3 +1,4 @@
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 
 <MudText Typo="Typo.h5">@Title</MudText>
@@ -19,13 +20,13 @@ else
             <MudText Style="min-width: 88px;" Typo="Typo.subtitle2">Actions</MudText>
         </MudStack>
         <MudDivider />
-        <MudDropContainer T="CategoryForManageDto"
+        <MudDropContainer T="GetCategoriesByTypeResponse"
                           Items="Items"
                           ItemsSelector="@((_, _) => true)"
                           ItemDropped="OnItemDropped"
                           Class="d-flex flex-column">
             <ChildContent>
-                <MudDropZone T="CategoryForManageDto" Identifier="items" AllowReorder="true" />
+                <MudDropZone T="GetCategoriesByTypeResponse" Identifier="items" AllowReorder="true" />
             </ChildContent>
             <ItemRenderer>
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-1">
@@ -47,10 +48,10 @@ else
 
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = default!;
-    [Parameter, EditorRequired] public List<CategoryForManageDto> Items { get; set; } = default!;
+    [Parameter, EditorRequired] public List<GetCategoriesByTypeResponse> Items { get; set; } = default!;
     [Parameter] public bool IsLoading { get; set; }
 
-    private void OnItemDropped(MudItemDropInfo<CategoryForManageDto> dropInfo)
+    private void OnItemDropped(MudItemDropInfo<GetCategoriesByTypeResponse> dropInfo)
     {
         int oldIndex = Items.IndexOf(dropInfo.Item);
         Items.RemoveAt(oldIndex);

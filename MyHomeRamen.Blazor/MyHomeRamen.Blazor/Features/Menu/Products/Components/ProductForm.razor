@@ -1,6 +1,7 @@
 @using MyHomeRamen.Blazor.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Categories
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Products.Components
 
@@ -105,8 +106,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        IEnumerable<GetCategoriesForDropdownResponse> categoriesResponse =
-            await MenuApiClient.GetCategoriesForDropdownAsync((int)CategoryType.Product);
+        IEnumerable<GetCategoriesByTypeResponse> categoriesResponse =
+            await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
         _categories = categoriesResponse.Select(c => new CategoryOption(c.Id, c.Name));
 
         IEnumerable<GetIngredientsForDropdownResponse> ingredientsResponse =

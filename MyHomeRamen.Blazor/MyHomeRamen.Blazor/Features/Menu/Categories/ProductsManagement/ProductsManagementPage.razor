@@ -1,19 +1,21 @@
-@page "/admin/menu/categories"
+@page "/admin/menu/products-management"
 
 @attribute [Authorize(Roles = MenuRoleConstants.Admin)]
 
+@using MyHomeRamen.Blazor.Features.Menu.Categories
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Components
 @using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 
 @inject MenuApiClient MenuApiClient
 
-<PageTitle>Category Management</PageTitle>
+<PageTitle>Product Categories</PageTitle>
 
 <MudPaper Elevation="3" Class="pa-6">
-    <MudText Typo="Typo.h4" Class="mb-6">Category Management</MudText>
+    <MudText Typo="Typo.h4" Class="mb-6">Product Categories</MudText>
 
-    <CreateCategoryForm OnSuccess="OnCategoryCreated" />
+    <CreateCategoryForm CategoryType="CategoryType.Product" OnSuccess="OnCategoryCreated" />
 
     @if (_successMessage is not null)
     {
@@ -27,17 +29,12 @@
 
     <MudDivider Class="my-6" />
 
-    <CategoryTable Title="Product Categories" Items="_productCategories" IsLoading="_isLoading" />
-
-    <MudDivider Class="my-6" />
-
-    <CategoryTable Title="Ingredient Categories" Items="_ingredientCategories" IsLoading="_isLoading" />
+    <CategoryTable Title="Product Categories" Items="_categories" IsLoading="_isLoading" />
 
 </MudPaper>
 
 @code {
-    private List<CategoryForManageDto> _productCategories = [];
-    private List<CategoryForManageDto> _ingredientCategories = [];
+    private List<GetCategoriesByTypeResponse> _categories = [];
     private bool _isLoading = true;
     private string? _successMessage;
     private string? _errorMessage;
@@ -53,9 +50,9 @@
         _errorMessage = null;
         try
         {
-            var response = await MenuApiClient.GetCategoriesForManageAsync();
-            _productCategories = response.ProductCategories.ToList();
-            _ingredientCategories = response.IngredientCategories.ToList();
+            IEnumerable<GetCategoriesByTypeResponse> response =
+                await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
+            _categories = response.ToList();
         }
         catch (HttpRequestException)
         {

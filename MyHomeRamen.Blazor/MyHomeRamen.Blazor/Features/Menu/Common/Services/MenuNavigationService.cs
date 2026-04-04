@@ -10,7 +10,8 @@ public sealed class MenuNavigationService(NavigationManager navigation)
         {
             public const string ProductsIndex = "/admin/menu/products";
             public const string CreateProduct = "/admin/menu/products/create";
-            public const string CategoriesIndex = "/admin/menu/categories";
+            public const string ProductsManagement = "/admin/menu/products-management";
+            public const string IngredientsManagement = "/admin/menu/ingredients-management";
             public const string IngredientsIndex = "/admin/menu/ingredients";
             public const string CreateIngredient = "/admin/menu/ingredients/create";
 
@@ -27,7 +28,9 @@ public sealed class MenuNavigationService(NavigationManager navigation)
 
     public void ToCreateProduct() => navigation.NavigateTo(Routes.Admin.CreateProduct);
 
-    public void ToAdminCategoriesIndex() => navigation.NavigateTo(Routes.Admin.CategoriesIndex);
+    public void ToProductsManagement() => navigation.NavigateTo(Routes.Admin.ProductsManagement);
+
+    public void ToIngredientsManagement() => navigation.NavigateTo(Routes.Admin.IngredientsManagement);
 
     public void ToAdminIngredientsIndex() => navigation.NavigateTo(Routes.Admin.IngredientsIndex);
 

@@ -2,6 +2,7 @@
 
 @using MyHomeRamen.Blazor.Common.Configuration
 @using MyHomeRamen.Blazor.Components.Common
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
 
 @inject ThemeProviderService ThemeProvider
 
@@ -20,7 +21,10 @@
         <MudDrawer @bind-Open="_openDrawer" Style="max-width: 250px; overflow: hidden" Overlay="false" ClipMode="DrawerClipMode.Docked" Elevation="1" Variant="@DrawerVariant.Mini">
             <MudPaper Width="240px" Style="height: calc(100vh - 175px - var(--footer-height)); overflow-y: hidden; overflow: auto;">
                 <MudNavMenu Rounded="true" Margin="Margin.Dense" Color="Color.Primary" Class="mud-width-full pa-2" Style="width: 230px">
-                    <MudNavLink Href="/admin-panel/menu-management" Icon="@Icons.Material.Filled.RestaurantMenu" IconColor="Color.Secondary">Menu Management</MudNavLink>
+                    <MudNavGroup Title="Menu Management" Icon="@Icons.Material.Filled.RestaurantMenu" IconColor="Color.Secondary">
+                        <MudNavLink Href="@MenuNavigationService.Routes.Admin.ProductsManagement">Products Management</MudNavLink>
+                        <MudNavLink Href="@MenuNavigationService.Routes.Admin.IngredientsManagement">Ingredients Management</MudNavLink>
+                    </MudNavGroup>
                 </MudNavMenu>
             </MudPaper>
         </MudDrawer>

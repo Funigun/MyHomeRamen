@@ -1,29 +1,24 @@
-﻿- **Date**: 2025-07-14
-- **Feature**: GetCategoriesForManage + GetIngredientsForDropdown (branch: feature/get_categories_for_manage)
+﻿- **Date**: 2026-04-04 00:14:34 +02:00
+- **Feature**: GetCategoriesByType
 - **Critical**: 0
 - **Warnings**: 1
 - **Information**: 1
 
 ---
 
-## [1] [DbExtensions.cs : 88-97] - ForManage duplicates ForDropdown implementation
-
+- **Title**: [1] [MyHomeRamen.IntegrationTests/MenuModule/GetCategoriesByTypeTests.cs : 14] - Missing invalid `categoryType` regression coverage
 - **Severity**: Warning
-- **Description**: `ForManage` and `ForDropdown` for `Category` are currently identical in implementation. Both execute `categories.AsNoTracking().Where(c => c.CategoryType == categoryType).OrderBy(c => c.SortOrder)`. Duplicating query logic across two extension methods introduces a maintenance risk: a future change to one (e.g., an additional `.Include(...)`, a changed ordering) will silently not apply to the other.
-- **Solution proposal**: Have `ForManage` delegate to `ForDropdown` since both currently produce the same query shape. When the manage query needs to diverge (e.g., selecting additional fields or applying different filters), update it independently at that point:
-  ```csharp
-  public static IQueryable<Domain.Menu.Categories.Category> ForManage(
-      this DbSet<Domain.Menu.Categories.Category> categories,
-      Domain.Menu.Categories.CategoryType categoryType)
-  {
-      return categories.ForDropdown(categoryType);
-  }
-  ```
+- **Description**: The refactor keeps `GetCategoriesByTypeValidator` and still accepts an untrusted `int` query parameter, but the new integration suite no longer verifies that invalid enum values return `400 Bad Request`. The removed `GetCategoriesForDropdown` tests covered this behavior, so the refactor reduces regression protection around request validation.
+- **Solution proposal**: Add a theory covering invalid values such as `0`, `-1`, and `999`, call `/api/menu/categories/by-type`, and assert `HttpStatusCode.BadRequest` using the same request setup pattern already used in this file.
 
----
-
-## [2] [GetCategoriesForManageHandler.cs : 18-28] - Two sequential DB round-trips
-
+- **Title**: [2] [MyHomeRamen.Api/MyHomeRamen.Api.csproj : 17] - SDK project still contains folder entries for deleted category features
 - **Severity**: Information
-- **Description**: The handler executes two sequential `ToListAsync` calls — one for `CategoryType.Product` and one for `CategoryType.Ingredient`. These are independent queries with no data dependency between them, so they unnecessarily block each other. For small category lists this has negligible impact, but it is worth flagging for future awareness.
-- **Solution proposal**: EF Core does not support concurrent async operations on the same `DbContext` instance, so `Task.WhenAll` cannot be applied directly here. Keep the sequential approach as-is. A future optimization path would be a single query returning all categories for the restaurant, then grouping by `CategoryType` in memory — this trades the double round-trip for a slightly larger single result set.
+- **Description**: The API project file still declares `Folder Include` entries for `GetCategoriesForDropdown` and `GetCategoriesForManage` even though those feature folders were removed. This does not break the build, but it leaves stale project metadata behind and makes the project structure drift from the actual source layout.
+- **Solution proposal**: Remove the obsolete `Folder Include` entries for `Menu\Features\Categories\GetCategoriesForDropdown\Models\`, `Menu\Features\Categories\GetCategoriesForDropdown\Policies\`, and `Menu\Features\Categories\GetCategoriesForManage\Models\` from `MyHomeRamen.Api.csproj`.
+
+## Validation summary
+
+- `dotnet build` ✅
+- `dotnet test MyHomeRamen.ArchitectureTests/MyHomeRamen.ArchitectureTests.csproj --no-build` ✅
+- `dotnet test MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj --no-build` ✅
+- `dotnet test MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj --no-build` ✅
