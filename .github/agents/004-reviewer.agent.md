@@ -49,9 +49,11 @@ Always read `.github/copilot-instructions.md` before reviewing.
 
 ### 1) Load scope and instruction files
 
-Determine active scopes from `.github/agents/input/feature-brief.md` (Section 2):
-- `backend` — if the `backend` row is "yes"
-- `frontend` — if the `frontend` row is "yes"
+Determine **feature name** and active scopes:
+- `{feature}` is provided by the invoking prompt or user input
+- Load `.github/agents/input/{feature}-brief.md` and read Section 2 to determine active scopes:
+  - `backend` — if the `backend` row is "yes"
+  - `frontend` — if the `frontend` row is "yes"
 
 Load instruction files for each active scope:
 
@@ -115,8 +117,8 @@ Each issue must follow this format:
 - **Solution proposal**: Suggested fix with references to existing code or standards where applicable.
 
 Save a separate report per active scope, overwriting each file:
-- Backend: `.github/agents/output/review-results-backend.md`
-- Frontend: `.github/agents/output/review-results-frontend.md`
+- Backend: `.github/agents/output/{feature}-review-results-backend.md`
+- Frontend: `.github/agents/output/{feature}-review-results-frontend.md`
 
 Add the following metadata at the top of each report:
 

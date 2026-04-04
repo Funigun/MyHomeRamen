@@ -46,14 +46,10 @@
     <File Path=".github/agents/004-reviewer.agent.md" />
   </Folder>
   <Folder Name="/_github/agents/input/">
-    <File Path=".github/agents/input/feature-brief.md" />
+    <File Path=".github/agents/input/feature-brief-example.md" />
+    <File Path=".github/agents/input/feature-brief-template.md" />
   </Folder>
-  <Folder Name="/_github/agents/output/">
-    <File Path=".github/agents/output/automated-plan-backend.md" />
-    <File Path=".github/agents/output/automated-plan-frontend.md" />
-    <File Path=".github/agents/output/review-results-backend.md" />
-    <File Path=".github/agents/output/review-results-frontend.md" />
-  </Folder>
+  <Folder Name="/_github/agents/output/" />
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />

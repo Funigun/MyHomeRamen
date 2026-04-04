@@ -45,14 +45,18 @@ Always read `.github/copilot-instructions.md` before starting.
 
 ### 1) Load configuration and standards
 
+- `{feature}` is provided by the invoking prompt or user input. Load `.github/agents/input/{feature}-brief.md` to determine active scopes.
 - Read `.editorconfig` from the root of the repository and extract all active rules.
 - Load `.github/skills/code-quality/skill.md` to understand project-specific quality standards.
 
-Do not proceed until both files are fully loaded and analyzed.
+Do not proceed until all files are fully loaded and analyzed.
 
 ### 2) Identify target files
 
-Only process files that were **created or modified** in the current task (from the implementation plan or Git diff).
+Only process files that were **created or modified** in the current task. Determine the list from **both** sources:
+- Implementation plans: `.github/agents/output/{feature}-plan-backend.md` and/or `.github/agents/output/{feature}-plan-frontend.md` (use only the scopes active in the brief)
+- Git diff (as fallback when no plan is present)
+
 Skip all other files regardless of their diagnostic state.
 
 ### 3) Scan each file for diagnostics

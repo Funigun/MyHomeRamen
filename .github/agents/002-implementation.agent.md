@@ -41,15 +41,16 @@ Always read `.github/copilot-instructions.md` before implementing.
 
 ### 1) Load scope and implementation plan
 
-Determine **mode** and active **scopes**:
-- Load `.github/agents/input/feature-brief.md` — mode = `feature` when file exists and all fields are filled; scope from Section 2 (`backend` / `frontend` rows)
-- Check `.github/agents/output/review-results-backend.md` and `.github/agents/output/review-results-frontend.md` — mode = `review-fixes` when unresolved issues exist
+Determine **mode**, active **scopes** and **feature name**:
+- `{feature}` is provided by the invoking prompt or user input
+- Load `.github/agents/input/{feature}-brief.md` — mode = `feature` when file exists and all fields are filled; scope from Section 2 (`backend` / `frontend` rows)
+- Check `.github/agents/output/{feature}-review-results-backend.md` and `.github/agents/output/{feature}-review-results-frontend.md` — mode = `review-fixes` when unresolved issues exist
 
 **Iteration** (for `review-fixes` mode): infer from existing `Implementation status` lines — no status lines → iteration 1; all reference iteration 1 → iteration 2; etc.
 
 Load plan(s) for active scopes:
-- Backend: `.github/agents/output/automated-plan-backend.md`
-- Frontend: `.github/agents/output/automated-plan-frontend.md`
+- Backend: `.github/agents/output/{feature}-plan-backend.md`
+- Frontend: `.github/agents/output/{feature}-plan-frontend.md`
 
 ### 2) Load relevant instruction files based on scope
 
@@ -97,7 +98,7 @@ dotnet ef migrations add {Name} \
 
 Skip if `mode = feature`.
 
-After each fix attempt, update the relevant review-results file (`review-results-backend.md` for backend issues, `review-results-frontend.md` for frontend issues) by appending an `Implementation status` line to the relevant issue, directly after its `- **Solution proposal**:` line.
+After each fix attempt, update the relevant review-results file (`{feature}-review-results-backend.md` for backend issues, `{feature}-review-results-frontend.md` for frontend issues) by appending an `Implementation status` line to the relevant issue, directly after its `- **Solution proposal**:` line.
 
 **On success:**
 ```
