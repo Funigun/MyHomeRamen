@@ -14,33 +14,46 @@ public static class DbExtensions
                           .ToListAsync(cancellationToken);
     }
 
-    public static async Task<IEnumerable<TEntity>> GetBySelector<TEntity>(this IQueryable<TEntity> query, Expression<Func<TEntity, bool>> expression, CancellationToken cancellationToken)
-                  where TEntity : class, IEntity
+    public static async Task<TEntity> GetBySelectorAsync<TEntity, TId>(this IQueryable<TEntity> query, TId id, CancellationToken cancellationToken = default)
+                  where TEntity : class, IEntity<TId>
+                  where TId : IEntityId
     {
-        return await query.Where(expression)
-                          .ToListAsync(cancellationToken);
+        ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
+        MemberExpression property = Expression.Property(parameter, nameof(IEntity<>.Id));
+        ConstantExpression constant = Expression.Constant(id, typeof(TId));
+        BinaryExpression body = Expression.Equal(property, constant);
+        Expression<Func<TEntity, bool>> lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+
+        return await query.FirstAsync(lambda, cancellationToken);
     }
 
-    public static async Task<bool> ExistsByIdAsync<TEntity, TId>(
-        this IQueryable<TEntity> query,
-        TId id,
-        CancellationToken cancellationToken = default)
-        where TEntity : class, IEntity<TId>
-        where TId : IEntityId
+    public static async Task<TEntity> GetBySelectorNotTrackedAsync<TEntity, TId>(this IQueryable<TEntity> query, TId id, CancellationToken cancellationToken = default)
+              where TEntity : class, IEntity<TId>
+              where TId : IEntityId
+    {
+        ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
+        MemberExpression property = Expression.Property(parameter, nameof(IEntity<>.Id));
+        ConstantExpression constant = Expression.Constant(id, typeof(TId));
+        BinaryExpression body = Expression.Equal(property, constant);
+        Expression<Func<TEntity, bool>> lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+
+        return await query.AsNoTracking().FirstAsync(lambda, cancellationToken);
+    }
+
+    public static async Task<bool> ExistsByIdAsync<TEntity, TId>(this IQueryable<TEntity> query, TId id, CancellationToken cancellationToken = default)
+                  where TEntity : class, IEntity<TId>
+                  where TId : IEntityId
     {
         ParameterExpression? parameter = Expression.Parameter(typeof(TEntity), "e");
-        MemberExpression? property = Expression.Property(parameter, nameof(IEntity<TId>.Id));
+        MemberExpression? property = Expression.Property(parameter, nameof(IEntity<>.Id));
         ConstantExpression? constant = Expression.Constant(id, typeof(TId));
         BinaryExpression? body = Expression.Equal(property, constant);
         Expression<Func<TEntity, bool>>? lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
 
-        return await query.AnyAsync(lambda, cancellationToken);
+        return await query.AsNoTracking().AnyAsync(lambda, cancellationToken);
     }
 
-    public static async Task<bool> IsNameUniqueAsync(
-        this IQueryable<MyHomeRamen.Domain.Menu.Products.Product> query,
-        string name,
-        CancellationToken cancellationToken = default)
+    public static async Task<bool> IsNameUniqueAsync(this IQueryable<Domain.Menu.Products.Product> query, string name, CancellationToken cancellationToken = default)
     {
         return !await query.AnyAsync(p => p.Name.ToLower() == name.ToLower(), cancellationToken);
     }
@@ -50,10 +63,7 @@ public static class DbExtensions
         return !await query.AnyAsync(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
     }
 
-    public static async Task<bool> IsIngredientNameUniqueAsync(
-        this IQueryable<Domain.Menu.Ingredients.Ingredient> query,
-        string name,
-        CancellationToken cancellationToken = default)
+    public static async Task<bool> IsIngredientNameUniqueAsync(this IQueryable<Domain.Menu.Ingredients.Ingredient> query, string name, CancellationToken cancellationToken = default)
     {
         return !await query.AnyAsync(i => i.Name.ToLower() == name.ToLower(), cancellationToken);
     }
@@ -84,5 +94,29 @@ public static class DbExtensions
         return ingredients
             .AsNoTracking()
             .OrderBy(i => i.Name);
+    }
+
+    public static async Task<bool> IsCategoryUsedByProductAsync(
+        this IQueryable<Domain.Menu.Products.Product> query,
+        Domain.Menu.Categories.CategoryId categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(p => p.Categories.Any(c => c.Id == categoryId), cancellationToken);
+    }
+
+    public static async Task<bool> IsCategoryUsedByIngredientAsync(
+        this IQueryable<Domain.Menu.Ingredients.Ingredient> query,
+        Domain.Menu.Categories.CategoryId categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(i => i.Categories.Any(c => c.Id == categoryId), cancellationToken);
+    }
+
+    public static Task<List<Domain.Menu.Categories.Category>> GetRemainingForResequencingAsync(this DbSet<Domain.Menu.Categories.Category> categories, Domain.Menu.Categories.CategoryType categoryType, Domain.Menu.Categories.CategoryId excludeId, CancellationToken cancellationToken = default)
+    {
+        return categories
+            .Where(c => c.CategoryType == categoryType && c.Id != excludeId)
+            .OrderBy(c => c.SortOrder)
+            .ToListAsync(cancellationToken);
     }
 }

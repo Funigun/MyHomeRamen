@@ -1,4 +1,4 @@
-namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.CreateIngredient;
+namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.Requests;
 
 public sealed record CreateIngredientRequest(
     string Name,

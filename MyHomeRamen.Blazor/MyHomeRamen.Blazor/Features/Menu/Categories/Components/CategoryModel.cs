@@ -1,4 +1,5 @@
-using MyHomeRamen.Blazor.Features.Menu.Categories.CreateCategory;
+using MyHomeRamen.Blazor.Features.Menu.Categories.Requests;
+using MyHomeRamen.Blazor.Features.Menu.Common.Models;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Categories.Components;
 
@@ -10,6 +11,6 @@ public sealed class CategoryModel
 
     public CreateCategoryRequest ToCreateRequest()
     {
-        return new CreateCategoryRequest(Name, (int)CategoryType);
+        return new CreateCategoryRequest(Name, CategoryType);
     }
 }

@@ -1,8 +1,9 @@
-using MyHomeRamen.Blazor.Features.Menu.Categories.CreateCategory;
-using MyHomeRamen.Blazor.Features.Menu.Categories.UpdateCategoriesOrder;
-using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses;
-using MyHomeRamen.Blazor.Features.Menu.Ingredients.CreateIngredient;
-using MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
+using MyHomeRamen.Blazor.Features.Menu.Categories.Requests;
+using MyHomeRamen.Blazor.Features.Menu.Categories.Responses;
+using MyHomeRamen.Blazor.Features.Menu.Ingredients.Requests;
+using MyHomeRamen.Blazor.Features.Menu.Ingredients.Responses;
+using MyHomeRamen.Blazor.Features.Menu.Products.Requests;
+using MyHomeRamen.Blazor.Features.Menu.Products.Responses;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Common.Services;
 
@@ -51,6 +52,12 @@ public sealed class MenuApiClient(HttpClient httpClient)
                 "/api/menu/ingredients/dropdown", ct);
 
         return result ?? [];
+    }
+
+    public async Task DeleteCategoryAsync(Guid id, CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/menu/categories/{id}", ct);
+        response.EnsureSuccessStatusCode();
     }
 
     public async Task UpdateCategoriesOrderAsync(UpdateCategoriesOrderRequest request, CancellationToken ct = default)

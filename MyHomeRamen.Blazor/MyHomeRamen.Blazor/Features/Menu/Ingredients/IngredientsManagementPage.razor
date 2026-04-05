@@ -4,9 +4,10 @@
 
 @using MyHomeRamen.Blazor.Features.Menu.Categories
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Components
-@using MyHomeRamen.Blazor.Features.Menu.Categories.UpdateCategoriesOrder
 @using MyHomeRamen.Blazor.Features.Menu.Common.Constants
-@using MyHomeRamen.Blazor.Features.Menu.Common.Models.ApiResponses
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Requests
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Responses
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 
 @inject MenuApiClient MenuApiClient
@@ -30,7 +31,7 @@
 
     <MudDivider Class="my-6" />
 
-    <CategoryTable Title="Ingredient Categories" Items="_categories" IsLoading="_isLoading" OnOrderChanged="OnCategoriesOrderChangedAsync" />
+    <CategoryTable Title="Ingredient Categories" Items="_categories" IsLoading="_isLoading" OnDelete="OnCategoryDeletedAsync" OnOrderChanged="OnCategoriesOrderChangedAsync" />
 
 </MudPaper>
 
@@ -88,6 +89,22 @@
         catch (HttpRequestException)
         {
             _errorMessage = "Failed to save category order. Please try again.";
+        }
+    }
+
+    private async Task OnCategoryDeletedAsync(Guid id)
+    {
+        _successMessage = null;
+        _errorMessage = null;
+        try
+        {
+            await MenuApiClient.DeleteCategoryAsync(id);
+            _successMessage = "Category deleted successfully.";
+            await LoadCategoriesAsync();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to delete category. It may still be in use.";
         }
     }
 }

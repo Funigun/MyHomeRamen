@@ -4,7 +4,7 @@ using MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForDropdown.Models
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 
-namespace MyHomeRamen.IntegrationTests.MenuModule;
+namespace MyHomeRamen.IntegrationTests.MenuModule.Ingredients;
 
 public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory)
 {

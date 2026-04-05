@@ -17,7 +17,11 @@ internal static class DataSeeder
 
         dbContext.Users.AddRange(users);
 
-        List<Domain.Menu.Categories.Category> categories = DataGenerator.GenerateValidCategories(5);
+        List<Domain.Menu.Categories.Category> categories =
+        [
+            ..DataGenerator.GenerateValidCategories(3, Domain.Menu.Categories.CategoryType.Product),
+            ..DataGenerator.GenerateValidCategories(3, Domain.Menu.Categories.CategoryType.Ingredient),
+        ];
         List<Domain.Menu.Ingredients.Ingredient> ingredients = DataGenerator.GenerateValidIngredients(10);
         List<Domain.Menu.Products.Product> products = DataGenerator.GenerateValidProducts(20);
 

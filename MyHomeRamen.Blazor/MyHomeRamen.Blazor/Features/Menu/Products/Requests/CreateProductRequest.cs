@@ -1,4 +1,4 @@
-namespace MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
+namespace MyHomeRamen.Blazor.Features.Menu.Products.Requests;
 
 public sealed record CreateProductRequest(
     string Name,

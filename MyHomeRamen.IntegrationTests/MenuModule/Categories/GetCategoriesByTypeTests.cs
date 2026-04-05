@@ -5,7 +5,7 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 
-namespace MyHomeRamen.IntegrationTests.MenuModule;
+namespace MyHomeRamen.IntegrationTests.MenuModule.Categories;
 
 public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory)
 {
