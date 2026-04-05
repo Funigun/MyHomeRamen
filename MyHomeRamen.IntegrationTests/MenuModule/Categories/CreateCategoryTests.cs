@@ -6,7 +6,7 @@ using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
 
-namespace MyHomeRamen.IntegrationTests.MenuModule;
+namespace MyHomeRamen.IntegrationTests.MenuModule.Categories;
 
 public sealed class CreateCategoryTests(WebApiFactory apiFactory)
 {

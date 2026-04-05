@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.Api.Menu.Features.Categories.DeleteCategory.Models;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -8,14 +9,13 @@ namespace MyHomeRamen.Api.Menu.Features.Categories.DeleteCategory;
 
 public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : IRequestHandler<DeleteCategoryRequest, IResult>
 {
-    public async Task<IResult> Handle(DeleteCategoryRequest request, CancellationToken cancellationToken)
+    public async Task<IResult> Handle([FromRoute] DeleteCategoryRequest id, CancellationToken cancellationToken)
     {
-        Category category = await dbContext.Categories.GetBySelectorAsync((CategoryId)request.Id, cancellationToken);
+        Category category = await dbContext.Categories.GetBySelectorAsync((CategoryId)id.Id, cancellationToken);
 
         dbContext.Categories.Remove(category);
 
-        List<Category> remaining = await dbContext.Categories.GetRemainingForResequencingAsync(category.CategoryType, (CategoryId)request.Id, cancellationToken);
-
+        List<Category> remaining = await dbContext.Categories.GetRemainingForResequencingAsync(category.CategoryType, (CategoryId)id.Id, cancellationToken);
         for (int i = 0; i < remaining.Count; i++)
         {
             remaining[i].UpdateSortOrder(i + 1);

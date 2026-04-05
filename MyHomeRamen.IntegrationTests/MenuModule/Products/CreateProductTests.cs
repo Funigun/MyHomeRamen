@@ -4,7 +4,7 @@ using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
 
-namespace MyHomeRamen.IntegrationTests.MenuModule;
+namespace MyHomeRamen.IntegrationTests.MenuModule.Products;
 
 public sealed class CreateProductTests(WebApiFactory apiFactory)
 {

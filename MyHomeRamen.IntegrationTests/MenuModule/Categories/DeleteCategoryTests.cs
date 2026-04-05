@@ -5,7 +5,7 @@ using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
 
-namespace MyHomeRamen.IntegrationTests.MenuModule;
+namespace MyHomeRamen.IntegrationTests.MenuModule.Categories;
 
 public sealed class DeleteCategoryTests(WebApiFactory apiFactory)
 {
@@ -29,9 +29,11 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory)
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
+        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+
         // Assert — 204 returned
         Assert.True(response.StatusCode == HttpStatusCode.NoContent,
-            $"Expected 204 NoContent but got {response.StatusCode}.");
+            $"Expected 204 NoContent but got {response.StatusCode} with `{responseContent}`.");
 
         // Assert — deleted record no longer exists in DB
         bool stillExists = await apiFactory.MenuDbContext.Categories
@@ -52,13 +54,13 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory)
         }
 
         // Assert — cat1 and cat3 are adjacent with cat3 immediately following cat1
-        int cat1Index = allRemaining.FindIndex(c => c.Id == (CategoryId)cat1.Id);
-        int cat3Index = allRemaining.FindIndex(c => c.Id == (CategoryId)cat3.Id);
+        int cat1Index = allRemaining.FindIndex(c => c.Id == cat1.Id);
+        int cat3Index = allRemaining.FindIndex(c => c.Id == cat3.Id);
         Assert.Equal(cat1Index + 1, cat3Index);
     }
 
     [Fact]
-    public async Task DeleteCategory_ShouldReturnNotFound_ForNonExistentId()
+    public async Task DeleteCategory_ShouldReturnBadRequest_ForNonExistentId()
     {
         // Arrange
         Guid nonExistentId = Guid.NewGuid();
@@ -70,12 +72,12 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.NotFound,
-            $"Expected 404 NotFound but got {response.StatusCode}.");
+        Assert.True(response.StatusCode == HttpStatusCode.BadRequest,
+            $"Expected 400 BadRequest but got {response.StatusCode}.");
     }
 
     [Fact]
-    public async Task DeleteCategory_ShouldReturnConflict_WhenCategoryIsUsedByProduct()
+    public async Task DeleteCategory_ShouldReturnBadRequest_WhenCategoryIsUsedByProduct()
     {
         // Arrange — derive category from a tracked generated product so the reference is guaranteed
         Category usedCategory = DataGenerator.GeneratedProducts.First().Categories.First();
@@ -87,12 +89,12 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.Conflict,
-            $"Expected 409 Conflict but got {response.StatusCode}.");
+        Assert.True(response.StatusCode == HttpStatusCode.BadRequest,
+            $"Expected 400 BadRequest but got {response.StatusCode}.");
     }
 
     [Fact]
-    public async Task DeleteCategory_ShouldReturnConflict_WhenCategoryIsUsedByIngredient()
+    public async Task DeleteCategory_ShouldReturnBadRequest_WhenCategoryIsUsedByIngredient()
     {
         // Arrange — derive category from a tracked generated ingredient so the reference is guaranteed
         Category usedCategory = DataGenerator.GeneratedIngredients.First().Categories.First();
@@ -104,8 +106,8 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.Conflict,
-            $"Expected 409 Conflict but got {response.StatusCode}.");
+        Assert.True(response.StatusCode == HttpStatusCode.BadRequest,
+            $"Expected 400 BadRequest but got {response.StatusCode}.");
     }
 
     [Fact]

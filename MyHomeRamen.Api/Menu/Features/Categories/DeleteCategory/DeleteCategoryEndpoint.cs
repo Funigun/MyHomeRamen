@@ -18,8 +18,8 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
-    private static async Task<IResult> HandleAsync(DeleteCategoryRequest request, [FromServices] IRequestHandler<DeleteCategoryRequest, IResult> handler, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(DeleteCategoryRequest id, [FromServices] IRequestHandler<DeleteCategoryRequest, IResult> handler, CancellationToken cancellationToken)
     {
-        return await handler.Handle(request, cancellationToken);
+        return await handler.Handle(id, cancellationToken);
     }
 }

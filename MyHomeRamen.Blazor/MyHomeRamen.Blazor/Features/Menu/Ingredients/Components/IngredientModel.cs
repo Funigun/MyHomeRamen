@@ -1,4 +1,4 @@
-using MyHomeRamen.Blazor.Features.Menu.Ingredients.CreateIngredient;
+using MyHomeRamen.Blazor.Features.Menu.Ingredients.Requests;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.Components;
 

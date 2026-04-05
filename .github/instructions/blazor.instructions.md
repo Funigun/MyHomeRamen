@@ -150,17 +150,21 @@ private async Task SubmitAsync()
 |   -- {ModuleName}/
 |       -- Common/
 |           -- Services/ (e.g. {ModuleName}ApiClient.cs, {ModuleName}NavigationService.cs)
-|           -- Models/ (shared models across module features)
+|           -- Models/ (shared models across module features e.g. Option models, enums)
 |           -- Constants/ (e.g. Role names)
 |       -- {FeatureName}/
 |           -- Components/
 |               -- {FeatureName}Form.razor
 |               -- {FeatureName}Model.cs
 |               -- {FeatureName}Validator.cs
-|           -- {ActionName}/ (e.g. CreateProduct, EditProduct)
-|               -- {ActionName}Page.razor
-|               -- {ActionName}Page.razor.cs  (only if complex)
-|               -- {ActionName}Request.cs     (API DTO)
+|           -- Requests/
+|               -- {FeatureName1}Request.razor
+|               -- {FeatureName2}Request.razor 
+|           -- Responses/
+|               -- {FeatureName1}Response.razor
+|               -- {FeatureName2}Response.razor 
+|           -- {ActionName}Page.razor
+|           -- {ActionName}Page.razor.cs  (only if complex)
 ```
 
 ## Reference Implementations
@@ -168,16 +172,18 @@ When building a new feature, use these canonical files as patterns:
 
 | Pattern | Reference File |
 |---|---|
-| UI Model with `ToXxxRequest()` mapping | `Features/Account/Components/SignUpModel.cs` |
-| Validator with `ValidateValue` delegate | `Features/Account/Components/SignUpValidator.cs` |
-| MudForm with validation + submission | `Features/Account/Components/SignUpForm.razor` |
-| Reusable display component (list/table) | `Features/Menu/Categories/Components/CategoryTable.razor` |
-| Typed HttpClient (module service) | `Features/Admin/Employees/EmployeeApiClient.cs` |
-| HttpClient DI registration | `Presentation/ApiDependencyInjection.cs` |
-| Navigation service | `Features/Menu/Common/Services/MenuNavigationService.cs` |
-| Navigation service DI registration | `Presentation/NavigationDependencyInjection.cs` |
-| Simple page wrapping a form component | `Features/Account/SignUp/SignUpPage.razor` |
-| Thin page composing multiple components | `Features/Menu/Categories/CategoriesIndex/CategoriesIndexPage.razor` |
+| UI Model with `ToXxxRequest()` mapping | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductModel.cs' |
+| Validator with `ValidateValue` delegate | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductValidator.cs' |
+| MudForm with validation + submission | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductForm.razor' |
+| API Request DTO | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Requests/CreateProductRequest.cs' |
+| API Response DTO | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Responses/CreateProductResponse.cs' |
+| Reusable display component (list/table) | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Components/CategoryTable.razor' |
+| Typed HttpClient (module service) | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Admin/Employees/EmployeeApiClient.cs' |
+| HttpClient DI registration | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Presentation/ApiDependencyInjection.cs' |
+| Navigation service | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Common/Services/MenuNavigationService.cs' |
+| Navigation service DI registration | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Presentation/NavigationDependencyInjection.cs' |
+| Simple page wrapping a form component | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/CreateProductPage.razor' |
+| Thin page composing multiple components | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/IngredientsManagementPage.razor' |
 
 ## Navigation
 

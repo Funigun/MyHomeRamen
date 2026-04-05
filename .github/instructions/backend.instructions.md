@@ -167,6 +167,9 @@ Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Hand
 ### 3.5) Endpoint configuration
 - Each endpoint class implements `IEndpoint` and defines `GroupName`, `WithName()`, `WithDescription()`, and `RequireAuthorizaiont(<PolicyName>)`/`AllowAnonymous()` .
 - Use extension methods from `EndpointBuilderExtensions` in `MyHomeRamen.Api.Common` for consistent endpoint configuration (e.g., route patterns, generic parameters).
+- Endpoints that require Id in route must:
+  - have request object that implements both `IRequestId` and `IRequest` e.g. `public record struct GetProductByIdRequest(Guid Id) : IRequest, IRequestId;`
+  - name handler parameter name to match route parameter e.g. `api/menu/categories{id}` -> `GetCategoryByIdRequest(Guid Id)` → `HandleAsync(GetCategoryByIdRequest id, ...)` for automatic model binding.
 
 Example POST structure:
 ```csharp

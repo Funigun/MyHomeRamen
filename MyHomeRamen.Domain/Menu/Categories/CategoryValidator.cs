@@ -7,13 +7,13 @@ internal static class CategoryValidator
     internal static void Validate(Category category)
     {
         CheckName(category);
-        CheckSortOrder(category);
+        CheckSortOrder(category.SortOrder);
         CheckCategoryType(category);
     }
 
     internal static void ValidateSortOrder(Category category)
     {
-        CheckSortOrder(category);
+        CheckSortOrder(category.SortOrder);
     }
 
     private static void CheckName(Category category)
@@ -29,9 +29,9 @@ internal static class CategoryValidator
         }
     }
 
-    private static void CheckSortOrder(Category category)
+    internal static void CheckSortOrder(int sortOrder)
     {
-        if (category.SortOrder < CategoryConstants.MinSortOrder)
+        if (sortOrder < CategoryConstants.MinSortOrder)
         {
             throw CategoryErrors.SortOrderTooSmall();
         }

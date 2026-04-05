@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using Bogus;
 using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
+using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.Common.Contracts.Menu.Categories;
 using MyHomeRamen.Common.Contracts.Menu.Products;
@@ -33,25 +34,25 @@ internal static class DataGenerator
         );
 
     private static readonly Faker<Ingredient> ValidIngredientFaker = new Faker<Ingredient>()
-    .CustomInstantiator(f => Ingredient.Create(
-        Guid.NewGuid(),
-        f.Random.String2(IngredientConstants.MinNameLength, IngredientConstants.MaxNameLength),
-        f.Random.String2(IngredientConstants.MinDescriptionLength, IngredientConstants.MaxDescriptionLength),
-        f.Random.Number(),
-        [GetRandomIngredientCategory()])
-    );
+        .CustomInstantiator(f => Ingredient.Create(
+            Guid.NewGuid(),
+            f.Random.String2(IngredientConstants.MinNameLength, IngredientConstants.MaxNameLength),
+            f.Random.String2(IngredientConstants.MinDescriptionLength, IngredientConstants.MaxDescriptionLength),
+            f.Random.Number(),
+            [GetRandomIngredientCategory()])
+        );
 
     private static readonly Faker<Product> ValidProductFaker = new Faker<Product>()
         .CustomInstantiator(f => Product.Create(
-        Guid.NewGuid(),
-        f.Random.String2(ProductConstants.MinNameLength, ProductConstants.MaxNameLength),
-        f.Random.String2(ProductConstants.MinDescriptionLength, ProductConstants.MaxDescriptionLength),
-        f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice),
-        string.Empty,
-        [GetRandomIngredient()],
-        [GetRandomIngredient()],
-        [GetRandomProductCategory()])
-    );
+            Guid.NewGuid(),
+            f.Random.String2(ProductConstants.MinNameLength, ProductConstants.MaxNameLength),
+            f.Random.String2(ProductConstants.MinDescriptionLength, ProductConstants.MaxDescriptionLength),
+            f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice),
+            string.Empty,
+            [GetRandomIngredient()],
+            [GetRandomIngredient()],
+            [GetRandomProductCategory()])
+        );
 
     internal static Category GenerateValidCategory()
     {
@@ -74,7 +75,7 @@ internal static class DataGenerator
 
     internal static List<Category> GenerateValidCategories(int count)
     {
-        List<Category>? categories = [];
+        List<Category> categories = [];
 
         for (int i = 0; i < count; i++)
         {
@@ -115,7 +116,7 @@ internal static class DataGenerator
 
     internal static List<Ingredient> GenerateValidIngredients(int count)
     {
-        List<Ingredient>? ingredients = [];
+        List<Ingredient> ingredients = [];
 
         for (int i = 0; i < count; i++)
         {
@@ -136,7 +137,7 @@ internal static class DataGenerator
 
     internal static List<Product> GenerateValidProducts(int count)
     {
-        List<Product>? products = [];
+        List<Product> products = [];
 
         for (int i = 0; i < count; i++)
         {
@@ -193,6 +194,26 @@ internal static class DataGenerator
         return GeneratedUsers;
     }
 
+    public static TheoryData<UpdateCategoriesOrderRequest> InvalidUpdateCategoriesOrderRequests()
+    {
+        Guid validId = Guid.NewGuid();
+
+        return
+        [
+            // Empty list
+            new UpdateCategoriesOrderRequest([]),
+
+            // Sort order below minimum
+            new UpdateCategoriesOrderRequest([new CategoryOrderItemDto(validId, CategorySortOrderValidator.MinSortOrder - 1)]),
+
+            // Duplicate IDs
+            new UpdateCategoriesOrderRequest([
+                new CategoryOrderItemDto(validId, CategorySortOrderValidator.MinSortOrder),
+                new CategoryOrderItemDto(validId, CategorySortOrderValidator.MinSortOrder + 1),
+            ]),
+        ];
+    }
+
     public static TheoryData<CreateCategoryRequest> InvalidCreateCategoryRequests()
     {
         Faker faker = new();
@@ -224,7 +245,6 @@ internal static class DataGenerator
 
         return
         [
-
             // Name: empty
             new CreateProductRequest(string.Empty, validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds),
 

@@ -1,4 +1,4 @@
-using MyHomeRamen.Blazor.Features.Menu.Products.CreateProduct;
+using MyHomeRamen.Blazor.Features.Menu.Products.Requests;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Products.Components;
 

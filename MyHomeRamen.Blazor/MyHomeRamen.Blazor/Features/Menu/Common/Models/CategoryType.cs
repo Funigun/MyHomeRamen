@@ -1,4 +1,4 @@
-namespace MyHomeRamen.Blazor.Features.Menu.Categories;
+namespace MyHomeRamen.Blazor.Features.Menu.Common.Models;
 
 public enum CategoryType
 {
