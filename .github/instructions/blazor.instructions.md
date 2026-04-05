@@ -80,7 +80,39 @@ Example: group `Menu.Products` → route `/api/menu.products`. Use this when bui
 ## Models & Forms
 - **Decouple API DTOs from UI Models**: Do not bind UI forms directly to backend API DTOs.
   - Use **API DTOs** (e.g., `CreateProductRequest`) strictly for backend network payloads. Place in the feature action folder (e.g., `CreateProduct/CreateProductRequest.cs`).
-  - Use **UI Models** (e.g., `ProductModel`) for housing UI state, reactive properties, and `FluentValidation` validator bindings. Place in `Components/`.
+  - Use **UI Models** for housing UI state — never expose API response records directly to components that need interactivity. Place in `Components/`.
+- **UI Model naming convention**: Two distinct model types exist per domain entity — use consistent naming to make the intent explicit:
+  - **`{Entity}FormModel`** — mutable model bound to `{Entity}Form.razor` via MudBlazor `MudForm`. Holds editable fields, exposes `ToCreateRequest()` / `ToEditRequest()` mapping methods, and provides a static `FromResponse(GetXxxByIdResponse)` factory for pre-filling edit forms.
+  - **`{Entity}TableModel`** — flat read-only display model bound to `{Entity}Table.razor`. Populated from the corresponding `GetXxxForManageResponse` API DTO via a static `FromResponse(GetXxxForManageResponse)` factory. Contains only the fields the table needs to render — never exposes navigation properties or mutable state.
+
+  ```csharp
+  // ✅ Form model — mutable, validated, maps to API payload
+  public sealed class ProductFormModel
+  {
+      public string Name { get; set; } = string.Empty;
+      public decimal Price { get; set; }
+      public IEnumerable<Guid> CategoryIds { get; set; } = [];
+
+      public CreateProductRequest ToCreateRequest() => new(Name, Price, CategoryIds);
+      public static ProductFormModel FromResponse(GetProductByIdResponse r) => new() { Name = r.Name, Price = r.Price, CategoryIds = r.CategoryIds };
+  }
+
+  // ✅ Table model — flat, read-only, populated from list response
+  public sealed class ProductTableModel
+  {
+      public Guid Id { get; init; }
+      public string Name { get; init; } = string.Empty;
+      public decimal Price { get; init; }
+
+      public static ProductTableModel FromResponse(GetProductsForManageResponse r) => new() { Id = r.Id, Name = r.Name, Price = r.Price };
+  }
+
+  // ❌ API DTO used directly as component parameter
+  [Parameter] public List<GetProductsForManageResponse> Items { get; set; } = [];
+
+  // ✅ Table model used as component parameter
+  [Parameter] public List<ProductTableModel> Items { get; set; } = [];
+  ```
 - **Manual mapping**: UI Models expose a `ToXxxRequest()` method to map to the API DTO. No AutoMapper or Mapster.
   ```csharp
   public CreateProductRequest ToCreateRequest() => new(Name, Description, Price, CategoryId, IngredientIds);
@@ -155,7 +187,8 @@ private async Task SubmitAsync()
 |       -- {FeatureName}/
 |           -- Components/
 |               -- {FeatureName}Form.razor
-|               -- {FeatureName}Model.cs
+|               -- {FeatureName}FormModel.cs   # mutable model for form binding (Create/Edit)
+|               -- {FeatureName}TableModel.cs  # read-only display model for table/list
 |               -- {FeatureName}Validator.cs
 |           -- Requests/
 |               -- {FeatureName1}Request.razor
