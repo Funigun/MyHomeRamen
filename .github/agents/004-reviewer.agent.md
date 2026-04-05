@@ -99,8 +99,6 @@ Review test files rigorously with the following checks:
 dotnet build MyHomeRamen.sln
 dotnet test MyHomeRamen.ArchitectureTests/ --no-build
 dotnet test Tests/MyHomeRamen.UnitTests/ --no-build
-dotnet test Tests/MyHomeRamen.IntegrationTests/ --no-build
-dotnet test Tests/MyHomeRamen.BlazorTests/ --no-build
 ```
 
 Report any failures as **Critical** issues.

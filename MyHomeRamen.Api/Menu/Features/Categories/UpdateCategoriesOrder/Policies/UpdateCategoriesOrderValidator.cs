@@ -23,8 +23,8 @@ public sealed class UpdateCategoriesOrderValidator : AbstractValidator<UpdateCat
             });
     }
 
-    private static bool HaveUniqueIds(List<CategoryOrderItemDto> items)
+    private static bool HaveUniqueIds(IEnumerable<CategoryOrderItemDto> items)
     {
-        return items.Select(i => i.Id).Distinct().Count() == items.Count;
+        return items.Select(i => i.Id).Distinct().Count() == items.Count();
     }
 }

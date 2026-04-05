@@ -11,6 +11,6 @@ public sealed class CategoryModel
 
     public CreateCategoryRequest ToCreateRequest()
     {
-        return new CreateCategoryRequest(Name, CategoryType);
+        return new CreateCategoryRequest(Name, (int)CategoryType);
     }
 }
