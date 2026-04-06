@@ -133,6 +133,22 @@ public static partial class DbExtensions
         return await query.AnyAsync(i => i.Categories.Any(c => c.Id == categoryId), cancellationToken);
     }
 
+    public static async Task<bool> IsIngredientUsedAsBaseByProductAsync(
+        this IQueryable<Domain.Menu.Products.Product> query,
+        Domain.Menu.Ingredients.IngredientId ingredientId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(p => p.BaseIngredients.Any(i => i.Id == ingredientId), cancellationToken);
+    }
+
+    public static async Task<bool> IsIngredientUsedAsCustomByProductAsync(
+        this IQueryable<Domain.Menu.Products.Product> query,
+        Domain.Menu.Ingredients.IngredientId ingredientId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(p => p.CustomIngredients.Any(i => i.Id == ingredientId), cancellationToken);
+    }
+
     public static Task<List<Domain.Menu.Categories.Category>> GetRemainingForResequencingAsync(this DbSet<Domain.Menu.Categories.Category> categories, Domain.Menu.Categories.CategoryType categoryType, Domain.Menu.Categories.CategoryId excludeId, CancellationToken cancellationToken = default)
     {
         return categories
