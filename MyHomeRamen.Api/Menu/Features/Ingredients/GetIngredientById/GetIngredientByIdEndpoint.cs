@@ -13,7 +13,7 @@ public sealed class GetIngredientByIdEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<GetIngredientByIdResponse>("ingredients/{id}", HandleAsync)
+            .MapStandardValidatedGet<GetIngredientByIdRequest, GetIngredientByIdResponse>("ingredients/{id}", HandleAsync)
             .WithName("GetIngredientByIdEndpoint")
             .WithDescription("Returns the details of a single ingredient by its ID.")
             .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);

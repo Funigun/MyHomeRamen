@@ -34,6 +34,8 @@ public sealed class GetIngredientByIdTests(WebApiFactory apiFactory)
         Assert.Equal(ingredient.Name, result.Name);
         Assert.Equal(ingredient.Description, result.Description);
         Assert.Equal(ingredient.Price, result.Price);
+        Assert.NotEmpty(result.Categories);
+        Assert.All(result.Categories, c => Assert.Contains(ingredient.Categories, ic => ic.Id.Value == c.Id && ic.Name == c.Name));
     }
 
     [Fact]
