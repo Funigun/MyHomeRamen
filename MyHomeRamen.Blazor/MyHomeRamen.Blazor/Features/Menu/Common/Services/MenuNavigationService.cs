@@ -16,6 +16,9 @@ public sealed class MenuNavigationService(NavigationManager navigation)
             public const string CreateIngredient = "/admin/menu/ingredients/create";
 
             public static string EditProduct(Guid id) => $"/admin/menu/products/{id}/edit";
+
+            // TODO: Implement EditIngredient page
+            public static string EditIngredient(Guid id) => $"/admin/menu/ingredients/{id}/edit";
         }
 
         public static class Public
@@ -37,6 +40,8 @@ public sealed class MenuNavigationService(NavigationManager navigation)
     public void ToCreateIngredient() => navigation.NavigateTo(Routes.Admin.CreateIngredient);
 
     public void ToEditProduct(Guid id) => navigation.NavigateTo(Routes.Admin.EditProduct(id));
+
+    public void ToEditIngredient(Guid id) => navigation.NavigateTo(Routes.Admin.EditIngredient(id));
 
     public void ToProductDetail(Guid id) => navigation.NavigateTo(Routes.Public.ProductDetail(id));
 }

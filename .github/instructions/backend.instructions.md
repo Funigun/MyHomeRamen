@@ -244,6 +244,44 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 ├── MyHomeRamen.Api.Common/                 ← Common utilities, extensions, and helpers for API
 ```
 
+### 3.8) Paged queries
+
+- **`PageParameters`**: Nest `PageParameters` (from `MyHomeRamen.Api.Common`) as a property inside the request record. It binds automatically from the query string via `[AsParameters]`.
+- **Paged response shape**: Use a flat wrapper record with `(int Page, int PageSize, int TotalCount, IEnumerable<TDto> Items)`.
+- **Count-then-page pattern**: Run `CountAsync` on the unfiltered/filtered `IQueryable` first, then apply ordering and the `Paged()` DB extension. Never paginate before counting.
+- **Endpoint type alignment**: Both `MapStandardValidatedGet<TRequest, TResponse>` and the injected `IRequestHandler<TRequest, TResponse>` must reference the paged wrapper response type — not `IEnumerable<TDto>`.
+
+```csharp
+// ✅ Request — PageParameters nested as a property
+public sealed record GetIngredientsForManageRequest(
+	string? Name, IEnumerable<Guid>? CategoryIds, PageParameters PageParameters)
+	: IRequest<GetIngredientsForManageResponse>;
+
+// ✅ Paged response wrapper
+public sealed record GetIngredientsForManageResponse(
+	int Page, int PageSize, int TotalCount, IEnumerable<IngredientDto> Ingredients);
+
+// ✅ Handler — count first, then page
+IQueryable<Ingredient> query = dbContext.Ingredients.ForManage(request.Name, request.CategoryIds);
+int totalCount = await query.CountAsync(cancellationToken);
+query = query.OrderBy(i => i.Name)
+			 .Paged(request.PageParameters.PageNumber, request.PageParameters.PageSize);
+List<IngredientDto> items = await query.Select(i => i.ToResponse()).ToListAsync(cancellationToken);
+return new GetIngredientsForManageResponse(
+	Page: request.PageParameters.PageNumber,
+	PageSize: request.PageParameters.PageSize,
+	TotalCount: totalCount,
+	Ingredients: items);
+
+// ❌ Paginate before counting — TotalCount will be wrong
+int totalCount = await query.Paged(pageNumber, pageSize).CountAsync(cancellationToken);
+
+// ❌ Endpoint/handler type mismatch — handler returns paged wrapper, not IEnumerable<>
+MapStandardValidatedGet<GetIngredientsForManageRequest, IEnumerable<IngredientDto>>(...);
+```
+
+Reference: #file:'MyHomeRamen.Api/Menu/Features/Ingredients/GetIngredientsForManage/GetIngredientsForManageHandler.cs'
+
 ### 4) Infrastructure Layer (`MyHomeRamen.Infrastructure`)
 
 ### 4.1) General

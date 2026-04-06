@@ -122,6 +122,56 @@ Example: group `Menu.Products` → route `/api/menu.products`. Use this when bui
   - For **form components** (`{Feature}Form.razor`): a dedicated `{Feature}Model.cs` + `{Feature}Validator.cs` is sufficient. No `.razor.cs` code-behind is needed — keep submission logic in the `@code` block.
   - For **page components** (`{Feature}Page.razor`): extract to a `.razor.cs` code-behind only when the page-level logic is complex enough to justify it (e.g., multiple API calls, conditional rendering logic, lifecycle orchestration). Simple pages should also stay inline.
 
+### Paged Lists
+- Use the shared `PageState` sealed record (`Common/Models/PageState.cs`) instead of three separate `int` parameters (`TotalCount`, `PageSize`, `CurrentPage`).
+- Table components accept a single `[Parameter] public PageState Paging { get; set; } = PageState.Default()` plus `EventCallback<int> OnPageChanged`.
+- Pages manage paging state with `with`-expressions for immutable updates — never mutate `PageState` fields directly.
+- Use `MudPagination` bound to `Paging.TotalPages` / `Paging.CurrentPage`; render it conditionally only when `Paging.TotalPages > 1`.
+
+```csharp
+// ✅ PageState — shared immutable paging model in Common/Models/PageState.cs
+public sealed record PageState
+{
+    public int CurrentPage { get; init; } = 1;
+    public int PageSize { get; init; } = 10;
+    public int TotalCount { get; init; }
+    public int TotalPages => PageSize > 0 ? (int)Math.Ceiling((double)TotalCount / PageSize) : 1;
+    public static PageState Default(int pageSize = 10) => new() { PageSize = pageSize };
+}
+
+// ✅ Table component — single PageState parameter replaces three loose ints
+[Parameter] public PageState Paging { get; set; } = PageState.Default();
+[Parameter] public EventCallback<int> OnPageChanged { get; set; }
+
+// ✅ Markup — MudPagination bound to PageState
+@if (Paging.TotalPages > 1)
+{
+    <MudPagination Count="Paging.TotalPages"
+                   Selected="Paging.CurrentPage"
+                   SelectedChanged="OnPageChanged"
+                   ShowFirstButton="true"
+                   ShowLastButton="true" />
+}
+
+// ✅ Page — initialise and update PageState with with-expressions
+private PageState _ingredientsPaging = PageState.Default();
+
+// After loading data:
+_ingredientsPaging = _ingredientsPaging with { TotalCount = response.TotalCount };
+
+// On page navigation callback:
+private async Task OnIngredientPageChangedAsync(int page)
+{
+    _ingredientsPaging = _ingredientsPaging with { CurrentPage = page };
+    await LoadIngredientsAsync();
+}
+
+// ❌ Three separate loose parameters — use PageState instead
+[Parameter] public int TotalCount { get; set; }
+[Parameter] public int PageSize { get; set; }
+[Parameter] public int CurrentPage { get; set; }
+```
+
 ### MudBlazor Validation Integration
 Validators must expose a `ValidateValue` delegate for MudBlazor's `MudForm` binding:
 ```csharp
@@ -216,7 +266,9 @@ When building a new feature, use these canonical files as patterns:
 | Navigation service | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Common/Services/MenuNavigationService.cs' |
 | Navigation service DI registration | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Presentation/NavigationDependencyInjection.cs' |
 | Simple page wrapping a form component | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/CreateProductPage.razor' |
-| Thin page composing multiple components | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/IngredientsManagementPage.razor' |
+| Thin page composing multiple components + PageState management | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/IngredientsManagementPage.razor' |
+| Shared paging state model (`PageState`) | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Common/Models/PageState.cs' |
+| Paged table component with `MudPagination` | #file:'MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Components/IngredientTable.razor' |
 
 ## Navigation
 

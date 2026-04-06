@@ -79,6 +79,7 @@ Check for potential issues including:
 - Performance problems
 - Architectural violations
 - Maintainability concerns
+- Test correctness (e.g., test method names must align with their assertions)
 
 ### 3) Review test code
 
@@ -92,8 +93,7 @@ Review test files rigorously with the following checks:
 
 - Always run architecture tests to verify no architectural rules are violated
 - Always run unit tests to verify domain logic, validations and contracts are correctly implemented
-- Run integration tests if any were added or modified to verify end-to-end behavior of the feature
-- Run blazor tests if frontend changes were made or tests were modified or new tests were added
+- Verify implemented integration tests
 
 ```bash
 dotnet build MyHomeRamen.sln

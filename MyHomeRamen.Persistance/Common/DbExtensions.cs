@@ -4,7 +4,7 @@ using MyHomeRamen.Api.Common.Domain;
 
 namespace MyHomeRamen.Persistance.Common;
 
-public static class DbExtensions
+public static partial class DbExtensions
 {
     public static async Task<IEnumerable<TEntity>> GetByIds<TEntity, TId>(this IQueryable<TEntity> query, IEnumerable<TId> keys, CancellationToken cancellationToken)
                   where TEntity : class, IEntity<TId>
@@ -94,6 +94,27 @@ public static class DbExtensions
         return ingredients
             .AsNoTracking()
             .OrderBy(i => i.Name);
+    }
+
+    public static IQueryable<Domain.Menu.Ingredients.Ingredient> ForManage(
+        this DbSet<Domain.Menu.Ingredients.Ingredient> ingredients,
+        string? name,
+        IEnumerable<Guid>? categoryIds)
+    {
+        IQueryable<Domain.Menu.Ingredients.Ingredient> query = ingredients.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(i => i.Name.ToLower().Contains(name.ToLower()));
+        }
+
+        if (categoryIds is not null && categoryIds.Any())
+        {
+            List<Domain.Menu.Categories.CategoryId> ids = categoryIds.Select(id => (Domain.Menu.Categories.CategoryId)id).ToList();
+            query = query.Where(i => i.Categories.Any(c => ids.Contains(c.Id)));
+        }
+
+        return query.OrderBy(i => i.Name);
     }
 
     public static async Task<bool> IsCategoryUsedByProductAsync(
