@@ -25,8 +25,7 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
         RuleFor(x => x.Name)
             .MustAsync(async (name, ct) =>
             {
-                object? routeId = httpContextAccessor.HttpContext!.GetRouteValue("id");
-                if (routeId is null || !Guid.TryParse(routeId.ToString(), out Guid id))
+                if (!TryGetRouteId(httpContextAccessor, out Guid id))
                 {
                     return true;
                 }
@@ -42,8 +41,7 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
         RuleFor(x => x)
             .MustAsync(async (_, ct) =>
             {
-                object? routeId = httpContextAccessor.HttpContext!.GetRouteValue("id");
-                if (routeId is null || !Guid.TryParse(routeId.ToString(), out Guid id))
+                if (!TryGetRouteId(httpContextAccessor, out Guid id))
                 {
                     return false;
                 }
@@ -51,5 +49,11 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
                 return await dbContext.Ingredients.ExistsByIdAsync((IngredientId)id, ct);
             })
             .WithMessage("Ingredient with the specified ID does not exist.");
+    }
+
+    private static bool TryGetRouteId(IHttpContextAccessor httpContextAccessor, out Guid id)
+    {
+        object? routeId = httpContextAccessor.HttpContext?.GetRouteValue("id");
+        return Guid.TryParse(routeId?.ToString(), out id);
     }
 }

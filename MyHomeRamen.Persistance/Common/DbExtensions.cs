@@ -28,8 +28,8 @@ public static partial class DbExtensions
     }
 
     public static async Task<TEntity> GetBySelectorNotTrackedAsync<TEntity, TId>(this IQueryable<TEntity> query, TId id, CancellationToken cancellationToken = default)
-              where TEntity : class, IEntity<TId>
-              where TId : IEntityId
+                  where TEntity : class, IEntity<TId>
+                  where TId : IEntityId
     {
         ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
         MemberExpression property = Expression.Property(parameter, nameof(IEntity<>.Id));
@@ -44,11 +44,11 @@ public static partial class DbExtensions
                   where TEntity : class, IEntity<TId>
                   where TId : IEntityId
     {
-        ParameterExpression? parameter = Expression.Parameter(typeof(TEntity), "e");
-        MemberExpression? property = Expression.Property(parameter, nameof(IEntity<>.Id));
-        ConstantExpression? constant = Expression.Constant(id, typeof(TId));
-        BinaryExpression? body = Expression.Equal(property, constant);
-        Expression<Func<TEntity, bool>>? lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+        ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
+        MemberExpression property = Expression.Property(parameter, nameof(IEntity<>.Id));
+        ConstantExpression constant = Expression.Constant(id, typeof(TId));
+        BinaryExpression body = Expression.Equal(property, constant);
+        Expression<Func<TEntity, bool>> lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
 
         return await query.AsNoTracking().AnyAsync(lambda, cancellationToken);
     }
