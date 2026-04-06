@@ -164,7 +164,17 @@
 
     private async Task OnIngredientDeletedAsync(Guid id)
     {
-        // TODO: Call delete endpoint and reload list
-        await Task.CompletedTask;
+        _successMessage = null;
+        _errorMessage = null;
+        try
+        {
+            await MenuApiClient.DeleteIngredientAsync(id);
+            _successMessage = "Ingredient deleted successfully.";
+            await LoadIngredientsAsync();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to delete ingredient. Please try again.";
+        }
     }
 }
