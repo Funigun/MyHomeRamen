@@ -6,7 +6,7 @@ namespace MyHomeRamen.Domain.Menu.Ingredients;
 
 public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 {
-    private readonly Collection<Category> _categories = [];
+    private List<Category> _categories = [];
 
     public IngredientId Id { get; private set; }
 
@@ -22,13 +22,13 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
     {
     }
 
-    private Ingredient(IngredientId id, Collection<Category> categories)
+    private Ingredient(IngredientId id, IEnumerable<Category> categories)
     {
         Id = id;
-        _categories = categories;
+        _categories = categories.ToList();
     }
 
-    public static Ingredient Create(IngredientId id, string name, string description, decimal price, Collection<Category> categories)
+    public static Ingredient Create(IngredientId id, string name, string description, decimal price, IEnumerable<Category> categories)
     {
         Ingredient ingredient = new(id, categories)
         {
@@ -40,5 +40,17 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
         IngredientValidator.Validate(ingredient);
 
         return ingredient;
+    }
+
+    public void Update(string name, string description, decimal price, IEnumerable<Category> categories)
+    {
+        Name = name;
+        Description = description;
+        Price = price;
+        _categories.Clear();
+
+        _categories = categories.ToList();
+
+        IngredientValidator.Validate(this);
     }
 }

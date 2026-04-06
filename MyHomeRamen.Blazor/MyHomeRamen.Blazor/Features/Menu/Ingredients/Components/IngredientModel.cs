@@ -18,10 +18,9 @@ public sealed class IngredientModel
         return new CreateIngredientRequest(Name, Description, Price, CategoryIds);
     }
 
-    // TODO: Map to EditIngredientRequest once EditIngredient feature is implemented
-    public CreateIngredientRequest ToEditRequest()
+    public UpdateIngredientRequest ToEditRequest()
     {
-        return new CreateIngredientRequest(Name, Description, Price, CategoryIds);
+        return new UpdateIngredientRequest(Name, Description, Price, CategoryIds);
     }
 
     public static IngredientModel FromResponse(GetIngredientByIdResponse response)

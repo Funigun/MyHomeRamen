@@ -3,14 +3,13 @@
 
 @inject IDialogService DialogService
 
-<MudText Typo="Typo.h5">@Title</MudText>
 @if (IsLoading)
 {
     <MudProgressLinear Indeterminate="true" Class="mt-2" />
 }
 else if (Items.Count == 0)
 {
-    <MudAlert Severity="Severity.Info" Class="mt-2">No @Title.ToLowerInvariant() found.</MudAlert>
+    <MudAlert Severity="Severity.Info" Class="mt-2">No Categories found.</MudAlert>
 }
 else
 {
@@ -60,7 +59,6 @@ else
 }
 
 @code {
-    [Parameter, EditorRequired] public string Title { get; set; } = default!;
     [Parameter, EditorRequired] public List<GetCategoriesByTypeResponse> Items { get; set; } = default!;
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public EventCallback<Guid> OnDelete { get; set; }
