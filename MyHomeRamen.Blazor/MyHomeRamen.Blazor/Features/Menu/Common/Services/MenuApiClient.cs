@@ -87,6 +87,12 @@ public sealed class MenuApiClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task DeleteIngredientAsync(Guid id, CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/menu/ingredients/{id}", ct);
+        response.EnsureSuccessStatusCode();
+    }
+
     public async Task UpdateCategoriesOrderAsync(UpdateCategoriesOrderRequest request, CancellationToken ct = default)
     {
         using HttpResponseMessage response = await httpClient.PutAsJsonAsync("/api/menu/categories/order", request, ct);

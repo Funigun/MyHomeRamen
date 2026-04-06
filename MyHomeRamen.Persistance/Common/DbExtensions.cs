@@ -44,11 +44,11 @@ public static partial class DbExtensions
                   where TEntity : class, IEntity<TId>
                   where TId : IEntityId
     {
-        ParameterExpression? parameter = Expression.Parameter(typeof(TEntity), "e");
-        MemberExpression? property = Expression.Property(parameter, nameof(IEntity<>.Id));
-        ConstantExpression? constant = Expression.Constant(id, typeof(TId));
-        BinaryExpression? body = Expression.Equal(property, constant);
-        Expression<Func<TEntity, bool>>? lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+        ParameterExpression parameter = Expression.Parameter(typeof(TEntity), "e");
+        MemberExpression property = Expression.Property(parameter, nameof(IEntity<>.Id));
+        ConstantExpression constant = Expression.Constant(id, typeof(TId));
+        BinaryExpression body = Expression.Equal(property, constant);
+        Expression<Func<TEntity, bool>> lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
 
         return await query.AsNoTracking().AnyAsync(lambda, cancellationToken);
     }
@@ -131,6 +131,16 @@ public static partial class DbExtensions
         CancellationToken cancellationToken = default)
     {
         return await query.AnyAsync(i => i.Categories.Any(c => c.Id == categoryId), cancellationToken);
+    }
+
+    public static async Task<bool> IsIngredientUsedByProductAsync(
+        this IQueryable<Domain.Menu.Products.Product> query,
+        Domain.Menu.Ingredients.IngredientId ingredientId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(
+            p => p.BaseIngredients.Any(i => i.Id == ingredientId) || p.CustomIngredients.Any(i => i.Id == ingredientId),
+            cancellationToken);
     }
 
     public static Task<List<Domain.Menu.Categories.Category>> GetRemainingForResequencingAsync(this DbSet<Domain.Menu.Categories.Category> categories, Domain.Menu.Categories.CategoryType categoryType, Domain.Menu.Categories.CategoryId excludeId, CancellationToken cancellationToken = default)

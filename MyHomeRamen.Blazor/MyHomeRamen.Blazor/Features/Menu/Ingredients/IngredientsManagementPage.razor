@@ -2,16 +2,16 @@
 
 @attribute [Authorize(Roles = MenuRoleConstants.Admin)]
 
+@using MyHomeRamen.Blazor.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Categories
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Components
-@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Requests
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Responses
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
 @using MyHomeRamen.Blazor.Features.Menu.Ingredients.Responses
-@using MyHomeRamen.Blazor.Common.Models
 
 @inject MenuApiClient MenuApiClient
 @inject MenuNavigationService MenuNavigation
@@ -164,7 +164,17 @@
 
     private async Task OnIngredientDeletedAsync(Guid id)
     {
-        // TODO: Call delete endpoint and reload list
-        await Task.CompletedTask;
+        _successMessage = null;
+        _errorMessage = null;
+        try
+        {
+            await MenuApiClient.DeleteIngredientAsync(id);
+            _successMessage = "Ingredient deleted successfully.";
+            await LoadIngredientsAsync();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to delete ingredient. It may still be in use.";
+        }
     }
 }
