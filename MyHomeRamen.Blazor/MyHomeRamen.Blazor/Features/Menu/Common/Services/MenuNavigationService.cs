@@ -17,7 +17,6 @@ public sealed class MenuNavigationService(NavigationManager navigation)
 
             public static string EditProduct(Guid id) => $"/admin/menu/products/{id}/edit";
 
-            // TODO: Implement EditIngredient page
             public static string EditIngredient(Guid id) => $"/admin/menu/ingredients/{id}/edit";
         }
 

@@ -68,7 +68,7 @@
                 }
                 else
                 {
-                    <MudText>Create Ingredient</MudText>
+                    <MudText>@(Mode == FormMode.Create ? "Create Ingredient" : "Save Changes")</MudText>
                 }
             </MudButton>
         </MudItem>
@@ -77,16 +77,23 @@
 
 @code {
     private MudForm _form = default!;
-    private readonly IngredientModel _model = new();
+    private IngredientModel _model = new();
     private readonly IngredientValidator _validator = new();
     private bool _isBusy;
     private string? _errorMessage;
     private IEnumerable<CategoryOption> _categories = [];
 
     [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+    [Parameter] public IngredientModel? Model { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Create;
 
     protected override async Task OnInitializedAsync()
     {
+        if (Model is not null)
+        {
+            _model = Model;
+        }
+
         IEnumerable<GetCategoriesByTypeResponse> response =
             await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
 
@@ -107,12 +114,19 @@
 
         try
         {
-            Guid id = await MenuApiClient.CreateIngredientAsync(_model.ToCreateRequest());
-            await OnSuccess.InvokeAsync(id);
+            if (Mode == FormMode.Create)
+            {
+                Guid id = await MenuApiClient.CreateIngredientAsync(_model.ToCreateRequest());
+                await OnSuccess.InvokeAsync(id);
+            }
+            else
+            {
+                await OnSuccess.InvokeAsync(Guid.Empty);
+            }
         }
         catch (HttpRequestException)
         {
-            _errorMessage = "Failed to create ingredient. Please try again.";
+            _errorMessage = "Failed to save ingredient. Please try again.";
         }
         finally
         {
