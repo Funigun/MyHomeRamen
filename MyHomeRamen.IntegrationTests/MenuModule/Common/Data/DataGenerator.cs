@@ -2,8 +2,10 @@
 using Bogus;
 using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
 using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
+using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.Common.Contracts.Menu.Categories;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients;
 using MyHomeRamen.Common.Contracts.Menu.Products;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Common.Ingredient;
@@ -274,6 +276,39 @@ internal static class DataGenerator
 
             // IngredientIds: empty
             new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, validCategoryId, []),
+        ];
+    }
+
+    public static TheoryData<UpdateIngredientRequest> InvalidUpdateIngredientRequests()
+    {
+        Faker faker = new();
+        string validName = faker.Random.String2(IngredientNameValidator.MinLength, IngredientNameValidator.MaxLength);
+        string validDescription = faker.Random.String2(IngredientDescriptionValidator.MinLength, IngredientDescriptionValidator.MaxLength);
+        decimal validPrice = faker.Finance.Amount(IngredientPriceValidator.MinPrice, IngredientPriceValidator.MaxPrice);
+        IEnumerable<Guid> validCategoryIds = [Guid.NewGuid()];
+
+        return
+        [
+            // Name: empty
+            new UpdateIngredientRequest(string.Empty, validDescription, validPrice, validCategoryIds),
+
+            // Name: too short
+            new UpdateIngredientRequest(faker.Random.String2(1, IngredientNameValidator.MinLength - 1), validDescription, validPrice, validCategoryIds),
+
+            // Name: too long
+            new UpdateIngredientRequest(faker.Random.String2(IngredientNameValidator.MaxLength + 1, IngredientNameValidator.MaxLength + 10), validDescription, validPrice, validCategoryIds),
+
+            // Description: too long
+            new UpdateIngredientRequest(validName, faker.Random.String2(IngredientDescriptionValidator.MaxLength + 1, IngredientDescriptionValidator.MaxLength + 10), validPrice, validCategoryIds),
+
+            // Price: below minimum
+            new UpdateIngredientRequest(validName, validDescription, IngredientPriceValidator.MinPrice - 0.01m, validCategoryIds),
+
+            // Price: above maximum
+            new UpdateIngredientRequest(validName, validDescription, IngredientPriceValidator.MaxPrice + 0.01m, validCategoryIds),
+
+            // CategoryIds: empty
+            new UpdateIngredientRequest(validName, validDescription, validPrice, []),
         ];
     }
 }

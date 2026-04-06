@@ -68,7 +68,7 @@
                 }
                 else
                 {
-                    <MudText>Create Ingredient</MudText>
+                    <MudText>@(Mode == FormMode.Edit ? "Save Changes" : "Create Ingredient")</MudText>
                 }
             </MudButton>
         </MudItem>
@@ -77,13 +77,16 @@
 
 @code {
     private MudForm _form = default!;
-    private readonly IngredientModel _model = new();
+    private IngredientModel _model = new();
     private readonly IngredientValidator _validator = new();
     private bool _isBusy;
     private string? _errorMessage;
     private IEnumerable<CategoryOption> _categories = [];
 
-    [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+    [Parameter] public FormMode Mode { get; set; } = FormMode.Create;
+    [Parameter] public Guid IngredientId { get; set; }
+    [Parameter] public IngredientModel? InitialModel { get; set; }
+    [Parameter] public EventCallback OnSuccess { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,6 +94,11 @@
             await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
 
         _categories = response.Select(c => new CategoryOption(c.Id, c.Name));
+
+        if (InitialModel is not null)
+        {
+            _model = InitialModel;
+        }
     }
 
     private async Task SubmitAsync()
@@ -107,12 +115,22 @@
 
         try
         {
-            Guid id = await MenuApiClient.CreateIngredientAsync(_model.ToCreateRequest());
-            await OnSuccess.InvokeAsync(id);
+            if (Mode == FormMode.Edit)
+            {
+                await MenuApiClient.UpdateIngredientAsync(IngredientId, _model.ToEditRequest());
+            }
+            else
+            {
+                await MenuApiClient.CreateIngredientAsync(_model.ToCreateRequest());
+            }
+
+            await OnSuccess.InvokeAsync();
         }
         catch (HttpRequestException)
         {
-            _errorMessage = "Failed to create ingredient. Please try again.";
+            _errorMessage = Mode == FormMode.Edit
+                ? "Failed to update ingredient. Please try again."
+                : "Failed to create ingredient. Please try again.";
         }
         finally
         {

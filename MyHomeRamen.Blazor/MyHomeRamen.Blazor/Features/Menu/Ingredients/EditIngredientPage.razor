@@ -1,0 +1,71 @@
+@page "/admin/menu/ingredients/{Id:guid}/edit"
+
+@using Microsoft.AspNetCore.Authorization
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Responses
+
+@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+
+@inject MenuApiClient MenuApiClient
+@inject MenuNavigationService MenuNavigation
+
+<PageTitle>Edit Ingredient</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Edit Ingredient</MudText>
+
+    @if (_isLoading)
+    {
+        <MudProgressCircular Indeterminate="true" />
+    }
+    else if (_loadError is not null)
+    {
+        <MudAlert Severity="Severity.Error">@_loadError</MudAlert>
+    }
+    else
+    {
+        <IngredientForm Mode="FormMode.Edit"
+                        IngredientId="Id"
+                        InitialModel="_model"
+                        OnSuccess="OnIngredientUpdatedAsync" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private IngredientModel? _model;
+    private bool _isLoading = true;
+    private string? _loadError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            GetIngredientByIdResponse? response = await MenuApiClient.GetIngredientByIdAsync(Id);
+            if (response is null)
+            {
+                _loadError = "Ingredient not found.";
+                return;
+            }
+
+            _model = IngredientModel.FromResponse(response);
+        }
+        catch (HttpRequestException)
+        {
+            _loadError = "Failed to load ingredient. Please try again.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OnIngredientUpdatedAsync()
+    {
+        MenuNavigation.ToIngredientsManagement();
+    }
+}

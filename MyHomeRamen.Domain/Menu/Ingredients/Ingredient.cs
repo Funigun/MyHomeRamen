@@ -41,4 +41,18 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 
         return ingredient;
     }
+
+    public void Update(string name, string description, decimal price, Collection<Category> categories)
+    {
+        Name = name;
+        Description = description;
+        Price = price;
+        _categories.Clear();
+        foreach (Category category in categories)
+        {
+            _categories.Add(category);
+        }
+
+        IngredientValidator.Validate(this);
+    }
 }

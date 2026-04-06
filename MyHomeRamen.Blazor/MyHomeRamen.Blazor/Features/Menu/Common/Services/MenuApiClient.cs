@@ -36,6 +36,19 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return result?.Id ?? throw new InvalidOperationException("Failed to deserialize ingredient creation response.");
     }
 
+    public async Task<UpdateIngredientResponse> UpdateIngredientAsync(Guid id, UpdateIngredientRequest request, CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"/api/menu/ingredients/{id}", request, ct);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<UpdateIngredientResponse>(ct)
+            ?? throw new InvalidOperationException("Empty response from UpdateIngredient endpoint.");
+    }
+
+    public async Task<GetIngredientByIdResponse?> GetIngredientByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        return await httpClient.GetFromJsonAsync<GetIngredientByIdResponse>($"/api/menu/ingredients/{id}", ct);
+    }
+
     public async Task<IEnumerable<GetCategoriesByTypeResponse>> GetCategoriesByTypeAsync(int categoryType, CancellationToken ct = default)
     {
         IEnumerable<GetCategoriesByTypeResponse>? result = await httpClient
