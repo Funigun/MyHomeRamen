@@ -1,0 +1,21 @@
+﻿@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+<MudDialog>
+    <DialogContent>
+        <CreateCategoryForm CategoryType="CategoryType" OnSuccess="HandleCategoryCreatedAsync" />
+    </DialogContent>    
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public CategoryType CategoryType { get; set; }
+
+    [Parameter] public EventCallback<Guid> OnCategoryCreated { get; set; }
+
+    private async Task HandleCategoryCreatedAsync(Guid categoryId)
+    {
+        await OnCategoryCreated.InvokeAsync(categoryId);
+        MudDialog.Close();
+    }
+}

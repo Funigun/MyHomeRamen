@@ -4,6 +4,7 @@
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Responses
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Responses
 
 @inject MenuApiClient MenuApiClient
 
@@ -38,6 +39,7 @@
             <MudSelect T="Guid"
                        Label="Categories"
                        @bind-SelectedValues="_model.CategoryIds"
+                       
                        MultiSelection="true"
                        Variant="Variant.Outlined"
                        Required="true">
@@ -86,6 +88,7 @@
     [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
     [Parameter] public IngredientModel? Model { get; set; }
     [Parameter] public FormMode Mode { get; set; } = FormMode.Create;
+    [Parameter] public Guid IngredientId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -121,12 +124,15 @@
             }
             else
             {
-                await OnSuccess.InvokeAsync(Guid.Empty);
+                UpdateIngredientResponse result = await MenuApiClient.UpdateIngredientAsync(IngredientId, _model.ToEditRequest());
+                await OnSuccess.InvokeAsync(result.Id);
             }
         }
         catch (HttpRequestException)
         {
-            _errorMessage = "Failed to save ingredient. Please try again.";
+            _errorMessage = Mode == FormMode.Edit
+                ? "Failed to update ingredient. Please try again."
+                : "Failed to create ingredient. Please try again.";
         }
         finally
         {

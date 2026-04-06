@@ -15,14 +15,11 @@
 
 @inject MenuApiClient MenuApiClient
 @inject MenuNavigationService MenuNavigation
+@inject IDialogService DialogService
 
 <PageTitle>Ingredient Categories</PageTitle>
 
 <MudPaper Elevation="3" Class="pa-6">
-    <MudText Typo="Typo.h4" Class="mb-6">Ingredient Categories</MudText>
-
-    <CreateCategoryForm CategoryType="CategoryType.Ingredient" OnSuccess="OnCategoryCreated" />
-
     @if (_successMessage is not null)
     {
         <MudAlert Severity="Severity.Success" Class="mt-4" Dense="true">@_successMessage</MudAlert>
@@ -33,14 +30,20 @@
         <MudAlert Severity="Severity.Error" Class="mt-4" Dense="true">@_errorMessage</MudAlert>
     }
 
+    <MudStack Row="true">
+        <MudText Typo="Typo.h5" Class="mb-4" Style="margin: 0px !important; align-content: center">Ingredient Categories</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="OnAddCategory" />
+    </MudStack>
+
+    <CategoryTable Items="_categories" IsLoading="_isLoading" OnDelete="OnCategoryDeletedAsync" OnOrderChanged="OnCategoriesOrderChangedAsync" />
+
     <MudDivider Class="my-6" />
 
-    <CategoryTable Title="Ingredient Categories" Items="_categories" IsLoading="_isLoading" OnDelete="OnCategoryDeletedAsync" OnOrderChanged="OnCategoriesOrderChangedAsync" />
-
-    <MudDivider Class="my-6" />
-
-    <MudText Typo="Typo.h5" Class="mb-4">Ingredients</MudText>
-
+    <MudStack Row="true">
+        <MudText Typo="Typo.h5" Class="mb-4" Style="margin: 0px !important; align-content: center">Ingredients</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="OnAddIngredient"/>
+    </MudStack>
+        
     <IngredientTable Items="_ingredients"
                      IsLoading="_isIngredientsLoading"
                      Paging="_ingredientsPaging"
@@ -90,6 +93,23 @@
         await LoadCategoriesAsync();
     }
 
+    private async Task OnAddCategory()
+    {
+        DialogParameters<CategoryFormDialog> p = new DialogParameters<CategoryFormDialog>()
+        { 
+            { z => z.CategoryType, CategoryType.Ingredient }, 
+            { z => z.OnCategoryCreated, EventCallback.Factory.Create<Guid>(this, OnCategoryCreated) } 
+        };
+
+        DialogOptions dialogOptions = new DialogOptions()
+        {
+            MaxWidth = MaxWidth.ExtraSmall,
+            CloseButton = true,
+        };
+
+        await DialogService.ShowAsync<CategoryFormDialog>("Create Category", p, dialogOptions);
+    }
+
     private async Task OnCategoriesOrderChangedAsync(List<GetCategoriesByTypeResponse> items)
     {
         _successMessage = null;
@@ -124,6 +144,11 @@
         {
             _errorMessage = "Failed to delete category. It may still be in use.";
         }
+    }
+
+    private void OnAddIngredient()
+    {
+        MenuNavigation.ToCreateIngredient();
     }
 
     private async Task LoadIngredientsAsync()

@@ -98,6 +98,14 @@ public sealed class MenuApiClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task<UpdateIngredientResponse> UpdateIngredientAsync(Guid id, UpdateIngredientRequest request, CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"/api/menu/ingredients/{id}", request, ct);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<UpdateIngredientResponse>(ct)
+            ?? throw new InvalidOperationException("Empty response from UpdateIngredient endpoint.");
+    }
+
     public async Task UpdateCategoriesOrderAsync(UpdateCategoriesOrderRequest request, CancellationToken ct = default)
     {
         using HttpResponseMessage response = await httpClient.PutAsJsonAsync("/api/menu/categories/order", request, ct);

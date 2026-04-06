@@ -21,9 +21,11 @@ public sealed class GetIngredientsForManageEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [AsParameters] GetIngredientsForManageRequest request,
+        [AsParameters] PageParameters pageParameters,
         [FromServices] IRequestHandler<GetIngredientsForManageRequest, GetIngredientsForManageResponse> handler,
         CancellationToken cancellationToken)
     {
+        request.PageParameters = pageParameters;
         GetIngredientsForManageResponse response = await handler.Handle(request, cancellationToken);
         return Results.Ok(response);
     }

@@ -1,6 +1,8 @@
 ﻿using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
+using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 
 namespace MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
@@ -20,5 +22,13 @@ internal static class Mappings
             product.Price,
             product.Categories[0].Id,
             product.BaseIngredients.Select(i => (Guid)i.Id)
+        );
+
+    internal static UpdateIngredientRequest ToUpdateIngredientRequest(this Ingredient ingredient) =>
+        new(
+            ingredient.Name,
+            ingredient.Description,
+            ingredient.Price,
+            ingredient.Categories.Select(c => (Guid)c.Id)
         );
 }
