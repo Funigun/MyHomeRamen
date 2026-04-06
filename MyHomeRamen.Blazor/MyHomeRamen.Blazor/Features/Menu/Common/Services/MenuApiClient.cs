@@ -54,6 +54,33 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return result ?? [];
     }
 
+    public async Task<GetIngredientsForManageResponse?> GetIngredientsForManageAsync(
+        string? name = null,
+        IEnumerable<Guid>? categoryIds = null,
+        int pageNumber = 1,
+        int pageSize = 10,
+        CancellationToken ct = default)
+    {
+        List<string> queryParts = [];
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            queryParts.Add($"name={Uri.EscapeDataString(name)}");
+        }
+
+        if (categoryIds is not null)
+        {
+            queryParts.AddRange(categoryIds.Select(id => $"categoryIds={id}"));
+        }
+
+        queryParts.Add($"pageNumber={pageNumber}");
+        queryParts.Add($"pageSize={pageSize}");
+
+        string url = $"/api/menu/ingredients/manage?{string.Join("&", queryParts)}";
+
+        return await httpClient.GetFromJsonAsync<GetIngredientsForManageResponse>(url, ct);
+    }
+
     public async Task DeleteCategoryAsync(Guid id, CancellationToken ct = default)
     {
         using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/menu/categories/{id}", ct);

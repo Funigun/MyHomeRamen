@@ -1,0 +1,73 @@
+@using MyHomeRamen.Blazor.Common.Models
+
+@inject IDialogService DialogService
+
+@if (IsLoading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+}
+else if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="mt-2">No ingredients found.</MudAlert>
+}
+else
+{
+    <MudPaper Outlined="true" Class="mt-2">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-2">
+            <MudText Style="flex: 1;" Typo="Typo.subtitle2">Name</MudText>
+            <MudText Style="flex: 2;" Typo="Typo.subtitle2">Description</MudText>
+            <MudText Style="min-width: 88px;" Typo="Typo.subtitle2">Actions</MudText>
+        </MudStack>
+        <MudDivider />
+        @foreach (IngredientTableModel item in Items)
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-1">
+                <MudText Style="flex: 1;">@item.Name</MudText>
+                <MudText Style="flex: 2;">@item.Description</MudText>
+                <div style="min-width: 88px;">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Size="Size.Small"
+                                   OnClick="@(() => OnEdit.InvokeAsync(item.Id))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Size="Size.Small"
+                                   Color="Color.Error"
+                                   OnClick="@(() => HandleDeleteClickAsync(item.Id))" />
+                </div>
+            </MudStack>
+        }
+        @if (Paging.TotalPages > 1)
+        {
+            <MudDivider />
+            <MudStack Row="true" Justify="Justify.Center" Class="py-2">
+                <MudPagination Count="Paging.TotalPages"
+                               Selected="Paging.CurrentPage"
+                               SelectedChanged="OnPageChanged"
+                               ShowFirstButton="true"
+                               ShowLastButton="true" />
+            </MudStack>
+        }
+    </MudPaper>
+}
+
+@code {
+    [Parameter, EditorRequired] public List<IngredientTableModel> Items { get; set; } = default!;
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public PageState Paging { get; set; } = PageState.Default();
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public EventCallback<Guid> OnEdit { get; set; }
+    [Parameter] public EventCallback<Guid> OnDelete { get; set; }
+
+    private async Task HandleDeleteClickAsync(Guid id)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            "Confirm Delete",
+            "Are you sure you want to delete this ingredient? This action cannot be undone.",
+            yesText: "Delete",
+            cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            await OnDelete.InvokeAsync(id);
+        }
+    }
+}
