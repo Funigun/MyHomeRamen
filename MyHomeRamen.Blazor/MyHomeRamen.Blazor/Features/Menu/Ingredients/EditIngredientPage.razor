@@ -1,0 +1,50 @@
+@page "/admin/menu/ingredients/{Id:guid}/edit"
+
+@using Microsoft.AspNetCore.Authorization
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
+
+@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+
+@inject MenuApiClient MenuApiClient
+@inject MenuNavigationService MenuNavigation
+
+<PageTitle>Edit Ingredient</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Edit Ingredient</MudText>
+
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" />
+    }
+    else
+    {
+        <IngredientForm Model="_model" Mode="FormMode.Edit" OnSuccess="HandleSuccess" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private IngredientModel _model = new();
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await MenuApiClient.GetIngredientByIdAsync(Id);
+        if (response is not null)
+        {
+            _model = IngredientModel.FromResponse(response);
+        }
+
+        _isLoading = false;
+    }
+
+    private void HandleSuccess(Guid id)
+    {
+        MenuNavigation.ToIngredientsManagement();
+    }
+}
