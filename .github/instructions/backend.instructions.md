@@ -246,16 +246,31 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 
 ### 3.8) Paged queries
 
-- **`PageParameters`**: Nest `PageParameters` (from `MyHomeRamen.Api.Common`) as a property inside the request record. It binds automatically from the query string via `[AsParameters]`.
+- **`PageParameters`**: For paged GET endpoints, split the incoming query data into two separate `[AsParameters]` parameters in the endpoint signature: one for the filter/request DTO and one for `PageParameters` (from `MyHomeRamen.Api.Common`). Compose them before invoking the handler.
 - **Paged response shape**: Use a flat wrapper record with `(int Page, int PageSize, int TotalCount, IEnumerable<TDto> Items)`.
 - **Count-then-page pattern**: Run `CountAsync` on the unfiltered/filtered `IQueryable` first, then apply ordering and the `Paged()` DB extension. Never paginate before counting.
 - **Endpoint type alignment**: Both `MapStandardValidatedGet<TRequest, TResponse>` and the injected `IRequestHandler<TRequest, TResponse>` must reference the paged wrapper response type — not `IEnumerable<TDto>`.
 
 ```csharp
-// ✅ Request — PageParameters nested as a property
+// ✅ Request — Mutable PageParameters property
 public sealed record GetIngredientsForManageRequest(
-	string? Name, IEnumerable<Guid>? CategoryIds, PageParameters PageParameters)
-	: IRequest<GetIngredientsForManageResponse>;
+	string? Name, IEnumerable<Guid>? CategoryIds)
+	: IRequest<GetIngredientsForManageResponse>
+{
+	public PageParameters PageParameters { get; set; } = default!;
+}
+
+// ✅ Endpoint — Split into two [AsParameters] inputs
+private static async Task<IResult> HandleAsync(
+	[AsParameters] GetIngredientsForManageRequest request,
+	[AsParameters] PageParameters pageParameters,
+	[FromServices] IRequestHandler<GetIngredientsForManageRequest, GetIngredientsForManageResponse> handler,
+	CancellationToken cancellationToken)
+{
+	request.PageParameters = pageParameters;
+	var response = await handler.Handle(request, cancellationToken);
+	return Results.Ok(response);
+}
 
 // ✅ Paged response wrapper
 public sealed record GetIngredientsForManageResponse(
