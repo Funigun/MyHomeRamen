@@ -161,4 +161,30 @@ public static partial class DbExtensions
             .OrderBy(c => c.SortOrder)
             .ToListAsync(cancellationToken);
     }
+
+    public static async Task<bool> CategoryExistsAsync(
+        this IQueryable<Domain.Menu.Categories.Category> query,
+        Domain.Menu.Categories.CategoryId categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(c => c.Id == categoryId, cancellationToken);
+    }
+
+    public static async Task<bool> IsProductCategoryTypeAsync(
+        this IQueryable<Domain.Menu.Categories.Category> query,
+        Domain.Menu.Categories.CategoryId categoryId,
+        CancellationToken cancellationToken = default)
+    {
+        return await query.AnyAsync(c => c.Id == categoryId && c.CategoryType == Domain.Menu.Categories.CategoryType.Product, cancellationToken);
+    }
+
+    public static IQueryable<Domain.Menu.Products.Product> ForCategory(
+        this DbSet<Domain.Menu.Products.Product> products,
+        Domain.Menu.Categories.CategoryId categoryId)
+    {
+        return products
+            .AsNoTracking()
+            .Include(p => p.BaseIngredients)
+            .Where(p => p.Categories.Any(c => c.Id == categoryId));
+    }
 }

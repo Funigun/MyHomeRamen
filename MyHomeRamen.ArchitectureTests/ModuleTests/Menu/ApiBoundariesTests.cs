@@ -110,4 +110,26 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
             rule.Check(ArchitectureBuilder.Architecture);
         }
     }
+
+    [Fact]
+    public void GetProductsByCategoryEndpoint_ShouldNotDependOn_AuthorizationPolicies()
+    {
+        // Arrange
+        IEnumerable<string> endpointTypes = ArchitectureBuilder.ApiAssembly
+            .TypesInNamespace("MyHomeRamen.Api.Menu.Features.Products.GetProductsByCategory");
+
+        IEnumerable<string> authPolicyTypes = ArchitectureBuilder.ApiAssembly
+            .TypesInNamespace("MyHomeRamen.Api.WebPresentation");
+
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(
+            endpointTypes,
+            authPolicyTypes,
+            "Anonymous endpoint type '{0}' should not depend on authorization policy type '{1}'");
+
+        // Act & Assert
+        foreach (IArchRule rule in rules)
+        {
+            rule.Check(ArchitectureBuilder.Architecture);
+        }
+    }
 }

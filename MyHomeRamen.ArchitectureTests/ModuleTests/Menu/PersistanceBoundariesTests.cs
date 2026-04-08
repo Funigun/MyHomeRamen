@@ -103,4 +103,27 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
             rule.Check(ArchitectureBuilder.Architecture);
         }
     }
+
+    [Fact]
+    public void CommonPersistance_ShouldNot_DependOn_ApiLayer()
+    {
+        // Arrange
+        IEnumerable<string> commonPersistence = ArchitectureBuilder.PersistanceAssembly
+            .TypesInNamespace("MyHomeRamen.Persistance.Common");
+
+        IEnumerable<string> apiTypes = ArchitectureBuilder.ApiAssembly
+            .TypesInNamespace("MyHomeRamen.Api");
+
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(
+            commonPersistence,
+            apiTypes,
+            "Common persistence type '{0}' should not depend on API type '{1}'");
+
+        // Act & Assert
+        foreach (IArchRule rule in rules)
+        {
+            testOutputHelper.WriteLine(rule.Description);
+            rule.Check(ArchitectureBuilder.Architecture);
+        }
+    }
 }
