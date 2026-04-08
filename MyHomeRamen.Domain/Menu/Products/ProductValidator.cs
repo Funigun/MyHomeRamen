@@ -64,6 +64,11 @@ internal static class ProductValidator
         {
             throw ProductErrors.CustomIngredientsNotUnique();
         }
+
+        if (product.BaseIngredients.Select(i => i.Id).Intersect(product.CustomIngredients.Select(i => i.Id)).Any())
+        {
+            throw ProductErrors.IngredientsOverlapAcrossCollections();
+        }
     }
 
     private static void CheckCategories(Product product)

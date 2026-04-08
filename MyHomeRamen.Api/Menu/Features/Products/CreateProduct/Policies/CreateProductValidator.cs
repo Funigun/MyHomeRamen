@@ -4,6 +4,7 @@ using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.Common.Contracts.Menu.Products;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
+using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Policies;
@@ -38,6 +39,23 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductRequ
 
         RuleFor(x => x.IngredientIds)
             .NotEmpty();
+
+        RuleFor(x => x.CustomIngredientIds)
+            .MustAsync(async (ids, ct) =>
+            {
+                if (!ids.Any())
+                {
+                    return true;
+                }
+                IEnumerable<IngredientId> customIngredientIds = ids.Distinct().Select(id => (IngredientId)id);
+                IEnumerable<Ingredient> found = await _dbContext.Ingredients.GetByIds(customIngredientIds, ct);
+                return found.Count() == ids.Distinct().Count();
+            })
+            .WithMessage("One or more custom ingredient IDs do not exist.");
+
+        RuleFor(x => x)
+            .Must(x => !x.IngredientIds.Intersect(x.CustomIngredientIds).Any())
+            .WithMessage("Ingredient IDs and custom ingredient IDs must be unique across both collections.");
     }
 
     private async Task<bool> BeUniqueNameAsync(string name, CancellationToken cancellationToken)

@@ -37,7 +37,8 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
             "Updated product description that is long enough to be valid.",
             25.0m,
             productCategory.Id.Value,
-            [DataGenerator.GetRandomIngredient().Id]);
+            [DataGenerator.GetRandomIngredient().Id],
+            []);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions
             .CreatePutMessage($"/api/menu/products/{product.Id}")

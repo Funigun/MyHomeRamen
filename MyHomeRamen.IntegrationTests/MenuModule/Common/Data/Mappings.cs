@@ -22,7 +22,8 @@ internal static class Mappings
             product.Description,
             product.Price,
             product.Categories[0].Id,
-            product.BaseIngredients.Select(i => (Guid)i.Id)
+            product.BaseIngredients.Select(i => (Guid)i.Id),
+            product.CustomIngredients.Select(i => (Guid)i.Id)
         );
 
     internal static UpdateIngredientRequest ToUpdateIngredientRequest(this Ingredient ingredient) =>
@@ -39,6 +40,7 @@ internal static class Mappings
             product.Description,
             product.Price,
             product.Categories[0].Id,
-            product.BaseIngredients.Select(i => (Guid)i.Id)
+            product.BaseIngredients.Select(i => (Guid)i.Id),
+            product.CustomIngredients.Select(i => (Guid)i.Id)
         );
 }

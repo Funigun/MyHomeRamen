@@ -16,6 +16,7 @@ public sealed class UpdateProductHandler(IMenuDbContext dbContext) : IRequestHan
         Product product = await dbContext.Products
             .Include(p => p.Categories)
             .Include(p => p.BaseIngredients)
+            .Include(p => p.CustomIngredients)
             .GetBySelectorAsync((ProductId)request.Id, cancellationToken);
 
         Category category = await dbContext.Categories
@@ -24,7 +25,10 @@ public sealed class UpdateProductHandler(IMenuDbContext dbContext) : IRequestHan
         IEnumerable<Ingredient> ingredients = await dbContext.Ingredients
             .GetByIds(request.IngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
-        product.Update(request.Name, request.Description ?? string.Empty, request.Price, category, ingredients);
+        IEnumerable<Ingredient> customIngredients = await dbContext.Ingredients
+            .GetByIds(request.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
+
+        product.Update(request.Name, request.Description ?? string.Empty, request.Price, category, ingredients, customIngredients);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

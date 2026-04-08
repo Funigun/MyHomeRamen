@@ -55,7 +55,7 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         return product;
     }
 
-    public void Update(string name, string description, decimal price, Category category, IEnumerable<Ingredient> ingredients)
+    public void Update(string name, string description, decimal price, Category category, IEnumerable<Ingredient> ingredients, IEnumerable<Ingredient> customIngredients)
     {
         if (category is null)
         {
@@ -73,6 +73,12 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         foreach (Ingredient ingredient in ingredients)
         {
             _baseIngredients.Add(ingredient);
+        }
+
+        _customIngredients.Clear();
+        foreach (Ingredient ingredient in customIngredients)
+        {
+            _customIngredients.Add(ingredient);
         }
 
         ProductValidator.ValidateProduct(this);

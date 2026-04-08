@@ -7,4 +7,5 @@ public sealed record CreateProductRequest(
     string? Description,
     decimal Price,
     Guid CategoryId,
-    IEnumerable<Guid> IngredientIds) : IRequest<Guid>;
+    IEnumerable<Guid> IngredientIds,
+    IEnumerable<Guid> CustomIngredientIds) : IRequest<Guid>;

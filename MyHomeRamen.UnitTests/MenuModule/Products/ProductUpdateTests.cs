@@ -33,7 +33,7 @@ public sealed class ProductUpdateTests
         decimal newPrice = 75.0m;
 
         // Act
-        product.Update(newName, newDescription, newPrice, updatedCategory, [updatedIngredient]);
+        product.Update(newName, newDescription, newPrice, updatedCategory, [updatedIngredient], []);
 
         // Assert
         Assert.Equal(newName, product.Name);
@@ -100,7 +100,7 @@ public sealed class ProductUpdateTests
 
         // Act & Assert
         DomainException exception = Assert.Throws<DomainException>(() =>
-            product.Update(DefaultName, DefaultDescription, DefaultPrice, null!, [DefaultIngredient]));
+            product.Update(DefaultName, DefaultDescription, DefaultPrice, null!, [DefaultIngredient], []));
         Assert.Equal(ProductErrors.CategoryRequired().Message, exception.Message);
     }
 
@@ -128,13 +128,15 @@ public sealed class ProductUpdateTests
         string? description = null,
         decimal? price = null,
         Category? category = null,
-        IEnumerable<Ingredient>? ingredients = null)
+        IEnumerable<Ingredient>? ingredients = null,
+        IEnumerable<Ingredient>? customIngredients = null)
     {
         product.Update(
             name ?? DefaultName,
             description ?? DefaultDescription,
             price ?? DefaultPrice,
             category ?? DefaultCategory,
-            ingredients ?? [DefaultIngredient]);
+            ingredients ?? [DefaultIngredient],
+            customIngredients ?? []);
     }
 }

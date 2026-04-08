@@ -7,7 +7,8 @@ public sealed record UpdateProductRequest(
     string? Description,
     decimal Price,
     Guid CategoryId,
-    IEnumerable<Guid> IngredientIds) : IRequest<UpdateProductResponse>
+    IEnumerable<Guid> IngredientIds,
+    IEnumerable<Guid> CustomIngredientIds) : IRequest<UpdateProductResponse>
 {
     public Guid Id { get; set; }
 }
