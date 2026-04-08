@@ -53,8 +53,21 @@
         </MudItem>
         <MudItem xs="12">
             <MudSelect T="Guid"
-                       Label="Ingredients"
+                       Label="Base Ingredients"
                        @bind-SelectedValues="_model.IngredientIds"
+                       MultiSelection="true"
+                       Variant="Variant.Outlined"
+                       Disabled="Mode == FormMode.View">
+                @foreach (IngredientOption ingredient in _ingredients)
+                {
+                    <MudSelectItem Value="@ingredient.Id">@ingredient.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12">
+            <MudSelect T="Guid"
+                       Label="Custom Ingredients"
+                       @bind-SelectedValues="_model.CustomIngredientIds"
                        MultiSelection="true"
                        Variant="Variant.Outlined"
                        Disabled="Mode == FormMode.View">

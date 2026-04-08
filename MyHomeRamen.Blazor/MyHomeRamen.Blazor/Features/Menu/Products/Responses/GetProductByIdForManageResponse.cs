@@ -6,4 +6,5 @@ public sealed record GetProductByIdForManageResponse(
     string Description,
     decimal Price,
     Guid CategoryId,
-    IEnumerable<Guid> IngredientIds);
+    IEnumerable<Guid> IngredientIds,
+    IEnumerable<Guid> CustomIngredientIds);

@@ -81,6 +81,57 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return await httpClient.GetFromJsonAsync<GetIngredientsForManageResponse>(url, ct);
     }
 
+    public async Task<GetProductsForManageResponse?> GetProductsForManageAsync(
+        string? name = null,
+        IEnumerable<Guid>? categoryIds = null,
+        IEnumerable<Guid>? ingredientIds = null,
+        decimal? priceFrom = null,
+        decimal? priceTo = null,
+        string? orderBy = null,
+        int pageNumber = 1,
+        int pageSize = 10,
+        CancellationToken ct = default)
+    {
+        List<string> queryParts = [];
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            queryParts.Add($"name={Uri.EscapeDataString(name)}");
+        }
+
+        if (categoryIds is not null)
+        {
+            queryParts.AddRange(categoryIds.Select(id => $"categoryIds={id}"));
+        }
+
+        if (ingredientIds is not null)
+        {
+            queryParts.AddRange(ingredientIds.Select(id => $"ingredientIds={id}"));
+        }
+
+        if (priceFrom.HasValue)
+        {
+            queryParts.Add($"priceFrom={priceFrom.Value}");
+        }
+
+        if (priceTo.HasValue)
+        {
+            queryParts.Add($"priceTo={priceTo.Value}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(orderBy))
+        {
+            queryParts.Add($"orderBy={Uri.EscapeDataString(orderBy)}");
+        }
+
+        queryParts.Add($"pageNumber={pageNumber}");
+        queryParts.Add($"pageSize={pageSize}");
+
+        string url = $"/api/menu/products/manage?{string.Join("&", queryParts)}";
+
+        return await httpClient.GetFromJsonAsync<GetProductsForManageResponse>(url, ct);
+    }
+
     public async Task<GetIngredientByIdResponse?> GetIngredientByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await httpClient.GetFromJsonAsync<GetIngredientByIdResponse>($"/api/menu/ingredients/{id}", ct);

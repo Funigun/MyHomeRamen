@@ -5,4 +5,5 @@ public sealed record CreateProductRequest(
     string? Description,
     decimal Price,
     Guid CategoryId,
-    IEnumerable<Guid> IngredientIds);
+    IEnumerable<Guid> IngredientIds,
+    IEnumerable<Guid> CustomIngredientIds);

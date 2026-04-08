@@ -12,6 +12,7 @@ internal static class Mappings
             product.Description,
             product.Price,
             product.Categories.First().Id.Value,
-            product.BaseIngredients.Select(i => i.Id.Value));
+            product.BaseIngredients.Select(i => i.Id.Value),
+            product.CustomIngredients.Select(i => i.Id.Value));
     }
 }

@@ -192,4 +192,46 @@ public static partial class DbExtensions
             .Include(p => p.BaseIngredients)
             .Where(p => p.Categories.Any(c => c.Id == categoryId));
     }
+
+    public static IQueryable<Domain.Menu.Products.Product> ForManage(
+        this DbSet<Domain.Menu.Products.Product> products,
+        string? name,
+        IEnumerable<Guid>? categoryIds,
+        IEnumerable<Guid>? ingredientIds,
+        decimal? priceFrom,
+        decimal? priceTo)
+    {
+        IQueryable<Domain.Menu.Products.Product> query = products.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            query = query.Where(p => p.Name.ToLower().Contains(name.ToLower()));
+        }
+
+        if (categoryIds is not null && categoryIds.Any())
+        {
+            List<Domain.Menu.Categories.CategoryId> ids = categoryIds.Select(id => (Domain.Menu.Categories.CategoryId)id).ToList();
+            query = query.Where(p => p.Categories.Any(c => ids.Contains(c.Id)));
+        }
+
+        if (ingredientIds is not null && ingredientIds.Any())
+        {
+            List<Domain.Menu.Ingredients.IngredientId> ids = ingredientIds.Select(id => (Domain.Menu.Ingredients.IngredientId)id).ToList();
+            query = query.Where(p =>
+                p.BaseIngredients.Any(i => ids.Contains(i.Id)) ||
+                p.CustomIngredients.Any(i => ids.Contains(i.Id)));
+        }
+
+        if (priceFrom.HasValue)
+        {
+            query = query.Where(p => p.Price >= priceFrom.Value);
+        }
+
+        if (priceTo.HasValue)
+        {
+            query = query.Where(p => p.Price <= priceTo.Value);
+        }
+
+        return query;
+    }
 }

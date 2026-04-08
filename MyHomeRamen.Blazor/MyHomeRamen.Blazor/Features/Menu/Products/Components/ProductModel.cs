@@ -15,6 +15,8 @@ public sealed class ProductModel
 
     public IEnumerable<Guid> IngredientIds { get; set; } = [];
 
+    public IEnumerable<Guid> CustomIngredientIds { get; set; } = [];
+
     public CreateProductRequest ToCreateRequest()
     {
         return new CreateProductRequest(
@@ -22,7 +24,8 @@ public sealed class ProductModel
             string.IsNullOrWhiteSpace(Description) ? null : Description,
             Price,
             CategoryId,
-            IngredientIds);
+            IngredientIds,
+            CustomIngredientIds);
     }
 
     public UpdateProductRequest ToEditRequest()
@@ -32,7 +35,8 @@ public sealed class ProductModel
             string.IsNullOrWhiteSpace(Description) ? null : Description,
             Price,
             CategoryId,
-            IngredientIds);
+            IngredientIds,
+            CustomIngredientIds);
     }
 
     public static ProductModel FromResponse(GetProductByIdForManageResponse response)
@@ -44,6 +48,7 @@ public sealed class ProductModel
             Price = response.Price,
             CategoryId = response.CategoryId,
             IngredientIds = response.IngredientIds,
+            CustomIngredientIds = response.CustomIngredientIds,
         };
     }
 }
