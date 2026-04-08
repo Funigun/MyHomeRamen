@@ -26,9 +26,15 @@ public static class ProductErrors
     public static DomainException CustomIngredientsNotUnique()
     => new("Product custom ingredients must be unique.");
 
+    public static DomainException IngredientsOverlapAcrossCollections()
+        => new("Product base and custom ingredients must be unique across both collections.");
+
     public static DomainException CategoryTypeNotValid()
         => new("Product must belong to product categories group.");
 
     public static DomainException CategoriesNotUnique()
     => new("Product categories must be unique.");
+
+    public static DomainException CategoryRequired()
+        => new("Product must have at least one category.");
 }

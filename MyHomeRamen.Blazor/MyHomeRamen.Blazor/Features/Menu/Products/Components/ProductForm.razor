@@ -4,6 +4,7 @@
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Products.Components
+@using MyHomeRamen.Blazor.Features.Menu.Products.Responses
 
 @inject MenuApiClient MenuApiClient
 
@@ -136,12 +137,22 @@
 
         try
         {
-            Guid productId = await MenuApiClient.CreateProductAsync(_model.ToCreateRequest());
-            await OnSuccess.InvokeAsync(productId);
+            if (Mode == FormMode.Create)
+            {
+                Guid productId = await MenuApiClient.CreateProductAsync(_model.ToCreateRequest());
+                await OnSuccess.InvokeAsync(productId);
+            }
+            else
+            {
+                UpdateProductResponse result = await MenuApiClient.UpdateProductAsync(ProductId, _model.ToEditRequest());
+                await OnSuccess.InvokeAsync(result.Id);
+            }
         }
         catch (HttpRequestException)
         {
-            _errorMessage = "Failed to create product. Please try again.";
+            _errorMessage = Mode == FormMode.Edit
+                ? "Failed to update product. Please try again."
+                : "Failed to create product. Please try again.";
         }
         finally
         {

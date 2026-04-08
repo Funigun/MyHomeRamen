@@ -25,6 +25,16 @@ public sealed class ProductModel
             IngredientIds);
     }
 
+    public UpdateProductRequest ToEditRequest()
+    {
+        return new UpdateProductRequest(
+            Name,
+            string.IsNullOrWhiteSpace(Description) ? null : Description,
+            Price,
+            CategoryId,
+            IngredientIds);
+    }
+
     public static ProductModel FromResponse(GetProductByIdForManageResponse response)
     {
         return new ProductModel

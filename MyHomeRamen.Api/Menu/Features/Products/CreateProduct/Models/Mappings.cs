@@ -7,7 +7,7 @@ namespace MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 
 internal static class Mappings
 {
-    public static Product ToDomain(this CreateProductRequest request, Category category, IEnumerable<Ingredient> ingredients)
+    public static Product ToDomain(this CreateProductRequest request, Category category, IEnumerable<Ingredient> ingredients, IEnumerable<Ingredient> customIngredients)
     {
         return Product.Create(
             Guid.NewGuid(),
@@ -16,7 +16,7 @@ internal static class Mappings
             request.Price,
             string.Empty,
             new Collection<Ingredient>(ingredients.ToList()),
-            [],
+            new Collection<Ingredient>(customIngredients.ToList()),
             [category]);
     }
 }

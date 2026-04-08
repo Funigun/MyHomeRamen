@@ -18,7 +18,9 @@ public sealed class CreateProductHandler(IMenuDbContext dbContext) : IRequestHan
 
         IEnumerable<Ingredient> ingredients = await dbContext.Ingredients.GetByIds(request.IngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
-        Product product = request.ToDomain(category, ingredients);
+        IEnumerable<Ingredient> customIngredients = await dbContext.Ingredients.GetByIds(request.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
+
+        Product product = request.ToDomain(category, ingredients, customIngredients);
 
         dbContext.Products.Add(product);
         await dbContext.SaveChangesAsync(cancellationToken);

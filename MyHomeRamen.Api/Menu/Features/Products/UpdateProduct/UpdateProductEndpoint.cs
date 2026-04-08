@@ -1,0 +1,34 @@
+using Microsoft.AspNetCore.Mvc;
+using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;
+using MyHomeRamen.Api.WebPresentation;
+
+namespace MyHomeRamen.Api.Menu.Features.Products.UpdateProduct;
+
+public sealed class UpdateProductEndpoint : IEndpoint
+{
+    public string GroupName { get; init; } = "Menu";
+
+    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder
+            .MapStandardValidatedPutWithResponse<UpdateProductRequest, UpdateProductResponse>(
+                "products/{id}", HandleAsync)
+            .WithName("UpdateProductEndpoint")
+            .WithDescription("Updates the name, description, price, category, and ingredients of an existing product.")
+            .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
+    }
+
+    private static async Task<IResult> HandleAsync(
+        [FromRoute] UpdateProductRequestId id,
+        [FromBody] UpdateProductRequest request,
+        [FromServices] IRequestHandler<UpdateProductRequest, UpdateProductResponse> handler,
+        CancellationToken cancellationToken)
+    {
+        request.Id = id.Id;
+        UpdateProductResponse response = await handler.Handle(request, cancellationToken);
+
+        return Results.Ok(response);
+    }
+}
