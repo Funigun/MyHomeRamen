@@ -1,0 +1,50 @@
+@page "/admin/menu/products/{Id:guid}/edit"
+
+@using Microsoft.AspNetCore.Authorization
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Products.Components
+
+@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+
+@inject MenuApiClient MenuApiClient
+@inject MenuNavigationService MenuNavigation
+
+<PageTitle>Edit Product</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Edit Product</MudText>
+
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" />
+    }
+    else
+    {
+        <ProductForm Model="_model" Mode="FormMode.Edit" ProductId="Id" OnSuccess="HandleSuccess" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private ProductModel _model = new();
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await MenuApiClient.GetProductByIdForManageAsync(Id);
+        if (response is not null)
+        {
+            _model = ProductModel.FromResponse(response);
+        }
+
+        _isLoading = false;
+    }
+
+    private void HandleSuccess(Guid id)
+    {
+        MenuNavigation.ToProductsManagement();
+    }
+}

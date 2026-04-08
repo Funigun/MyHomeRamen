@@ -86,6 +86,11 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return await httpClient.GetFromJsonAsync<GetIngredientByIdResponse>($"/api/menu/ingredients/{id}", ct);
     }
 
+    public async Task<GetProductByIdForManageResponse?> GetProductByIdForManageAsync(Guid id, CancellationToken ct = default)
+    {
+        return await httpClient.GetFromJsonAsync<GetProductByIdForManageResponse>($"/api/menu/products/{id}", ct);
+    }
+
     public async Task DeleteCategoryAsync(Guid id, CancellationToken ct = default)
     {
         using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/menu/categories/{id}", ct);

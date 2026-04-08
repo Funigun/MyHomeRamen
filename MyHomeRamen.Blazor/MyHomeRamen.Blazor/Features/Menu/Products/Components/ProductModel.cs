@@ -1,4 +1,5 @@
 using MyHomeRamen.Blazor.Features.Menu.Products.Requests;
+using MyHomeRamen.Blazor.Features.Menu.Products.Responses;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Products.Components;
 
@@ -22,5 +23,17 @@ public sealed class ProductModel
             Price,
             CategoryId,
             IngredientIds);
+    }
+
+    public static ProductModel FromResponse(GetProductByIdForManageResponse response)
+    {
+        return new ProductModel
+        {
+            Name = response.Name,
+            Description = response.Description,
+            Price = response.Price,
+            CategoryId = response.CategoryId,
+            IngredientIds = response.IngredientIds,
+        };
     }
 }
