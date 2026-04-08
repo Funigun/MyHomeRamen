@@ -73,6 +73,11 @@ public static partial class DbExtensions
         return !await query.AnyAsync(i => i.Id != excludeId && i.Name.ToLower() == name.ToLower(), cancellationToken);
     }
 
+    public static async Task<bool> IsProductNameUniqueExcludingAsync(this IQueryable<Domain.Menu.Products.Product> query, string name, Domain.Menu.Products.ProductId excludeId, CancellationToken cancellationToken = default)
+    {
+        return !await query.AnyAsync(p => p.Id != excludeId && p.Name.ToLower() == name.ToLower(), cancellationToken);
+    }
+
     public static async Task<int> GetNextSortOrderAsync(this IQueryable<Domain.Menu.Categories.Category> query, Domain.Menu.Categories.CategoryType categoryType, CancellationToken cancellationToken = default)
     {
         bool any = await query.AnyAsync(c => c.CategoryType == categoryType, cancellationToken);

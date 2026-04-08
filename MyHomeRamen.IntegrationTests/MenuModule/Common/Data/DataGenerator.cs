@@ -4,6 +4,7 @@ using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
 using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
 using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
+using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;
 using MyHomeRamen.Common.Contracts.Menu.Categories;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients;
 using MyHomeRamen.Common.Contracts.Menu.Products;
@@ -309,6 +310,43 @@ internal static class DataGenerator
 
             // CategoryIds: empty
             new UpdateIngredientRequest(validName, validDescription, validPrice, []),
+        ];
+    }
+
+    public static TheoryData<UpdateProductRequest> InvalidUpdateProductRequests()
+    {
+        Faker faker = new();
+        Guid validCategoryId = GetRandomProductCategory().Id;
+        Guid[] validIngredientIds = [GetRandomIngredient().Id];
+        string validName = faker.Random.String2(ProductNameValidator.MinLength, ProductNameValidator.MaxLength);
+        string validDescription = faker.Random.String2(ProductDescriptionValidator.MinLength, ProductDescriptionValidator.MaxLength);
+        decimal validPrice = faker.Finance.Amount(ProductPriceValidator.MinPrice, ProductPriceValidator.MaxPrice);
+
+        return
+        [
+            // Name: empty
+            new UpdateProductRequest(string.Empty, validDescription, validPrice, validCategoryId, validIngredientIds),
+
+            // Name: too short
+            new UpdateProductRequest(faker.Random.String2(1, ProductNameValidator.MinLength - 1), validDescription, validPrice, validCategoryId, validIngredientIds),
+
+            // Name: too long
+            new UpdateProductRequest(faker.Random.String2(ProductNameValidator.MaxLength + 1, ProductNameValidator.MaxLength + 10), validDescription, validPrice, validCategoryId, validIngredientIds),
+
+            // Description: too long
+            new UpdateProductRequest(validName, faker.Random.String2(ProductDescriptionValidator.MaxLength + 1, ProductDescriptionValidator.MaxLength + 10), validPrice, validCategoryId, validIngredientIds),
+
+            // Price: below minimum
+            new UpdateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice - 0.01m, validCategoryId, validIngredientIds),
+
+            // Price: above maximum
+            new UpdateProductRequest(validName, validDescription, ProductPriceValidator.MaxPrice + 0.01m, validCategoryId, validIngredientIds),
+
+            // CategoryId: empty
+            new UpdateProductRequest(validName, validDescription, validPrice, Guid.Empty, validIngredientIds),
+
+            // IngredientIds: empty
+            new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, []),
         ];
     }
 }

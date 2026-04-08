@@ -31,4 +31,7 @@ public static class ProductErrors
 
     public static DomainException CategoriesNotUnique()
     => new("Product categories must be unique.");
+
+    public static DomainException CategoryRequired()
+        => new("Product must have at least one category.");
 }

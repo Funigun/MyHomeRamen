@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 
@@ -52,5 +53,28 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         ProductValidator.ValidateProduct(product);
 
         return product;
+    }
+
+    public void Update(string name, string description, decimal price, Category category, IEnumerable<Ingredient> ingredients)
+    {
+        if (category is null)
+        {
+            throw ProductErrors.CategoryRequired();
+        }
+
+        Name = name;
+        Description = description;
+        Price = price;
+
+        _categories.Clear();
+        _categories.Add(category);
+
+        _baseIngredients.Clear();
+        foreach (Ingredient ingredient in ingredients)
+        {
+            _baseIngredients.Add(ingredient);
+        }
+
+        ProductValidator.ValidateProduct(this);
     }
 }
