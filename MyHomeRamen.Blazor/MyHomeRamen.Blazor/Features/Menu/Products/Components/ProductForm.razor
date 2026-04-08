@@ -94,7 +94,7 @@
 
 @code {
     private MudForm _form = default!;
-    private readonly ProductModel _model = new();
+    private ProductModel _model = new();
     private readonly ProductValidator _validator = new();
     private bool _isBusy;
     private string? _errorMessage;
@@ -103,9 +103,16 @@
 
     [Parameter] public FormMode Mode { get; set; } = FormMode.Create;
     [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+    [Parameter] public ProductModel? Model { get; set; }
+    [Parameter] public Guid ProductId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        if (Model is not null)
+        {
+            _model = Model;
+        }
+
         IEnumerable<GetCategoriesByTypeResponse> categoriesResponse =
             await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
         _categories = categoriesResponse.Select(c => new CategoryOption(c.Id, c.Name));
