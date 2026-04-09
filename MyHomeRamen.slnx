@@ -49,19 +49,7 @@
     <File Path=".github/agents/input/feature-brief-example.md" />
     <File Path=".github/agents/input/feature-brief-template.md" />
   </Folder>
-  <Folder Name="/_github/agents/output/">
-    <File Path=".github/agents/output/delete-category-brief.md" />
-    <File Path=".github/agents/output/get-product-by-id-brief.md" />
-    <File Path=".github/agents/output/get-product-by-id-frontend.md" />
-    <File Path=".github/agents/output/get-product-by-id-plan-backend.md" />
-    <File Path=".github/agents/output/get-products-for-manage-brief.md" />
-    <File Path=".github/agents/output/get-products-for-manage-plan-backend.md" />
-    <File Path=".github/agents/output/get-products-for-manage-plan-frontend.md" />
-    <File Path=".github/agents/output/update-categories-order-brief.md" />
-    <File Path=".github/agents/output/update-product-brief.md" />
-    <File Path=".github/agents/output/update-product-plan-backend.md" />
-    <File Path=".github/agents/output/update-product-plan-frontend.md" />
-  </Folder>
+  <Folder Name="/_github/agents/output/" />
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />
