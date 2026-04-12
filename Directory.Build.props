@@ -190,6 +190,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="bUnit" />
+		<PackageReference Include="MudBlazor" />
 	</ItemGroup>
 
 	<!-- Worker Exclusive -->

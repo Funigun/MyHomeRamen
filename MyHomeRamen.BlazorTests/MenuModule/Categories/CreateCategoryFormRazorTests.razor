@@ -1,0 +1,91 @@
+@inherits BunitContext
+
+@code {
+    private void SetupContext(Func<HttpRequestMessage, HttpResponseMessage> responseFactory)
+    {
+        Services.AddMudServices();
+        JSInterop.Mode = JSRuntimeMode.Loose;
+
+        HttpClient httpClient = new(new TestHttpMessageHandler(
+            request => Task.FromResult(responseFactory(request))))
+        {
+            BaseAddress = new Uri("http://localhost"),
+        };
+
+        Services.AddSingleton(new MenuApiClient(httpClient));
+    }
+
+    [Fact]
+    public void Should_Render_NameInputAndSubmitButton_ForProduct()
+    {
+        // Arrange
+        SetupContext(_ => new HttpResponseMessage(HttpStatusCode.OK));
+
+        // Act – inline Razor syntax mirrors how the component is used in pages/dialogs
+        IRenderedComponent<IComponent> cut = Render(
+            @<CreateCategoryForm CategoryType="CategoryType.Product" />);
+
+        // Assert
+        cut.Find("input");
+        cut.Find("button");
+    }
+
+    [Fact]
+    public void Should_Render_NameInputAndSubmitButton_ForIngredient()
+    {
+        // Arrange
+        SetupContext(_ => new HttpResponseMessage(HttpStatusCode.OK));
+
+        // Act
+        IRenderedComponent<IComponent> cut = Render(
+            @<CreateCategoryForm CategoryType="CategoryType.Ingredient" />);
+
+        // Assert
+        cut.Find("input");
+        cut.Find("button");
+    }
+
+    [Fact]
+    public async Task Should_InvokeOnSuccess_When_ValidNameSubmitted()
+    {
+        // Arrange
+        Guid expectedId = Guid.NewGuid();
+        Guid? receivedId = null;
+
+        // Local variables are captured naturally in the Razor template below
+        EventCallback<Guid> onSuccess = EventCallback.Factory.Create<Guid>(this, id => receivedId = id);
+
+        SetupContext(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = JsonContent.Create(new CreateCategoryResponse(expectedId)),
+        });
+
+        // Act
+        IRenderedComponent<IComponent> cut = Render(
+            @<CreateCategoryForm CategoryType="CategoryType.Product" OnSuccess="@onSuccess" />);
+
+        await cut.Find("input").ChangeAsync(new ChangeEventArgs { Value = "Noodles" });
+        await cut.Find("button").ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+
+        // Assert
+        Assert.Equal(expectedId, receivedId);
+    }
+
+    [Fact]
+    public async Task Should_ShowErrorAlert_When_ApiCallFails()
+    {
+        // Arrange
+        SetupContext(_ => new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+        // Act
+        IRenderedComponent<IComponent> cut = Render(
+            @<CreateCategoryForm CategoryType="CategoryType.Ingredient" />);
+
+        await cut.Find("input").ChangeAsync(new ChangeEventArgs { Value = "Spices" });
+        await cut.Find("button").ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+
+        // Assert
+        cut.Find(".mud-alert");
+        Assert.Contains("Failed to create category", cut.Markup);
+    }
+}

@@ -1,8 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MyHomeRamen.Blazor\MyHomeRamen.Blazor\MyHomeRamen.Blazor.csproj" />
+  </ItemGroup>
 
 </Project>
