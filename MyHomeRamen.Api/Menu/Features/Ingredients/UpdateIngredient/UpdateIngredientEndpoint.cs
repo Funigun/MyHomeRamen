@@ -26,8 +26,7 @@ public sealed class UpdateIngredientEndpoint : IEndpoint
         [FromServices] IRequestHandler<UpdateIngredientRequest, UpdateIngredientResponse> handler,
         CancellationToken cancellationToken)
     {
-        request.Id = id.Id;
-        UpdateIngredientResponse response = await handler.Handle(request, cancellationToken);
+        UpdateIngredientResponse response = await handler.Handle(request with { Id = id.Id }, cancellationToken);
 
         return Results.Ok(response);
     }

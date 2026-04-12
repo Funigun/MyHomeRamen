@@ -84,6 +84,7 @@
     <File Path="Wiki/Architecture/0002-aspire-orchestration.md" />
     <File Path="Wiki/Architecture/0003-module-specific-database-contexts.md" />
     <File Path="Wiki/Architecture/0004-restaurant-configuration.md" />
+    <File Path="Wiki/Architecture/0005-route-param-attribute-for-update-requests.md" />
   </Folder>
   <Folder Name="/_wiki/Menu/">
     <File Path="Wiki/Menu ADR/0001-menu-domain.md" />

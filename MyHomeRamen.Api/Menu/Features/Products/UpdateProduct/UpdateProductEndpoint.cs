@@ -26,8 +26,7 @@ public sealed class UpdateProductEndpoint : IEndpoint
         [FromServices] IRequestHandler<UpdateProductRequest, UpdateProductResponse> handler,
         CancellationToken cancellationToken)
     {
-        request.Id = id.Id;
-        UpdateProductResponse response = await handler.Handle(request, cancellationToken);
+        UpdateProductResponse response = await handler.Handle(request with { Id = id.Id }, cancellationToken);
 
         return Results.Ok(response);
     }

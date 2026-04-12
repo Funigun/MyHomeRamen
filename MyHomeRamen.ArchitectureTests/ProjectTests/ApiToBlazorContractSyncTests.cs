@@ -1,5 +1,7 @@
+using System.Reflection;
 using ArchUnitNET.Domain;
 using ArchUnitNET.Domain.Extensions;
+using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.ArchitectureTests.Common;
 
 namespace MyHomeRamen.ArchitectureTests.ProjectTests;
@@ -36,15 +38,18 @@ public sealed class ApiToBlazorContractSyncTests(ArchitectureBuilder architectur
 
             Class blazorClass = arch.GetClassOfType(blazorRequests[requestName]);
             Class apiClass = arch.GetClassOfType(apiRequests[requestName]);
+            Type apiType = apiRequests[requestName];
 
-            static IEnumerable<(string Name, string TypeName)> GetPublicProperties(Class c) =>
+            static IEnumerable<(string Name, string TypeName)> GetPublicProperties(Class c, Type reflectionType) =>
                 c.Members
                  .OfType<PropertyMember>()
                  .Where(p => p.Visibility == Visibility.Public)
+                 .Where(p => reflectionType.GetProperty(p.Name, BindingFlags.Public | BindingFlags.Instance)
+                                           ?.GetCustomAttribute<RouteParamAttribute>() is null)
                  .Select(p => (p.Name, p.Type.FullName))
                  .OrderBy(p => p.Name);
 
-            Assert.Equal(GetPublicProperties(blazorClass), GetPublicProperties(apiClass));
+            Assert.Equal(GetPublicProperties(blazorClass, blazorRequests[requestName]), GetPublicProperties(apiClass, apiType));
         }
     }
 

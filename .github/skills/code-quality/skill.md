@@ -45,6 +45,7 @@ We still want to follow CQRS pattern so we need to make sure that each endpoint 
 - returns what the caller needs with `200 OK` for PUT and PATCH
 - does not query database after calling `SaveChangesAsync()`
 - always use `FluentValidation` validators paired with `IValidationPolicy` interface
+- POST/PATCH endpoints must use `RouteParamAttribute` for parameters that are required to update entity e.g. Id. This is required to prevent Architecture Tests failure.
 
 **Common rules**
 - {Feature}Handler must be public sealed class to be correctly registered in DI container and to prevent inheritance

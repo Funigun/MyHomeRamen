@@ -10,5 +10,6 @@ public sealed record UpdateProductRequest(
     IEnumerable<Guid> IngredientIds,
     IEnumerable<Guid> CustomIngredientIds) : IRequest<UpdateProductResponse>
 {
-    public Guid Id { get; set; }
+    [RouteParam]
+    public Guid Id { get; init; }
 }

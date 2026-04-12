@@ -8,5 +8,6 @@ public sealed record UpdateIngredientRequest(
     decimal Price,
     IEnumerable<Guid> CategoryIds) : IRequest<UpdateIngredientResponse>
 {
-    public Guid Id { get; set; }
+    [RouteParam]
+    public Guid Id { get; init; }
 }
