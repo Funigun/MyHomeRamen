@@ -36,16 +36,16 @@
                              Required="true" />
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudSelect T="Guid"
+            <MudSelect T="CategoryOption"
                        Label="Categories"
                        @bind-SelectedValues="_model.CategoryIds"
-                       
+
                        MultiSelection="true"
                        Variant="Variant.Outlined"
                        Required="true">
                 @foreach (CategoryOption category in _categories)
                 {
-                    <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
+                    <MudSelectItem Value="@category">@category.Name</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>

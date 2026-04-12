@@ -18,7 +18,7 @@ public sealed class ProductValidator : BaseValidator<ProductModel>
             .SetValidator(new ProductPriceValidator());
 
         RuleFor(x => x.CategoryId)
-            .NotEmpty()
+            .NotNull()
             .WithMessage("Please select a category.");
 
         RuleFor(x => x.IngredientIds)
