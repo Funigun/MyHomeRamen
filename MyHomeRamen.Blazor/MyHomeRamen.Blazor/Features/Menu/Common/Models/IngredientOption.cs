@@ -1,3 +1,6 @@
 namespace MyHomeRamen.Blazor.Features.Menu.Common.Models;
 
-public sealed record IngredientOption(Guid Id, string Name);
+public sealed record IngredientOption(Guid Id, string Name)
+{
+    public override string ToString() => Name;
+}

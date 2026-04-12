@@ -1,3 +1,4 @@
+using MyHomeRamen.Blazor.Features.Menu.Common.Models;
 using MyHomeRamen.Blazor.Features.Menu.Products.Requests;
 using MyHomeRamen.Blazor.Features.Menu.Products.Responses;
 
@@ -11,11 +12,11 @@ public sealed class ProductModel
 
     public decimal Price { get; set; }
 
-    public Guid CategoryId { get; set; }
+    public CategoryOption? CategoryId { get; set; }
 
-    public IEnumerable<Guid> IngredientIds { get; set; } = [];
+    public IEnumerable<IngredientOption> IngredientIds { get; set; } = [];
 
-    public IEnumerable<Guid> CustomIngredientIds { get; set; } = [];
+    public IEnumerable<IngredientOption> CustomIngredientIds { get; set; } = [];
 
     public CreateProductRequest ToCreateRequest()
     {
@@ -23,9 +24,9 @@ public sealed class ProductModel
             Name,
             string.IsNullOrWhiteSpace(Description) ? null : Description,
             Price,
-            CategoryId,
-            IngredientIds,
-            CustomIngredientIds);
+            CategoryId?.Id ?? Guid.Empty,
+            IngredientIds.Select(i => i.Id),
+            CustomIngredientIds.Select(i => i.Id));
     }
 
     public UpdateProductRequest ToEditRequest()
@@ -34,21 +35,24 @@ public sealed class ProductModel
             Name,
             string.IsNullOrWhiteSpace(Description) ? null : Description,
             Price,
-            CategoryId,
-            IngredientIds,
-            CustomIngredientIds);
+            CategoryId?.Id ?? Guid.Empty,
+            IngredientIds.Select(i => i.Id),
+            CustomIngredientIds.Select(i => i.Id));
     }
 
-    public static ProductModel FromResponse(GetProductByIdForManageResponse response)
+    public static ProductModel FromResponse(
+        GetProductByIdForManageResponse response,
+        IEnumerable<CategoryOption> availableCategories,
+        IEnumerable<IngredientOption> availableIngredients)
     {
         return new ProductModel
         {
             Name = response.Name,
             Description = response.Description,
             Price = response.Price,
-            CategoryId = response.CategoryId,
-            IngredientIds = response.IngredientIds,
-            CustomIngredientIds = response.CustomIngredientIds,
+            CategoryId = availableCategories.FirstOrDefault(c => c.Id == response.CategoryId),
+            IngredientIds = availableIngredients.Where(i => response.IngredientIds.Contains(i.Id)),
+            CustomIngredientIds = availableIngredients.Where(i => response.CustomIngredientIds.Contains(i.Id)),
         };
     }
 }

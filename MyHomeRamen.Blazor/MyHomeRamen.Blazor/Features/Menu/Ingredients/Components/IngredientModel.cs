@@ -1,3 +1,4 @@
+using MyHomeRamen.Blazor.Features.Menu.Common.Models;
 using MyHomeRamen.Blazor.Features.Menu.Ingredients.Requests;
 using MyHomeRamen.Blazor.Features.Menu.Ingredients.Responses;
 
@@ -11,26 +12,26 @@ public sealed class IngredientModel
 
     public decimal Price { get; set; }
 
-    public IEnumerable<Guid> CategoryIds { get; set; } = [];
+    public IEnumerable<CategoryOption> CategoryIds { get; set; } = [];
 
     public CreateIngredientRequest ToCreateRequest()
     {
-        return new CreateIngredientRequest(Name, Description, Price, CategoryIds);
+        return new CreateIngredientRequest(Name, Description, Price, CategoryIds.Select(c => c.Id));
     }
 
     public UpdateIngredientRequest ToEditRequest()
     {
-        return new UpdateIngredientRequest(Name, Description, Price, CategoryIds);
+        return new UpdateIngredientRequest(Name, Description, Price, CategoryIds.Select(c => c.Id));
     }
 
-    public static IngredientModel FromResponse(GetIngredientByIdResponse response)
+    public static IngredientModel FromResponse(GetIngredientByIdResponse response, IEnumerable<CategoryOption> availableCategories)
     {
         return new IngredientModel
         {
             Name = response.Name,
             Description = response.Description,
             Price = response.Price,
-            CategoryIds = response.CategoryIds,
+            CategoryIds = availableCategories.Where(c => response.CategoryIds.Contains(c.Id)),
         };
     }
 }

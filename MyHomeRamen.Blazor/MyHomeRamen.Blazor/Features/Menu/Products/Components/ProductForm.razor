@@ -39,7 +39,8 @@
                              Required="true" />
         </MudItem>
         <MudItem xs="12" sm="6">
-            <MudSelect Label="Category"
+            <MudSelect T="CategoryOption"
+                       Label="Category"
                        @bind-Value="_model.CategoryId"
                        For="@(() => _model.CategoryId)"
                        Variant="Variant.Outlined"
@@ -47,12 +48,12 @@
                        Required="true">
                 @foreach (CategoryOption category in _categories)
                 {
-                    <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
+                    <MudSelectItem Value="@category">@category.Name</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>
         <MudItem xs="12">
-            <MudSelect T="Guid"
+            <MudSelect T="IngredientOption"
                        Label="Base Ingredients"
                        @bind-SelectedValues="_model.IngredientIds"
                        MultiSelection="true"
@@ -60,12 +61,12 @@
                        Disabled="Mode == FormMode.View">
                 @foreach (IngredientOption ingredient in _ingredients)
                 {
-                    <MudSelectItem Value="@ingredient.Id">@ingredient.Name</MudSelectItem>
+                    <MudSelectItem Value="@ingredient">@ingredient.Name</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>
         <MudItem xs="12">
-            <MudSelect T="Guid"
+            <MudSelect T="IngredientOption"
                        Label="Custom Ingredients"
                        @bind-SelectedValues="_model.CustomIngredientIds"
                        MultiSelection="true"
@@ -73,7 +74,7 @@
                        Disabled="Mode == FormMode.View">
                 @foreach (IngredientOption ingredient in _ingredients)
                 {
-                    <MudSelectItem Value="@ingredient.Id">@ingredient.Name</MudSelectItem>
+                    <MudSelectItem Value="@ingredient">@ingredient.Name</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>
