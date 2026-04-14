@@ -11,7 +11,7 @@ public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : IRequestHa
 {
     public async Task<IResult> Handle([FromRoute] DeleteCategoryRequest id, CancellationToken cancellationToken)
     {
-        Category category = await dbContext.Categories.GetBySelectorAsync((CategoryId)id.Id, cancellationToken);
+        Category category = await dbContext.Categories.GetById((CategoryId)id.Id, cancellationToken);
 
         dbContext.Categories.Remove(category);
 

@@ -15,7 +15,8 @@ public sealed class UpdateIngredientHandler(IMenuDbContext dbContext) : IRequest
     {
         Ingredient ingredient = await dbContext.Ingredients
             .Include(i => i.Categories)
-            .GetBySelectorAsync((IngredientId)request.Id, cancellationToken);
+            .AsSplitQuery()
+            .GetById((IngredientId)request.Id, cancellationToken);
 
         IEnumerable<Category> categories = await dbContext.Categories.GetByIds(request.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
 

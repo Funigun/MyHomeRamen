@@ -11,7 +11,7 @@ public sealed class DeleteIngredientHandler(IMenuDbContext dbContext) : IRequest
 {
     public async Task<IResult> Handle([FromRoute] DeleteIngredientRequest id, CancellationToken cancellationToken)
     {
-        Ingredient ingredient = await dbContext.Ingredients.GetBySelectorAsync((IngredientId)id.Id, cancellationToken);
+        Ingredient ingredient = await dbContext.Ingredients.GetById((IngredientId)id.Id, cancellationToken);
 
         dbContext.Ingredients.Remove(ingredient);
 

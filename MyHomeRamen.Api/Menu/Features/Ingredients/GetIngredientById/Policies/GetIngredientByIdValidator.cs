@@ -14,7 +14,7 @@ public sealed class GetIngredientByIdValidator : AbstractValidator<GetIngredient
             .NotEmpty().WithMessage("Ingredient ID must not be empty.")
             .ChildRules(id =>
                 id.RuleFor(id => id)
-                    .MustAsync(async (id, ct) => await menuDbContext.Ingredients.ExistsByIdAsync((IngredientId)id, ct))
+                    .MustAsync(async (id, ct) => await menuDbContext.Ingredients.Exists(i => i.Id == (IngredientId)id, ct))
                     .WithMessage("Ingredient with the specified ID does not exist."));
     }
 }

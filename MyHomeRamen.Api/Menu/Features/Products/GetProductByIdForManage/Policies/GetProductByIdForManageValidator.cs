@@ -14,7 +14,7 @@ public sealed class GetProductByIdForManageValidator : AbstractValidator<GetProd
             .NotEmpty().WithMessage("Product ID must not be empty.")
             .ChildRules(id =>
                 id.RuleFor(id => id)
-                    .MustAsync(async (id, ct) => await menuDbContext.Products.ExistsByIdAsync((ProductId)id, ct))
+                    .MustAsync(async (id, ct) => await menuDbContext.Products.Exists(p => p.Id == (ProductId)id, ct))
                     .WithMessage("Product with the specified ID does not exist."));
     }
 }
