@@ -18,7 +18,8 @@ public sealed class GetProductByIdForManageHandler(IMenuDbContext dbContext)
             .Include(p => p.Categories)
             .Include(p => p.BaseIngredients)
             .Include(p => p.CustomIngredients)
-            .GetBySelectorNotTrackedAsync(productId, cancellationToken);
+            .AsSplitQuery()
+            .GetByIdQuery(productId, cancellationToken);
 
         return product.ToResponse();
     }

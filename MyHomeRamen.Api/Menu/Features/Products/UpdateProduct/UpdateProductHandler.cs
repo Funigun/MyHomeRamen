@@ -17,7 +17,8 @@ public sealed class UpdateProductHandler(IMenuDbContext dbContext) : IRequestHan
             .Include(p => p.Categories)
             .Include(p => p.BaseIngredients)
             .Include(p => p.CustomIngredients)
-            .GetBySelectorAsync((ProductId)request.Id, cancellationToken);
+            .AsSplitQuery()
+            .GetById((ProductId)request.Id, cancellationToken);
 
         Category category = await dbContext.Categories
             .FirstAsync(c => c.Id == (CategoryId)request.CategoryId, cancellationToken);

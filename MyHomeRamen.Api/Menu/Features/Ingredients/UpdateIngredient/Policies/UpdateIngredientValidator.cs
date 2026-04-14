@@ -24,7 +24,7 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
             .MustAsync(async (_, ct) =>
             {
                 Guid id = (Guid)httpContextAccessor.HttpContext!.GetRouteValue("id")!;
-                return await dbContext.Ingredients.ExistsByIdAsync((IngredientId)id, ct);
+                return await dbContext.Ingredients.Exists(i => i.Id == (IngredientId)id, ct);
             })
             .WithMessage("Ingredient with the specified ID does not exist.");
 

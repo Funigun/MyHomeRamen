@@ -27,7 +27,7 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductRequ
             .MustAsync(async (_, ct) =>
             {
                 Guid id = (Guid)httpContextAccessor.HttpContext!.GetRouteValue("id")!;
-                return await dbContext.Products.ExistsByIdAsync((ProductId)id, ct);
+                return await dbContext.Products.Exists(p => p.Id == (ProductId)id, ct);
             })
             .WithMessage("Product with the specified ID does not exist.");
 

@@ -25,14 +25,14 @@ public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryRe
 
     private static Func<Guid, CancellationToken, Task<bool>> CategoryExists(IMenuDbContext menuDbContext)
     {
-        return async (id, cancellationToken) => await menuDbContext.Categories.ExistsByIdAsync((CategoryId)id, cancellationToken);
+        return async (id, cancellationToken) => await menuDbContext.Categories.Exists(c => c.Id == (CategoryId)id, cancellationToken);
     }
 
     private static Func<Guid, CancellationToken, Task<bool>> CategoryIsNotUsed(IMenuDbContext menuDbContext)
     {
         return async (id, cancellationToken) =>
         {
-            Category category = await menuDbContext.Categories.GetBySelectorNotTrackedAsync((CategoryId)id, cancellationToken);
+            Category category = await menuDbContext.Categories.GetByIdQuery((CategoryId)id, cancellationToken);
 
             return category.CategoryType == CategoryType.Product
                 ? !await menuDbContext.Products.IsCategoryUsedByProductAsync((CategoryId)id, cancellationToken)

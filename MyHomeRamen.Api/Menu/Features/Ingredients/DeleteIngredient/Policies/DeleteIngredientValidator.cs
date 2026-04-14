@@ -28,7 +28,7 @@ public sealed class DeleteIngredientValidator : AbstractValidator<DeleteIngredie
 
     private static Func<Guid, CancellationToken, Task<bool>> IngredientExists(IMenuDbContext menuDbContext)
     {
-        return async (id, cancellationToken) => await menuDbContext.Ingredients.ExistsByIdAsync((IngredientId)id, cancellationToken);
+        return async (id, cancellationToken) => await menuDbContext.Ingredients.Exists(i => i.Id == (IngredientId)id, cancellationToken);
     }
 
     private static Func<Guid, CancellationToken, Task<bool>> IngredientIsNotUsedAsBaseIngredient(IMenuDbContext menuDbContext)

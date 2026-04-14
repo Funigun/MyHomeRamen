@@ -16,7 +16,8 @@ public sealed class GetIngredientByIdHandler(IMenuDbContext dbContext)
 
         Ingredient ingredient = await dbContext.Ingredients
             .Include(i => i.Categories)
-            .GetBySelectorNotTrackedAsync(ingredientId, cancellationToken);
+            .AsSplitQuery()
+            .GetByIdQuery(ingredientId, cancellationToken);
 
         return ingredient.ToResponse();
     }
