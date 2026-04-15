@@ -78,11 +78,12 @@ MyHomeRamen.slnx
 │   └── IDomainAssemblyMarker.cs
 ├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
 │   ├── Common/
-│   │   └── DbExtensions.cs                 ← Generic and entity-specific IQueryable<T> extension methods
-│   │                                       ←   e.g. ExistsByIdAsync, IsNameUniqueAsync, IsCategoryNameUniqueAsync
+│   │   └── RepositoryDbExtensions.cs       ← Generic IQueryable<T> extensions (Paged, Exists, GetList, GetById)
 │   └── {Module}/
 │       ├── Configurations/                 ← IEntityTypeConfiguration implementations
 │       ├── Converters/                     ← EF Core value converters (e.g. strong-ID converters)
+│       ├── Extensions/                     ← Entity-specific IQueryable<T> extensions for this module
+│       │   └── {Entity}DbExtensions.cs     ← e.g. CategoryDbExtensions, ProductDbExtensions
 │       ├── Migrations/                     ← EF Core migrations for the module
 │       └── {Module}DbContext.cs
 ├── MyHomeRamen.Infrastructure/             ← Infrastructure services (caching, messaging, email, keycloak)

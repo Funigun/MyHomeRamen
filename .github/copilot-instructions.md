@@ -85,10 +85,12 @@ MyHomeRamen.slnx
 ├── MyHomeRamen.Domain/                     ← Domain entities, value objects, and services
 ├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
 │   ├── Common/
-│   │   └── DbExtensions/                   ← Queryable/DbSet extension methods (e.g. IsNameUniqueAsync)
+│   │   └── RepositoryDbExtensions.cs       ← Generic IQueryable<T> extensions (Paged, Exists, GetList, GetById)
 │   └── {Module}/
 │       ├── Configurations/                 ← IEntityTypeConfiguration implementations
 │       ├── Converters/                     ← EF Core value converters (e.g. strong-ID converters)
+│       ├── Extensions/                     ← Entity-specific IQueryable<T> extensions for this module
+│       │   └── {Entity}DbExtensions.cs
 │       ├── Migrations/                     ← EF Core migrations for the module
 │       └── {Module}DbContext.cs
 ├── MyHomeRamen.Infrastructure/             ← Infrastructure services (caching, messaging, email, keycloak)

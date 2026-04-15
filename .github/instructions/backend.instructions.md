@@ -69,29 +69,27 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 
 ### 2.2) DB Extensions (mandatory)
 - All custom queries, existence checks, and uniqueness checks **must** be extension methods on `IQueryable<T>` or specific `DbSet<T>` types.
-- Place them in `MyHomeRamen.Persistance.Common.DbExtensions`.
+- Split by concern — all declared as `public static partial class DbExtensions` in `namespace MyHomeRamen.Persistance.Common`:
+  - Generic repository extensions (`Paged`, `Exists`, `GetList`, `GetById`) → `MyHomeRamen.Persistance/Common/RepositoryDbExtensions.cs`.
+  - Entity-specific extensions → `MyHomeRamen.Persistance/{Module}/Extensions/{Entity}DbExtensions.cs`.
 - Never write raw inline `AnyAsync()`, `FirstOrDefaultAsync()`, or multi-predicate `Where`/`OrderBy` chains with business predicates in handlers or validators.
 - **Layer boundary**: persistence extensions must **never** return API layer types (DTOs, response records). The persistence layer has no reference to `MyHomeRamen.Api` — returning a DTO would create a circular dependency. Query-shape extensions return `IQueryable<TEntity>`; the handler owns the final projection.
 
 ```csharp
 // ✅ Existence check — returns bool, no DTO involved
-public static async Task<bool> IsCategoryNameUniqueAsync(
-	this IQueryable<Category> query,
-	string name,
-	CancellationToken cancellationToken = default)
+extension(IQueryable<Category> categories)
 {
-	return !await query.AnyAsync(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
+	public async Task<bool> IsCategoryNameUniqueAsync(string name, CancellationToken cancellationToken = default)
+		=> await categories.Exists(c => c.Name.ToLower() != name.ToLower(), cancellationToken);
 }
 
 // ✅ Query-shape extension — returns IQueryable<TEntity>, no projection to DTO
-internal static IQueryable<Category> ForDropdown(
-	this DbSet<Category> categories,
-	CategoryType categoryType)
+extension(IQueryable<Category> categories)
 {
-	return categories
-		.AsNoTracking()
-		.Where(c => c.CategoryType == categoryType)
-		.OrderBy(c => c.SortOrder);
+	public IQueryable<Category> ForDropdown(CategoryType categoryType)
+		=> categories.GetListQuery(
+			orderBy: c => c.SortOrder,
+			filter: c => c.CategoryType == categoryType);
 }
 
 // ✅ Handler owns the projection using Mappings — the only layer that knows both Category and the response DTO
@@ -124,10 +122,12 @@ return await dbContext.Categories
 ```
 ├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
 │   ├── Common/
-│   │   └── DbExtensions/                   ← Queryable/DbSet extension methods (e.g. IsNameUniqueAsync)
+│   │   └── RepositoryDbExtensions.cs       ← Generic IQueryable<T> extensions (Paged, Exists, GetList, GetById)
 │   └── {Module}/
 │       ├── Configurations/                 ← IEntityTypeConfiguration implementations
 │       ├── Converters/                     ← EF Core value converters (e.g. strong-ID converters)
+│       ├── Extensions/                     ← Entity-specific IQueryable<T> extensions for this module
+│       │   └── {Entity}DbExtensions.cs     ← e.g. CategoryDbExtensions, ProductDbExtensions
 │       ├── Migrations/                     ← EF Core migrations for the module
 │       ├── {Module}DbContext.cs
 │		└── {Module}DbContextFactory.cs
