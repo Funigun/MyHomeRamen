@@ -54,45 +54,13 @@ MyHomeRamen.slnx
 ├── Directory.Packages.props
 ├── README.md
 ├── .github/
-│   ├── copilot-instructions.md
-│   ├── agents/
-│   ├── instructions/
-│   ├── prompts/
-│   └── workflows/
 ├── MyHomeRamen.AppHost/                    ← .NET Aspire orchestration (entry point for dev)
 ├── MyHomeRamen.ServiceDefaults/            ← Shared Aspire service defaults (telemetry, health checks, global constants)
 ├── MyHomeRamen.Api/                        ← Main API project exposing REST endpoints
-│   └── {Module}/
-│       ├── Features/
-│       │   └── {DomainModelPlural}/
-│       │       ├── {FeatureName}/
-│       │       │   ├── Models/
-│       │       │   │   ├── {Entity}Dto.cs           ← optional
-│       │       │   │   ├── Mappings.cs
-│       │       │   │   ├── {FeatureName}Request.cs
-│       │       │   │   └── {FeatureName}Response.cs
-│       │       │   ├── Policies/
-│       │       │   │   ├── {FeatureName}ValidationPolicy.cs
-│       │       │   │   ├── {FeatureName}AuthorizationPolicy.cs  ← optional
-│       │       │   │   └── {FeatureName}CachePolicy.cs          ← optional
-│       │       │   ├── {FeatureName}Endpoint.cs
-│       │       │   └── {FeatureName}Handler.cs
-│       │       └── {DomainModel}Group.cs
-│       ├── Services/						← Shared services for the module
-│       └── ExternalApis/					← Integration points exposed to other modules
 ├── MyHomeRamen.Api.Common/                 ← Common utilities, extensions, and helpers for API
 ├── MyHomeRamen.Common.Contracts/           ← Shared validators, messages objects
 ├── MyHomeRamen.Domain/                     ← Domain entities, value objects, and services
 ├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
-│   ├── Common/
-│   │   └── RepositoryDbExtensions.cs       ← Generic IQueryable<T> extensions (Paged, Exists, GetList, GetById)
-│   └── {Module}/
-│       ├── Configurations/                 ← IEntityTypeConfiguration implementations
-│       ├── Converters/                     ← EF Core value converters (e.g. strong-ID converters)
-│       ├── Extensions/                     ← Entity-specific IQueryable<T> extensions for this module
-│       │   └── {Entity}DbExtensions.cs
-│       ├── Migrations/                     ← EF Core migrations for the module
-│       └── {Module}DbContext.cs
 ├── MyHomeRamen.Infrastructure/             ← Infrastructure services (caching, messaging, email, keycloak)
 ├── MyHomeRamen.Identity.Api/               ← Identity management via Keycloak
 ├── MyHomeRamen.Worker.Common/              ← Base worker with Quartz config and shared worker services

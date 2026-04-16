@@ -25,6 +25,7 @@ internal sealed class KeycloakAdminTokenHandler(
         {
             await cacheService.RemoveAsync(
                 new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
+                _adminOptions,
                 cancellationToken);
 
             accessToken = await GetOrFetchTokenAsync(cancellationToken);
@@ -39,6 +40,7 @@ internal sealed class KeycloakAdminTokenHandler(
     private Task<string> GetOrFetchTokenAsync(CancellationToken cancellationToken) =>
         cacheService.GetOrSetAsync(
             new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
+            _adminOptions,
             FetchTokenFromKeycloakAsync,
             cancellationToken);
 

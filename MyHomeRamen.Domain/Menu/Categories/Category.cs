@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MyHomeRamen.Api.Common.Domain;
 
 namespace MyHomeRamen.Domain.Menu.Categories;
@@ -14,6 +15,21 @@ public sealed class Category : AuditableEntity, IEntity<CategoryId>
 
     private Category()
     {
+
+    }
+
+    [JsonConstructor]
+    private Category(CategoryId id, string name, int sortOrder, CategoryType categoryType, Guid restaurantId, string createdBy, DateTimeOffset createdOn, string? modifiedBy, DateTimeOffset? modifiedOn)
+    {
+        Id = id;
+        Name = name;
+        SortOrder = sortOrder;
+        CategoryType = categoryType;
+        RestaurantId = restaurantId;
+        CreatedBy = createdBy;
+        CreatedOn = createdOn;
+        ModifiedBy = modifiedBy;
+        ModifiedOn = modifiedOn;
     }
 
     private Category(CategoryId id)

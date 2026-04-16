@@ -5,9 +5,10 @@ namespace MyHomeRamen.Infrastructure.Cache;
 
 internal sealed class CacheService(HybridCache hybridCache) : ICacheService
 {
-    public async Task<TResponse> GetOrSetAsync<TRequest, TResponse>(
-        ICachePolicy<TRequest, TResponse> policy,
-        Func<CancellationToken, ValueTask<TResponse>> factory,
+    public async Task<TCached> GetOrSetAsync<TRequest, TCached>(
+        ICachePolicy<TRequest, TCached> policy,
+        TRequest request,
+        Func<CancellationToken, ValueTask<TCached>> factory,
         CancellationToken cancellationToken = default)
     {
         HybridCacheEntryOptions? options = null;
@@ -22,16 +23,17 @@ internal sealed class CacheService(HybridCache hybridCache) : ICacheService
         }
 
         return await hybridCache.GetOrCreateAsync(
-            policy.Key,
+            policy.GetKey(request),
             factory,
             options,
             cancellationToken: cancellationToken);
     }
 
-    public async Task RemoveAsync<TRequest, TResponse>(
-        ICachePolicy<TRequest, TResponse> policy,
+    public async Task RemoveAsync<TRequest, TCached>(
+        ICachePolicy<TRequest, TCached> policy,
+        TRequest request,
         CancellationToken cancellationToken = default)
     {
-        await hybridCache.RemoveAsync(policy.Key, cancellationToken);
+        await hybridCache.RemoveAsync(policy.GetKey(request), cancellationToken);
     }
 }

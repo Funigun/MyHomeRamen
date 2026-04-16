@@ -1,8 +1,8 @@
 ﻿namespace MyHomeRamen.Api.Common.Cache;
 
-public interface ICachePolicy<TRequest, TResponse>
+public interface ICachePolicy<TRequest, TCached>
 {
-    string Key { get; }
+    string GetKey(TRequest request);
 
     TimeSpan? ExpirationTime { get; }
 
