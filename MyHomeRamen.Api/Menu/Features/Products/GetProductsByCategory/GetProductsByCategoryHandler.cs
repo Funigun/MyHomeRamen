@@ -17,7 +17,7 @@ public sealed class GetProductsByCategoryHandler(IMenuDbContext dbContext, ICach
         GetProductsByCategoryRequest request,
         CancellationToken cancellationToken)
     {
-        IEnumerable<Product> products = await cacheService.GetOrSetAsync
+        IEnumerable<GetProductsByCategoryResponse> products = await cacheService.GetOrSetAsync
         (
             new GetProductsByCategoryCachePolicy(),
             request,
@@ -25,13 +25,14 @@ public sealed class GetProductsByCategoryHandler(IMenuDbContext dbContext, ICach
             cancellationToken
         );
 
-        return products.Select(p => p.ToResponse());
+        return products;
     }
 
-    private async Task<List<Product>> GetProductsAsync(GetProductsByCategoryRequest request, CancellationToken cancellationToken)
+    private async Task<List<GetProductsByCategoryResponse>> GetProductsAsync(GetProductsByCategoryRequest request, CancellationToken cancellationToken)
     {
         return await dbContext.Products
                               .ForCategory(new CategoryId(request.CategoryId))
+                              .Select(p => p.ToResponse())
                               .ToListAsync(cancellationToken);
     }
 }

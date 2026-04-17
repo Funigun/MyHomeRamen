@@ -82,11 +82,12 @@ try
     if (!isTestingEnvironment)
     {
         builder.AddRedisClient(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
-        IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
+        //IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
 
         builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
 
-        builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
+        builder.AddRedisDistributedCache(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
+        builder.Services//.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
                         .AddCacheService()
                         .AddMessagingService();
     }

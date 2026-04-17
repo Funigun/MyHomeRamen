@@ -4,7 +4,7 @@ using MyHomeRamen.Domain.Menu.Products;
 
 namespace MyHomeRamen.Api.Menu.Features.Products.GetProductsByCategory.Policies;
 
-public class GetProductsByCategoryCachePolicy : ICachePolicy<GetProductsByCategoryRequest, List<Product>>
+public class GetProductsByCategoryCachePolicy : ICachePolicy<GetProductsByCategoryRequest, List<GetProductsByCategoryResponse>>
 {
     public TimeSpan? ExpirationTime { get; } = TimeSpan.FromMinutes(60);
 

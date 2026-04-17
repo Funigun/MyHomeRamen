@@ -14,16 +14,22 @@ public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext, ICacheS
 {
     public async Task<IEnumerable<GetCategoriesByTypeResponse>> Handle(GetCategoriesByTypeRequest request, CancellationToken cancellationToken)
     {
-        CategoryType categoryType = (CategoryType)request.CategoryType;
-
-        IEnumerable<Category> categories = await cacheService.GetOrSetAsync(
+        IEnumerable<GetCategoriesByTypeResponse> categories = await cacheService.GetOrSetAsync(
             new GetCategoriesByTypeCachePolicy(),
             request,
-            async ct => await dbContext.Categories
-                .ForCategoryType(categoryType)
-                .ToListAsync(ct),
+            async ct => await GetCategoriesAsync(request, ct),
             cancellationToken);
 
-        return categories.Select(c => c.ToResponse());
+        return categories;
+    }
+
+    private async Task<List<GetCategoriesByTypeResponse>> GetCategoriesAsync(GetCategoriesByTypeRequest request, CancellationToken cancellationToken)
+    {
+        CategoryType categoryType = (CategoryType)request.CategoryType;
+
+        return await dbContext.Categories
+                              .ForCategoryType(categoryType)
+                              .Select(c => c.ToResponse())
+                              .ToListAsync(cancellationToken);
     }
 }

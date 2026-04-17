@@ -18,20 +18,6 @@ public sealed class Category : AuditableEntity, IEntity<CategoryId>
 
     }
 
-    [JsonConstructor]
-    private Category(CategoryId id, string name, int sortOrder, CategoryType categoryType, Guid restaurantId, string createdBy, DateTimeOffset createdOn, string? modifiedBy, DateTimeOffset? modifiedOn)
-    {
-        Id = id;
-        Name = name;
-        SortOrder = sortOrder;
-        CategoryType = categoryType;
-        RestaurantId = restaurantId;
-        CreatedBy = createdBy;
-        CreatedOn = createdOn;
-        ModifiedBy = modifiedBy;
-        ModifiedOn = modifiedOn;
-    }
-
     private Category(CategoryId id)
     {
         Id = id;
