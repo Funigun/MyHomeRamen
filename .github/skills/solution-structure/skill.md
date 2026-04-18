@@ -35,6 +35,9 @@ MyHomeRamen.slnx
 │   └── {Module}/
 │       ├── Features/
 │       │   └── {DomainModelPlural}/
+│		│		├── Caching/
+│		│		│	├── {FeatureName}CachePolicy.cs
+│		│		│	└── {DomainModel}CacheInvalidation.cs
 │       │       ├── {FeatureName}/
 │       │       │   ├── Models/
 │       │       │   │   ├── {Entity}Dto.cs           ← optional
@@ -44,7 +47,6 @@ MyHomeRamen.slnx
 │       │       │   ├── Policies/
 │       │       │   │   ├── {FeatureName}ValidationPolicy.cs
 │       │       │   │   ├── {FeatureName}AuthorizationPolicy.cs  ← optional
-│       │       │   │   └── {FeatureName}CachePolicy.cs          ← optional
 │       │       │   ├── {FeatureName}Endpoint.cs
 │       │       │   └── {FeatureName}Handler.cs
 │       │       └── {DomainModel}Group.cs

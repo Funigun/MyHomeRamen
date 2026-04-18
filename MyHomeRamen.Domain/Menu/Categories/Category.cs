@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MyHomeRamen.Api.Common.Domain;
 
 namespace MyHomeRamen.Domain.Menu.Categories;
@@ -14,6 +15,7 @@ public sealed class Category : AuditableEntity, IEntity<CategoryId>
 
     private Category()
     {
+
     }
 
     private Category(CategoryId id)

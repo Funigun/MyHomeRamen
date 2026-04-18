@@ -210,6 +210,9 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 │   └── {Module}/
 │       ├── Features/
 │       │   └── {DomainModelPlural}/
+│		│		├── Caching/
+│		│		│	├── {FeatureName}CachePolicy.cs
+│		│		│	└── {DomainModel}CacheInvalidation.cs
 │       │       ├── {FeatureName}/
 │       │       │   ├── Models/
 │       │       │   │   ├── {Entity}Dto.cs           ← optional
@@ -219,7 +222,6 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 │       │       │   ├── Policies/
 │       │       │   │   ├── {FeatureName}ValidationPolicy.cs
 │       │       │   │   ├── {FeatureName}AuthorizationPolicy.cs  ← optional
-│       │       │   │   └── {FeatureName}CachePolicy.cs          ← optional
 │       │       │   ├── {FeatureName}Endpoint.cs
 │       │       │   └── {FeatureName}Handler.cs
 │       │       └── {DomainModel}Group.cs
@@ -236,8 +238,7 @@ public sealed class {FeatureName}Endpoint : IEndpoint
 │       │   │    │   └── {FeatureName}Response.cs
 │       │   │    ├── Policies/
 │       │   │    │   ├── {FeatureName}ValidationPolicy.cs
-│       │   │    │   ├── {FeatureName}AuthorizationPolicy.cs  ← optional
-│       │   │    │   └── {FeatureName}CachePolicy.cs          ← optional
+│       │   │    │   └── {FeatureName}AuthorizationPolicy.cs  ← optional
 │       │   │    ├── {FeatureName}Endpoint.cs
 │       │   │    └── {FeatureName}Handler.cs
 │       │   └────{Module}Group.cs
@@ -297,6 +298,15 @@ MapStandardValidatedGet<GetIngredientsForManageRequest, IEnumerable<IngredientDt
 
 Reference: #file:'MyHomeRamen.Api/Menu/Features/Ingredients/GetIngredientsForManage/GetIngredientsForManageHandler.cs'
 
+### 3.9) Caching
+
+- For GET endpoints, define an `ICachePolicy` implementation in the feature's `Caching/` folder and use `ICacheService` in the handler to attempt cache retrieval before querying the database. Cache keys and expiration are defined in the policy.
+- For commands that modify data, define cache invalidation logic in a `{DomainModel}CacheInvalidation.cs` file in the same folder, and invoke it from the handler after `SaveChangesAsync()` to ensure cache consistency.
+
+Reference: #folder:'MyHomeRamen.Api/Menu/Features/Categories/Caching'
+Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/UpdateCategory/UpdateCategoryHandler.cs'
+Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesByType/GetCategoriesByTypeHandler.cs'
+
 ### 4) Infrastructure Layer (`MyHomeRamen.Infrastructure`)
 
 ### 4.1) General
@@ -305,6 +315,7 @@ Reference: #file:'MyHomeRamen.Api/Menu/Features/Ingredients/GetIngredientsForMan
 
 ### 4.2) Caching Service (`ICacheService`)
 - Configured via `ICachePolicy` (expiration, cache key, etc.).
+- Cache Key templates defined by `CacheKeyProvider`
 - Uses `HybridCache` supporting both in-memory and distributed (Redis / FusionCache) backing.
 
 ### 4.3) Keycloak Admin Service (`IKeycloakAdminService`)
