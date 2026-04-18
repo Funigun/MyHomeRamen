@@ -12,7 +12,6 @@ using MyHomeRamen.Persistance;
 using MyHomeRamen.ServiceDefaults;
 using Scalar.AspNetCore;
 using Serilog;
-using StackExchange.Redis;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -68,13 +67,10 @@ try
     builder.Services.ConfigureAuthentication(authorizationConfigurationProvider)
                     .ConfigureAuthorizationPolicies();
 
-    builder.AddRedisClient(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
-    IConnectionMultiplexer? redis = builder.Services.BuildServiceProvider().GetService<IConnectionMultiplexer>();
-
     builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
 
-    builder.Services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis))
-                    .AddCacheService()
+    builder.AddRedisDistributedCache(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
+    builder.Services.AddCacheService()
                     .AddMessagingService()
                     .AddKeycloakAdminService(builder.Configuration);
 

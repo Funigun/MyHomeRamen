@@ -7,4 +7,6 @@ public interface ICachePolicy<TRequest, TCached>
     TimeSpan? ExpirationTime { get; }
 
     TimeSpan? LocalExpirationTime { get; }
+
+    IEnumerable<string> Tags { get; }
 }

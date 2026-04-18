@@ -23,7 +23,7 @@ internal sealed class KeycloakAdminTokenHandler(
         // Retry to get access token in case when Keycloak was restared and the cached token is no longer valid
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            await cacheService.RemoveAsync(
+            await cacheService.RemoveByKeyAsync(
                 new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
                 _adminOptions,
                 cancellationToken);

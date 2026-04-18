@@ -50,7 +50,6 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" />
-		<PackageReference Include="Aspire.StackExchange.Redis" />
 		<PackageReference Include="StackExchange.Redis" />
 		<PackageReference Include="Serilog" />
 	</ItemGroup>
@@ -68,9 +67,7 @@
 		<PackageReference Include="Serilog.AspNetCore" />
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
 		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
-		<PackageReference Include="Aspire.StackExchange.Redis" />
 		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" />
-		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
 		<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
 	</ItemGroup>
 

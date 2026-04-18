@@ -9,7 +9,9 @@ internal sealed class KeycloakAdminTokenCachePolicy : ICachePolicy<KeycloakAdmin
 
     public string GetKey(KeycloakAdminOptions request) => "keycloak_admin_access_token";
 
+    public TimeSpan? LocalExpirationTime => null;
+
     public TimeSpan? ExpirationTime { get; }
 
-    public TimeSpan? LocalExpirationTime => null;
+    public IEnumerable<string> Tags => ["keycloak_admin_token"];
 }

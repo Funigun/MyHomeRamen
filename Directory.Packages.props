@@ -24,7 +24,6 @@
     <PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.1.0" />
     <PackageVersion Include="Aspire.RabbitMQ.Client.v7" Version="9.5.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.1.0" />
-    <PackageVersion Include="Aspire.StackExchange.Redis" Version="13.2.2" />
     <PackageVersion Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.2.2" />
 	<PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.2.2" />
     <PackageVersion Include="StackExchange.Redis" Version="2.11.0" />
