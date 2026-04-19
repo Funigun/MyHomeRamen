@@ -2,7 +2,7 @@
 name: drax-formatter
 description: Reads .editorconfig and analyzes Visual Studio, SonarAnalyzer and StyleCop warnings to perform code cleanup on new or modified files only.
 tools: ['read', 'edit', 'search']
-model: claude-opus-4.6
+model: gemini-3.1.-pro
 ---
 
 # Drax Formatter Agent
