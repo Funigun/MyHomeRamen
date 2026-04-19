@@ -11,4 +11,6 @@ public static class CacheKeyProvider
     public static string GetCategoriesByTypeKey(string categoryType) => string.Format(null, CategoryByTypeKeyTemplate, categoryType);
 
     public static string GetMenuItemsByCategoryKey(string categoryId) => string.Format(null, MenuItemsByCategoryKeyTemplate, categoryId);
+
+    public static string GetMenuCategoriesKey() => "menu_categories";
 }

@@ -1,10 +1,11 @@
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api.Common.Cache;
 using MyHomeRamen.Api.Common.Configuration;
 
 namespace MyHomeRamen.Infrastructure.Cache;
 
-internal sealed class CacheService(HybridCache hybridCache, RestaurantConfigurationProvider restaurantConfigurationProvider) : ICacheService
+internal sealed class CacheService(HybridCache hybridCache, IServiceScopeFactory scopeFactory) : ICacheService
 {
     public async Task<TCached> GetOrSetAsync<TRequest, TCached>(
         ICachePolicy<TRequest, TCached> policy,
@@ -12,6 +13,8 @@ internal sealed class CacheService(HybridCache hybridCache, RestaurantConfigurat
         Func<CancellationToken, ValueTask<TCached>> factory,
         CancellationToken cancellationToken)
     {
+        RestaurantConfigurationProvider restaurantConfigurationProvider = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<RestaurantConfigurationProvider>();
+
         HybridCacheEntryOptions? options = null;
 
         if (policy.ExpirationTime.HasValue || policy.LocalExpirationTime.HasValue)
@@ -38,6 +41,8 @@ internal sealed class CacheService(HybridCache hybridCache, RestaurantConfigurat
 
     public async Task RemoveByKeyAsync(string key, CancellationToken cancellationToken)
     {
+        RestaurantConfigurationProvider restaurantConfigurationProvider = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<RestaurantConfigurationProvider>();
+
         string restaurantId = restaurantConfigurationProvider.RestaurantId.ToString();
         string fullKey = $"{restaurantId}_{key}";
 
@@ -46,6 +51,8 @@ internal sealed class CacheService(HybridCache hybridCache, RestaurantConfigurat
 
     public async Task RemoveByTagsAsync(IEnumerable<string> tags, CancellationToken cancellationToken)
     {
+        RestaurantConfigurationProvider restaurantConfigurationProvider = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<RestaurantConfigurationProvider>();
+
         string restaurantId = restaurantConfigurationProvider.RestaurantId.ToString();
         List<string> fullTags = tags.Select(tag => $"{restaurantId}_{tag}").ToList();
 
@@ -54,6 +61,8 @@ internal sealed class CacheService(HybridCache hybridCache, RestaurantConfigurat
 
     public async Task RemoveByRestaurantIdAsync(CancellationToken cancellationToken)
     {
+        RestaurantConfigurationProvider restaurantConfigurationProvider = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<RestaurantConfigurationProvider>();
+
         string restaurantId = restaurantConfigurationProvider.RestaurantId.ToString();
 
         await hybridCache.RemoveByTagAsync([restaurantId], cancellationToken);

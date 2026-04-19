@@ -10,14 +10,19 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
+<MudLayout Style="--mud-appbar-height: 175px; --footer-height: 181px;">
     <CustomerAppBar />
 
     <MudMainContent>
-        @Body
+        <div style="min-height: 900px; padding: 96px 48px; padding-bottom: var(--footer-height);">
+            @Body
+        </div>
+        
     </MudMainContent>
 
-    <Footer />
+     <div style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;">
+        <Footer />
+     </div>
 </MudLayout>
 
 @code {

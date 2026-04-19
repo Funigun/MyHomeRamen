@@ -175,4 +175,20 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return await response.Content.ReadFromJsonAsync<UpdateProductResponse>(ct)
             ?? throw new InvalidOperationException("Empty response from UpdateProduct endpoint.");
     }
+
+    public async Task<IEnumerable<GetMenuCategoriesResponse>> GetMenuCategoriesAsync(CancellationToken ct = default)
+    {
+        IEnumerable<GetMenuCategoriesResponse>? result = await httpClient
+            .GetFromJsonAsync<IEnumerable<GetMenuCategoriesResponse>>("/api/menu/categories/menu", ct);
+
+        return result ?? [];
+    }
+
+    public async Task<IEnumerable<GetProductsByCategoryResponse>> GetProductsByCategoryAsync(Guid categoryId, CancellationToken ct = default)
+    {
+        IEnumerable<GetProductsByCategoryResponse>? result = await httpClient
+            .GetFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>($"/api/menu/products?categoryId={categoryId}", ct);
+
+        return result ?? [];
+    }
 }
