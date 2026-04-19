@@ -24,8 +24,7 @@ internal sealed class KeycloakAdminTokenHandler(
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
             await cacheService.RemoveByKeyAsync(
-                new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
-                _adminOptions,
+                "keycloak_admin_access_token",
                 cancellationToken);
 
             accessToken = await GetOrFetchTokenAsync(cancellationToken);

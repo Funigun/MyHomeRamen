@@ -2,7 +2,7 @@
 name: drax-implementer
 description: Implement features and changes based on structured implementation plans and coding standards.
 tools: ['execute', 'read', 'edit', 'search']
-model: gemini-3.1-pro
+model: claude-sonnet-4.6
 ---
 
 # Drax Implementer Agent

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Cache;
 using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Menu.Features.Categories.Caching;
 using MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Models;
 using MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Policies;
 using MyHomeRamen.Domain.Menu.Categories;

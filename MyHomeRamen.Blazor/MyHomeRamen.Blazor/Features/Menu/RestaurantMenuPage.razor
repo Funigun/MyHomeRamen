@@ -1,0 +1,90 @@
+﻿@page "/menu"
+
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Responses
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Products.Responses
+
+@inject MenuApiClient MenuApiClient
+
+<PageTitle>Menu</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-6">Our Menu</MudText>
+
+    @if (_categories.Any())
+    {
+        <div Class="d-flex flex-wrap gap-2 mb-6" style="overflow-x: auto;">
+            @foreach (GetMenuCategoriesResponse category in _categories)
+            {
+                <MudChip T="string"
+                         Color="@(_selectedCategoryId == category.Id ? Color.Primary : Color.Default)"
+                         OnClick="@(() => OnCategorySelectedAsync(category.Id))"
+                         Variant="@(_selectedCategoryId == category.Id ? Variant.Filled : Variant.Outlined)">
+                    @category.Name
+                </MudChip>
+            }
+        </div>
+    }
+
+    @if (_isLoadingProducts)
+    {
+        <MudProgressCircular Indeterminate="true" Class="d-block mx-auto my-6" />
+    }
+    else if (!_products.Any())
+    {
+        <MudText Typo="Typo.body1" Class="mt-4" Color="Color.Secondary">No products found for this category.</MudText>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (GetProductsByCategoryResponse product in _products)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Elevation="2">
+                        <ImageDisplay Image="@product.ImageUrl" Style="width:100%; height:100%; object-fit:cover;" />
+                        <MudCardContent>
+                            <MudText Typo="Typo.h6">@product.Name</MudText>
+                            <MudText Typo="Typo.body2" Class="mb-2">@product.Description</MudText>
+                            <MudText Typo="Typo.subtitle1" Color="Color.Primary">@product.Price.ToString("C")</MudText>
+                            @if (product.Ingredients.Any())
+                            {
+                                <MudText Typo="Typo.caption" Class="mt-2">
+                                    @string.Join(", ", product.Ingredients.Select(i => i.Name))
+                                </MudText>
+                            }
+                        </MudCardContent>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudPaper>
+
+@code {
+    private IEnumerable<GetMenuCategoriesResponse> _categories = [];
+    private IEnumerable<GetProductsByCategoryResponse> _products = [];
+    private Guid _selectedCategoryId;
+    private bool _isLoadingProducts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categories = await MenuApiClient.GetMenuCategoriesAsync();
+
+        GetMenuCategoriesResponse? first = _categories.FirstOrDefault();
+        if (first is not null)
+        {
+            await OnCategorySelectedAsync(first.Id);
+        }
+    }
+
+    private async Task OnCategorySelectedAsync(Guid categoryId)
+    {
+        _selectedCategoryId = categoryId;
+        _isLoadingProducts = true;
+
+        _products = await MenuApiClient.GetProductsByCategoryAsync(categoryId);
+
+        _isLoadingProducts = false;
+    }
+}
+

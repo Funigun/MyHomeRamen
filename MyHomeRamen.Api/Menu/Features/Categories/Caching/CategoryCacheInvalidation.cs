@@ -9,6 +9,7 @@ internal static class CategoryCacheInvalidation
     {
         yield return CacheKeyProvider.GetCategoriesByTypeKey(category.CategoryType.ToString());
         yield return CacheKeyProvider.GetMenuItemsByCategoryKey(category.Id.ToString());
+        yield return CacheKeyProvider.GetMenuCategoriesKey();
     }
 
     public static IEnumerable<string> GetAffectedKeys(IEnumerable<Category> categories)
