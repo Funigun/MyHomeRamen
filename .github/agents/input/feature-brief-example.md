@@ -27,35 +27,6 @@
 
 ## 3) Feature description (Backend scope)
 
-### New flow overview
-
-```
-[Client]
-   │
-   ▼ POST /api/orders/tasks
-[CreateToDoItem Endpoint]
-   │
-   ▼
-[CreateToDoItemHandler]
-   ├── creates ToDoItem domain entity
-   ├── raises CreatedTaskEvent (IDomainEvent)
-   └── saves ToDoItem + outbox entry atomically
-          │
-          ▼
-[Orders DB — OutboxMessages table]
-          │
-          ▼ (polling / Quartz job)
-[Outbox Relay Worker — Worker.MessagesHandler or new hosted service]
-          │
-          └── publishes CreatedTaskIntegrationEvent → RabbitMQ (task-events-queue)
-                         │
-                         ▼ (consume)
-          [ShoppingCart Inbox Worker — Worker.MessagesHandler]
-                         │
-                         ├── saves message to InboxMessages table (ShoppingCart DB)
-                         └── processes event (e.g. updates basket state)
-```
-
 ### New API endpoint
 
 - **Endpoint**: `POST /api/orders/tasks`

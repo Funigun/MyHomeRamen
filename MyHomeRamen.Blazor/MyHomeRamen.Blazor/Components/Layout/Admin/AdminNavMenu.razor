@@ -1,0 +1,15 @@
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+
+@inject MenuNavigationService MenuNavigationService
+@inject NavigationManager NavigationManager
+
+<MudNavMenu>
+    <MudNavGroup Title="Menu Management" Icon="@Icons.Material.Filled.RestaurantMenu" Expanded="true">
+        <MudNavLink Href="@MenuNavigationService.Routes.Admin.ProductsManagement" Match="NavLinkMatch.All">
+            Products Management
+        </MudNavLink>
+        <MudNavLink Href="@MenuNavigationService.Routes.Admin.IngredientsManagement" Match="NavLinkMatch.All">
+            Ingredients Management
+        </MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>
