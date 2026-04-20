@@ -13,9 +13,16 @@ public sealed class CustomAuthenticationStateProvider(IHttpContextAccessor httpC
         return Task.FromResult(new AuthenticationState(user));
     }
 
+    public async Task<bool> IsAuthenticated()
+    {
+        ClaimsPrincipal user = await GetCurrentUserAsync();
+        return user.Identity?.IsAuthenticated ?? false;
+    }
+
     public async Task<ClaimsPrincipal> GetCurrentUserAsync()
     {
         AuthenticationState state = await GetAuthenticationStateAsync();
+
         return state.User;
     }
 

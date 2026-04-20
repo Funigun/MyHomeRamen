@@ -49,7 +49,24 @@
     <File Path=".github/agents/input/feature-brief-example.md" />
     <File Path=".github/agents/input/feature-brief-template.md" />
   </Folder>
-  <Folder Name="/_github/agents/output/" />
+  <Folder Name="/_github/agents/output/">
+    <File Path=".github/agents/output/add-address-brief.md" />
+    <File Path=".github/agents/output/add-address-plan-backend.md" />
+    <File Path=".github/agents/output/add-address-plan-frontend.md" />
+    <File Path=".github/agents/output/delete-account-brief.md" />
+    <File Path=".github/agents/output/delete-address-brief.md" />
+    <File Path=".github/agents/output/delete-address-plan-backend.md" />
+    <File Path=".github/agents/output/delete-address-plan-frontend.md" />
+    <File Path=".github/agents/output/get-addresses-brief.md" />
+    <File Path=".github/agents/output/get-addresses-plan-backend.md" />
+    <File Path=".github/agents/output/get-addresses-plan-frontend.md" />
+    <File Path=".github/agents/output/get-details-brief.md" />
+    <File Path=".github/agents/output/get-details-plan-backend.md" />
+    <File Path=".github/agents/output/get-details-plan-frontend.md" />
+    <File Path=".github/agents/output/update-address-brief.md" />
+    <File Path=".github/agents/output/update-address-plan-backend.md" />
+    <File Path=".github/agents/output/update-address-plan-frontend.md" />
+  </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />

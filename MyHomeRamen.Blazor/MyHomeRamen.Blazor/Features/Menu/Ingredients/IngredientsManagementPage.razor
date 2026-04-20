@@ -1,7 +1,9 @@
 @page "/admin/menu/ingredients-management"
+@layout AdminLayout
 
 @attribute [Authorize(Roles = MenuRoleConstants.Admin)]
 
+@using MyHomeRamen.Blazor.Components.Layout.Admin
 @using MyHomeRamen.Blazor.Features.Menu.Categories
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Components
 @using MyHomeRamen.Blazor.Features.Menu.Common.Constants

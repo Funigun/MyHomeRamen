@@ -1,0 +1,44 @@
+﻿@inherits LayoutComponentBase
+
+@using MyHomeRamen.Blazor.Common.Configuration
+@using MyHomeRamen.Blazor.Components.Common
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+
+@inject ThemeProviderService ThemeProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<CascadingAuthenticationState>
+    <MudLayout Style="--mud-appbar-height: 150px; --footer-height: 120px">
+        <AppBar/>
+
+        <MudMainContent Style="justify-items: center">
+            <div style="min-height: 900px; padding: 48px 48px; padding-bottom: var(--footer-height); width: 80%">
+                @Body
+            </div>            
+        </MudMainContent>
+    
+         <div style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;">
+            <Footer />
+         </div>
+    </MudLayout>
+</CascadingAuthenticationState>
+
+@code {
+    private MudTheme _theme = default!;
+
+    private bool _showDrawer = false;
+    private bool _openDrawer = false;
+    private string _userName = string.Empty;
+
+    protected override void OnInitialized() => _theme = ThemeProvider.GetTheme();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userName = await AuthenticationStateProvider.GetUserName() ?? string.Empty;
+    }
+}

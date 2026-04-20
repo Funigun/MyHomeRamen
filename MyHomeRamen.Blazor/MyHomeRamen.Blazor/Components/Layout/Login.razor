@@ -3,20 +3,13 @@
 <AuthorizeView>
     <Authorized>
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-            <MudText Typo="Typo.body2" Color="Color.Inherit">
-                Welcome @context.User.Identity?.Name!
-            </MudText>
             <form method="post" action="authentication/logout" style="display:inline;">
                 <AntiforgeryToken />
-                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Text" Color="Color.Inherit">
-                    Logout
-                </MudButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Logout" ButtonType="ButtonType.Submit" Variant="Variant.Text" Color="Color.Inherit" />
             </form>
         </MudStack>
     </Authorized>
     <NotAuthorized>
-        <MudButton Href="authentication/login" Variant="Variant.Text" Color="Color.Inherit">
-            Login
-        </MudButton>
+        <MudIconButton Icon="@Icons.Material.Filled.Login" Href="authentication/login" Variant="Variant.Text" Color="Color.Inherit"/>
     </NotAuthorized>
 </AuthorizeView>
