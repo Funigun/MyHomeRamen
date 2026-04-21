@@ -10,6 +10,8 @@ internal sealed class IdentityFakeUser : ICurrentUser
 {
     public string Id { get; init; } = DataSeeder.SeededUserKeycloakId;
 
+    public Guid UserId { get; init; } = Guid.Empty;
+
     public Guid RestaurantId { get; init; } = DataSeeder.SeededRestaurantId;
 
     public IEnumerable<Claim> Claims { get; init; } = [];

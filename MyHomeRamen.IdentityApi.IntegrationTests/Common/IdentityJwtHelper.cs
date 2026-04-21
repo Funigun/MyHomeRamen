@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;
@@ -16,7 +17,7 @@ internal static class IdentityJwtHelper
     {
         List<Claim> claims =
         [
-            new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier", keycloakUserId),
+            new Claim(ClaimConstants.KeycloakIdClaim, keycloakUserId),
             new Claim(ClaimTypes.Role, role)
         ];
 
