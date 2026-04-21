@@ -16,6 +16,7 @@
   <Folder Name="/Tests/">
     <Project Path="MyHomeRamen.ArchitectureTests/MyHomeRamen.ArchitectureTests.csproj" Id="81301af1-6544-4e3e-bb3e-342fe857e20e" />
     <Project Path="MyHomeRamen.BlazorTests/MyHomeRamen.BlazorTests.csproj" Id="b596964e-80e4-453a-8de7-e24a2ac61410" />
+    <Project Path="MyHomeRamen.IdentityApi.IntegrationTests/MyHomeRamen.IdentityApi.IntegrationTests.csproj" Id="0c080d1c-40c7-4c47-b41b-adb997ea1986" />
     <Project Path="MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj" Id="81c45925-f5aa-4a1c-b28f-5882ed6bc05a" />
     <Project Path="MyHomeRamen.SystemTests/MyHomeRamen.SystemTests.csproj" />
     <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />

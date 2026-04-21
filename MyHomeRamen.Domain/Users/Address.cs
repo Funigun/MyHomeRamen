@@ -1,33 +1,52 @@
+using MyHomeRamen.Domain.Common.Address;
+
 namespace MyHomeRamen.Domain.Users;
 
 public class Address
 {
     public Guid Id { get; private set; }
 
-    public string Street { get; private set; }
+    public string Street { get; private set; } = default!;
 
-    public string Building { get; private set; }
+    public string Building { get; private set; } = default!;
 
-    public string Apartment { get; private set; }
+    public string Apartment { get; private set; } = default!;
 
-    public string City { get; private set; }
+    public string City { get; private set; } = default!;
 
-    public string ZipCode { get; private set; }
+    public string ZipCode { get; private set; } = default!;
+
+    public bool IsDefault { get; private set; }
 
     private Address()
     {
     }
 
-    public static Address Create(Guid id, string street, string city, string building, string apartment, string zipCode)
+    public static Address Create(Guid id, string street, string building, string apartment, string city, string zipCode, bool isDefault)
     {
-        return new Address
+        Address address = new()
         {
             Id = id,
             Street = street,
-            City = city,
             Building = building,
             Apartment = apartment,
-            ZipCode = zipCode
+            City = city,
+            ZipCode = zipCode,
+            IsDefault = isDefault
         };
+
+        AddressValidator.ValidateAddress(address);
+
+        return address;
+    }
+
+    public void SetAsDefault()
+    {
+        IsDefault = true;
+    }
+
+    public void UnsetDefault()
+    {
+        IsDefault = false;
     }
 }

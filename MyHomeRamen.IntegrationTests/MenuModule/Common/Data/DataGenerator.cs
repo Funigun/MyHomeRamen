@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Collections.ObjectModel;
+using System.Security.Cryptography;
 using Bogus;
 using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
 using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
@@ -46,16 +47,22 @@ internal static class DataGenerator
         );
 
     private static readonly Faker<Product> ValidProductFaker = new Faker<Product>()
-        .CustomInstantiator(f => Product.Create(
-            Guid.NewGuid(),
-            f.Random.String2(ProductConstants.MinNameLength, ProductConstants.MaxNameLength),
-            f.Random.String2(ProductConstants.MinDescriptionLength, ProductConstants.MaxDescriptionLength),
-            f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice),
-            string.Empty,
-            [GetRandomIngredient()],
-            [GetRandomIngredient()],
-            [GetRandomProductCategory()])
-        );
+        .CustomInstantiator(f =>
+        {
+            Ingredient baseIngredient = GetRandomIngredient();
+            Ingredient? customIngredient = GetRandomIngredientExcluding(baseIngredient.Id);
+            Collection<Ingredient> customIngredients = customIngredient is not null ? [customIngredient] : [];
+
+            return Product.Create(
+                Guid.NewGuid(),
+                f.Random.String2(ProductConstants.MinNameLength, ProductConstants.MaxNameLength),
+                f.Random.String2(ProductConstants.MinDescriptionLength, ProductConstants.MaxDescriptionLength),
+                f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice),
+                string.Empty,
+                [baseIngredient],
+                customIngredients,
+                [GetRandomProductCategory()]);
+        });
 
     internal static Category GenerateValidCategory()
     {
@@ -157,6 +164,12 @@ internal static class DataGenerator
     {
         List<Ingredient> ingredients = GeneratedIngredients.ToList();
         return ingredients[RandomNumberGenerator.GetInt32(ingredients.Count)];
+    }
+
+    internal static Ingredient? GetRandomIngredientExcluding(Guid excludedId)
+    {
+        List<Ingredient> ingredients = GeneratedIngredients.Where(i => i.Id.Value != excludedId).ToList();
+        return ingredients.Count > 0 ? ingredients[RandomNumberGenerator.GetInt32(ingredients.Count)] : null;
     }
 
     internal static Category GetRandomProductCategory()

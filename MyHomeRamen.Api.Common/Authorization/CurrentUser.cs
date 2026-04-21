@@ -6,7 +6,10 @@ namespace MyHomeRamen.Api.Common.Authorization;
 
 public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, RestaurantConfigurationProvider configurationProvider) : ICurrentUser
 {
-    public string Id { get; init; } = httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == "Id")?.Value ?? string.Empty;
+    private const string UserIdClaim = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+
+    public string Id { get; init; } = httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == UserIdClaim)?.Value
+                                      ?? string.Empty;
 
     public Guid RestaurantId { get; init; } = configurationProvider.RestaurantId;
 

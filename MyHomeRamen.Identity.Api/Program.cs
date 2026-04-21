@@ -28,6 +28,8 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 try
 {
     builder.AddConfiguration();
+    bool isTestingEnvironment = builder.IsTesting();
+
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     builder.Services.AddScoped<DatabaseConfigurationProvider>();
     builder.Services.AddScoped<AuthorizationConfiguration>();
@@ -35,15 +37,18 @@ try
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
     AuthorizationConfiguration authorizationConfigurationProvider = new(builder.Configuration);
 
-    builder.Services.AddCors(options =>
+    if (!isTestingEnvironment)
     {
-        options.AddDefaultPolicy(policy =>
+        builder.Services.AddCors(options =>
         {
-            policy.WithOrigins(ServiceNames.Blazor(configurationProvider.InfrastructurePrefix))
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            options.AddDefaultPolicy(policy =>
+            {
+                policy.WithOrigins(ServiceNames.Blazor(configurationProvider.InfrastructurePrefix))
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
         });
-    });
+    }
 
     builder.AddApiServiceDefaults(ServiceNames.IdentityApi(configurationProvider.InfrastructurePrefix));
     builder.Services.AddSerilog();
@@ -67,12 +72,15 @@ try
     builder.Services.ConfigureAuthentication(authorizationConfigurationProvider)
                     .ConfigureAuthorizationPolicies();
 
-    builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
+    if (!isTestingEnvironment)
+    {
+        builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));
 
-    builder.AddRedisDistributedCache(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
-    builder.Services.AddCacheService()
-                    .AddMessagingService()
-                    .AddKeycloakAdminService(builder.Configuration);
+        builder.AddRedisDistributedCache(ServiceNames.Cache(configurationProvider.InfrastructurePrefix));
+        builder.Services.AddCacheService()
+                        .AddMessagingService()
+                        .AddKeycloakAdminService(builder.Configuration);
+    }
 
     WebApplication app = builder.Build();
 
@@ -90,7 +98,12 @@ try
     app.UseSerilogRequestLogging();
     app.MapDefaultEndpoints();
     app.MapEndpoints();
-    app.UseCors();
+
+    if (!isTestingEnvironment)
+    {
+        app.UseCors();
+    }
+
     app.UseAuthorization();
 
     await app.RunAsync();

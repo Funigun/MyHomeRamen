@@ -11,6 +11,7 @@ internal static class DependencyInjection
     internal const string RestaurantCustomerPolicy = "RestaurantCustomer";
     internal const string RestaurantEmployeePolicy = "RestaurantEmployee";
     internal const string RestaurantManagerPolicy = "RestaurantManager";
+    internal const string AnyAuthenticatedPolicy = "AnyAuthenticated";
 
     internal static ScalarOptions ConfigureScalarOptions(this ScalarOptions options, RestaurantConfigurationProvider configurationProvider)
     {
@@ -41,7 +42,11 @@ internal static class DependencyInjection
                 .AddPolicy(RestaurantManagerPolicy, policy =>
                     policy.AddAuthenticationSchemes(RestaurantManagerPolicy)
                           .RequireAuthenticatedUser()
-                          .RequireRole("manager"));
+                          .RequireRole("manager"))
+
+                .AddPolicy(AnyAuthenticatedPolicy, policy =>
+                    policy.AddAuthenticationSchemes(RestaurantCustomerPolicy, RestaurantEmployeePolicy, RestaurantManagerPolicy)
+                          .RequireAuthenticatedUser());
 
         return services;
     }
