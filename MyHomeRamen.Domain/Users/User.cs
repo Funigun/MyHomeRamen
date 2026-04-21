@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using MyHomeRamen.Domain.Common.Address;
 
 namespace MyHomeRamen.Domain.Users;
 
@@ -10,11 +11,11 @@ public class User : IdentityUser<Guid>
 
     public string KeycloakUserId { get; private set; } = default!;
 
-    public string FirstName { get; private set; }
+    public string FirstName { get; private set; } = default!;
 
-    public string LastName { get; private set; }
+    public string LastName { get; private set; } = default!;
 
-    public string Role { get; private set; }
+    public string Role { get; private set; } = default!;
 
     public ICollection<Address> Addresses => _addresses.ToList();
 
@@ -40,5 +41,25 @@ public class User : IdentityUser<Guid>
     public void SetRestaurantId(Guid restaurantId)
     {
         RestaurantId = restaurantId;
+    }
+
+    public void AddAddress(Address address)
+    {
+        if (_addresses.Count >= AddressConstants.MaxAddressesPerUser)
+        {
+            throw AddressErrors.MaxAddressesReached();
+        }
+
+        if (address.IsDefault)
+        {
+            Address? currentDefault = _addresses.FirstOrDefault(a => a.IsDefault);
+            currentDefault?.UnsetDefault();
+        }
+        else if (_addresses.Count == 0)
+        {
+            address.SetAsDefault();
+        }
+
+        _addresses.Add(address);
     }
 }
