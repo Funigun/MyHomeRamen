@@ -16,6 +16,8 @@ internal static class DataSeeder
 
     internal static Guid SeededAddressId { get; private set; }
 
+    internal static Guid SeededSecondAddressId { get; private set; }
+
     internal static Guid AnotherUserAddressId { get; private set; }
 
     internal static async Task SeedIdentityModule(IUsersDbContext dbContext)
@@ -65,6 +67,12 @@ internal static class DataSeeder
             SeededAddressId = seededAddress.Id;
             loadedUser.AddAddress(seededAddress);
             dbContext.Addresses.Add(seededAddress);
+
+            Address seededSecondAddress = Address.Create(Guid.NewGuid(), "Second Street", "2B", string.Empty, "Warsaw", "00-002", isDefault: false);
+            SeededSecondAddressId = seededSecondAddress.Id;
+            loadedUser.AddAddress(seededSecondAddress);
+            dbContext.Addresses.Add(seededSecondAddress);
+
             await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 

@@ -63,6 +63,29 @@ public class User : IdentityUser<Guid>
         _addresses.Add(address);
     }
 
+    public void UpdateAddress(Guid addressId, string street, string building, string apartment, string city, string zipCode, bool isDefault)
+    {
+        Address? address = _addresses.FirstOrDefault(a => a.Id == addressId);
+
+        if (address is null)
+        {
+            throw AddressErrors.AddressNotFound();
+        }
+
+        address.Update(street, building, apartment, city, zipCode);
+
+        if (isDefault && !address.IsDefault)
+        {
+            Address? currentDefault = _addresses.FirstOrDefault(a => a.IsDefault);
+            currentDefault?.UnsetDefault();
+            address.SetAsDefault();
+        }
+        else if (!isDefault && address.IsDefault)
+        {
+            address.UnsetDefault();
+        }
+    }
+
     public void RemoveAddress(Guid addressId)
     {
         Address? address = _addresses.FirstOrDefault(a => a.Id == addressId);

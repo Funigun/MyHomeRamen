@@ -40,6 +40,17 @@ public class Address
         return address;
     }
 
+    public void Update(string street, string building, string apartment, string city, string zipCode)
+    {
+        Street = street;
+        Building = building;
+        Apartment = apartment;
+        City = city;
+        ZipCode = zipCode;
+
+        AddressValidator.ValidateAddress(this);
+    }
+
     public void SetAsDefault()
     {
         IsDefault = true;
