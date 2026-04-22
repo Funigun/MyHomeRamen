@@ -25,6 +25,11 @@ internal static class HttpClientExtensions
         return new(HttpMethod.Delete, url);
     }
 
+    internal static HttpRequestMessage CreatePutMessage(string url)
+    {
+        return new(HttpMethod.Put, url);
+    }
+
     internal static HttpRequestMessage WithJsonContent<T>(this HttpRequestMessage requestMessage, T body)
     {
         requestMessage.Content = JsonContent.Create(body);
