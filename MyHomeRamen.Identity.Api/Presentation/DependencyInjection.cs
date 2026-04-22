@@ -45,8 +45,7 @@ internal static class DependencyInjection
                           .RequireRole("manager"))
 
                 .AddPolicy(AnyAuthenticatedPolicy, policy =>
-                    policy.AddAuthenticationSchemes(RestaurantCustomerPolicy, RestaurantEmployeePolicy, RestaurantManagerPolicy)
-                          .RequireAuthenticatedUser());
+                    policy.RequireAuthenticatedUser());
 
         return services;
     }

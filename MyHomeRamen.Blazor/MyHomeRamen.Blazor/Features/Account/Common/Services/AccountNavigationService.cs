@@ -7,7 +7,11 @@ public sealed class AccountNavigationService(NavigationManager navigation)
     public static class Routes
     {
         public const string SignUp = "/account/signup";
+
+        public const string AccountManagement = "/account";
     }
 
     public void ToSignUp() => navigation.NavigateTo(Routes.SignUp);
+
+    public void ToAccountManagement() => navigation.NavigateTo(Routes.AccountManagement);
 }

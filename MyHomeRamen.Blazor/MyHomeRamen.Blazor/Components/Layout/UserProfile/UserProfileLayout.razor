@@ -1,0 +1,46 @@
+﻿@inherits LayoutComponentBase
+
+@using MyHomeRamen.Blazor.Common.Configuration
+@using MyHomeRamen.Blazor.Components.Common
+@using MyHomeRamen.Blazor.Components.Layout.Admin
+
+@inject ThemeProviderService ThemeProvider
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<CascadingAuthenticationState>
+    <MudLayout Style="--mud-appbar-height: 150px; --footer-height: 121.25px; padding-bottom: var(--footer-height)">
+        <AppBar />
+
+        <MudDrawer Open="true"
+                   Variant="DrawerVariant.Persistent"
+                   Anchor="Anchor.Left"
+                   Elevation="2"
+                   ClipMode="DrawerClipMode.Always"
+                   Style="background-color: #FFDBC9; color: #877369; max-height: calc(100vh - var(--mud-appbar-height) - var(--footer-height)); overflow-y: auto;">
+            <MudDrawerHeader>
+                <MudText Typo="Typo.h6">Admin Panel</MudText>
+            </MudDrawerHeader>
+            <AdminNavMenu />
+        </MudDrawer>
+
+        <MudMainContent>
+            <div style="min-height: calc(100vh - var(--mud-appbar-height) - var(--footer-height)); padding: 48px 48px;">
+                @Body
+            </div>
+        </MudMainContent>
+    </MudLayout>
+
+    <div style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;">
+        <Footer />
+    </div>
+</CascadingAuthenticationState>
+
+@code {
+    private MudTheme _theme = default!;
+
+    protected override void OnInitialized() => _theme = ThemeProvider.GetTheme();
+}

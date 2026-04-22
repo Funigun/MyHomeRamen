@@ -1,0 +1,27 @@
+@using MyHomeRamen.Blazor.Features.Account.Common.Models
+@using MyHomeRamen.Blazor.Common.Models;
+
+<MudForm Model="AddressModel" ReadOnly="Mode == FormMode.View" Validation="@(new AddressValidator().ValidateValue)">
+    <MudTextField @bind-Value="AddressModel.Street" Label="Street" For="@(() => AddressModel.Street)" />
+    <MudTextField @bind-Value="AddressModel.Building" Label="Building" For="@(() => AddressModel.Building)" />
+    <MudTextField @bind-Value="AddressModel.Apartment" Label="Apartment" For="@(() => AddressModel.Apartment)" />
+    <MudTextField @bind-Value="AddressModel.City" Label="City" For="@(() => AddressModel.City)" />
+    <MudTextField @bind-Value="AddressModel.ZipCode" Label="ZipCode" For="@(() => AddressModel.ZipCode)" />
+
+    @if (Mode != FormMode.View)
+    {
+        <MudCheckBox @bind-Value="AddressModel.IsDefault" Label="Set as Default" For="@(() => AddressModel.IsDefault)" />
+    }
+    else
+    {
+        <MudTextField @bind-Value="AddressModel.IsDefault" Label="Default" ReadOnly="true" />
+    }
+</MudForm>
+
+@code {
+    [Parameter]
+    public AddressFormModel AddressModel { get; set; } = new();
+
+    [Parameter]
+    public FormMode Mode { get; set; } = FormMode.View;
+}
