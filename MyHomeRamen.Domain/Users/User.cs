@@ -62,4 +62,16 @@ public class User : IdentityUser<Guid>
 
         _addresses.Add(address);
     }
+
+    public void RemoveAddress(Guid addressId)
+    {
+        Address? address = _addresses.FirstOrDefault(a => a.Id == addressId);
+
+        if (address is null)
+        {
+            throw AddressErrors.AddressNotFound();
+        }
+
+        _addresses.Remove(address);
+    }
 }
