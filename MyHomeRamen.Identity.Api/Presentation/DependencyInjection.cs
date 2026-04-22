@@ -104,6 +104,7 @@ internal static class DependencyInjection
 
         services.AddTransient<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
 
+
         return services;
     }
 }

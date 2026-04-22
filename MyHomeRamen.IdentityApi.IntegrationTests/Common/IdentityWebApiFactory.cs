@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Identity.Api;
+using MyHomeRamen.IdentityApi.IntegrationTests.Common;
+using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Persistance.Users;
 using Testcontainers.MsSql;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
 [assembly: AssemblyFixture(typeof(IdentityWebApiFactory))]
 
@@ -61,6 +61,7 @@ public sealed class IdentityWebApiFactory : WebApplicationFactory<IIdentityApiAs
         {
             services.ReconfigureIdentityDatabase(_sqlContainer.GetConnectionString());
             services.ReconfigureIdentityTokenOptions();
+            services.ReconfigureCache();
             services.ReplaceWithNoop<IKeycloakAdminService>();
         })
         .UseEnvironment("Test");

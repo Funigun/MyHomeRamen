@@ -31,4 +31,7 @@ public static class AddressErrors
 
     public static DomainException ZipCodeTooLong()
         => new($"Zip code cannot be longer than {AddressConstants.MaxZipCodeLength} characters");
+
+    public static DomainException AddressNotFound()
+        => new("Address not found");
 }

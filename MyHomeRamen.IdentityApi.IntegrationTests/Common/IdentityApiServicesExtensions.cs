@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
+using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Persistance.Users;
 using NSubstitute;
+using StackExchange.Redis;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;
 
@@ -58,6 +62,18 @@ internal static class IdentityApiServicesExtensions
 #pragma warning restore CA5404
             });
         }
+
+        return services;
+    }
+
+    internal static IServiceCollection ReconfigureCache(this IServiceCollection services)
+    {
+        services.RemoveAll<RedisCacheOptions>();
+        services.RemoveAll<IConnectionMultiplexer>();
+        services.RemoveAll<HybridCacheEntryOptions>();
+        services.RemoveAll<HybridCache>();
+
+        services.AddCacheService();
 
         return services;
     }

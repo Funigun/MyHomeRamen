@@ -51,13 +51,7 @@
     <File Path=".github/agents/input/feature-brief-template.md" />
   </Folder>
   <Folder Name="/_github/agents/output/">
-    <File Path=".github/agents/output/add-address-brief.md" />
-    <File Path=".github/agents/output/add-address-plan-backend.md" />
-    <File Path=".github/agents/output/add-address-plan-frontend.md" />
     <File Path=".github/agents/output/delete-account-brief.md" />
-    <File Path=".github/agents/output/delete-address-brief.md" />
-    <File Path=".github/agents/output/delete-address-plan-backend.md" />
-    <File Path=".github/agents/output/delete-address-plan-frontend.md" />
     <File Path=".github/agents/output/get-addresses-brief.md" />
     <File Path=".github/agents/output/get-addresses-plan-backend.md" />
     <File Path=".github/agents/output/get-addresses-plan-frontend.md" />
