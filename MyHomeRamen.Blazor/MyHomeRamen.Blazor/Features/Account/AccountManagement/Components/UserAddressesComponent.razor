@@ -2,9 +2,9 @@
 @using MyHomeRamen.Blazor.Features.Account.Common.Models
 
 <MudToolBar>
-    <MudSpacer />
-    <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="@(Addresses.Count >= 5)" OnClick="AddAddress" />
-    <MudIconButton Icon="@Icons.Material.Filled.Edit" Disabled="@(_currentModel.Id == null)" OnClick="EditAddress" />
+    <MudText>Addresses</MudText>
+    <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="@(Addresses.Count >= 5)" Color="Color.Primary" OnClick="AddAddress" />
+    <MudIconButton Icon="@Icons.Material.Filled.Edit" Disabled="@(_currentModel.Id == null)" Color="Color.Primary" OnClick="EditAddress" />
 </MudToolBar>
 
 <MudSelect T="AddressDto" ValueChanged="OnAddressSelected" Value="_selectedAddress" Label="Select Address">

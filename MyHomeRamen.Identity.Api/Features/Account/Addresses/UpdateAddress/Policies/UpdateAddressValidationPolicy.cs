@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Common.Contracts.Account;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Identity.Api.Features.Account.Addresses.UpdateAddress.Models;
@@ -9,7 +10,7 @@ namespace MyHomeRamen.Identity.Api.Features.Account.Addresses.UpdateAddress.Poli
 
 public sealed class UpdateAddressValidationPolicy : AbstractValidator<UpdateAddressRequest>
 {
-    public UpdateAddressValidationPolicy(IUsersDbContext dbContext, ICurrentUser currentUser)
+    public UpdateAddressValidationPolicy(IUsersDbContext dbContext, IHttpContextAccessor httpContextAccessor, ICurrentUser currentUser)
     {
         RuleFor(x => x.Street)
             .ValidStreet();
@@ -27,12 +28,14 @@ public sealed class UpdateAddressValidationPolicy : AbstractValidator<UpdateAddr
             .ValidZipCode();
 
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Address ID must not be empty.")
             .MustAsync(async (id, cancellationToken) =>
-                await dbContext.Users
+            {
+                Guid addressId = httpContextAccessor.GetGuidFromRouteParam("id");
+                return await dbContext.Users
                     .AsNoTracking()
                     .Include(u => u.Addresses)
-                    .AnyAsync(u => u.KeycloakUserId == currentUser.Id && u.Addresses.Any(a => a.Id == id), cancellationToken))
+                    .AnyAsync(u => u.KeycloakUserId == currentUser.Id && u.Addresses.Any(a => a.Id == addressId), cancellationToken);
+            })
             .WithMessage("Address not found or does not belong to the current user.");
     }
 }

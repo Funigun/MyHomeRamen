@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;
 using MyHomeRamen.Common.Contracts.Menu.Products;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -26,7 +27,7 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductRequ
         RuleFor(x => x)
             .MustAsync(async (_, ct) =>
             {
-                Guid id = (Guid)httpContextAccessor.HttpContext!.GetRouteValue("id")!;
+                Guid id = httpContextAccessor.GetGuidFromRouteParam("id");
                 return await dbContext.Products.Exists(p => p.Id == (ProductId)id, ct);
             })
             .WithMessage("Product with the specified ID does not exist.");
@@ -34,7 +35,7 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductRequ
         RuleFor(x => x.Name)
             .MustAsync(async (name, ct) =>
             {
-                Guid id = (Guid)httpContextAccessor.HttpContext!.GetRouteValue("id")!;
+                Guid id = httpContextAccessor.GetGuidFromRouteParam("id");
                 return await dbContext.Products.IsProductNameUniqueExcludingAsync(name, (ProductId)id, ct);
             })
             .WithMessage("Product with this name already exists.");

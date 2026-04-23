@@ -8,7 +8,7 @@ public sealed class AccountNavigationService(NavigationManager navigation)
     {
         public const string SignUp = "/account/signup";
 
-        public const string AccountManagement = "/account";
+        public const string AccountManagement = "/account/profile";
     }
 
     public void ToSignUp() => navigation.NavigateTo(Routes.SignUp);

@@ -1,7 +1,9 @@
 ﻿@page "/account/profile"
+@layout UserProfileLayout
 @attribute [Authorize(Roles = "Customer,Employee,Admin")]
 
 @using Microsoft.AspNetCore.Authorization
+@using MyHomeRamen.Blazor.Components.Layout.UserProfile
 @using MyHomeRamen.Blazor.Features.Account.Common.Services
 @using MyHomeRamen.Blazor.Features.Account.Common.Models
 @using MyHomeRamen.Blazor.Features.Account.AccountManagement.Components
@@ -44,6 +46,7 @@
     {
         await AccountApiClient.AddAddressAsync(request);
         await LoadData();
+        StateHasChanged();
     }
 
     private async Task HandleUpdate(AddressFormModel address)
@@ -51,11 +54,13 @@
 
         await AccountApiClient.UpdateAddressAsync((Guid)address.Id!, address.ToUpdateRequest());
         await LoadData();
+        StateHasChanged();
     }
 
     private async Task HandleDelete(Guid id)
     {
         await AccountApiClient.DeleteAddressAsync(id);
         await LoadData();
+        StateHasChanged();
     }
 }
