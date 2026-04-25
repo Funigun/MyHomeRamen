@@ -13,24 +13,6 @@ internal sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
             return Task.FromResult(principal);
         }
 
-        Claim? realmAccessClaim = principal.FindFirst("realm_access");
-        if (realmAccessClaim != null)
-        {
-            using JsonDocument document = JsonDocument.Parse(realmAccessClaim.Value);
-            if (document.RootElement.TryGetProperty("roles", out JsonElement roles))
-            {
-                foreach (JsonElement role in roles.EnumerateArray())
-                {
-                    string? roleValue = role.GetString();
-
-                    if (!string.IsNullOrEmpty(roleValue) && !identity.HasClaim(ClaimTypes.Role, roleValue))
-                    {
-                        identity.AddClaim(new Claim(ClaimTypes.Role, roleValue));
-                    }
-                }
-            }
-        }
-
         Claim? resourceAccessClaim = principal.FindFirst("resource_access");
         if (resourceAccessClaim != null)
         {

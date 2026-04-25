@@ -1,8 +1,8 @@
-﻿@using MyHomeRamen.Blazor.Common.Configuration
-@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Common.Configuration
+@using MyHomeRamen.Blazor.Features.Account.Common.Services;
+@using MyHomeRamen.Blazor.Features.Admin.Common.Services;
 
 @inject RestaurantConfiguration RestaurantConfiguration
-@inject MenuNavigationService MenuNavigationService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -13,21 +13,21 @@
             <MudSpacer />
             <MudSpacer />
             <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/"))">Home</MudButton>
-            <MudMenu Label="Menu Management" Color="Color.Inherit" Variant="Variant.Text" AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" EndIcon="@Icons.Material.Filled.KeyboardArrowDown">
-                <MudMenuItem OnClick="@(() => Navigate(MenuNavigationService.Routes.Admin.ProductsManagement))">Products Management</MudMenuItem>
-                <MudMenuItem OnClick="@(() => Navigate(MenuNavigationService.Routes.Admin.IngredientsManagement))">Ingredients Management</MudMenuItem>
-            </MudMenu>
+            <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/menu"))">Menu</MudButton>
             <MudSpacer />
             
-            @if (_isAdmin)
+            @if(_isAdmin)
             {
-                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/admin-panel"))">Admin Panel</MudButton>
+                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.AdminPanel))">Admin Panel</MudButton>
             }
 
-            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Variant="Variant.Text"/>
+            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Variant="Variant.Text" />
 
-            <MudIconButton Icon="@Icons.Material.Filled.ManageAccounts" Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/account"))">Account</MudIconButton>
-            
+            @if (_isAuthenticated)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.ManageAccounts" Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AccountNavigationService.Routes.AccountManagement))">Account</MudIconButton>
+            }
+
             <Login />
             <MudSpacer />
         </MudStack>

@@ -1,0 +1,88 @@
+@using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Blazor.Features.Account.Common.Models
+
+<MudToolBar>
+    <MudText>Addresses</MudText>
+    <MudIconButton Icon="@Icons.Material.Filled.Add" Disabled="@(Addresses.Count >= 5)" Color="Color.Primary" OnClick="AddAddress" />
+    <MudIconButton Icon="@Icons.Material.Filled.Edit" Disabled="@(_currentModel.Id == null)" Color="Color.Primary" OnClick="EditAddress" />
+</MudToolBar>
+
+<MudSelect T="AddressDto" ValueChanged="OnAddressSelected" Value="_selectedAddress" Label="Select Address">
+    @foreach (var address in Addresses)
+    {
+        <MudSelectItem Value="address">@address.Street @address.Building, @address.City</MudSelectItem>
+    }
+</MudSelect>
+
+<AddressForm AddressModel="_currentModel" Mode="_formMode" />
+
+@if (_formMode != FormMode.View)
+{
+    <MudButton Color="Color.Primary" OnClick="SaveAddress">Save</MudButton>
+    @if (_formMode == FormMode.Edit)
+    {
+        <MudButton Color="Color.Error" OnClick="DeleteAddress">Delete</MudButton>
+    }
+}
+
+@code {
+    [Parameter]
+    public List<AddressDto> Addresses { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<AddAddressRequest> OnAdd { get; set; }
+
+    [Parameter]
+    public EventCallback<AddressFormModel> OnUpdate { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnDelete { get; set; }
+
+    private AddressFormModel _currentModel = AddressFormModel.Empty();
+    private FormMode _formMode = FormMode.View;
+    private AddressDto? _selectedAddress;
+
+    private void AddAddress()
+    {
+        _currentModel = AddressFormModel.Empty();
+        _formMode = FormMode.Create;
+        _selectedAddress = null;
+    }
+
+    private void EditAddress()
+    {
+        _formMode = FormMode.Edit;
+    }
+
+    private void OnAddressSelected(AddressDto? address)
+    {
+        _selectedAddress = address;
+        if (address != null)
+        {
+            _currentModel = AddressFormModel.FromDto(address);
+            _formMode = FormMode.View;
+        }
+    }
+
+    private async Task SaveAddress()
+    {
+        if (_formMode == FormMode.Create)
+        {
+            await OnAdd.InvokeAsync(_currentModel.ToAddRequest());
+        }
+        else if (_formMode == FormMode.Edit)
+        {
+            await OnUpdate.InvokeAsync(_currentModel);
+        }
+    }
+
+    private async Task DeleteAddress()
+    {
+        if (_currentModel.Id.HasValue)
+        {
+            await OnDelete.InvokeAsync(_currentModel.Id.Value);
+            _currentModel = AddressFormModel.Empty();
+            _formMode = FormMode.View;
+        }
+    }
+}

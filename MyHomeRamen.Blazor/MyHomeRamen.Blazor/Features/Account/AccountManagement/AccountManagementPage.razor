@@ -1,0 +1,64 @@
+﻿@page "/account/profile"
+@layout UserProfileLayout
+@attribute [Authorize(Roles = "Customer,Employee,Admin")]
+
+@using MyHomeRamen.Blazor.Features.Account.Common.Services
+@using MyHomeRamen.Blazor.Features.Account.Common.Models
+@using MyHomeRamen.Blazor.Features.Account.AccountManagement.Components
+
+@inject CustomerAccountApiClient AccountApiClient
+
+<PageTitle>Account Profile - My Home Ramen</PageTitle>
+
+<MudPaper Elevation="3" Class="pa-6">
+    <UserDetailsComponent Details="_details" />
+    <MudDivider Class="my-6" />
+    <UserAddressesComponent Addresses="_addresses" OnAdd="HandleAdd" OnUpdate="HandleUpdate" OnDelete="HandleDelete" />
+</MudPaper>
+
+@code {
+    private UserDetailsModel? _details;
+    private List<AddressDto> _addresses = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        GetDetailsResponse? detailsResponse = await AccountApiClient.GetDetailsAsync();
+        if (detailsResponse != null)
+        {
+            _details = UserDetailsModel.FromResponse(detailsResponse);
+        }
+
+        GetAddressesResponse? addressesResponse = await AccountApiClient.GetAddressesAsync();
+        if (addressesResponse != null)
+        {
+            _addresses = addressesResponse.Addresses.ToList();
+        }
+    }
+
+    private async Task HandleAdd(AddAddressRequest request)
+    {
+        await AccountApiClient.AddAddressAsync(request);
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task HandleUpdate(AddressFormModel address)
+    {
+
+        await AccountApiClient.UpdateAddressAsync((Guid)address.Id!, address.ToUpdateRequest());
+        await LoadData();
+        StateHasChanged();
+    }
+
+    private async Task HandleDelete(Guid id)
+    {
+        await AccountApiClient.DeleteAddressAsync(id);
+        await LoadData();
+        StateHasChanged();
+    }
+}

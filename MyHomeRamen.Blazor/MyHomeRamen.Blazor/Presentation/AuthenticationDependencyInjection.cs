@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using MyHomeRamen.Blazor.Features.Account.Common.Services;
 using MyHomeRamen.Blazor.Presentation.Authentication;
 
 namespace MyHomeRamen.Blazor.Presentation;
@@ -50,18 +51,18 @@ internal static class AuthenticationDependencyInjection
 
                         options.Events = new OpenIdConnectEvents
                         {
-                            OnTokenValidated = ctx =>
+                            OnTokenValidated = async ctx =>
                             {
                                 string? rawAccessToken = ctx.TokenEndpointResponse?.AccessToken;
                                 if (string.IsNullOrEmpty(rawAccessToken))
                                 {
-                                    return Task.CompletedTask;
+                                    return;
                                 }
 
                                 JsonWebToken accessToken = new(rawAccessToken);
                                 ClaimsIdentity identity = (ClaimsIdentity)ctx.Principal!.Identity!;
 
-                                foreach (string claimType in (string[])["resource_access", "realm_access"])
+                                foreach (string claimType in (string[])["resource_access"])
                                 {
                                     Claim? claim = accessToken.Claims.FirstOrDefault(c => c.Type == claimType);
                                     if (claim is not null && !identity.HasClaim(c => c.Type == claimType))
@@ -70,7 +71,15 @@ internal static class AuthenticationDependencyInjection
                                     }
                                 }
 
-                                return Task.CompletedTask;
+                                CustomerAccountApiClient accountApiClient = ctx.HttpContext.RequestServices
+                                    .GetRequiredService<CustomerAccountApiClient>();
+
+                                string domainId = await accountApiClient.GetMyIdAsync(ctx.HttpContext.RequestAborted, rawAccessToken);
+
+                                if (!string.IsNullOrEmpty(domainId))
+                                {
+                                    identity.AddClaim(new Claim("domain_id", domainId));
+                                }
                             }
                         };
                     })

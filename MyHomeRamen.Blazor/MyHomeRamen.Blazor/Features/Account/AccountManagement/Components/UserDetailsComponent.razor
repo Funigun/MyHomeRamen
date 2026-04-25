@@ -1,0 +1,61 @@
+<MudText>Personal Details</MudText>
+
+<MudGrid Style="margin-top: 20px;">
+    @if (Details == null)
+    {
+        <MudItem xs="6">
+            <MudSkeleton Width="100%" Height="30px" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudSkeleton Width="100%" Height="30px" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudSkeleton Width="100%" Height="30px" />
+        </MudItem>
+        <MudItem xs="6">
+            <MudSkeleton Width="100%" Height="30px" />
+        </MudItem>
+    }
+    else
+    {
+        <MudItem xs="6">
+            <MudText Typo="Typo.subtitle1"><b>Username</b></MudText>
+        </MudItem>
+        <MudItem xs="6">
+            <MudText>@Details.Username</MudText>
+        </MudItem>
+
+        <MudItem xs="6">
+            <MudText Typo="Typo.subtitle1"><b>First Name</b></MudText>
+        </MudItem>
+        <MudItem xs="6">
+            <MudText>@Details.FirstName</MudText>
+        </MudItem>
+
+        <MudItem xs="6">
+            <MudText Typo="Typo.subtitle1"><b>Last Name</b></MudText>
+        </MudItem>
+        <MudItem xs="6">
+            <MudText>@Details.LastName</MudText>
+        </MudItem>
+
+        <MudItem xs="6">
+            <MudText Typo="Typo.subtitle1"><b>Email</b></MudText>
+        </MudItem>
+        <MudItem xs="6">
+            <MudText>@Details.Email</MudText>
+        </MudItem>
+
+        <MudItem xs="6">
+            <MudText Typo="Typo.subtitle1"><b>Phone Number</b></MudText>
+        </MudItem>
+        <MudItem xs="6">
+            <MudText>@Details.PhoneNumber</MudText>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    [Parameter]
+    public UserDetailsModel? Details { get; set; }
+}

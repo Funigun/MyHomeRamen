@@ -11,10 +11,9 @@ public sealed class GetAddressesHandler(IUsersDbContext dbContext, ICurrentUser 
 {
     public async Task<GetAddressesResponse> Handle(GetAddressesRequest request, CancellationToken cancellationToken)
     {
-        User? user = await dbContext.Users
-            .AsNoTracking()
-            .Include(u => u.Addresses)
-            .FirstOrDefaultAsync(u => u.KeycloakUserId == currentUser.Id, cancellationToken);
+        User? user = await dbContext.Users.AsNoTracking()
+                                          .Include(u => u.Addresses)
+                                          .FirstOrDefaultAsync(u => u.Id == currentUser.UserId, cancellationToken);
 
         IEnumerable<AddressDto> addresses = user?.Addresses.Select(a => a.ToDto()) ?? [];
 

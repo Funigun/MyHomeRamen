@@ -15,6 +15,8 @@ public class AuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : Deleg
 
         if (!string.IsNullOrWhiteSpace(accessToken))
         {
+            request.Headers.Remove("x-scheme");
+
             request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
 
             System.Security.Claims.ClaimsPrincipal? user = httpContext.User;
