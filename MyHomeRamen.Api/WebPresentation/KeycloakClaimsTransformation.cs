@@ -4,33 +4,24 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace MyHomeRamen.Api.WebPresentation;
 
-public sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
+public sealed class KeycloakClaimsTransformation : IClaimsTransformation
 {
-    public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
+    public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
         if (principal.Identity is not ClaimsIdentity { IsAuthenticated: true } identity)
         {
-            return Task.FromResult(principal);
+            return principal;
         }
 
-        Claim? realmAccessClaim = principal.FindFirst("realm_access");
-        if (realmAccessClaim != null)
-        {
-            using JsonDocument document = JsonDocument.Parse(realmAccessClaim.Value);
-            if (document.RootElement.TryGetProperty("roles", out JsonElement roles))
-            {
-                foreach (JsonElement role in roles.EnumerateArray())
-                {
-                    string? roleValue = role.GetString();
-                    if (!string.IsNullOrEmpty(roleValue))
-                    {
-                        identity.AddClaim(new Claim(ClaimTypes.Role, roleValue));
-                    }
-                }
-            }
-        }
+        TransformRoles(principal, identity);
 
+        return principal;
+    }
+
+    private static void TransformRoles(ClaimsPrincipal principal, ClaimsIdentity identity)
+    {
         Claim? resourceAccessClaim = principal.FindFirst("resource_access");
+
         if (resourceAccessClaim != null)
         {
             using JsonDocument document = JsonDocument.Parse(resourceAccessClaim.Value);
@@ -48,8 +39,8 @@ public sealed class KeycloakRolesClaimsTransformation : IClaimsTransformation
                     }
                 }
             }
-        }
 
-        return Task.FromResult(principal);
+            identity.RemoveClaim(resourceAccessClaim);
+        }
     }
 }

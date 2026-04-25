@@ -5,6 +5,22 @@ namespace MyHomeRamen.Blazor.Features.Account.Common.Services;
 
 public class CustomerAccountApiClient(HttpClient httpClient)
 {
+    public async Task<string> GetMyIdAsync(CancellationToken cancellationToken, string? bearerToken = null)
+    {
+        if (bearerToken is not null)
+        {
+            using HttpRequestMessage request = new(HttpMethod.Get, "/api/account/me/id");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", bearerToken);
+            using HttpResponseMessage httpResponse = await httpClient.SendAsync(request, cancellationToken);
+            httpResponse.EnsureSuccessStatusCode();
+            GetMyIdResponse? result = await httpResponse.Content.ReadFromJsonAsync<GetMyIdResponse>(cancellationToken: cancellationToken);
+            return result?.Id.ToString() ?? string.Empty;
+        }
+
+        GetMyIdResponse? response = await httpClient.GetFromJsonAsync<GetMyIdResponse>("/api/account/me/id", cancellationToken);
+        return response?.Id.ToString() ?? string.Empty;
+    }
+
     public async Task CreateAsync(SignUpRequest request, CancellationToken ct = default)
     {
         using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/account/sign-up", request, ct);

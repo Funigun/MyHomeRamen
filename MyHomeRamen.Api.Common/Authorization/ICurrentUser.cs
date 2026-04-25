@@ -6,7 +6,7 @@ public interface ICurrentUser
 {
     string Id { get; init; }
 
-    Guid UserId { get; init; }
+    Guid UserId { get; }
 
     Guid RestaurantId { get; init; }
 

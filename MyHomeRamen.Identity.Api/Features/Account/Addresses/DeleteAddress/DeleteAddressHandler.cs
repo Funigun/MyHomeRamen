@@ -12,11 +12,10 @@ public sealed class DeleteAddressHandler(IUsersDbContext dbContext, ICurrentUser
 {
     public async Task<IResult> Handle([FromRoute] DeleteAddressRequest id, CancellationToken cancellationToken)
     {
-        User? user = await dbContext.Users
-            .Include(u => u.Addresses)
-            .FirstOrDefaultAsync(u => u.KeycloakUserId == currentUser.Id, cancellationToken);
+        User user = await dbContext.Users.Include(u => u.Addresses)
+                                         .FirstAsync(u => u.Id == currentUser.UserId, cancellationToken);
 
-        user!.RemoveAddress(id.Id);
+        user.RemoveAddress(id.Id);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

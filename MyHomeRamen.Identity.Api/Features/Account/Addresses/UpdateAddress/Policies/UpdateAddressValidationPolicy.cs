@@ -1,10 +1,10 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Common.Contracts.Account;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Identity.Api.Features.Account.Addresses.UpdateAddress.Models;
+using MyHomeRamen.Persistance.Users.Extensions;
 
 namespace MyHomeRamen.Identity.Api.Features.Account.Addresses.UpdateAddress.Policies;
 
@@ -31,10 +31,7 @@ public sealed class UpdateAddressValidationPolicy : AbstractValidator<UpdateAddr
             .MustAsync(async (id, cancellationToken) =>
             {
                 Guid addressId = httpContextAccessor.GetGuidFromRouteParam("id");
-                return await dbContext.Users
-                    .AsNoTracking()
-                    .Include(u => u.Addresses)
-                    .AnyAsync(u => u.KeycloakUserId == currentUser.Id && u.Addresses.Any(a => a.Id == addressId), cancellationToken);
+                return await dbContext.Users.AddressExists(currentUser.UserId, addressId, cancellationToken);
             })
             .WithMessage("Address not found or does not belong to the current user.");
     }

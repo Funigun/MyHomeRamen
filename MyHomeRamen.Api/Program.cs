@@ -69,11 +69,11 @@ try
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 
-    builder.Services.AddMenuModule(databaseConfigurationProvider);
-    builder.Services.AddShoppingCartModule(databaseConfigurationProvider);
-    builder.Services.AddOrdersModule(databaseConfigurationProvider);
-    builder.Services.AddReservationsModule(databaseConfigurationProvider);
-    builder.Services.AddPaymentsModule(databaseConfigurationProvider);
+    builder.Services.AddMenuModule(databaseConfigurationProvider)
+                    .AddShoppingCartModule(databaseConfigurationProvider)
+                    .AddOrdersModule(databaseConfigurationProvider)
+                    .AddReservationsModule(databaseConfigurationProvider)
+                    .AddPaymentsModule(databaseConfigurationProvider);
 
     builder.Services.ConfigureAuthentication(authorizationConfiguration)
                     .ConfigureAuthorizationPolicies();

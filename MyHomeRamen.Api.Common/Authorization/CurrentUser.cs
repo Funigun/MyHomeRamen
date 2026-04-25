@@ -9,9 +9,9 @@ public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, Restau
     public string Id { get; init; } = httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.KeycloakIdClaim)?.Value
                                     ?? string.Empty;
 
-    public Guid UserId { get; init; } = Guid.TryParse(httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.DomainIdClaim)?.Value, out Guid userId)
-                                      ? userId
-                                      : Guid.Empty;
+    public Guid UserId => Guid.TryParse(httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.DomainIdClaim)?.Value, out Guid userId)
+                        ? userId
+                        : Guid.Empty;
 
     public Guid RestaurantId { get; init; } = configurationProvider.RestaurantId;
 

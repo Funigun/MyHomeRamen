@@ -1,5 +1,4 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Common.Contracts.Account;
 using MyHomeRamen.Domain.Common.Address;
@@ -31,12 +30,7 @@ public sealed class AddAddressValidationPolicy : AbstractValidator<AddAddressReq
         RuleFor(x => x)
           .MustAsync(async (request, cancellationToken) =>
           {
-              //ToDo: use GetNumberOfAddresses extension once GetDomainUserId is implemented
-              int addressCount = await dbContext.Users.AsNoTracking()
-                                                      .Include(u => u.Addresses)
-                                                      .Where(u => u.KeycloakUserId == currentUser.Id)
-                                                      .Select(u => u.Addresses.Count).FirstAsync(cancellationToken);
-
+              int addressCount = await dbContext.Users.GetNumberOfAddresses(currentUser.UserId, cancellationToken);
               return addressCount < AddressConstants.MaxAddressesPerUser;
           })
           .WithMessage($"User cannot have more than {AddressConstants.MaxAddressesPerUser} addresses.");

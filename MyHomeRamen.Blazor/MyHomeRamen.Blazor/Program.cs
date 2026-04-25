@@ -30,15 +30,15 @@ try
                     .AddInteractiveServerComponents()
                     .AddInteractiveWebAssemblyComponents();
 
+    builder.Services.AddApiServices(infrastructurePrefix);
+    builder.Services.AddNavigationServices();
+
     builder.Services.AddHttpContextAccessor()
                     .AddAuthenticationHandlers()
                     .AddKeycloackAuthentication(builder)
                     .AddCascadingAuthenticationState();
 
     builder.Services.AddMudServices();
-
-    builder.Services.AddApiServices(infrastructurePrefix);
-    builder.Services.AddNavigationServices();
 
     WebApplication app = builder.Build();
 
