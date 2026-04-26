@@ -35,9 +35,6 @@ MyHomeRamen.slnx
 │   └── {Module}/
 │       ├── Features/
 │       │   └── {DomainModelPlural}/
-│		│		├── Caching/
-│		│		│	├── {FeatureName}CachePolicy.cs
-│		│		│	└── {DomainModel}CacheInvalidation.cs
 │       │       ├── {FeatureName}/
 │       │       │   ├── Models/
 │       │       │   │   ├── {Entity}Dto.cs           ← optional

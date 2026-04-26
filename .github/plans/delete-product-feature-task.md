@@ -28,9 +28,6 @@ Implement a new feature to delete a product from the database. This action shoul
 ### Domain Events
 - None.
 
-### Caching
-- Cache invalidation required: Invalidate relevant product and menu caches so that the deleted item no longer appears in customer-facing and management lists.
-
 ## Frontend Details
 
 ### API Client

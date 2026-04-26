@@ -111,7 +111,6 @@ Determine if database migrations are required based on domain model changes and 
 Naming conventions: 
 - Backend: `.github/plans/{descriptive-kebab-name}-{type}-plan-backend.md`
 - Frontend: `.github/plans/{descriptive-kebab-name}-{type}-plan-frontend.md`
-- Tests: `.github/plans/{descriptive-kebab-name}-plan-tests.md`
 
 Where `{type}` is one of `feature`, `bug`, `refactor`, `chore`, `infrastructure` depending on the task type detected nad
 `{descriptive-kebab-name}` is the same for all files generated for the given task.
@@ -119,7 +118,6 @@ Where `{type}` is one of `feature`, `bug`, `refactor`, `chore`, `infrastructure`
 Examples:
 - Backend: `.github/plans/{descriptive-kebab-name}-plan-backend.md`
 - Frontend: `.github/plans/{descriptive-kebab-name}-plan-frontend.md`
-- Tests: `.github/plans/{descriptive-kebab-name}-plan-tests.md`
 
 ### Backend File Process
 
@@ -168,6 +166,9 @@ Backend plan file template:
 - Create models, DTOs and mappings
   <<details>>
 
+- Create relevant policies
+  <<details>>
+
 - Create IRequestHandler implementation
   <<details>>
 
@@ -176,6 +177,20 @@ Backend plan file template:
 
 - Create IEndpoint implementation
   <<details>>
+
+### Step 5: Tests
+
+- Unit Tests (if needed)
+	- List of test cases to be created/updated
+	- Create/update unit tests
+
+- Integration Tests (if needed)
+	- List of test cases to be created/updated
+	- Create/update integration tests
+
+- System Tests (if needed)
+	- List of test cases to be created/updated
+	- Create/update system tests
 ```
 
 ### Frontend File Process
@@ -216,48 +231,4 @@ Frontend plan file template:
 
 ### Step 4: Create or update Blazor components and pages
    <<details>> or information if not needed
-```
-
-### Tests File Process
-
-Create a step-by-step testing plan with following steps:
-	- test data setup
-	- assembly / collection fixture setup (if needed)
-	- additional configurations e.g. updating WebApplicationFactory, setting Redis with test containers etc.
-	- test cases to cover
-
-Test plan file template:
-```
-# Plan: {Title}
-
-## Metadata
-
-**Type:** {Feature|Bug|Refactor|Infrastructure|Chore}
-**Tests Affected:** {Unit|Integration|Identity Integration|System|Blazor}
-**Created:** {YYYY-MM-DD}
-
-## References
-- Existing tests for similar features to match implementation patterns
-
-## Testing plan
-
-### Step 1: Unit Tests (if needed)
-- List of test cases to be created/updated
-- Create/update unit tests
-
-### Step 2: Integration Tests (if needed)
-- List of test cases to be created/updated
-- Create/update integration tests
-
-### Step 3: Integration Tests for Identity module (if needed)
-- List of test cases to be created/updated
-- Create/update integration tests
-
-### Step 4: System Tests (if needed)
-- List of test cases to be created/updated
-- Create/update system tests
-
-### Step 5: Blazor Tests (if needed)
-- List of test cases to be created/updated
-- Create/update Blazor tests
 ```

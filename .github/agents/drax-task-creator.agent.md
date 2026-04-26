@@ -78,7 +78,6 @@ If any required field is missing or ambiguous, ask the user to clarify before pr
   - [ ] API endpoints (if applicable)
   - [ ] Validation rules (domain and API-level)
   - [ ] Domain events to publish (must be clearly defined by user if applicable or not)
-  - [ ] Caching (must be clearly defined by user if applicable or not)
 
 - [ ] If frontend scope is yes, following details are provided:
   - [ ] Pages to create/update
