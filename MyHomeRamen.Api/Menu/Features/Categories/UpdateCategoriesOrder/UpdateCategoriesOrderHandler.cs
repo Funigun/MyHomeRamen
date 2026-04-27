@@ -1,6 +1,4 @@
-using MyHomeRamen.Api.Common.Cache;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Categories.Caching;
 using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
@@ -8,7 +6,7 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder;
 
-public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext, ICacheService cacheService) : IRequestHandler<UpdateCategoriesOrderRequest>
+public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateCategoriesOrderRequest>
 {
     public async Task Handle(UpdateCategoriesOrderRequest request, CancellationToken cancellationToken)
     {
@@ -17,8 +15,6 @@ public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext, ICach
         IEnumerable<Category> categories = await dbContext.Categories.GetByIds(ids, cancellationToken);
 
         await ReorderCategories(categories, request, cancellationToken);
-
-        await ClearCache(categories, cancellationToken);
     }
 
     private async Task ReorderCategories(IEnumerable<Category> categories, UpdateCategoriesOrderRequest request, CancellationToken cancellationToken)
@@ -34,13 +30,5 @@ public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext, ICach
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    private async Task ClearCache(IEnumerable<Category> categoryTypes, CancellationToken cancellationToken)
-    {
-        IEnumerable<Task> cacheClearance = CategoryCacheInvalidation.GetAffectedKeys(categoryTypes)
-                                                                    .Select(key => cacheService.RemoveByKeyAsync(key, cancellationToken));
-
-        await Task.WhenAll(cacheClearance);
     }
 }

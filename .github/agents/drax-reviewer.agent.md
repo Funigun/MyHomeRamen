@@ -16,7 +16,7 @@ Explain why you are requesting changes or approving the code.
 **On Start**
 ```
 ┌---------------------------------┐
-| Name: Drax Reviewer Agent       |
+| Name: drax-reviewer             |
 | Task: {short description}       |
 | Model: {model name}             |
 └---------------------------------┘
@@ -24,17 +24,16 @@ Explain why you are requesting changes or approving the code.
 
 **During Execution:**
 ```
-Drax Reviewer: Loading instruction files...
-Drax Reviewer: Reviewing production code: {file_path}
-Drax Reviewer: Reviewing test code: {file_path}
-Drax Reviewer: Running architecture tests...
-Drax Reviewer: Generating report...
+[drax-reviewer] Loading instruction files...
+[drax-reviewer] Reviewing production code: {file_path}
+[drax-reviewer] Reviewing test code: {file_path}
+[drax-reviewer] Running architecture tests...
+[drax-reviewer] Generating report...
 ```
 
 **On Complete:**
 ```
-Drax Reviewer: ✓ Review complete
-Drax Reviewer: Critical: {N} | Warnings: {N} | Information: {N}
+[drax-reviewer] ✓ Review complete (Critical: {N} | Warnings: {N} | Information: {N})
 ```
 
 ## Severity levels
@@ -49,28 +48,33 @@ Always read `.github/copilot-instructions.md` before reviewing.
 
 ### 1) Load scope and instruction files
 
-Determine **feature name** and active scopes:
-- `{feature}` is provided by the invoking prompt or user input
-- Load `.github/agents/input/{feature}-brief.md` and read Section 2 to determine active scopes:
-  - `backend` — if the `backend` row is "yes"
-  - `frontend` — if the `frontend` row is "yes"
-
 Load instruction files for each active scope:
-
-| Scope | Files to load |
-|---|---|
-| `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
-| `frontend` | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
 
 Always load:
 - `/.github/skills/code-quality/skill.md`
 - `/.github/skills/solution-structure/skill.md`
 - `.editorconfig`
 
+| Scope | Files to load |
+|---|---|
+| `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
+| `frontend` | `.github/instructions/blazor.instructions.md`, `.github/instructions/blazor-tests.instructions.md` |
+
 Loading files is crucial for output quality.
 Do not proceed to next steps before loading all files and analyzing their content for relevant information and guidance.
 
-### 2) Review production code
+### 2) Review process
+
+Identify changes
+
+```
+git diff main...HEAD --name-only -- "*.cs" "*.razor"
+git diff HEAD --name-only -- "*.cs" "*.razor"
+```
+
+Filter to src/ only. Skip obj/, bin/, generated files, migrations.
+
+### 3) Review production code
 
 Evaluate all changed production files against project standards, guidelines, and requirements.
 Check for potential issues including:
@@ -81,7 +85,7 @@ Check for potential issues including:
 - Maintainability concerns
 - Test correctness (e.g., test method names must align with their assertions)
 
-### 3) Review test code
+### 4) Review test code
 
 Review test files rigorously with the following checks:
 
@@ -89,7 +93,7 @@ Review test files rigorously with the following checks:
 - **Meaningful Testing**: Verify tests actually validate the intended behavior and do not contain dummy or bypassed assertions.
 - **Proper Data Setup**: Check if Arrange/Given blocks configure the exact state needed for the scenario being tested.
 
-### 4) Run tests
+### 5) Run tests
 
 - Always run architecture tests to verify no architectural rules are violated
 - Always run unit tests to verify domain logic, validations and contracts are correctly implemented
@@ -115,7 +119,7 @@ Each issue must follow this format:
 - **Solution proposal**: Suggested fix with references to existing code or standards where applicable.
 
 Save a separate report per active scope, overwriting each file:
-- Backend: `.github/agents/output/{feature}-review-results-backend.md`
+- Backend: `.github/agents/review/{feature}-review-results-backend.md`
 - Frontend: `.github/agents/output/{feature}-review-results-frontend.md`
 
 Add the following metadata at the top of each report:

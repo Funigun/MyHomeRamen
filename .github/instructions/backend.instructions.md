@@ -298,15 +298,6 @@ MapStandardValidatedGet<GetIngredientsForManageRequest, IEnumerable<IngredientDt
 
 Reference: #file:'MyHomeRamen.Api/Menu/Features/Ingredients/GetIngredientsForManage/GetIngredientsForManageHandler.cs'
 
-### 3.9) Caching
-
-- For GET endpoints, define an `ICachePolicy` implementation in the feature's `Caching/` folder and use `ICacheService` in the handler to attempt cache retrieval before querying the database. Cache keys and expiration are defined in the policy.
-- For commands that modify data, define cache invalidation logic in a `{DomainModel}CacheInvalidation.cs` file in the same folder, and invoke it from the handler after `SaveChangesAsync()` to ensure cache consistency.
-
-Reference: #folder:'MyHomeRamen.Api/Menu/Features/Categories/Caching'
-Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/UpdateCategory/UpdateCategoryHandler.cs'
-Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/GetCategoriesByType/GetCategoriesByTypeHandler.cs'
-
 ### 4) Infrastructure Layer (`MyHomeRamen.Infrastructure`)
 
 ### 4.1) General

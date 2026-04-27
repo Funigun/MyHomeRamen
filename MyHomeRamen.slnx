@@ -41,10 +41,10 @@
   </Folder>
   <Folder Name="/_github/agents/">
     <File Path=".github/agents/000-module-initiator.agent.md" />
-    <File Path=".github/agents/001-planning.agent.md" />
-    <File Path=".github/agents/002-implementation.agent.md" />
-    <File Path=".github/agents/003-formatter.agent.md" />
-    <File Path=".github/agents/004-reviewer.agent.md" />
+    <File Path=".github/agents/drax-implementation.agent.md" />
+    <File Path=".github/agents/drax-planning.agent.md" />
+    <File Path=".github/agents/drax-reviewer.agent.md" />
+    <File Path=".github/agents/drax-task-creator.agent.md" />
   </Folder>
   <Folder Name="/_github/agents/input/">
     <File Path=".github/agents/input/feature-brief-example.md" />
@@ -53,6 +53,11 @@
   <Folder Name="/_github/agents/output/">
     <File Path=".github/agents/output/delete-account-brief.md" />
   </Folder>
+  <Folder Name="/_github/agents/plans/">
+    <File Path=".github/plans/delete-product-feature-task.md" />
+    <File Path=".github/plans/refactor-shopping-cart-domain-refactor-task.md" />
+    <File Path=".github/plans/register-guest-feature-task.md" />
+  </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />
@@ -60,16 +65,6 @@
     <File Path=".github/instructions/blazor-tests.instructions.md" />
     <File Path=".github/instructions/blazor.instructions.md" />
     <File Path=".github/instructions/module-introduction.instructions.md" />
-  </Folder>
-  <Folder Name="/_github/prompts/">
-    <File Path=".github/prompts/001-create-domain-model.prompt.md" />
-    <File Path=".github/prompts/002-create-domain-model-rules.prompt.md" />
-    <File Path=".github/prompts/003-create-domain-model-unit-tests.prompt.md" />
-    <File Path=".github/prompts/004-create-domain-db-context.prompt.md" />
-    <File Path=".github/prompts/create-domain-event.prompt.md" />
-    <File Path=".github/prompts/implement-feature-prompt.prompt.md" />
-    <File Path=".github/prompts/plan-feature-prompt.prompt.md" />
-    <File Path=".github/prompts/prepare-feature-brief.prompt.md" />
   </Folder>
   <Folder Name="/_github/skills/" />
   <Folder Name="/_github/skills/code-quality/">

@@ -1,118 +1,78 @@
-# Feature Brief
+# [feature|bug|refactor|optimize] <Feature Name>
 
 ---
 
-## 0) Feature Brief guidance
+## Guidance
 
-While creating a feature brief focus on providing high-level overview of the feature such as:
-- type of task (new feature, refactor, bug fix, etc.)
-- module and feature name
-- short description of the feature for both backend and frontend
-- reference features that are being replaced or related to the new feature
-- scope of the feature (which parts of the system are affected)
-- who is the feature for (which user roles will benefit from it: Anonymous, Manager, Employee, Customer)
-- what are the testing requirements for the feature (unit tests, integration tests, architecture tests, system tests)
-
-Do not include implementation details in the feature brief, focus on the high-level overview and requirements.
+A feature brief is a focused user story that captures **what** needs to be done and **why** — not how.
+Keep it concise and implementation-detail free. Testing requirements and implementation patterns are derived during the planning step.
 
 ---
 
 ---
 
-## 1) Task Overview
+## Title
 
 | Field | Value |
 |---|---|
-| **Task type** | `Feature | Refactor | Change | Bugfix` |
-| **Module** | `Menu | Orders | ShoppingCart | Reservations | Payments | Users` |
-| **Accessibility** | `Manager | Employee | Customer | Anonymous` |
-| **Feature name** | `<Name of feature>` |
-| **Short backend description** | `<Short backend description>`|
-| **Short frontend description** | `<Short frontend description>` |
-| **Reference feature** | `<Reference feature>` |
+| **Type** | `feature \| bug \| refactor \| optimize` |
+| **Module** | `Menu \| Orders \| ShoppingCart \| Reservations \| Payments \| Users` |
+| **Aggregate** | `<Domain Aggregate>` |
+| **Accessibility** | `Manager \| Employee \| Customer \| Anonymous` |
+| **Name** | `<Short feature name>` |
 
 ---
 
 ---
-## 2) Scope
 
-| Scope | Include? |
+## Description
+
+> As a `<role>`, I want to `<goal>` so that `<benefit>`.
+
+### Scope
+
+| Area | Include? |
 |---|---|
-| `backend` — API + Domain + Persistence | yes |
-| `frontend` — Blazor Server / WASM | yes |
+| `backend` — Domain + API + Persistence | yes \| no |
+| `frontend` — Blazor Server / WASM | yes \| no |
 
----
+### Backend
 
----
-## 3) Feature description (Backend scope)
+> *(Include only sections relevant to the task type)*
 
-**For new feature flow include:**
-- description of the new API endpoint(s) to be created
-- reference feature
+**Feature / Change:**
+- What new behavior or data is introduced
+- API endpoint(s): method, route, request/response shape (high level)
+- Domain validation rules (business invariants on the aggregate)
+- API-level validation rules (input constraints, e.g. required fields, length, format, IDs validations or other that require DB call)
+- Caching requirements (e.g. cache invalidation rules, cache population rules)
+- Domain events to publish (name + consuming module, if known)
 
-**For refactor or change flow include:**
-- description of the current implementation
-- description of the new implementation
-- impact of the change e.g. simplification, performance improvement, better separation of concerns, etc.
-- reference feature
- 
-**For bugfix flow include:**
-- feature that is affected by the bug
-- description of the bug
-- steps to reproduce the bug
+**Refactor / Optimize:**
+- Current behavior and its shortcomings
+- Desired behavior and expected improvement (e.g. simplification, performance, separation of concerns)
 
----
+**Bug:**
+- Affected feature/aggregate
+- Description of the incorrect behavior
+- Steps to reproduce
 
----
+### Frontend
 
-## 4) Feature description (Frontend scope)
+> *(Include only sections relevant to the task type)*
 
-**For new feature flow include:**
-- description of the new page(s) to be created/modified
-- description of the new component(s) to be created/modified
-- reference feature
+**Feature / Change:**
+- Page(s) to create or modify
+- Component(s) to create or modify
+- User interaction flow (high level)
 
-**For refactor or change flow include:**
-- description of the current implementation
-- description of the new implementation
-- impact of the change e.g. simplification, better user experience, etc.
-- reference feature
+**Refactor / Optimize:**
+- Current implementation and its shortcomings
+- Desired implementation and expected improvement
 
-**For bugfix flow include:**
-- feature that is affected by the bug
-- description of the bug
-- steps to reproduce the bug
-
----
-
----
-## 5) Testing Requirements
-
-**Unit tests:**
-- if they are in scope or not with justification
-- if they are in scope, provide high-level description of the tests to be created or modified
-- reference tests for similar features that can be used as a pattern
-
-**Integration tests:**
-- if they are in scope or not with justification
-- if they are in scope, provide high-level description of the tests cases to be created or modified
-- reference tests for similar features that can be used as a pattern
-
-**Architecture tests:**
-- if they are in scope or not with justification
-- if they are in scope, provide high-level description of the tests to be created or modified
-- reference tests for similar features that can be used as a pattern
-
-**System tests:**
-- if they are in scope or not with justification
-- if they are in scope, provide high-level description of the tests to be created or modified
-- reference tests for similar features that can be used as a pattern
-
----
-
----
-
-## 6) Additional Notes
-
+**Bug:**
+- Affected page/component
+- Description of the incorrect behavior
+- Steps to reproduce
 
 ---
