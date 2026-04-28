@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Persistance.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace MyHomeRamen.Persistance.Payments;
 
@@ -7,8 +7,12 @@ public class PaymentsDbContextFactory : Microsoft.EntityFrameworkCore.Design.IDe
 {
     public PaymentsDbContext CreateDbContext(string[] args)
     {
-        DbContextOptionsBuilder<PaymentsDbContext>? optionsBuilder = new DbContextOptionsBuilder<PaymentsDbContext>();
-        optionsBuilder.UseSqlServer(DbConstants.MigrationConnectionString);
+        IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                                                     .AddJsonFile("appsettings.json")
+                                                     .Build();
+
+        DbContextOptionsBuilder<PaymentsDbContext>? optionsBuilder = new();
+        optionsBuilder.UseSqlServer(configuration["PaymentServiceDb"]);
 
         return new PaymentsDbContext(optionsBuilder.Options, null!);
     }

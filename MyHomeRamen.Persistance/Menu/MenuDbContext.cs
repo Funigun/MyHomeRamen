@@ -102,7 +102,7 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
                                             .Select(role => Role.CreateForSeed
                                                         (
-                                                            new RoleId(Guid.NewGuid()), 
+                                                            new RoleId(Guid.NewGuid()),
                                                             role,
                                                             existingPermissions.Where(p => RoleConstants.DefaultPermissions[role].Contains(p.Name))
                                                                                .ToList()

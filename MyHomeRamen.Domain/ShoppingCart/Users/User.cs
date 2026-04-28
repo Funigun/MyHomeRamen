@@ -13,20 +13,23 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 
     public ICollection<Permission> Permissions => _permissions.ToList();
 
+    public bool IsGuest { get; private set; }
+
     private User()
     {
     }
 
-    private User(UserId id, List<Role> roles, List<Permission> permissions)
+    private User(UserId id, List<Role> roles, List<Permission> permissions, bool isGuest)
     {
         Id = id;
         _roles = roles;
         _permissions = permissions;
+        IsGuest = isGuest;
     }
 
-    public static User Create(UserId id, List<Role> roles, List<Permission> permissions)
+    public static User Create(UserId id, List<Role> roles, List<Permission> permissions, bool isGuest = false)
     {
-        User user = new(id, roles, permissions);
+        User user = new(id, roles, permissions, isGuest);
 
         return user;
     }

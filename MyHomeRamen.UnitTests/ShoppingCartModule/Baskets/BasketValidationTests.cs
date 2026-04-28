@@ -21,7 +21,8 @@ public class BasketValidationTests
         // Assert
         Assert.Equal(DefaultId, basket.Id);
         Assert.Equal(user, basket.User);
-        Assert.Empty(basket.Products);
+        Assert.Empty(basket.Items);
+        Assert.Equal(BasketStatus.Active, basket.Status);
     }
 
     [Fact]

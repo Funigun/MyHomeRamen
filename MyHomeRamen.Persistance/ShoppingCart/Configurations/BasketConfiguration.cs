@@ -14,10 +14,14 @@ public class BasketConfiguration : IEntityTypeConfiguration<Basket>
                .IsRequired();
 
         builder.HasOne(x => x.User)
-            .WithMany()
-            .IsRequired();
+               .WithMany()
+               .IsRequired();
 
-        builder.HasMany(x => x.Products)
-            .WithOne();
+        builder.HasMany(x => x.Items)
+               .WithOne();
+
+        builder.Property(x => x.Status)
+               .HasConversion<int>()
+               .IsRequired();
     }
 }
