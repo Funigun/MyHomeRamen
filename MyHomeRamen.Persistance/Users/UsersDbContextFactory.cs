@@ -9,9 +9,12 @@ public class UsersDbContextFactory : IDesignTimeDbContextFactory<UsersDbContext>
 {
     public UsersDbContext CreateDbContext(string[] args)
     {
-        IConfigurationRoot configuration = new ConfigurationBuilder().Build();
+        IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                                             .AddJsonFile("appsettings.json")
+                                             .Build();
+
         DbContextOptionsBuilder<UsersDbContext> optionsBuilder = new DbContextOptionsBuilder<UsersDbContext>();
-        optionsBuilder.UseSqlServer("Server=.;Database=MyHomeRamenDb;Trusted_Connection=True;TrustServerCertificate=True");
+        optionsBuilder.UseSqlServer(configuration["UserCartServiceDb"]);
 
         return new UsersDbContext(optionsBuilder.Options, new RestaurantConfigurationProvider(configuration), null!);
     }

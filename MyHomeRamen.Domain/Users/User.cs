@@ -9,7 +9,9 @@ public class User : IdentityUser<Guid>
 
     public Guid RestaurantId { get; private set; }
 
-    public string KeycloakUserId { get; private set; } = default!;
+    public string? KeycloakUserId { get; private set; }
+
+    public Guid? GuestId { get; private set; }
 
     public string FirstName { get; private set; } = default!;
 
@@ -25,7 +27,7 @@ public class User : IdentityUser<Guid>
 
     public static User Create(string keycloakUserId, string userName, string firstName, string lastName, string email, string phoneNumber, string role)
     {
-        return new User
+        User user = new User
         {
             Id = Guid.CreateVersion7(),
             KeycloakUserId = keycloakUserId,
@@ -36,6 +38,21 @@ public class User : IdentityUser<Guid>
             UserName = userName,
             Role = role
         };
+
+        UserValidator.ValidateUser(user);
+        return user;
+    }
+
+    public static User CreateGuest()
+    {
+        User user = new User
+        {
+            Id = Guid.CreateVersion7(),
+            GuestId = Guid.CreateVersion7(),
+        };
+
+        UserValidator.ValidateUser(user);
+        return user;
     }
 
     public void SetRestaurantId(Guid restaurantId)

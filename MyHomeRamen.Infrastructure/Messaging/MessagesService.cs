@@ -34,7 +34,7 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
 
     public async Task ConsumeAsync<T>(Func<T, CancellationToken, Task> onMessageReceived, CancellationToken cancellationToken = default) where T : class
     {
-        logger.LogInformation("Consuming message of type {MessageType} to message broker", typeof(T).Name);
+        logger.LogInformation("Consuming message of type {MessageType} from message broker", typeof(T).Name);
 
         IChannel channel = await connection.CreateChannelAsync(null, cancellationToken);
 
@@ -64,7 +64,6 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error processing message of type {MessageType}", typeof(T).Name);
-
             }
         };
 
