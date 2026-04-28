@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Persistance.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
 
@@ -7,8 +7,12 @@ public class ShoppingCartDbContextFactory : Microsoft.EntityFrameworkCore.Design
 {
     public ShoppingCartDbContext CreateDbContext(string[] args)
     {
-        DbContextOptionsBuilder<ShoppingCartDbContext>? optionsBuilder = new DbContextOptionsBuilder<ShoppingCartDbContext>();
-        optionsBuilder.UseSqlServer(DbConstants.MigrationConnectionString);
+        IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                                             .AddJsonFile("appsettings.json")
+                                             .Build();
+
+        DbContextOptionsBuilder<ShoppingCartDbContext>? optionsBuilder = new();
+        optionsBuilder.UseSqlServer(configuration["ShoppingCartServiceDb"]);
 
         return new ShoppingCartDbContext(optionsBuilder.Options, null!);
     }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Reservations;
@@ -7,8 +8,12 @@ public class ReservationsDbContextFactory : Microsoft.EntityFrameworkCore.Design
 {
     public ReservationsDbContext CreateDbContext(string[] args)
     {
+        IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                                                     .AddJsonFile("appsettings.json")
+                                                     .Build();
+
         DbContextOptionsBuilder<ReservationsDbContext>? optionsBuilder = new DbContextOptionsBuilder<ReservationsDbContext>();
-        optionsBuilder.UseSqlServer(DbConstants.MigrationConnectionString);
+        optionsBuilder.UseSqlServer(configuration["ReservationsServiceDb"]);
 
         return new ReservationsDbContext(optionsBuilder.Options, null!);
     }

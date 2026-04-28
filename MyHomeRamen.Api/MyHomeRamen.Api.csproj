@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+   <PropertyGroup>
+     <UserSecretsId>3c1072c7-a303-472c-a0d5-ceed9812d823</UserSecretsId>
+   </PropertyGroup>
    <ItemGroup>
      <Compile Remove="Orders\Domain\**" />
      <Content Remove="Orders\Domain\**" />

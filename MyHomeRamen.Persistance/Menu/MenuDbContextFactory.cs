@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Persistance.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace MyHomeRamen.Persistance.Menu;
 
@@ -7,8 +7,12 @@ public class MenuDbContextFactory : Microsoft.EntityFrameworkCore.Design.IDesign
 {
     public MenuDbContext CreateDbContext(string[] args)
     {
-        DbContextOptionsBuilder<MenuDbContext>? optionsBuilder = new DbContextOptionsBuilder<MenuDbContext>();
-        optionsBuilder.UseSqlServer(DbConstants.MigrationConnectionString);
+        IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                                                                     .AddJsonFile("appsettings.json")
+                                                                     .Build();
+
+        DbContextOptionsBuilder<MenuDbContext>? optionsBuilder = new();
+        optionsBuilder.UseSqlServer(configuration["MenuServiceDb"]);
 
         return new MenuDbContext(optionsBuilder.Options, null!);
     }

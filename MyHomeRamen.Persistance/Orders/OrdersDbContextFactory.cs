@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Persistance.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace MyHomeRamen.Persistance.Orders;
 
@@ -7,8 +7,12 @@ public class OrdersDbContextFactory : Microsoft.EntityFrameworkCore.Design.IDesi
 {
     public OrdersDbContext CreateDbContext(string[] args)
     {
-        DbContextOptionsBuilder<OrdersDbContext>? optionsBuilder = new DbContextOptionsBuilder<OrdersDbContext>();
-        optionsBuilder.UseSqlServer(DbConstants.MigrationConnectionString);
+        IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                                                             .AddJsonFile("appsettings.json")
+                                                             .Build();
+
+        DbContextOptionsBuilder<OrdersDbContext>? optionsBuilder = new();
+        optionsBuilder.UseSqlServer(configuration["OrdersServiceDb"]);
 
         return new OrdersDbContext(optionsBuilder.Options, null!);
     }

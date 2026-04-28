@@ -1,18 +1,20 @@
 using MyHomeRamen.Api.Common.Domain;
-using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 
 namespace MyHomeRamen.Domain.ShoppingCart.Baskets;
 
 public sealed class Basket : AuditableEntity, IEntity<BasketId>
 {
-    private readonly List<Product> _products = [];
+    private readonly List<BasketItem> _items = [];
 
     public BasketId Id { get; private set; }
 
     public User User { get; private set; }
 
-    public IReadOnlyList<Product> Products => _products.ToList();
+    public BasketStatus Status { get; private set; }
+
+    public IReadOnlyList<BasketItem> Items => _items.ToList();
 
     private Basket()
     {
@@ -22,6 +24,7 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
     {
         Id = id;
         User = user;
+        Status = BasketStatus.Active;
     }
 
     public static Basket Create(BasketId id, User user)

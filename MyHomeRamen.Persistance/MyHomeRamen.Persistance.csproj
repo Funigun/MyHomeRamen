@@ -1,5 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <PropertyGroup>
+    <UserSecretsId>f529ae8b-2380-469c-b437-149c75cd3259</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />

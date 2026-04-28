@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.Products;
@@ -21,6 +22,8 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
     }
 
     public DbSet<Basket> ShoppingCarts { get; set; }
+
+    public DbSet<BasketItem> BasketItems { get; set; }
 
     public DbSet<Product> Products { get; set; }
 
@@ -147,6 +150,7 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         configurationBuilder.Properties<BasketId>().HaveConversion<BasketIdConverter>();
+        configurationBuilder.Properties<BasketItemId>().HaveConversion<BasketItemIdConverter>();
         configurationBuilder.Properties<ProductId>().HaveConversion<ProductIdConverter>();
         configurationBuilder.Properties<IngredientId>().HaveConversion<IngredientIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();

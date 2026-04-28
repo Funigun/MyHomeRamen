@@ -14,9 +14,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                .IsRequired();
 
         builder.HasMany(x => x.Roles)
-            .WithMany();
+               .WithMany();
 
         builder.HasMany(x => x.Permissions)
-            .WithMany();
+               .WithMany();
+
+        builder.Property(x => x.IsGuest)
+               .IsRequired()
+               .HasDefaultValue(false);
     }
 }
