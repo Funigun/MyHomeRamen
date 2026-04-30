@@ -33,4 +33,10 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 
         return user;
     }
+
+    public static User CreateGuest(UserId id)
+    {
+        User user = new(id, new List<Role>(), new List<Permission>(), isGuest: true);
+        return user;
+    }
 }

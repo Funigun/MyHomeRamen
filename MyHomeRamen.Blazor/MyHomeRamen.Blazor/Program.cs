@@ -2,6 +2,7 @@ using MudBlazor.Services;
 using MyHomeRamen.Blazor.Common.Configuration;
 using MyHomeRamen.Blazor.Components;
 using MyHomeRamen.Blazor.Presentation;
+using MyHomeRamen.Blazor.Presentation.GuestAuthentication;
 using MyHomeRamen.ServiceDefaults;
 using Serilog;
 

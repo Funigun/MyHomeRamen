@@ -49,6 +49,9 @@ public class User : IdentityUser<Guid>
         {
             Id = Guid.CreateVersion7(),
             GuestId = Guid.CreateVersion7(),
+            FirstName = "Guest",
+            LastName = "User",
+            Role = "Guest"
         };
 
         UserValidator.ValidateUser(user);

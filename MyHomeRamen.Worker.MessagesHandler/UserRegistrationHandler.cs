@@ -4,11 +4,14 @@ using MyHomeRamen.Worker.Common;
 
 namespace MyHomeRamen.Worker.MessagesHandler;
 
-public class Worker(ILogger<Worker> logger, IMessagesService messagesService, IServiceScopeFactory serviceScopeFactory) : BackgroundService
+public class UserRegistrationHandler(ILogger<UserRegistrationHandler> logger, IServiceScopeFactory serviceScopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         logger.LogInformation("Background messages worker starting at: {time}", DateTimeOffset.Now);
+
+        using IServiceScope scope = serviceScopeFactory.CreateScope();
+        IMessagesService messagesService = scope.ServiceProvider.GetRequiredService<IMessagesService>();
 
         await messagesService.ConsumeAsync<UserRegisteredIntegrationEvent>
         (
@@ -16,7 +19,6 @@ public class Worker(ILogger<Worker> logger, IMessagesService messagesService, IS
             {
                 logger.LogInformation("Processing UserRegisteredIntegrationEvent for User {Id}", integrationEvent.Id);
 
-                using IServiceScope scope = serviceScopeFactory.CreateScope();
                 IEnumerable<IIntegrationEventHandler<UserRegisteredIntegrationEvent>> handlers = scope.ServiceProvider.GetServices<IIntegrationEventHandler<UserRegisteredIntegrationEvent>>();
 
                 foreach (IIntegrationEventHandler<UserRegisteredIntegrationEvent> handler in handlers)

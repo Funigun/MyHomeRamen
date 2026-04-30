@@ -55,9 +55,6 @@
   </Folder>
   <Folder Name="/_github/agents/plans/">
     <File Path=".github/plans/delete-product-feature-task.md" />
-    <File Path=".github/plans/register-guest-feature-plan-backend.md" />
-    <File Path=".github/plans/register-guest-feature-plan-frontend.md" />
-    <File Path=".github/plans/register-guest-feature-task.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />

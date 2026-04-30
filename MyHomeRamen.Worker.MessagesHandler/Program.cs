@@ -56,7 +56,10 @@ try
     builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, PaymentsUserRegisteredHandler>();
     builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, ReservationsUserRegisteredHandler>();
 
-    builder.Services.AddHostedService<Worker>();
+    builder.Services.AddScoped<IIntegrationEventHandler<GuestUserCreatedIntegrationEvent>, ShoppingCartGuestRegisteredHandler>();
+
+    builder.Services.AddHostedService<UserRegistrationHandler>();
+    builder.Services.AddHostedService<GuestRegistrationHandler>();
 
     IHost host = builder.Build();
     await host.RunAsync();
