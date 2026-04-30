@@ -1,49 +1,55 @@
 using System.Text;
 using Microsoft.Extensions.Logging;
 using MyHomeRamen.Api.Common.Messaging;
+using MyHomeRamen.Infrastructure.Messaging.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace MyHomeRamen.Infrastructure.Messaging;
 
-public class MessagesService(ILogger<MessagesService> logger, IConnection connection) : IMessagesService
+public class MessagesService(ILogger<MessagesService> logger, IConnection connection, QueueConfigurationFactory queueConfigurationFactory) : IMessagesService
 {
-
-    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken = default) where T : class
+    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken = default)
+           where T : class
     {
         logger.LogInformation("Publishing message of type {MessageType} to message broker", typeof(T).Name);
 
         IChannel channel = await connection.CreateChannelAsync(null, cancellationToken);
 
+        QueueConfiguration config = queueConfigurationFactory.CreateQueueConfiguration<T>();
+
         await channel.QueueDeclareAsync(
-            queue: "user-events-queue",
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            arguments: null,
+            queue: config.QueueName,
+            durable: config.Durable,
+            exclusive: config.Exclusive,
+            autoDelete: config.AutoDelete,
+            arguments: config.Arguments,
             cancellationToken: cancellationToken);
 
         await channel.BasicPublishAsync(
             exchange: string.Empty,
-            routingKey: "user-events-queue",
+            routingKey: config.QueueName,
             mandatory: true,
             basicProperties: new BasicProperties() { Persistent = true },
             body: Encoding.UTF8.GetBytes(System.Text.Json.JsonSerializer.Serialize(message)),
             cancellationToken: cancellationToken);
     }
 
-    public async Task ConsumeAsync<T>(Func<T, CancellationToken, Task> onMessageReceived, CancellationToken cancellationToken = default) where T : class
+    public async Task ConsumeAsync<T>(Func<T, CancellationToken, Task> onMessageReceived, CancellationToken cancellationToken = default) 
+           where T : class
     {
-        logger.LogInformation("Consuming message of type {MessageType} to message broker", typeof(T).Name);
+        logger.LogInformation("Consuming message of type {MessageType} from message broker", typeof(T).Name);
+
+        QueueConfiguration config = queueConfigurationFactory.CreateQueueConfiguration<T>();
 
         IChannel channel = await connection.CreateChannelAsync(null, cancellationToken);
 
         await channel.QueueDeclareAsync(
-            queue: "user-events-queue",
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            arguments: null,
+            queue: config.QueueName,
+            durable: config.Durable,
+            exclusive: config.Exclusive,
+            autoDelete: config.AutoDelete,
+            arguments: config.Arguments,
             cancellationToken: cancellationToken);
 
         AsyncEventingBasicConsumer consumer = new(channel);
@@ -54,6 +60,7 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
             {
                 string message = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
                 T deserializedMessage = System.Text.Json.JsonSerializer.Deserialize<T>(message)!;
+
                 logger.LogInformation("Received message of type {MessageType} from message broker", typeof(T).Name);
 
                 await onMessageReceived(deserializedMessage, cancellationToken);
@@ -64,12 +71,11 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error processing message of type {MessageType}", typeof(T).Name);
-
             }
         };
 
         await channel.BasicConsumeAsync(
-            queue: "user-events-queue",
+            queue: config.QueueName,
             autoAck: false,
             consumer: consumer,
             cancellationToken: cancellationToken);

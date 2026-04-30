@@ -67,6 +67,10 @@ public class UsersDbContext : IdentityDbContext<User, Role, Guid>, IUsersDbConte
             b.Property(u => u.RestaurantId)
              .IsRequired(true);
 
+            b.Property(u => u.GuestId).IsRequired(false);
+            b.Property(u => u.KeycloakUserId).IsRequired(false);
+            b.HasIndex(u => u.GuestId).IsUnique().HasFilter("[GuestId] IS NOT NULL");
+
             b.Ignore(u => u.LockoutEnd);
             b.Ignore(u => u.TwoFactorEnabled);
             b.Ignore(u => u.PhoneNumberConfirmed);

@@ -1,17 +1,17 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Api.Common.Extentsions;
 
 namespace MyHomeRamen.Api.Common.Authorization;
 
 public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, RestaurantConfigurationProvider configurationProvider) : ICurrentUser
 {
-    public string Id { get; init; } = httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.KeycloakIdClaim)?.Value
-                                    ?? string.Empty;
+    public string Id { get; init; } = httpContextAccessor.GetIdentityId();
 
-    public Guid UserId => Guid.TryParse(httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.DomainIdClaim)?.Value, out Guid userId)
-                        ? userId
-                        : Guid.Empty;
+    public Guid UserId => httpContextAccessor.TryGetUserId()
+                       ?? httpContextAccessor.TryGetGuestId()
+                       ?? Guid.Empty;
 
     public Guid RestaurantId { get; init; } = configurationProvider.RestaurantId;
 

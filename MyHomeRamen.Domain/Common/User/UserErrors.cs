@@ -37,4 +37,7 @@ public static class UserErrors
 
     public static DomainException InvalidPermissionName()
         => new("Invalid permission name");
+
+    public static DomainException InvalidIdentity()
+        => new("A user must have either a KeycloakUserId or a GuestId, not both and not neither.");
 }

@@ -27,6 +27,13 @@ public class CustomerAccountApiClient(HttpClient httpClient)
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task<RegisterGuestResponse?> RegisterGuestAsync(CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.PostAsync("/api/account/guest", null, ct);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<RegisterGuestResponse>(cancellationToken: ct);
+    }
+
     public async Task<GetDetailsResponse?> GetDetailsAsync(CancellationToken ct = default)
     {
         return await httpClient.GetFromJsonAsync<GetDetailsResponse>("/api/account/me", ct);
