@@ -14,7 +14,7 @@ public static partial class DbExtensions
                 filter: c => c.CategoryType == categoryType);
 
         public async Task<bool> IsCategoryNameUniqueAsync(string name, CancellationToken cancellationToken = default)
-            => await categories.Exists(c => c.Name.ToLower() != name.ToLower(), cancellationToken);
+            => !await categories.Exists(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
 
         public async Task<int> GetNextSortOrderAsync(CategoryType categoryType, CancellationToken cancellationToken = default)
         {

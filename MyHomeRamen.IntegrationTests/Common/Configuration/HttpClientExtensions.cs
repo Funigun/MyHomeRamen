@@ -38,18 +38,24 @@ internal static class HttpClientExtensions
         return new(HttpMethod.Put, url);
     }
 
-    internal static HttpRequestMessage AddAuthorizationHeader(this HttpRequestMessage requestMessage, UserRoles userRole)
+    internal static HttpRequestMessage AddAuthorizationHeader(this HttpRequestMessage requestMessage, UserRoles userRole, string userId = "")
     {
         (string token, string scheme) = userRole switch
         {
-            UserRoles.Admin => (JwtTokenFactory.GenerateAdminToken(), ManagerScheme),
-            UserRoles.Employee => (JwtTokenFactory.GenerateEmployeeToken(), EmployeeScheme),
-            _ => (JwtTokenFactory.GenerateCustomerToken(), CustomerScheme)
+            UserRoles.Admin => (JwtTokenFactory.GenerateAdminToken(userId), ManagerScheme),
+            UserRoles.Employee => (JwtTokenFactory.GenerateEmployeeToken(userId), EmployeeScheme),
+            _ => (JwtTokenFactory.GenerateCustomerToken(userId), CustomerScheme)
         };
 
         requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         requestMessage.Headers.Add(SchemeHeader, scheme);
 
+        return requestMessage;
+    }
+
+    internal static HttpRequestMessage WithGuestCookie(this HttpRequestMessage requestMessage, string guestId)
+    {
+        requestMessage.Headers.Add("Cookie", $"guest_id={guestId}");
         return requestMessage;
     }
 
