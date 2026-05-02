@@ -55,27 +55,15 @@
   </Folder>
   <Folder Name="/_github/agents/plans/">
     <File Path=".github/plans/add-item-plan-backend.md" />
-    <File Path=".github/plans/add-item-plan-frontend.md" />
     <File Path=".github/plans/checkout-plan-backend.md" />
-    <File Path=".github/plans/checkout-plan-frontend.md" />
     <File Path=".github/plans/clear-basket-plan-backend.md" />
-    <File Path=".github/plans/clear-basket-plan-frontend.md" />
     <File Path=".github/plans/delete-item-plan-backend.md" />
-    <File Path=".github/plans/delete-item-plan-frontend.md" />
     <File Path=".github/plans/delete-product-plan-backend.md" />
-    <File Path=".github/plans/delete-product-plan-frontend.md" />
     <File Path=".github/plans/get-basket-details-plan-backend.md" />
-    <File Path=".github/plans/get-basket-details-plan-frontend.md" />
-    <File Path=".github/plans/get-basket-summary-plan-backend.md" />
-    <File Path=".github/plans/get-basket-summary-plan-frontend.md" />
     <File Path=".github/plans/merge-baskets-plan-backend.md" />
-    <File Path=".github/plans/merge-baskets-plan-frontend.md" />
     <File Path=".github/plans/unlock-basket-plan-backend.md" />
-    <File Path=".github/plans/unlock-basket-plan-frontend.md" />
     <File Path=".github/plans/update-item-quantity-plan-backend.md" />
-    <File Path=".github/plans/update-item-quantity-plan-frontend.md" />
     <File Path=".github/plans/validate-products-plan-backend.md" />
-    <File Path=".github/plans/validate-products-plan-frontend.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
