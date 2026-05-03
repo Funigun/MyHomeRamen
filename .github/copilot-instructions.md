@@ -4,48 +4,7 @@
 
 This project is an application for complete Ramen restaurant management.
 
-## 2) Solution Architecture:
-
-```
-┌──────────────────────────────────────────────────────────────────────────-┐
-│                               Aspire AppHost                              │
-│   - Local orchestration                                                   │
-│   - Service discovery                                                     │
-│   - Global configuration and constants (e.g. ServiceName)                 │
-├───────────────────────────────────────────────────────────────────────────┤
-│                               API Layer                                   │
-│   - MyHomeRamen.Api: Main API project exposing REST endpoints             │
-│   - MyHomeRamen.Api.Common: Common utilities, extensions, and helpers     │
-│   - MyHomeRamen.Identity.Api: Identity management via Keycloak            │
-├───────────────────────────────────────────────────────────────────────────┤
-│                               Domain Layer                                │
-│   - MyHomeRamen.Domain: Domain entities, value objects, and services      │
-│     (Modules: Menu, Orders, Payments, Reservations, ShoppingCart, Users)  │
-├───────────────────────────────────────────────────────────────────────────┤
-│                               Infrastructure Layer                        │
-│   - MyHomeRamen.Persistance: Database contexts and EF Core configurations │
-│   - MyHomeRamen.Infrastructure: Services like caching, messaging, email   │
-├───────────────────────────────────────────────────────────────────────────┤
-│                               Worker Services                             │
-│   - MyHomeRamen.Worker: Base worker with Quartz config                    │
-│   - MyHomeRamen.Worker.DatabaseInitializer: DB setup and seeding          │
-│   - MyHomeRamen.Worker.MailSender: Email background worker                │
-│   - MyHomeRamen.Worker.MessagesHandler: RabbitMQ message handler          │
-├───────────────────────────────────────────────────────────────────────────┤
-│                               Frontend                                    │
-│   - MyHomeRamen.Blazor: Blazor Server frontend                            │
-│   - MyHomeRamen.Blazor.Client: Blazor WASM client                         │
-├───────────────────────────────────────────────────────────────────────────┤
-│                               Testing                                     │
-│   - MyHomeRamen.UnitTests: Unit tests                                     │
-│   - MyHomeRamen.IntegrationTests: Integration tests                       │
-│   - MyHomeRamen.ArchitectureTests: Architecture tests                     │
-│   - MyHomeRamen.SystemTests: Tests using Aspire.Hosting.Testing package   │
-│                              to orchestrate comple workflows              │
-└───────────────────────────────────────────────────────────────────────────┘
-```
-
-## 3) Solution structure:
+## 2) Solution structure:
 ```
 MyHomeRamen.slnx
 ├── .editorconfig
@@ -75,7 +34,7 @@ MyHomeRamen.slnx
 └── MyHomeRamen.SystemTests/                ← System tests (XUnit, Aspire.Hosting.Testing)
 ```
 
-## 4) Technology
+## 3) Technology
 | Layer | Technology |
 |---|---|
 | Orchestration | Aspire (.NET 10) |
@@ -88,7 +47,10 @@ MyHomeRamen.slnx
 | Testing | XUnit, NSubstitute, TestContainers, NetArchRules, Aspire.Hosting.Testing |
 | CI/CD | GitHub Actions |
 
-## 5) Coding standards
+## 4) Coding standards
+
+
+### 4.1) Formatting and package management
 Project uses global files for coding standards and practices:
 - .editorconfig
 - Directory.Build.props
@@ -101,14 +63,19 @@ There are also NuGet packages for code analysis and style enforcement:
 - StyleCop.Analyzers
 - SonarAnalyzer.CSharp
 
-## 6) Testing
+### 4.2) Modules isolation
+- Modules must **not** reference each other directly (enforced by architecture tests).
+- Cross-module integration goes through integration events in `MyHomeRamen.Common.Contracts`.
+- Modules are isolated by folders in each project, e.g. `MyHomeRamen.Api/Menu`, `MyHomeRamen.Domain/Menu`, `MyHomeRamen.Persistance/Menu`, etc.
+
+## 5) Testing
 Project uses xUnit for unit, integration and architecture tests.
 - Architecture Tests: enforce architectural rules using NetArchRules
 - Unit Tests: focus on testing domain logic and application services that do not have infrastructure or external dependencies
 - Integration Tests (Test Containers): test individual services in isolation (e.g. API + DB) using TestContainers
 - Integration Tests (Aspire): test complete distributed workflows spanning multiple independent services (API + Identity + Workers + External services) orchestrated by .NET Aspire
 
-## 7) Copilot standards
+## 6) Copilot standards
 - Load all relevant instruction files as described in the agent instructions.
 - Follow the instructions and guidelines from the loaded files strictly to ensure high quality output.
 - Always refer to the coding standards, architecture guidelines, and best practices defined in the instruction files when implementing features or making code changes.

@@ -6,7 +6,9 @@ using MyHomeRamen.Api;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
+using MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
 using MyHomeRamen.Persistance.Menu;
+using MyHomeRamen.Persistance.ShoppingCart;
 using Testcontainers.MsSql;
 using Testcontainers.Redis;
 
@@ -21,24 +23,40 @@ public sealed class WebApiFactory : WebApplicationFactory<IApiAssemblyMarker>, I
                                                                       .WithPortBinding(1433)
                                                                       .WithEnvironment("ACCEPT_EULA", "Y")
                                                                       .WithName("MyHomeRamenTestDb")
+                                                                      .WithCleanUp(true)
                                                                       .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1433))
+                                                                      .Build();
+
+    private readonly MsSqlContainer _sqlCartContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
+                                                                      .WithPassword("Str0ng_P@ssw0rd4Tests")
+                                                                      .WithPortBinding(1434)
+                                                                      .WithEnvironment("ACCEPT_EULA", "Y")
+                                                                      .WithName("MyHomeRamenTestCartDb")
+                                                                      .WithCleanUp(true)
+                                                                      .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1434))
                                                                       .Build();
 
     private readonly RedisContainer _redisContainer = new RedisBuilder("redis:8.2").Build();
 
     public MenuDbContext MenuDbContext { get; private set; } = default!;
 
+    public ShoppingCartDbContext ShoppingCartDbContext { get; private set; } = default!;
+
     public HttpClient HttpClient { get; private set; } = default!;
 
     async ValueTask IAsyncLifetime.InitializeAsync()
     {
-        await _sqlContainer.StartAsync();
-        await _redisContainer.StartAsync();
+        IEnumerable<Task> containers = [_sqlCartContainer.StartAsync(), _sqlContainer.StartAsync(), _redisContainer.StartAsync()];
+        await Task.WhenAll(containers);
 
         FakeUser user = new();
         DbContextOptions<MenuDbContext> options = new DbContextOptionsBuilder<MenuDbContext>().UseSqlServer(_sqlContainer.GetConnectionString()).Options;
         MenuDbContext = new MenuDbContext(options, user);
         await DataSeeder.SeedMenuModule(MenuDbContext);
+
+        DbContextOptions<ShoppingCartDbContext> shoppingCartOptions = new DbContextOptionsBuilder<ShoppingCartDbContext>().UseSqlServer(_sqlCartContainer.GetConnectionString()).Options;
+        ShoppingCartDbContext = new ShoppingCartDbContext(shoppingCartOptions, user);
+        await ShoppingCartDataSeeder.SeedShoppingCartModule(ShoppingCartDbContext);
 
         HttpClient = CreateClient();
     }
@@ -46,9 +64,12 @@ public sealed class WebApiFactory : WebApplicationFactory<IApiAssemblyMarker>, I
     public new async Task DisposeAsync()
     {
         await _sqlContainer.DisposeAsync();
+        await _sqlCartContainer.DisposeAsync();
         await _redisContainer.DisposeAsync();
 
         await MenuDbContext.DisposeAsync();
+        await ShoppingCartDbContext.DisposeAsync();
+
         HttpClient.Dispose();
         await base.DisposeAsync();
     }
@@ -57,7 +78,8 @@ public sealed class WebApiFactory : WebApplicationFactory<IApiAssemblyMarker>, I
     {
         builder.ConfigureServices(services =>
         {
-            services.ReconfigureDatabase(_sqlContainer.GetConnectionString());
+            services.ReconfigureDbContext<MenuDbContext>(_sqlContainer.GetConnectionString());
+            services.ReconfigureDbContext<ShoppingCartDbContext>(_sqlCartContainer.GetConnectionString());
             services.ReconfigureCache(_redisContainer.GetConnectionString());
             services.ReconfigureTokenOptions();
         })

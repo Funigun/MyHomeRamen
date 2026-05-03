@@ -1,0 +1,32 @@
+using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketSummary.Models;
+using MyHomeRamen.Domain.ShoppingCart.Database;
+using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Persistance.Common;
+
+namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
+
+public sealed class GetCurrentBasketSummaryHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser)
+                  : IRequestHandler<GetCurrentBasketSummaryRequest, GetCurrentBasketSummaryResponse>
+{
+    public async Task<GetCurrentBasketSummaryResponse> Handle(GetCurrentBasketSummaryRequest request, CancellationToken cancellationToken)
+    {
+        User? user = await dbContext.Users.AsNoTracking()
+                                             .Where(u => u.Id == (UserId)currentUser.UserId)
+                                             .FirstOrDefaultAsync(cancellationToken);
+
+        if (user is null ||
+             (user.IsGuest && !string.IsNullOrEmpty(currentUser.Id))
+              || (!user.IsGuest && string.IsNullOrEmpty(currentUser.Id))
+            )
+        {
+            throw new UnauthorizedAccessException("User is not authorized to access the current basket summary.");
+        }
+
+        return await dbContext.ShoppingCarts.GetCurrentBasketSummary(currentUser.UserId)
+                                            .Select(basket => basket.ToResponse())
+                                            .FirstAsync(cancellationToken);
+    }
+}

@@ -63,10 +63,10 @@ public static class EndpointBuilderExtensions
                       .ProducesProblem(StatusCodes.Status400BadRequest);
     }
 
-    public static RouteHandlerBuilder MapStandardAuthenticatedGet<TResponse>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)
+    public static RouteHandlerBuilder MapStandardAuthenticatedGet<TRequest, TResponse>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)
     {
         return builder.MapStandardGet<TResponse>(pattern, handler)
-                      .WithAuthenticationFilter<TResponse>();
+                      .WithAuthenticationFilter<TRequest>();
     }
 
     public static RouteHandlerBuilder MapStandardPut<TRequest>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)

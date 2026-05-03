@@ -67,18 +67,7 @@ internal static class ApiServicesExtensions
         return services;
     }
 
-    internal static IServiceCollection ReconfigureDatabase(this IServiceCollection services, string connectionString)
-    {
-        services.ReconfigureDbContext<MenuDbContext>(connectionString);
-        services.ReconfigureDbContext<ShoppingCartDbContext>(connectionString);
-        services.ReconfigureDbContext<OrdersDbContext>(connectionString);
-        services.ReconfigureDbContext<ReservationsDbContext>(connectionString);
-        services.ReconfigureDbContext<PaymentsDbContext>(connectionString);
-
-        return services;
-    }
-
-    private static void ReconfigureDbContext<T>(this IServiceCollection services, string connectionString)
+    internal static void ReconfigureDbContext<T>(this IServiceCollection services, string connectionString)
                 where T : DbContext
     {
         ServiceDescriptor? descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<T>));

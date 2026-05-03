@@ -54,7 +54,16 @@
     <File Path=".github/agents/output/delete-account-brief.md" />
   </Folder>
   <Folder Name="/_github/agents/plans/">
-    <File Path=".github/plans/delete-product-feature-task.md" />
+    <File Path=".github/plans/add-item-plan-backend.md" />
+    <File Path=".github/plans/checkout-plan-backend.md" />
+    <File Path=".github/plans/clear-basket-plan-backend.md" />
+    <File Path=".github/plans/delete-item-plan-backend.md" />
+    <File Path=".github/plans/delete-product-plan-backend.md" />
+    <File Path=".github/plans/get-basket-details-plan-backend.md" />
+    <File Path=".github/plans/merge-baskets-plan-backend.md" />
+    <File Path=".github/plans/unlock-basket-plan-backend.md" />
+    <File Path=".github/plans/update-item-quantity-plan-backend.md" />
+    <File Path=".github/plans/validate-products-plan-backend.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />

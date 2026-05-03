@@ -22,7 +22,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         Product product = Product.Create(
             Guid.NewGuid(),
             $"UpdateTest_{Guid.NewGuid():N}".PadRight(15)[..15],
-            "Original product description that is long enough.",
+            "Original product description that is long enough to pass validation.",
             10.0m,
             string.Empty,
             [DataGenerator.GetRandomIngredient()],
@@ -133,7 +133,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         Product productA = Product.Create(
             Guid.NewGuid(),
             $"ProductA_{Guid.NewGuid():N}"[..20],
-            "Description for product A that is long enough.",
+            "Description for product A that is long enough to pass validation.",
             10.0m,
             string.Empty,
             [DataGenerator.GetRandomIngredient()],
@@ -143,7 +143,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         Product productB = Product.Create(
             Guid.NewGuid(),
             $"ProductB_{Guid.NewGuid():N}"[..20],
-            "Description for product B that is long enough.",
+            "Description for product A that is long enough to pass validation.",
             15.0m,
             string.Empty,
             [DataGenerator.GetRandomIngredient()],

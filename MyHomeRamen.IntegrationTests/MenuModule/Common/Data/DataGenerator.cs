@@ -57,7 +57,7 @@ internal static class DataGenerator
                 Guid.NewGuid(),
                 f.Random.String2(ProductConstants.MinNameLength, ProductConstants.MaxNameLength),
                 f.Random.String2(ProductConstants.MinDescriptionLength, ProductConstants.MaxDescriptionLength),
-                f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice),
+                Math.Round(f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice), 2),
                 string.Empty,
                 [baseIngredient],
                 customIngredients,
