@@ -7,7 +7,7 @@ using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
 
-namespace MyHomeRamen.IntegrationTests.ShoppingCartModule;
+namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
 
 public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
 {

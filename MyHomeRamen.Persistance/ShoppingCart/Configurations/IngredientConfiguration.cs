@@ -22,5 +22,7 @@ public class IngredientConfiguration : IEntityTypeConfiguration<Ingredient>
 
         builder.Property(x => x.Price)
             .HasPrecision(18, 2);
+
+        builder.Property(x => x.Quantity).IsRequired();
     }
 }
