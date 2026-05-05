@@ -19,7 +19,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
         Product product = DataGenerator.GeneratedProducts.First();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}")
+            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}/manage")
             .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
@@ -42,7 +42,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
         Product product = DataGenerator.GeneratedProducts.First();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}");
+            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}/manage");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -60,7 +60,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
         Product product = DataGenerator.GeneratedProducts.First();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}")
+            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}/manage")
             .AddAuthorizationHeader(role);
 
         // Act
@@ -75,7 +75,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}")
+            .CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}/manage")
             .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
@@ -94,7 +94,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
         IEnumerable<Guid> expectedIngredientIds = product.BaseIngredients.Select(i => i.Id.Value);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}")
+            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}/manage")
             .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
