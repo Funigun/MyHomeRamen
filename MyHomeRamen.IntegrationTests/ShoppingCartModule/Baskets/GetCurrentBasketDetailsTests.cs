@@ -10,7 +10,7 @@ using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
 
-namespace MyHomeRamen.IntegrationTests.ShoppingCartModule;
+namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
 
 public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
 {
@@ -113,14 +113,16 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
             new IngredientId(Guid.NewGuid()),
             "Base Ingredient",
             "Base ingredient description",
-            1.5m);
+            1.5m,
+            1);
 
         Ingredient customIngredient = Ingredient.Create(
             new IngredientId(Guid.NewGuid()),
             new IngredientId(Guid.NewGuid()),
             "Custom Item",
             "Custom ingredient description",
-            2.0m);
+            2.0m,
+            1);
 
         Product product = Product.Create(
             new ProductId(Guid.NewGuid()),

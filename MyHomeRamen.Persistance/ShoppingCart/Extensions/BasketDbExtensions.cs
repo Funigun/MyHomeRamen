@@ -18,6 +18,10 @@ public static partial class DbExtensions
                     .ThenInclude(i => i.Product)
                         .ThenInclude(p => p.CustomIngredients)
                 .Where(b => b.User.Id == userId && b.Status == BasketStatus.Active);
+
+        public IQueryable<Basket> ForUserTracked(UserId userId)
+            => baskets
+                .Where(b => b.User.Id == userId && b.Status == BasketStatus.Active);
     }
 
     public static IQueryable<Basket> GetCurrentBasketSummary(this IQueryable<Basket> baskets, Guid userId)

@@ -1,4 +1,5 @@
 using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Common.Basket;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 
@@ -34,5 +35,20 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
         BasketValidator.Validate(basket);
 
         return basket;
+    }
+
+    public void AddItem(BasketItem item)
+    {
+        if (item is null)
+        {
+            throw BasketErrors.BasketItemProductRequired();
+        }
+
+        if (_items.Count >= BasketConstants.MaxProductsCount)
+        {
+            throw BasketErrors.BasketItemsLimitReached();
+        }
+
+        _items.Add(item);
     }
 }

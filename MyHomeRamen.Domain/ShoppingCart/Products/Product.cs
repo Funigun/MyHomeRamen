@@ -18,6 +18,8 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
     public decimal Price { get; private set; }
 
+    public decimal TotalPrice { get; private set; }
+
     public string ImageUrl { get; private set; } = string.Empty;
 
     public IReadOnlyList<Ingredient> BaseIngredients => _baseIngredients.ToList();
@@ -47,7 +49,18 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         };
 
         ProductValidator.Validate(product);
+        product.CalculateTotalPrice();
 
         return product;
+    }
+
+    private void CalculateTotalPrice()
+    {
+        decimal additionalBaseIngredientsPrice = _baseIngredients.Where(ingredient => ingredient.Quantity > 1)
+                                                                 .Sum(i => i.Price * (i.Quantity - 1));
+
+        decimal customIngredientsPrice = _customIngredients.Sum(i => i.Price * i.Quantity);
+
+        TotalPrice = Price + additionalBaseIngredientsPrice + customIngredientsPrice;
     }
 }

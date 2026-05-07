@@ -1,8 +1,12 @@
 using Bogus;
+using MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket.Models;
+using MyHomeRamen.Common.Contracts.Basket;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using MenuDataGenerator = MyHomeRamen.IntegrationTests.MenuModule.Common.Data.DataGenerator;
+using MenuProduct = MyHomeRamen.Domain.Menu.Products.Product;
 
 namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
 
@@ -58,5 +62,61 @@ internal static class DataGenerator
             ));
 
         return productFaker.Generate(count);
+    }
+
+    internal static AddItemToBasketRequest ValidAddItemToBasketRequest()
+    {
+        MenuProduct menuProduct = GetRandomMenuProduct();
+
+        List<IngredientRequestDto> baseIngredients = menuProduct.BaseIngredients
+            .Select(i => new IngredientRequestDto(i.Id, 1))
+            .ToList();
+
+        List<IngredientRequestDto> customIngredients = menuProduct.CustomIngredients
+            .Select(i => new IngredientRequestDto(i.Id, 1))
+            .ToList();
+
+        return new AddItemToBasketRequest(
+            menuProduct.Id,
+            1,
+            baseIngredients,
+            customIngredients,
+            null);
+    }
+
+    public static TheoryData<AddItemToBasketRequest> InvalidAddItemToBasketRequests()
+    {
+        MenuProduct menuProduct = GetRandomMenuProduct();
+
+        List<IngredientRequestDto> validBaseIngredients = menuProduct.BaseIngredients
+            .Select(i => new IngredientRequestDto(i.Id, 1))
+            .ToList();
+
+        List<IngredientRequestDto> validCustomIngredients = menuProduct.CustomIngredients
+            .Select(i => new IngredientRequestDto(i.Id, 1))
+            .ToList();
+
+        string tooLongComment = new('a', BasketItemCommentValidator.MaxCommentLength + 1);
+
+        return
+        [
+            // Quantity: below minimum
+            new AddItemToBasketRequest(menuProduct.Id, BasketItemQuantityValidator.MinQuantity - 1, validBaseIngredients, validCustomIngredients, null),
+
+            // Quantity: above maximum
+            new AddItemToBasketRequest(menuProduct.Id, BasketItemQuantityValidator.MaxQuantity + 1, validBaseIngredients, validCustomIngredients, null),
+
+            // ProductId: empty
+            new AddItemToBasketRequest(Guid.Empty, 1, validBaseIngredients, validCustomIngredients, null),
+
+            // Comment: too long
+            new AddItemToBasketRequest(menuProduct.Id, 1, validBaseIngredients, validCustomIngredients, tooLongComment),
+        ];
+    }
+
+    private static MenuProduct GetRandomMenuProduct()
+    {
+        List<MenuProduct> products = MenuDataGenerator.GeneratedProducts.ToList();
+        return products[System.Security.Cryptography.RandomNumberGenerator.GetInt32(products.Count)];
     }
 }

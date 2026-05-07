@@ -1,0 +1,28 @@
+using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Responses;
+
+namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models;
+
+public sealed class BasketItemTableModel
+{
+    public Guid Id { get; init; }
+
+    public string ProductName { get; init; } = string.Empty;
+
+    public string ProductImageUrl { get; init; } = string.Empty;
+
+    public int Quantity { get; init; }
+
+    public decimal Price { get; init; }
+
+    public static BasketItemTableModel FromResponse(BasketItemResponse response)
+    {
+        return new BasketItemTableModel
+        {
+            Id = response.Id,
+            ProductName = response.ProductName,
+            ProductImageUrl = response.ProductImageUrl,
+            Quantity = response.Quantity,
+            Price = response.Price,
+        };
+    }
+}

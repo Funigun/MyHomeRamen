@@ -74,7 +74,7 @@ public static class Extensions
                                 .AddHttpClientInstrumentation()
                                 .AddRedisInstrumentation();
                         });
-
+        ;
         builder.AddOpenTelemetryExporters();
 
         builder.AddDefaultHealthChecks();

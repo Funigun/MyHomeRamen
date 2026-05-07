@@ -1,0 +1,135 @@
+
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Responses
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+
+@inject ShoppingCartApiClient ShoppingCartApiClient
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue">
+
+            <MudText Typo="Typo.h6">@Model.Name</MudText>
+            <MudText Typo="Typo.body2" Class="mb-4">@Model.Description</MudText>
+
+            <MudNumericField T="int"
+                             Label="Quantity"
+                             @bind-Value="Model.Quantity"
+                             For="@(() => Model.Quantity)"
+                             Min="1" Max="50"
+                             Class="mb-4" />
+
+            <MudTextField Label="Comments (optional)"
+                          @bind-Value="Model.Comments"
+                          For="@(() => Model.Comments)"
+                          Lines="2"
+                          Class="mb-4" />
+
+            @if (Model.BaseIngredients.Count > 0)
+            {
+                <MudText Typo="Typo.subtitle1" Class="mb-2">Base Ingredients</MudText>
+                @foreach (IngredientCustomizationModel ingredient in Model.BaseIngredients)
+                {
+                    <MudGrid AlignItems="AlignItems.Center" Class="mb-2">
+                        <MudItem xs="7">
+                            <MudText Typo="Typo.body2">@ingredient.Name</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@ingredient.Price.ToString("C")</MudText>
+                        </MudItem>
+                        <MudItem xs="5">
+                            <MudNumericField T="int"
+                                             @bind-Value="ingredient.Quantity"
+                                             Min="1" Max="50"
+                                             Label="Qty" />
+                        </MudItem>
+                    </MudGrid>
+                }
+            }
+
+            @if (Model.CustomIngredients.Count > 0)
+            {
+                <MudText Typo="Typo.subtitle1" Class="mt-4 mb-2">Customize Ingredients</MudText>
+                @foreach (IngredientCustomizationModel ingredient in Model.CustomIngredients)
+                {
+                    <MudGrid AlignItems="AlignItems.Center" Class="mb-2">
+                        <MudItem xs="1">
+                            <MudCheckBox @bind-Value="ingredient.IsSelected" />
+                        </MudItem>
+                        <MudItem xs="6">
+                            <MudText Typo="Typo.body2">@ingredient.Name</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@ingredient.Price.ToString("C")</MudText>
+                        </MudItem>
+                        <MudItem xs="5">
+                            <MudNumericField T="int"
+                                             @bind-Value="ingredient.Quantity"
+                                             Min="1" Max="50"
+                                             Disabled="@(!ingredient.IsSelected)"
+                                             Label="Qty" />
+                        </MudItem>
+                    </MudGrid>
+                }
+            }
+
+            @if (_errorMessage is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-2">@_errorMessage</MudAlert>
+            }
+
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => MudDialog.Cancel())" Disabled="_isBusy">Cancel</MudButton>
+        <MudButton Color="Color.Primary"
+                   Variant="Variant.Filled"
+                   OnClick="SubmitAsync"
+                   Disabled="_isBusy">
+            @if (_isBusy)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+            }
+            else
+            {
+                <span>Add to Basket</span>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ProductCustomizationModel Model { get; set; } = default!;
+
+    [Parameter] public EventCallback<AddItemToBasketResponse> OnItemAdded { get; set; }
+
+    private MudForm _form = default!;
+    private bool _isBusy;
+    private string? _errorMessage;
+    private readonly ProductCustomizationValidator _validator = new();
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        _isBusy = true;
+        _errorMessage = null;
+        try
+        {
+            AddItemToBasketResponse result = await ShoppingCartApiClient.AddItemToBasketAsync(Model.ToRequest());
+            await OnItemAdded.InvokeAsync(result);
+            MudDialog.Close(result);
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to add item to basket. Please try again.";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}

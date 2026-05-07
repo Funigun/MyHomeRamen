@@ -4,8 +4,12 @@
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Responses
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Products.Responses
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Dialogs
+
 
 @inject MenuApiClient MenuApiClient
+@inject IDialogService DialogService
 
 <PageTitle>Menu</PageTitle>
 
@@ -51,6 +55,15 @@
                                 </MudText>
                             }
                         </MudCardContent>
+                        <MudCardActions>
+                            <MudButton OnClick="@(() => OpenCustomizationDialogAsync(product.Id))"
+                                       Color="Color.Primary"
+                                       Variant="Variant.Filled"
+                                       StartIcon="@Icons.Material.Filled.AddShoppingCart"
+                                       FullWidth="true">
+                                Customize & Add
+                            </MudButton>
+                        </MudCardActions>
                     </MudCard>
                 </MudItem>
             }
@@ -82,6 +95,24 @@
         _products = await MenuApiClient.GetProductsByCategoryAsync(categoryId);
 
         _isLoadingProducts = false;
+    }
+
+    private async Task OpenCustomizationDialogAsync(Guid productId)
+    {
+        GetProductByIdResponse? product = await MenuApiClient.GetProductByIdAsync(productId);
+        if (product is null)
+        {
+            return;
+        }
+
+        ProductCustomizationModel model = ProductCustomizationModel.FromResponse(product);
+
+        DialogParameters<ProductCustomizationDialog> parameters = new();
+        parameters.Add(x => x.Model, model);
+
+        DialogOptions options = new() { MaxWidth = MaxWidth.Small, FullWidth = true, CloseOnEscapeKey = true };
+
+        await DialogService.ShowAsync<ProductCustomizationDialog>("Customize Your Order", parameters, options);
     }
 }
 

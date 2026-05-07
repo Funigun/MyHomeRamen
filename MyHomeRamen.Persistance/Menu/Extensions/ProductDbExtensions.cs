@@ -15,6 +15,12 @@ public static partial class DbExtensions
                 .Include(p => p.BaseIngredients)
                 .Where(p => p.Categories.Any(c => c.Id == categoryId));
 
+        public IQueryable<Product> WithAllIngredients()
+            => products
+                .AsNoTracking()
+                .Include(p => p.BaseIngredients)
+                .Include(p => p.CustomIngredients);
+
         public IQueryable<Product> ForManage(
             string? name,
             IEnumerable<Guid>? categoryIds,

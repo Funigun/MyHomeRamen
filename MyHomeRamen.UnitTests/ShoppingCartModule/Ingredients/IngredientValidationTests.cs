@@ -15,8 +15,11 @@ public class IngredientValidationTests
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
     {
+        // Arrange
+        const int defaultQuantity = 1;
+
         // Act
-        Ingredient ingredient = Ingredient.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultDescription, DefaultPrice);
+        Ingredient ingredient = Ingredient.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultDescription, DefaultPrice, defaultQuantity);
 
         // Assert
         Assert.Equal(DefaultId, ingredient.Id);
@@ -24,6 +27,7 @@ public class IngredientValidationTests
         Assert.Equal(DefaultName, ingredient.Name);
         Assert.Equal(DefaultDescription, ingredient.Description);
         Assert.Equal(DefaultPrice, ingredient.Price);
+        Assert.Equal(defaultQuantity, ingredient.Quantity);
     }
 
     [Fact]
@@ -102,6 +106,7 @@ public class IngredientValidationTests
             DefaultOriginalId,
             name ?? DefaultName,
             description ?? DefaultDescription,
-            price ?? DefaultPrice);
+            price ?? DefaultPrice,
+            1);
     }
 }

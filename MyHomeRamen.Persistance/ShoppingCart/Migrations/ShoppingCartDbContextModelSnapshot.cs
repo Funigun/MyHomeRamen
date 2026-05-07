@@ -169,6 +169,9 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("RestaurantId")
                         .HasColumnType("uniqueidentifier");
 
@@ -219,6 +222,9 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 
                     b.Property<Guid>("RestaurantId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 

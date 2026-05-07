@@ -1,0 +1,63 @@
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models
+
+@inject IDialogService DialogService
+
+@if (IsLoading)
+{
+    <MudProgressLinear Indeterminate="true" Class="mt-2" />
+}
+else if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="mt-2">Your basket is empty.</MudAlert>
+}
+else
+{
+    <MudPaper Outlined="true" Class="mt-2">
+        @foreach (BasketItemTableModel item in Items)
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-2" Spacing="2">
+                <MudImage Src="@item.ProductImageUrl" Alt="@item.ProductName" Width="48" Height="48" ObjectFit="ObjectFit.Cover" />
+                <MudStack Spacing="0" Style="flex: 1;">
+                    <MudText Typo="Typo.body1">@item.ProductName</MudText>
+                    <MudText Typo="Typo.caption">Qty: @item.Quantity</MudText>
+                </MudStack>
+                <MudText Typo="Typo.body2">@item.Price.ToString("C")</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                               Size="Size.Small"
+                               Color="Color.Primary"
+                               OnClick="@(() => HandleEditClickAsync(item.Id))" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                               Size="Size.Small"
+                               Color="Color.Error"
+                               OnClick="@(() => HandleRemoveClickAsync(item.Id))" />
+            </MudStack>
+            <MudDivider />
+        }
+    </MudPaper>
+}
+
+@code {
+    [Parameter] public List<BasketItemTableModel> Items { get; set; } = [];
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public EventCallback<Guid> OnRemove { get; set; }
+    [Parameter] public EventCallback<(Guid Id, int Quantity)> OnUpdateQuantity { get; set; }
+
+    private async Task HandleEditClickAsync(Guid id)
+    {
+        
+    }
+
+    private async Task HandleRemoveClickAsync(Guid id)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            "Remove item",
+            "Are you sure you want to remove this item from your basket?",
+            yesText: "Remove",
+            cancelText: "Cancel");
+
+        if (confirmed == true)
+        {
+            await OnRemove.InvokeAsync(id);
+        }
+    }
+}

@@ -31,6 +31,8 @@ public sealed class BasketItem : AuditableEntity, IEntity<BasketItemId>
     public static BasketItem Create(BasketItemId id, Product product, int quantity, decimal price, string? comment)
     {
         BasketItem item = new(id, product, quantity, price, comment);
+        item.Price = item.Product.TotalPrice * item.Quantity;
+
         BasketItemValidator.Validate(item);
         return item;
     }

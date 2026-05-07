@@ -54,7 +54,6 @@
     <File Path=".github/agents/output/delete-account-brief.md" />
   </Folder>
   <Folder Name="/_github/agents/plans/">
-    <File Path=".github/plans/add-item-plan-backend.md" />
     <File Path=".github/plans/checkout-plan-backend.md" />
     <File Path=".github/plans/clear-basket-plan-backend.md" />
     <File Path=".github/plans/delete-item-plan-backend.md" />

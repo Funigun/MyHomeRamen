@@ -150,6 +150,7 @@ public class ProductValidationTests
             new IngredientId(Guid.NewGuid()),
             "Ingredient",
             "Description",
-            10.0m);
+            10.0m,
+            1);
     }
 }

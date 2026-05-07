@@ -13,9 +13,9 @@ public sealed class GetProductByIdForManageEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetProductByIdForManageRequest, GetProductByIdForManageResponse>("products/{id}", HandleAsync)
+            .MapStandardValidatedGet<GetProductByIdForManageRequest, GetProductByIdForManageResponse>("products/{id}/manage", HandleAsync)
             .WithName("GetProductByIdForManageEndpoint")
-            .WithDescription("Returns the full details of a single product by its ID for the management view.")
+            .WithDescription("Returns the full details of a single product by its ID for the management view using the /manage route.")
             .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 

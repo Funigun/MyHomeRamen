@@ -1,0 +1,30 @@
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models
+
+<MudStack Class="px-4 pb-4" Style="height: 100%; overflow-y: auto;">
+    <BasketItemsTable Items="Items"
+                      IsLoading="IsLoading"
+                      OnRemove="OnRemove"
+                      OnUpdateQuantity="OnUpdateQuantity" />
+
+    
+        <MudDivider Class="mt-2" />
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-2">
+            <MudText Typo="Typo.subtitle1">Total</MudText>
+            <MudText Typo="Typo.subtitle1">@Total.ToString("C")</MudText>
+        </MudStack>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   FullWidth="true"
+                   Class="mt-2"
+                   OnClick="OnCheckout">Checkout</MudButton>
+    
+</MudStack>
+
+@code {
+    [Parameter] public List<BasketItemTableModel> Items { get; set; } = [];
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public decimal Total { get; set; }
+    [Parameter] public EventCallback<Guid> OnRemove { get; set; }
+    [Parameter] public EventCallback<(Guid Id, int Quantity)> OnUpdateQuantity { get; set; }
+    [Parameter] public EventCallback OnCheckout { get; set; }
+}

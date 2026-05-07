@@ -13,4 +13,7 @@ public static class BasketErrors
 
     public static DomainException BasketItemPriceInvalid()
         => new("Basket item price must be a non-negative value.");
+
+    public static DomainException BasketItemsLimitReached()
+        => new($"Basket cannot contain more than {BasketConstants.MaxProductsCount} items.");
 }
