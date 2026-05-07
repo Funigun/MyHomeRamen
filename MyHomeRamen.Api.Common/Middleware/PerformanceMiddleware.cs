@@ -21,13 +21,16 @@ public sealed class PerformanceMiddleware(RequestDelegate next, ILogger<Performa
             stopwatch.Stop();
             TimeSpan elapsed = stopwatch.Elapsed;
 
-            logger.LogWarning
-            (
-                "Request {RequestPath} took {ElapsedMilliseconds}ms which exceeds the threshold of {ThresholdMilliseconds}ms",
-                context.Request.Path,
-                elapsed.TotalMilliseconds,
-                _threshold.TotalMilliseconds
-            );
+            if (elapsed.TotalMilliseconds > _threshold.TotalMilliseconds)
+            {
+                logger.LogWarning
+                (
+                    "Request {RequestPath} took {ElapsedMilliseconds}ms which exceeds the threshold of {ThresholdMilliseconds}ms",
+                    context.Request.Path,
+                    elapsed.TotalMilliseconds,
+                    _threshold.TotalMilliseconds
+                );
+            }
         }
     }
 }

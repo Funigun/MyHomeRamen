@@ -1,0 +1,98 @@
+﻿@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Responses
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+
+@inject ShoppingCartApiClient ShoppingCartApiClient
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div @ref="_menuRef" style="position: relative; display: inline-block;">
+    <MudBadge Content="_items.Count" Color="Color.Error" Overlap="true" Class="mx-6 my-4">
+        <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart"
+                       Color="Color.Inherit"
+                       Variant="Variant.Text"
+                       OnClick="LoadBasketAsync" />
+    </MudBadge>
+
+    <div style="position: absolute; top: 100%; left: 0; z-index: 1000; margin-top: 5px">
+        <MudCollapse Expanded="_isMenuOpen" Style="width: 300px; background-color: #FFDBC9">
+            <BasketMenuPanel Items="_items"
+                             IsLoading="_isLoading"
+                             Total="_total"
+                             OnRemove="HandleRemoveAsync"
+                             OnUpdateQuantity="HandleUpdateQuantityAsync"
+                             OnCheckout="HandleCheckoutAsync" />
+        </MudCollapse>
+    </div>
+</div>
+
+@code {
+    private List<BasketItemTableModel> _items = [];
+    private bool _isLoading;
+    private decimal _total;
+    private bool _isMenuOpen = false;
+
+    private ElementReference _menuRef;
+    private DotNetObjectReference<BasketSummaryMenu>? _dotNetRef;
+    private IJSObjectReference? _jsModule;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/clickOutside.js");
+            await _jsModule.InvokeVoidAsync("registerClickOutside", _menuRef, _dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public void CloseMenu()
+    {
+        _isMenuOpen = false;
+        StateHasChanged();
+    }
+
+    private async Task LoadBasketAsync()
+    {
+        _isLoading = true;
+        _items = [];
+        _total = 0;
+
+        GetCurrentBasketSummaryResponse? response = await ShoppingCartApiClient.GetCurrentBasketSummaryAsync();
+        if (response is not null)
+        {
+            _items = response.Items.Select(BasketItemTableModel.FromResponse).ToList();
+            _total = _items.Sum(i => i.Price * i.Quantity);
+        }
+
+        _isLoading = false;
+        _isMenuOpen = true;
+    }
+
+    private Task HandleRemoveAsync(Guid id)
+    {
+        return Task.CompletedTask;
+    }
+
+    private Task HandleUpdateQuantityAsync((Guid Id, int Quantity) args)
+    {
+        return Task.CompletedTask;
+    }
+
+    private Task HandleCheckoutAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_jsModule is not null)
+        {
+            await _jsModule.InvokeVoidAsync("unregisterClickOutside", _menuRef);
+            await _jsModule.DisposeAsync();
+        }
+
+        _dotNetRef?.Dispose();
+    }
+}

@@ -1,6 +1,7 @@
 @using MyHomeRamen.Blazor.Common.Configuration
 @using MyHomeRamen.Blazor.Features.Account.Common.Services;
 @using MyHomeRamen.Blazor.Features.Admin.Common.Services;
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Components
 
 @inject RestaurantConfiguration RestaurantConfiguration
 @inject NavigationManager NavigationManager
@@ -21,7 +22,7 @@
                 <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.AdminPanel))">Admin Panel</MudButton>
             }
 
-            <MudIconButton Icon="@Icons.Material.Filled.ShoppingCart" Color="Color.Inherit" Variant="Variant.Text" />
+            <BasketSummaryMenu/>
 
             @if (_isAuthenticated)
             {

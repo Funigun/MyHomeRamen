@@ -10,7 +10,7 @@ internal sealed class ShoppingCartGuestRegisteredHandler(IShoppingCartDbContext 
 {
     public async Task HandleAsync(GuestUserCreatedIntegrationEvent integrationEvent, CancellationToken cancellationToken)
     {
-        User user = User.CreateGuest(integrationEvent.UserId);
+        User user = User.CreateGuest(integrationEvent.GuestId);
         Basket basket = Basket.Create(new BasketId(Guid.CreateVersion7()), user);
 
         dbContext.Users.Add(user);

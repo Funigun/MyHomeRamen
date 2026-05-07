@@ -9,6 +9,6 @@ internal static class Mappings
             product.Id.Value,
             product.Name,
             product.Description,
-            product.BaseIngredients.Select(i => new IngredientDto(i.Name, i.Description, i.Price)).ToList(),
-            product.CustomIngredients.Select(i => new IngredientDto(i.Name, i.Description, i.Price)).ToList());
+            product.BaseIngredients.Select(i => new IngredientDto(i.Id.Value, i.Name, i.Description, i.Price)).ToList(),
+            product.CustomIngredients.Select(i => new IngredientDto(i.Id.Value, i.Name, i.Description, i.Price)).ToList());
 }
