@@ -11,13 +11,12 @@ namespace MyHomeRamen.Identity.Api.Features.Admin.GetEmployees;
 
 public sealed class GetEmployeesEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Admin";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardGet<GetEmployeesResponse>("/employee", Handler)
+        endpointBuilder.MapStandardGet<GetEmployeesResponse>("api/admin/employee", Handler)
                        .RequireAuthorization(DependencyInjection.RestaurantManagerPolicy)
                        .WithName("GetEmployeesEndpoint")
+                       .WithTags("admin")
                        .WithDescription("Handles GetEmployees operations.");
     }
 

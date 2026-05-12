@@ -4,7 +4,5 @@ namespace MyHomeRamen.Api.Common.Endpoint;
 
 public interface IEndpoint
 {
-    string GroupName { get; init; }
-
     void MapEndpoint(IEndpointRouteBuilder endpointBuilder);
 }

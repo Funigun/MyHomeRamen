@@ -173,10 +173,6 @@ public sealed class GetCurrentBasketDetailsHandler(IShoppingCartDbContext dbCont
 
 > When `currentUser.UserId` is `Guid.Empty` (i.e., no authenticated user and no guest cookie), the query returns `null` and the endpoint responds with `404 Not Found`.
 
-#### Create IGroupedEndpoint implementation
-
-No group endpoint needed. The `ShoppingCart` group is registered via `GroupName = "ShoppingCart"` on the endpoint.
-
 #### Create IEndpoint implementation
 
 **`GetCurrentBasketDetailsEndpoint.cs`**
@@ -184,13 +180,12 @@ No group endpoint needed. The `ShoppingCart` group is registered via `GroupName 
 ```csharp
 public sealed class GetCurrentBasketDetailsEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "ShoppingCart";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<GetCurrentBasketDetailsResponse>("basket/summary", HandleAsync)
+            .MapStandardGet<GetCurrentBasketDetailsResponse>("api/shoppingcart/basket/summary", HandleAsync)
             .WithName("GetCurrentBasketDetailsEndpoint")
+            .WithTags("Baskets")
             .WithDescription("Returns the active basket summary for the current user or guest.")
             .AllowAnonymous();
     }

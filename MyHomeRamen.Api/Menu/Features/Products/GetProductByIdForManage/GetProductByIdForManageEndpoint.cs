@@ -8,13 +8,12 @@ namespace MyHomeRamen.Api.Menu.Features.Products.GetProductByIdForManage;
 
 public sealed class GetProductByIdForManageEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetProductByIdForManageRequest, GetProductByIdForManageResponse>("products/{id}/manage", HandleAsync)
+            .MapStandardValidatedGet<GetProductByIdForManageRequest, GetProductByIdForManageResponse>("api/menu/products/{id}/manage", HandleAsync)
             .WithName("GetProductByIdForManageEndpoint")
+            .WithTags("Products")
             .WithDescription("Returns the full details of a single product by its ID for the management view using the /manage route.")
             .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

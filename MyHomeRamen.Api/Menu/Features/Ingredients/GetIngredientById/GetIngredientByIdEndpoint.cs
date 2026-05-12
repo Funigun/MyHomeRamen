@@ -8,13 +8,12 @@ namespace MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientById;
 
 public sealed class GetIngredientByIdEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetIngredientByIdRequest, GetIngredientByIdResponse>("ingredients/{id}", HandleAsync)
+            .MapStandardValidatedGet<GetIngredientByIdRequest, GetIngredientByIdResponse>("api/menu/ingredients/{id}", HandleAsync)
             .WithName("GetIngredientByIdEndpoint")
+            .WithTags("Ingredients")
             .WithDescription("Returns the full details of a single ingredient by its ID.")
             .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

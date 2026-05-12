@@ -7,13 +7,12 @@ namespace MyHomeRamen.Api.Menu.Features.Products.GetProductById;
 
 public sealed class GetProductByIdEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetProductByIdRequest, GetProductByIdResponse>("products/{id}", HandleAsync)
+            .MapStandardValidatedGet<GetProductByIdRequest, GetProductByIdResponse>("api/menu/products/{id}", HandleAsync)
             .WithName("GetProductByIdEndpoint")
+            .WithTags("Products")
             .WithDescription("Returns the full public-facing details of a single product including its base and custom ingredients.")
             .AllowAnonymous();
     }

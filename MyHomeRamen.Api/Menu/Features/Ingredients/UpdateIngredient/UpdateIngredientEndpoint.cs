@@ -8,14 +8,13 @@ namespace MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient;
 
 public sealed class UpdateIngredientEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
             .MapStandardValidatedPutWithResponse<UpdateIngredientRequest, UpdateIngredientResponse>(
-                "ingredients/{id}", HandleAsync)
+                "api/menu/ingredients/{id}", HandleAsync)
             .WithName("UpdateIngredientEndpoint")
+            .WithTags("Ingredients")
             .WithDescription("Updates the name, description, price, and categories of an existing ingredient.")
             .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

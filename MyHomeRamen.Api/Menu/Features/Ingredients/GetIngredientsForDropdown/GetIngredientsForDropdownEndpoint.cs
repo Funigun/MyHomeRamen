@@ -8,13 +8,12 @@ namespace MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForDropdown;
 
 public sealed class GetIngredientsForDropdownEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<IEnumerable<GetIngredientsForDropdownResponse>>("ingredients/dropdown", HandleAsync)
+            .MapStandardGet<IEnumerable<GetIngredientsForDropdownResponse>>("api/menu/ingredients/dropdown", HandleAsync)
             .WithName("GetIngredientsForDropdownEndpoint")
+            .WithTags("Ingredients")
             .WithDescription("Returns an ordered list of ingredients for use in dropdown selectors.")
             .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

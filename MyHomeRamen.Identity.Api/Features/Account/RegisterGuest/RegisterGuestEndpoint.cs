@@ -8,11 +8,10 @@ namespace MyHomeRamen.Identity.Api.Features.Account.RegisterGuest;
 
 public class RegisterGuestEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Account";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<RegisterGuestRequest, RegisterGuestResponse>("/guest", Handler)
+        endpointBuilder.MapStandardPost<RegisterGuestRequest, RegisterGuestResponse>("api/account/guest", Handler)
+                       .WithTags("account")
                        .WithDescription("Creates new guest account or returns existing one")
                        .AllowAnonymous();
     }

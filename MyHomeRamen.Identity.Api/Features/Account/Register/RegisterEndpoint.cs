@@ -8,12 +8,11 @@ namespace MyHomeRamen.Identity.Api.Features.Account.Register;
 
 public sealed class RegisterEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Account";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<RegisterRequest, RegisterRequest>("/sign-up", Handler)
+        endpointBuilder.MapStandardValidatedPost<RegisterRequest, RegisterRequest>("api/account/sign-up", Handler)
                        .WithName("RegisterEndpoint")
+                       .WithTags("account")
                        .WithDescription("Handles user registration")
                        .AllowAnonymous();
     }

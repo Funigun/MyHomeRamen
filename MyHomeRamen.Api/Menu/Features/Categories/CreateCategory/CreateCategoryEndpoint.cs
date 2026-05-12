@@ -8,12 +8,12 @@ namespace MyHomeRamen.Api.Menu.Features.Categories.CreateCategory;
 
 public sealed class CreateCategoryEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<CreateCategoryRequest, CreateCategoryResponse>("categories", HandleAsync)
+        endpointBuilder.MapStandardValidatedPost<CreateCategoryRequest, CreateCategoryResponse>("api/menu/categories", HandleAsync)
                        .WithName("CreateCategoryEndpoint")
+                       .WithTags("Categories")
                        .WithDescription("Handles Create Category operations.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

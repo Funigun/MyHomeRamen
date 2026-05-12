@@ -8,12 +8,11 @@ namespace MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder;
 
 public sealed class UpdateCategoriesOrderEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPut<UpdateCategoriesOrderRequest>("categories/order", HandleAsync)
+        endpointBuilder.MapStandardValidatedPut<UpdateCategoriesOrderRequest>("api/menu/categories/order", HandleAsync)
                        .WithName("UpdateCategoriesOrderEndpoint")
+                       .WithTags("Categories")
                        .WithDescription("Updates the sort order of multiple categories in a single batch operation.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

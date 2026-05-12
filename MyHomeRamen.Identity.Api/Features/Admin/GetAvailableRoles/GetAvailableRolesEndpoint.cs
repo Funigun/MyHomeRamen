@@ -9,12 +9,11 @@ namespace MyHomeRamen.Identity.Api.Features.Admin.GetAvailableRoles;
 
 public sealed class GetAvailableRolesEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Admin";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardGet<GetAvailableRolesResponse>("/role", Handler)
+        endpointBuilder.MapStandardGet<GetAvailableRolesResponse>("api/admin/role", Handler)
                        .WithName("GetAvailableRolesEndpoint")
+                       .WithTags("admin")
                        .WithDescription("Gets the user available roles.")
                        .AllowAnonymous();
     }

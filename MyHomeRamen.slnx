@@ -57,7 +57,9 @@
     <File Path=".github/plans/validate-products-plan-backend.md" />
   </Folder>
   <Folder Name="/_github/agents/tasks/">
+    <File Path=".github/agentic-workflow-redesign-plan.md" />
     <File Path=".github/agents/tasks/endpoint-pipeline-refactor.md" />
+    <File Path=".github/ideas.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
@@ -79,7 +81,9 @@
     <File Path=".github/scripts/task-scaffold.ps1" />
     <File Path=".github/scripts/verify.ps1" />
   </Folder>
-  <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/skills/">
+    <File Path=".github/agentic-workflow-redesign-plan.md" />
+  </Folder>
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
     <File Path=".github/wiki/patterns.md" />

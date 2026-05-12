@@ -7,13 +7,12 @@ namespace MyHomeRamen.Api.Menu.Features.Products.GetProductsByCategory;
 
 public sealed class GetProductsByCategoryEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetProductsByCategoryRequest, IEnumerable<GetProductsByCategoryResponse>>("products", HandleAsync)
+            .MapStandardValidatedGet<GetProductsByCategoryRequest, IEnumerable<GetProductsByCategoryResponse>>("api/menu/products", HandleAsync)
             .WithName("GetProductsByCategoryEndpoint")
+            .WithTags("Products")
             .WithDescription("Returns all products for a given category.")
             .AllowAnonymous();
     }

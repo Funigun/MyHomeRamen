@@ -8,12 +8,11 @@ namespace MyHomeRamen.Identity.Api.Features.Account.Addresses.DeleteAddress;
 
 public sealed class DeleteAddressEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Account";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedDelete<DeleteAddressRequest>("/me/addresses/{id}", HandleAsync)
+        endpointBuilder.MapStandardValidatedDelete<DeleteAddressRequest>("api/account/me/addresses/{id}", HandleAsync)
                        .WithName("DeleteAddressEndpoint")
+                       .WithTags("account")
                        .WithDescription("Deletes an address from the authenticated user's profile.")
                        .RequireAuthorization(DependencyInjection.AnyAuthenticatedPolicy);
     }

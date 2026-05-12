@@ -8,14 +8,13 @@ namespace MyHomeRamen.Identity.Api.Features.Account.Addresses.UpdateAddress;
 
 public sealed class UpdateAddressEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Account";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
             .MapStandardValidatedPutWithResponse<UpdateAddressRequest, UpdateAddressResponse>(
-                "/me/addresses/{id}", HandleAsync)
+                "api/account/me/addresses/{id}", HandleAsync)
             .WithName("UpdateAddressEndpoint")
+            .WithTags("account")
             .WithDescription("Updates an existing address of the authenticated user.")
             .RequireAuthorization(DependencyInjection.AnyAuthenticatedPolicy);
     }

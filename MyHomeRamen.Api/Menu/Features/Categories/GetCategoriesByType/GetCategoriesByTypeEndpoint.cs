@@ -8,13 +8,12 @@ namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType;
 
 public sealed class GetCategoriesByTypeEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetCategoriesByTypeRequest, IEnumerable<GetCategoriesByTypeResponse>>("categories/by-type", HandleAsync)
+            .MapStandardValidatedGet<GetCategoriesByTypeRequest, IEnumerable<GetCategoriesByTypeResponse>>("api/menu/categories/by-type", HandleAsync)
             .WithName("GetCategoriesByTypeEndpoint")
+            .WithTags("Categories")
             .WithDescription("Returns a filtered and ordered list of categories for the specified category type.")
             .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

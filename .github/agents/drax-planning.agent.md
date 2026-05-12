@@ -43,7 +43,6 @@ Prepare step by step implementation plan for the task in structured way:
 	- create models, DTOs and mappings
 	- create relevant policies
 	- create IRequestHandler implementation
-	- create IGroupedEndpoint implementation (if needed)
 	- create IEndpoint implementation
 
 Backend plan file template:
@@ -73,9 +72,6 @@ Backend plan file template:
   <<details>>
 
 - Create IRequestHandler implementation
-  <<details>>
-
-- Create IGroupedEndpoint implementation (if needed)
   <<details>>
 
 - Create IEndpoint implementation

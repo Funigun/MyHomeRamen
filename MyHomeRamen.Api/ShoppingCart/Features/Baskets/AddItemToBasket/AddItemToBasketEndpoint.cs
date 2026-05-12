@@ -7,14 +7,13 @@ namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket;
 
 public sealed class AddItemToBasketEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "ShoppingCart";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
             .MapStandardValidatedPost<AddItemToBasketRequest, AddItemToBasketResponse>(
-                "basket/items", HandleAsync)
+                "api/shoppingcart/basket/items", HandleAsync)
             .WithName("AddItemToBasketEndpoint")
+            .WithTags("Baskets")
             .WithDescription("Adds a product with selected ingredients to the current user's basket.")
             .AllowAnonymous();
     }

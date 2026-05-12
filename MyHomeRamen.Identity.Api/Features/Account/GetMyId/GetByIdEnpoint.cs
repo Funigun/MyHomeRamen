@@ -9,12 +9,11 @@ namespace MyHomeRamen.Identity.Api.Features.Account.GetMyId;
 
 public sealed class GetByIdEnpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Account";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardGet<GetMyIdResponse>("/me/id", HandleAsync)
+        endpointBuilder.MapStandardGet<GetMyIdResponse>("api/account/me/id", HandleAsync)
                        .WithName("GetMyIdEndpoint")
+                       .WithTags("account")
                        .WithDescription("Returns the authenticated user's internal ID.")
                        .RequireAuthorization(DependencyInjection.AnyAuthenticatedPolicy);
     }

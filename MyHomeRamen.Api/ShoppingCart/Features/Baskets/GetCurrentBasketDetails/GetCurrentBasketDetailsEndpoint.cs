@@ -7,13 +7,12 @@ namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
 public sealed class GetCurrentBasketDetailsEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "ShoppingCart";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<GetCurrentBasketDetailsResponse>("basket/summary", HandleAsync)
+            .MapStandardGet<GetCurrentBasketDetailsResponse>("api/shoppingcart/basket/summary", HandleAsync)
             .WithName("GetCurrentBasketDetailsEndpoint")
+            .WithTags("Baskets")
             .WithDescription("Returns the active basket summary for the current user or guest.")
             .AllowAnonymous();
     }

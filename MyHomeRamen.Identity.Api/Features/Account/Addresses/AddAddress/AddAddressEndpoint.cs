@@ -9,12 +9,11 @@ namespace MyHomeRamen.Identity.Api.Features.Account.Addresses.AddAddress;
 
 public sealed class AddAddressEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Account";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<AddAddressRequest, AddAddressResponse>("/me/addresses", HandleAsync)
+        endpointBuilder.MapStandardValidatedPost<AddAddressRequest, AddAddressResponse>("api/account/me/addresses", HandleAsync)
                        .WithName("AddAddressEndpoint")
+                       .WithTags("account")
                        .WithDescription("Adds a new address to the authenticated user's profile.")
                        .RequireAuthorization(DependencyInjection.AnyAuthenticatedPolicy);
     }

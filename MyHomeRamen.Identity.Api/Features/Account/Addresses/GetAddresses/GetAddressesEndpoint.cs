@@ -9,12 +9,11 @@ namespace MyHomeRamen.Identity.Api.Features.Account.Addresses.GetAddresses;
 
 public sealed class GetAddressesEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Account";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardGet<GetAddressesResponse>("/me/addresses", HandleAsync)
+        endpointBuilder.MapStandardGet<GetAddressesResponse>("api/account/me/addresses", HandleAsync)
                        .WithName("GetAddressesEndpoint")
+                       .WithTags("account")
                        .WithDescription("Returns all addresses for the authenticated user.")
                        .RequireAuthorization(DependencyInjection.AnyAuthenticatedPolicy);
     }

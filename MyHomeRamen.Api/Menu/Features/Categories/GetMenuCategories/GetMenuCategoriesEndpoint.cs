@@ -7,13 +7,12 @@ namespace MyHomeRamen.Api.Menu.Features.Categories.GetMenuCategories;
 
 public sealed class GetMenuCategoriesEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<IEnumerable<GetMenuCategoriesResponse>>("categories/menu", HandleAsync)
+            .MapStandardGet<IEnumerable<GetMenuCategoriesResponse>>("api/menu/categories/menu", HandleAsync)
             .WithName("GetMenuCategoriesEndpoint")
+            .WithTags("Categories")
             .WithDescription("Returns all product categories for the public restaurant menu page.")
             .AllowAnonymous();
     }

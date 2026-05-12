@@ -144,13 +144,12 @@ MyHomeRamen.Api\{Module}\Features\{Entity}\{Operation}\
 // CreateProductEndpoint.cs
 public sealed class CreateProductEndpoint : IEndpoint
 {
-	public string GroupName { get; init; } = "Menu";
-
 	public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
 	{
 		endpointBuilder
-			.MapStandardValidatedPost<CreateProductRequest, CreateProductResponse>("products", HandleAsync)
+			.MapStandardValidatedPost<CreateProductRequest, CreateProductResponse>("api/menu/products", HandleAsync)
 			.WithName("CreateProductEndpoint")
+			.WithTags("Menu")
 			.WithDescription("Handles Create Product operations.")
 			.RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
 	}
@@ -214,7 +213,7 @@ private static async Task<IResult> HandleAsync(
 public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
 {
 	endpointBuilder
-		.MapStandardValidatedGet<GetIngredientByIdRequest, GetIngredientByIdResponse>("ingredients/{id}", HandleAsync)
+		.MapStandardValidatedGet<GetIngredientByIdRequest, GetIngredientByIdResponse>("api/menuingredients/{id}", HandleAsync)
 		// ...
 }
 

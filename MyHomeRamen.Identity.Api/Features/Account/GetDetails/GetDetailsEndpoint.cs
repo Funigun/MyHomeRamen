@@ -9,12 +9,11 @@ namespace MyHomeRamen.Identity.Api.Features.Account.GetDetails;
 
 public sealed class GetDetailsEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Account";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardGet<GetDetailsResponse>("/me", HandleAsync)
+        endpointBuilder.MapStandardGet<GetDetailsResponse>("api/account/me", HandleAsync)
                        .WithName("GetDetailsEndpoint")
+                       .WithTags("account")
                        .WithDescription("Returns the authenticated user's profile details.")
                        .RequireAuthorization(DependencyInjection.AnyAuthenticatedPolicy);
     }

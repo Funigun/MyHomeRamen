@@ -85,7 +85,7 @@ Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Hand
 - Primitive/format rules live in `MyHomeRamen.Common.Contracts` validators, they must always specify the `WithMessage()` for consistent error responses.
 
 ### 3.5) Endpoint configuration
-- Each endpoint class implements `IEndpoint` and defines `GroupName`, `WithName()`, `WithDescription()`, and `RequireAuthorizaiont(<PolicyName>)`/`AllowAnonymous()` .
+- Each endpoint class implements `IEndpoint` and defines `WithName()`, `WithDescription()`, `WithTags()` and `RequireAuthorizaiont(<PolicyName>)`/`AllowAnonymous()` .
 - Use extension methods from `EndpointBuilderExtensions` in `MyHomeRamen.Api.Common` for consistent endpoint configuration (e.g., route patterns, generic parameters).
 - Endpoints that require Id in route must:
   - have request object that implements both `IRequestId` and `IRequest` e.g. `public record struct GetProductByIdRequest(Guid Id) : IRequest, IRequestId;`

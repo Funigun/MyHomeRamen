@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Api.Common.Authorization;
@@ -53,14 +52,6 @@ public static class DependencyInjection
             services.AddTransient(typeof(IEndpoint), endpointType);
         }
 
-        IEnumerable<Type> groups = assembly.GetTypes()
-                                           .Where(type => typeof(IGroupEndpoint).IsAssignableFrom(type) && !type.IsAbstract && !type.IsInterface);
-
-        foreach (Type group in groups)
-        {
-            services.AddTransient(typeof(IGroupEndpoint), group);
-        }
-
         return services;
     }
 
@@ -105,54 +96,9 @@ public static class DependencyInjection
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-        ILookup<string, IGroupEndpoint> endpointGroups = app.Services.GetServices<IGroupEndpoint>()
-                                                                        .ToLookup(g => g.GroupName);
-
-        List<IEndpoint> endpoints = app.Services.GetServices<IEndpoint>().ToList();
-
-        Dictionary<string, List<IEndpoint>> groupedEndpoints = [];
-        List<IEndpoint> ungroupedEndpoints = [];
+        IEnumerable<IEndpoint> endpoints = app.Services.GetServices<IEndpoint>();
 
         foreach (IEndpoint endpoint in endpoints)
-        {
-            if (!string.IsNullOrEmpty(endpoint.GroupName))
-            {
-                if (!groupedEndpoints.TryGetValue(endpoint.GroupName, out List<IEndpoint>? groupEndpoints))
-                {
-                    groupEndpoints = [];
-                    groupedEndpoints[endpoint.GroupName] = groupEndpoints;
-                }
-
-                groupEndpoints.Add(endpoint);
-            }
-            else
-            {
-                ungroupedEndpoints.Add(endpoint);
-            }
-        }
-
-        foreach (KeyValuePair<string, List<IEndpoint>> group in groupedEndpoints)
-        {
-            string groupName = group.Key;
-            List<IEndpoint> groupEndpoints = group.Value;
-
-#pragma warning disable CA1308 // Normalize strings to uppercase
-            string groupRoute = $"api/{groupName.ToLowerInvariant()}";
-#pragma warning restore CA1308 // Normalize strings to uppercase
-            RouteGroupBuilder routeGroupBuilder = app.MapGroup(groupRoute);
-
-            foreach (IGroupEndpoint endpointGroup in endpointGroups[groupName])
-            {
-                endpointGroup.Configure(routeGroupBuilder);
-            }
-
-            foreach (IEndpoint endpoint in groupEndpoints)
-            {
-                endpoint.MapEndpoint(routeGroupBuilder);
-            }
-        }
-
-        foreach (IEndpoint endpoint in ungroupedEndpoints)
         {
             endpoint.MapEndpoint(app);
         }

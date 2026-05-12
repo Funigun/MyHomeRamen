@@ -13,13 +13,12 @@ namespace MyHomeRamen.Identity.Api.Features.Admin.RegisterEmployee;
 
 public sealed class RegisterEmployeeEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Admin";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<RegisterEmployeeRequest, Created>("/employee-sign-up", Handler)
+        endpointBuilder.MapStandardPost<RegisterEmployeeRequest, Created>("api/admin/employee-sign-up", Handler)
                        .RequireAuthorization(DependencyInjection.RestaurantManagerPolicy)
                        .WithName("CreateEmployeeEndpoint")
+                       .WithTags("admin")
                        .WithDescription("Creates an employee account in Keycloak. Requires admin role.");
     }
 

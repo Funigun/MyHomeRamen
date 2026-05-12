@@ -167,8 +167,6 @@ namespace $ns;
 
 public sealed class $typeName : IEndpoint
 {
-    public string GroupName { get; init; } = "$group";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         // TODO: register route per plan

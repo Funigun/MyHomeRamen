@@ -8,12 +8,11 @@ namespace MyHomeRamen.Api.Menu.Features.Categories.DeleteCategory;
 
 public sealed class DeleteCategoryEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedDelete<DeleteCategoryRequest>("categories/{id}", HandleAsync)
+        endpointBuilder.MapStandardValidatedDelete<DeleteCategoryRequest>("api/menu/categories/{id}", HandleAsync)
                        .WithName("DeleteCategoryEndpoint")
+                       .WithTags("Categories")
                        .WithDescription("Handles Delete Category operations.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

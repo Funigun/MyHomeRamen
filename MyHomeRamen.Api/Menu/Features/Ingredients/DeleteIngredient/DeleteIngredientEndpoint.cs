@@ -8,12 +8,11 @@ namespace MyHomeRamen.Api.Menu.Features.Ingredients.DeleteIngredient;
 
 public sealed class DeleteIngredientEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedDelete<DeleteIngredientRequest>("ingredients/{id}", HandleAsync)
+        endpointBuilder.MapStandardValidatedDelete<DeleteIngredientRequest>("api/menu/ingredients/{id}", HandleAsync)
                        .WithName("DeleteIngredientEndpoint")
+                       .WithTags("Ingredients")
                        .WithDescription("Deletes an ingredient by its ID. Validates that the ingredient exists and is not used by any product.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

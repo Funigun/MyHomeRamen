@@ -8,12 +8,11 @@ namespace MyHomeRamen.Api.Menu.Features.Products.CreateProduct;
 
 public sealed class CreateProductEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<CreateProductRequest, CreateProductResponse>("products", HandleAsync)
+        endpointBuilder.MapStandardValidatedPost<CreateProductRequest, CreateProductResponse>("api/menu/products", HandleAsync)
                        .WithName("CreateProductEndpoint")
+                       .WithTags("Products")
                        .WithDescription("Handles Create Product operations.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }

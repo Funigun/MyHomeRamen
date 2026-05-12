@@ -44,13 +44,6 @@ Two auth handlers exist — choose based on the endpoint's authorization policy:
 - **`AuthHeaderHandler`**: For endpoints accessible by authenticated users (customers, employees).
 - **`AdminAuthHeaderHandler`**: For endpoints restricted to the `Admin` role.
 
-### API Route Convention
-Backend endpoints are grouped using `IGroupEndpoint.GroupName` (e.g., `Menu.Products`). The route is derived as:
-```
-/api/{GroupName.ToLowerInvariant()}
-```
-Example: group `Menu.Products` → route `/api/menu.products`. Use this when building HttpClient request URLs.
-
 ## Pages
 - Every routable `@page` component must wrap its main content in a `<MudPaper>` to ensure consistent visual structure, widths, and margins across the application.
 - **Keep pages thin**: Pages are responsible for orchestration (loading data, handling state, routing callbacks). They should not embed complex or repeated markup directly. Extract any non-trivial UI block — especially one that appears more than once — into a dedicated component in the feature's `Components/` folder.
