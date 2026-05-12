@@ -52,7 +52,7 @@ Load instruction files for each active scope:
 
 Always load:
 - `/.github/skills/code-quality/skill.md`
-- `/.github/skills/solution-structure/skill.md`
+- `/.github/wiki/architecture.md`
 - `.editorconfig`
 
 | Scope | Files to load |

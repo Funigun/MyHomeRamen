@@ -57,7 +57,7 @@ make it possible to load plan(s) for given task as follows:
 
 Always load:
 - `.github/skills/code-quality/skill.md`
-- `.github/skills/solution-structure/skill.md`
+- `.github/wiki/architecture.md`
 
 Loading files is crucial for output quality. 
 Do not proceed to next steps before loading all files and analyzing their content for relevant information and guidance.

@@ -53,23 +53,7 @@ Verify FluentValidation messages fragment as per table:
 | `GreaterThanOrEqualTo` | `"greater than or equal to"` |
 | `LessThanOrEqualTo` | `"less than or equal to"` |
 
-### 2.5) Structure
-```
-├── /MyHomeRamen.UnitTests/
-│	├-─ {Module}/
-│	│	├-─ Common/
-│	│	│	-- AssemblyFixtures/
-│	│	│	-- TestData/
-│	│	├── {Aggegate}/
-│	│	│	├── Common/
-│	│	│	│	├-─ CollectionFixtures/
-│	│	│	│	└── TestData/
-│	│	│	├── {Aggegate}ValidatorTests.cs
-│	│	│	├── {Aggegate}BehaviorTests.cs
-│	│	│	├── {Aggegate}EventsTests.cs
-```	
-
-### 2.6) Examples
+### 2.5) Examples
 - `Create_Should_ThrowDomainException_When_NameIsTooShort` — calls `CreateProduct(name: string.Empty)`, asserts `DomainException` is thrown with message matching `ProductErrors.NameTooShort`.
 - `ProductPriceValidator_Should_HaveSameMaxPriceAsDomain` - verifies `ProductPriceValidator.MaxPrice` equals `ProductConstants.MaxPrice` to ensure contract and domain stay in sync.
 
@@ -94,84 +78,20 @@ Verify FluentValidation messages fragment as per table:
 - Provides `public static TheoryData<TRequest>` methods for `[MemberData]` theory data — **never use `IEnumerable<object[]>`**.
 - Boundary values in invalid-data methods must reference the shared validator constants directly (e.g., `ProductNameValidator.MinLength`) so test cases stay in sync if limits change.
 
-```csharp
-// Valid entity generation
-internal static Product GenerateValidProduct() => ValidProductFaker.Generate();
-
-// Strongly-typed theory data for [MemberData]
-public static TheoryData<CreateProductRequest> InvalidCreateProductRequests() => new()
-{
-    new CreateProductRequest(string.Empty, validDescription, ...),   // Name: empty
-    new CreateProductRequest(tooShortName,  validDescription, ...),  // Name: too short
-    ...
-};
-```
-
 #### 3.2.2) DataSeeder
 - Static class with one `internal static async Task Seed{Module}(IDb context)` method per module.
 - Seeds entities in dependency order: e.g., Categories → Ingredients → Products.
 - Called once from `WebApiFactory.InitializeAsync`.
 
-```csharp
-internal static async Task SeedMenuModule(IMenuDbContext dbContext)
-{
-    List<Category>   categories  = DataGenerator.GenerateValidCategories(5);
-    List<Ingredient> ingredients = DataGenerator.GenerateValidIngredients(10);
-    List<Product>    products    = DataGenerator.GenerateValidProducts(20, categories, ingredients);
-
-    dbContext.Categories.AddRange(categories);
-    dbContext.Ingredients.AddRange(ingredients);
-    dbContext.Products.AddRange(products);
-
-    await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-}
-```
-
 #### 3.2.3) Mappings
 - Static class with `internal static` extension methods that map domain entities to API request models.
 - Used in tests to build requests from seeded entities without duplicating field mappings.
-
-```csharp
-internal static CreateProductRequest ToCreateProductRequest(this Product product) =>
-    new(product.Name, product.Description, product.Price,
-        product.Categories[0].Id,
-        product.BaseIngredients.Select(i => (Guid)i.Id));
-```
 
 ### 3.3) Authorization Testing
 Use `HttpClientExtensions.AddAuthorizationHeader(UserRoles role)` to attach a JWT token issued by `JwtTokenFactory`:
 - **Admin** — set before requests that should test validation or business logic.
 - **Employee / Customer** — use `[InlineData]` to test each forbidden role in one theory.
 - **No header** — clear current header and omit the call entirely to test unauthenticated scenarios.
-
-```csharp
-// Admin: test validation, not auth
-apiFactory.HttpClient.AddAuthorizationHeader(UserRoles.Admin);
-
-// Multiple forbidden roles via InlineData
-[Theory]
-[InlineData(UserRoles.Employee)]
-[InlineData(UserRoles.Customer)]
-public async Task Endpoint_ShouldReturnForbidden_ForNonAdminUser(UserRoles role)
-{
-    apiFactory.HttpClient.AddAuthorizationHeader(role);
-    ...
-}
-```
-
-### 3.4) Structure
-```
-├── /MyHomeRamen.IntegrationTests/
-│	├── Common/
-│   │   ├── Configuration/          ← Shared API configurations (e.g. FakeUser, JwtTokenFactory) and extesions (e.g. HttpClientExtensions)
-│   │   ├── BaseIntegrationTest.cs
-│   │   └── WebApiFactgory.cs
-│	├── {Module}/
-│	│	├── Common/
-│	│	│	-- Data/				← Test data generators and seeders for the module
-│	│	├── {Aggregate}/
-│	│	│	├── {Feature}Tests.cs   ← e.g. CreateProductTests.cs, UpdateProductTests.cs, etc.
-```
 
 ### 3.5) Examples
 - `CreateProduct_ShouldReturnCreated_ForValidRequest` — generates a valid product via `DataGenerator`, maps it to a request via `Mappings`, authenticates as Admin, posts to the endpoint, asserts 201 and a `Location` header.
@@ -188,4 +108,3 @@ public async Task Endpoint_ShouldReturnForbidden_ForNonAdminUser(UserRoles role)
 ### 4.2) Configuration (`Configuration` folder)
 - Assembly Fixture that bootstraps the entire application via `DistributedApplicationTestingBuilder`
 - Configure required environment variables
-

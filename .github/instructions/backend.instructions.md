@@ -5,10 +5,7 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 
 # Backend Layer Instructions
 
-## 0) General Conventions
-- Use **primary constructors** by default for dependency injection in all classes (Endpoints, Handlers, Services, etc.).
-
-## 1) Domain Layer (`MyHomeRamen.Domain`)
+# 1) Domain Layer (`MyHomeRamen.Domain`)
 
 ### 1.1) Aggregate roots & entities
 - Inherit from `AuditableEntity`, implement `IEntity<TId>`.
@@ -30,25 +27,6 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 - Raised inside aggregate methods, placed in `{Module}/Events/`.
 - Used for cross-aggregate communication only — never for intra-aggregate side effects.
 
-### 1.5) Structure
-```
-├── MyHomeRamen.Domain/                     
-│   ├── Common/                             ← Cross-module constants and errors (no entity definitions)
-│   │   └── {DomainConcept}/				← e.g. Cross-module shared concepts like product max length
-│   │       ├── {DomainConcept}Constants.cs 
-│   │       └── {DomainConcept}Errors.cs    
-│   ├── {Module}/                           ← One folder per bounded context / business module
-│   │   ├── Database/
-│   │   │   └── I{Module}DbContext.cs       ← DbSet<T> interface — implemented in Persistence layer
-│   │   ├── Events/                         ← Domain events raised by aggregates in this module
-│   │   │   └── {EntityName}{Action}Event.cs
-│   │   └── {AggregateRoot}/                ← One subfolder per aggregate root
-│   │       ├── {Entity}.cs                 ← Aggregate root: inherits AuditableEntity, implements IEntity<TId>
-│   │       ├── {Entity}Id.cs               ← Strongly-typed ID: readonly record struct with implicit casts
-│   │       ├── {Entity}Validator.cs        ← internal static class — validates entity in Create()
-│   │       └── {Entity}Enum.cs             ← Enums related to this aggregate (e.g. CategoryType, OrderStatus)
-```
-
 ## 2) Persistence Layer (`MyHomeRamen.Persistance`)
 
 ### 2.1) DbContext
@@ -66,41 +44,6 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 - Never write raw inline `AnyAsync()`, `FirstOrDefaultAsync()`, or multi-predicate `Where`/`OrderBy` chains with business predicates in handlers or validators.
 - **Layer boundary**: persistence extensions must **never** return API layer types (DTOs, response records). The persistence layer has no reference to `MyHomeRamen.Api` — returning a DTO would create a circular dependency. Query-shape extensions return `IQueryable<TEntity>`; the handler owns the final projection.
 
-```csharp
-// ✅ Existence check — returns bool, no DTO involved
-extension(IQueryable<Category> categories)
-{
-	public async Task<bool> IsCategoryNameUniqueAsync(string name, CancellationToken cancellationToken = default)
-		=> await categories.Exists(c => c.Name.ToLower() != name.ToLower(), cancellationToken);
-}
-
-// ✅ Query-shape extension — returns IQueryable<TEntity>, no projection to DTO
-extension(IQueryable<Category> categories)
-{
-	public IQueryable<Category> ForDropdown(CategoryType categoryType)
-		=> categories.GetListQuery(
-			orderBy: c => c.SortOrder,
-			filter: c => c.CategoryType == categoryType);
-}
-
-// ✅ Handler owns the projection using Mappings — the only layer that knows both Category and the response DTO
-return await dbContext.Categories
-	.ForDropdown(categoryType)
-	.Select(c => c.ToResponse())
-	.ToListAsync(cancellationToken);
-
-// ❌ Extension returns a DTO — persistence layer cannot reference API types
-internal static Task<List<GetCategoriesForDropdownResponse>> GetForDropdownAsync(...) { ... }
-
-// ❌ Inline query with business predicates directly in the handler
-return await dbContext.Categories
-	.AsNoTracking()
-	.Where(c => c.CategoryType == categoryType)
-	.OrderBy(c => c.SortOrder)
-	.Select(c => new GetCategoriesForDropdownResponse(c.Id.Value, c.Name))
-	.ToListAsync(cancellationToken);
-```
-
 ### 2.3) Common patterns
 - Use `AsNoTracking()` for read-only queries.
 - Entity configurations in `MyHomeRamen.Persistance/{Module}/Configurations`
@@ -109,36 +52,22 @@ return await dbContext.Categories
 - Use `HasConversion` for Enums stored as strings
 - Use `OwnsOne` / `OwnsMany` for value objects, with appropriate configurations for owned types.
 
-### 2.4) Structure
-```
-├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
-│   ├── Common/
-│   │   └── RepositoryDbExtensions.cs       ← Generic IQueryable<T> extensions (Paged, Exists, GetList, GetById)
-│   └── {Module}/
-│       ├── Configurations/                 ← IEntityTypeConfiguration implementations
-│       ├── Converters/                     ← EF Core value converters (e.g. strong-ID converters)
-│       ├── Extensions/                     ← Entity-specific IQueryable<T> extensions for this module
-│       │   └── {Entity}DbExtensions.cs     ← e.g. CategoryDbExtensions, ProductDbExtensions
-│       ├── Migrations/                     ← EF Core migrations for the module
-│       ├── {Module}DbContext.cs
-│		└── {Module}DbContextFactory.cs
-```
-
 ### 3) Api layer (`MyHomeRamen.Api`,  `MyHomeRamen.Identity.Api`)
 
 ### 3.1) REPR + CQRS pattern
 Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Handler → {Feature}Response`
 
 **Query rules** (GET):
-- Use `.AsNoTracking()`.
+- Use dedicated DbContext extension methods for all data access. Queries use `{name}Query` suffix e.g. `GetProductsForMenuQuery()`.
 - Map result to a `{Feature}Response` DTO — never return domain entities directly.
 - No `SaveChangesAsync()`, no side effects, no event publishing.
 
 **Command rules** (POST / PUT / PATCH / DELETE):
 - `DELETE` → `204 No Content`.
 - `POST` → `201 Created` with `Location` header.
-- `PUT` / `PATCH` → `200 OK` with the data the caller needs.
+- `PUT` / `PATCH` → `200 OK` with the data the caller needs. They must use `RouteParamAttribute` for parameters that are required to update entity e.g. Id. This is required to prevent Architecture Tests failure.
 - Do not re-query the database after `SaveChangesAsync()`.
+- Persistance checks (e.g. existence, uniqueness) must be done in `FluentValidation` validators using `IValidationPolicy` and DB extensions — never in handlers.
 - Always pair with an `IValidationPolicy` implementation using FluentValidation.
 
 ### 3.2) Authorization (mandatory)
@@ -161,70 +90,6 @@ Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Hand
 - Endpoints that require Id in route must:
   - have request object that implements both `IRequestId` and `IRequest` e.g. `public record struct GetProductByIdRequest(Guid Id) : IRequest, IRequestId;`
   - name handler parameter name to match route parameter e.g. `api/menu/categories{id}` -> `GetCategoryByIdRequest(Guid Id)` → `HandleAsync(GetCategoryByIdRequest id, ...)` for automatic model binding.
-
-Example POST structure:
-```csharp
-public sealed class {FeatureName}Endpoint : IEndpoint
-{
-	public string GroupName { get; init; } = "{Module}";
-
-	public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
-	{
-		app.MapStandardGet<{Request}, {Response}>(string.Empty, Handler)
-		   .WithName("{FeatureName}Endpoint")
-		   .WithDesciption("Handles {FeatureName} operations.")
-		   .WithAuthorizationPolicy(PolicyConstants.Anonymous);
-	}
-
-	private async Task<IResult> HandleAsync([FromBody] Request request, {RequestHandler}, CancellationToken cancellationToken)
-	{
-		// Implementation here
-
-		return Results.Created($"/api/{Module}/{id}", new Response());
-	}
-}
-```
-
-### 3.6) Structure
-```
-├── MyHomeRamen.Api/                        ← Main API project exposing REST endpoints
-│   └── {Module}/
-│       ├── Features/
-│       │   └── {DomainModelPlural}/
-│		│		├── Caching/
-│		│		│	├── {FeatureName}CachePolicy.cs
-│		│		│	└── {DomainModel}CacheInvalidation.cs
-│       │       ├── {FeatureName}/
-│       │       │   ├── Models/
-│       │       │   │   ├── {Entity}Dto.cs           ← optional
-│       │       │   │   ├── Mappings.cs
-│       │       │   │   ├── {FeatureName}Request.cs
-│       │       │   │   └── {FeatureName}Response.cs
-│       │       │   ├── Policies/
-│       │       │   │   ├── {FeatureName}ValidationPolicy.cs
-│       │       │   │   ├── {FeatureName}AuthorizationPolicy.cs  ← optional
-│       │       │   ├── {FeatureName}Endpoint.cs
-│       │       │   └── {FeatureName}Handler.cs
-│       │       └── {DomainModel}Group.cs
-│       ├── Services/						← Shared services for the module
-│       └── ExternalApis/					← Integration points exposed to other modules
-├── MyHomeRamen.Identity.Api/                        ← Main API project exposing REST endpoints
-│   └── Features
-│       ├── {Module}/
-│       │   ├── {FeatureName}/            
-│       │   │    ├── Models/
-│       │   │    │   ├── {Entity}Dto.cs           ← optional
-│       │   │    │   ├── Mappings.cs
-│       │   │    │   ├── {FeatureName}Request.cs
-│       │   │    │   └── {FeatureName}Response.cs
-│       │   │    ├── Policies/
-│       │   │    │   ├── {FeatureName}ValidationPolicy.cs
-│       │   │    │   └── {FeatureName}AuthorizationPolicy.cs  ← optional
-│       │   │    ├── {FeatureName}Endpoint.cs
-│       │   │    └── {FeatureName}Handler.cs
-│       │   └────{Module}Group.cs
-├── MyHomeRamen.Api.Common/                 ← Common utilities, extensions, and helpers for API
-```
 
 ### 3.7) Paged queries
 

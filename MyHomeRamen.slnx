@@ -44,14 +44,6 @@
     <File Path=".github/agents/drax-implementation.agent.md" />
     <File Path=".github/agents/drax-planning.agent.md" />
     <File Path=".github/agents/drax-reviewer.agent.md" />
-    <File Path=".github/agents/drax-task-creator.agent.md" />
-  </Folder>
-  <Folder Name="/_github/agents/input/">
-    <File Path=".github/agents/input/feature-brief-example.md" />
-    <File Path=".github/agents/input/feature-brief-template.md" />
-  </Folder>
-  <Folder Name="/_github/agents/output/">
-    <File Path=".github/agents/output/delete-account-brief.md" />
   </Folder>
   <Folder Name="/_github/agents/plans/">
     <File Path=".github/plans/checkout-plan-backend.md" />
@@ -64,6 +56,9 @@
     <File Path=".github/plans/update-item-quantity-plan-backend.md" />
     <File Path=".github/plans/validate-products-plan-backend.md" />
   </Folder>
+  <Folder Name="/_github/agents/tasks/">
+    <File Path=".github/agents/tasks/endpoint-pipeline-refactor.md" />
+  </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />
@@ -72,12 +67,22 @@
     <File Path=".github/instructions/blazor.instructions.md" />
     <File Path=".github/instructions/module-introduction.instructions.md" />
   </Folder>
-  <Folder Name="/_github/skills/" />
-  <Folder Name="/_github/skills/code-quality/">
-    <File Path=".github/skills/code-quality/skill.md" />
+  <Folder Name="/_github/scripts/">
+    <File Path=".github/scripts/agents-check-drift.ps1" />
+    <File Path=".github/scripts/lint-plan.ps1" />
+    <File Path=".github/scripts/lint-review.ps1" />
+    <File Path=".github/scripts/plan-context.ps1" />
+    <File Path=".github/scripts/pr-finalize.ps1" />
+    <File Path=".github/scripts/review-precompute.ps1" />
+    <File Path=".github/scripts/scope-check.ps1" />
+    <File Path=".github/scripts/slice-scaffold.ps1" />
+    <File Path=".github/scripts/task-scaffold.ps1" />
+    <File Path=".github/scripts/verify.ps1" />
   </Folder>
-  <Folder Name="/_github/skills/solution-structure/">
-    <File Path=".github/skills/solution-structure/skill.md" />
+  <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/wiki/">
+    <File Path=".github/wiki/architecture.md" />
+    <File Path=".github/wiki/patterns.md" />
   </Folder>
   <Folder Name="/_github/workflows/">
     <File Path=".github/workflows/pr-checks.yml" />
