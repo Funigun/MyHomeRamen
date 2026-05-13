@@ -1,8 +1,6 @@
-﻿using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient;
-using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
-using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+﻿using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;

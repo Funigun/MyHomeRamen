@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Api.Menu.Features.Products.GetProductById.Models;
+using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;

@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;
 using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
+using MyHomeRamen.Domain.Menu.Products;
 
 namespace MyHomeRamen.Api.Menu.Features.Products.UpdateProduct;
 
@@ -11,7 +13,7 @@ public sealed class UpdateProductEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedPutWithResponse<UpdateProductRequest, UpdateProductResponse>(
+            .MapStandardValidatedPutWithResponse<UpdateProductCommand, UpdateProductResponse>(
                 "api/menu/products/{id}", HandleAsync)
             .WithName("UpdateProductEndpoint")
             .WithTags("Products")
@@ -20,12 +22,14 @@ public sealed class UpdateProductEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromRoute] UpdateProductRequestId id,
+        [FromRoute] Guid id,
         [FromBody] UpdateProductRequest request,
-        [FromServices] IRequestHandler<UpdateProductRequest, UpdateProductResponse> handler,
+        [FromServices] IRequestHandler<UpdateProductCommand, UpdateProductResponse> handler,
         CancellationToken cancellationToken)
     {
-        UpdateProductResponse response = await handler.Handle(request with { Id = id.Id }, cancellationToken);
+        UpdateProductCommand command = new(new ProductId(id), request);
+
+        UpdateProductResponse response = await handler.Handle(command, cancellationToken);
 
         return Results.Ok(response);
     }

@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;
+using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
@@ -9,27 +9,27 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Products.UpdateProduct;
 
-public sealed class UpdateProductHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateProductRequest, UpdateProductResponse>
+public sealed class UpdateProductHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateProductCommand, UpdateProductResponse>
 {
-    public async Task<UpdateProductResponse> Handle(UpdateProductRequest request, CancellationToken cancellationToken)
+    public async Task<UpdateProductResponse> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {
         Product product = await dbContext.Products
             .Include(p => p.Categories)
             .Include(p => p.BaseIngredients)
             .Include(p => p.CustomIngredients)
             .AsSplitQuery()
-            .GetById((ProductId)request.Id, cancellationToken);
+            .GetById(command.Id, cancellationToken);
 
         Category category = await dbContext.Categories
-            .FirstAsync(c => c.Id == (CategoryId)request.CategoryId, cancellationToken);
+            .FirstAsync(c => c.Id == (CategoryId)command.UpdateProductRequest.CategoryId, cancellationToken);
 
         IEnumerable<Ingredient> ingredients = await dbContext.Ingredients
-            .GetByIds(request.IngredientIds.Select(id => (IngredientId)id), cancellationToken);
+            .GetByIds(command.UpdateProductRequest.IngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
         IEnumerable<Ingredient> customIngredients = await dbContext.Ingredients
-            .GetByIds(request.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
+            .GetByIds(command.UpdateProductRequest.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
-        product.Update(request.Name, request.Description ?? string.Empty, request.Price, category, ingredients, customIngredients);
+        product.Update(command.UpdateProductRequest.Name, command.UpdateProductRequest.Description ?? string.Empty, command.UpdateProductRequest.Price, category, ingredients, customIngredients);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

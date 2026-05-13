@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Products.GetProductsByCategory.Models;
+using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 
 namespace MyHomeRamen.Api.Menu.Features.Products.GetProductsByCategory;
 
@@ -10,7 +11,7 @@ public sealed class GetProductsByCategoryEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetProductsByCategoryRequest, IEnumerable<GetProductsByCategoryResponse>>("api/menu/products", HandleAsync)
+            .MapStandardValidatedGet<GetProductsByCategoryQuery, IEnumerable<GetProductsByCategoryResponse>>("api/menu/products", HandleAsync)
             .WithName("GetProductsByCategoryEndpoint")
             .WithTags("Products")
             .WithDescription("Returns all products for a given category.")
@@ -19,10 +20,11 @@ public sealed class GetProductsByCategoryEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [AsParameters] GetProductsByCategoryRequest request,
-        [FromServices] IRequestHandler<GetProductsByCategoryRequest, IEnumerable<GetProductsByCategoryResponse>> handler,
+        [FromServices] IRequestHandler<GetProductsByCategoryQuery, IEnumerable<GetProductsByCategoryResponse>> handler,
         CancellationToken cancellationToken)
     {
-        IEnumerable<GetProductsByCategoryResponse> response = await handler.Handle(request, cancellationToken);
+        GetProductsByCategoryQuery query = new(request);
+        IEnumerable<GetProductsByCategoryResponse> response = await handler.Handle(query, cancellationToken);
         return Results.Ok(response);
     }
 }
