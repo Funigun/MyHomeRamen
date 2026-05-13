@@ -1,4 +1,4 @@
-using MyHomeRamen.Blazor.Features.Menu.Products.Responses;
+using MyHomeRamen.Common.Contracts.Menu.Products.DTOs;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Products.Components;
 
@@ -12,7 +12,7 @@ public sealed class ProductTableModel
 
     public decimal Price { get; init; }
 
-    public static ProductTableModel FromResponse(ProductForManageItemResponse response)
+    public static ProductTableModel FromResponse(ProductForManageDto response)
     {
         return new ProductTableModel
         {

@@ -1,9 +1,9 @@
-using MyHomeRamen.Blazor.Features.Menu.Products.Requests;
-using MyHomeRamen.Blazor.Features.Menu.Products.Responses;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
+using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Common.Services;
 
