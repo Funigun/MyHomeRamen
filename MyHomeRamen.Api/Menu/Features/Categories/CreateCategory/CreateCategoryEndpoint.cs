@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
 using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.CreateCategory;
 
@@ -11,7 +12,7 @@ public sealed class CreateCategoryEndpoint : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<CreateCategoryRequest, CreateCategoryResponse>("api/menu/categories", HandleAsync)
+        endpointBuilder.MapStandardValidatedPost<CreateCategoryCommand, CreateCategoryResponse>("api/menu/categories", HandleAsync)
                        .WithName("CreateCategoryEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Handles Create Category operations.")
@@ -19,13 +20,14 @@ public sealed class CreateCategoryEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromBody] CreateCategoryRequest request, 
-        [FromServices] IRequestHandler<CreateCategoryRequest, Guid> handler,
+        [FromBody] CreateCategoryRequest request,
+        [FromServices] IRequestHandler<CreateCategoryCommand, CreateCategoryResponse> handler,
         CancellationToken cancellationToken)
     {
-        Guid id = await handler.Handle(request, cancellationToken);
-        CreateCategoryResponse response = new(id);
+        CreateCategoryCommand command = new(request);
 
-        return Results.Created($"/api/menu/categories/{id}", response);
+        CreateCategoryResponse response = await handler.Handle(command, cancellationToken);
+
+        return Results.Created($"/api/menu/categories/{response.Id}", response);
     }
 }

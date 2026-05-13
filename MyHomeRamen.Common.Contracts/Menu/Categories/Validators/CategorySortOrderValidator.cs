@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace MyHomeRamen.Common.Contracts.Menu.Categories;
+namespace MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
 
 public sealed class CategorySortOrderValidator : AbstractValidator<int>
 {

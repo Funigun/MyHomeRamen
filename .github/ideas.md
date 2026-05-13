@@ -15,3 +15,7 @@ List of "To do" items that are on conceptual stage / refactor ideas etc that do 
 - `blazor-slice-scaffold.ps1` - script to scaffold a new Blazor slice
 	- figure out what can be standarized in terms of scaffolding
 
+- blazor - refactor MenuApiClient etc. to make them more readable e.g. partial class with split by concern e.g.
+	- `MenuApiClient.Products.cs` for all product related API calls, 
+	- `MenuApiClient.Categories.cs` for all category related API calls, etc.
+

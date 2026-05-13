@@ -1,13 +1,12 @@
 using FluentValidation;
-using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
-using MyHomeRamen.Common.Contracts.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Persistance.Common;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
 
-namespace MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Policies;
+namespace MyHomeRamen.Api.Menu.Features.Categories.CreateCategory;
 
-public sealed class CreateCategoryValidator : AbstractValidator<CreateCategoryRequest>
+public sealed class CreateCategoryValidator : AbstractValidator<CreateCategoryCommand>
 {
     private readonly IMenuDbContext _dbContext;
 
@@ -15,11 +14,11 @@ public sealed class CreateCategoryValidator : AbstractValidator<CreateCategoryRe
     {
         _dbContext = dbContext;
 
-        RuleFor(x => x.Name)
+        RuleFor(x => x.CreateCategoryRequest.Name)
             .SetValidator(new CategoryNameValidator())
             .MustAsync(BeUniqueNameAsync).WithMessage("Category with this name already exists.");
 
-        RuleFor(x => x.CategoryType)
+        RuleFor(x => x.CreateCategoryRequest.CategoryType)
             .Must(BeValidCategoryType).WithMessage("Please select a valid category type.");
     }
 
@@ -28,7 +27,7 @@ public sealed class CreateCategoryValidator : AbstractValidator<CreateCategoryRe
         return await _dbContext.Categories.IsCategoryNameUniqueAsync(name, cancellationToken);
     }
 
-    private bool BeValidCategoryType(int categoryType)
+    private static bool BeValidCategoryType(int categoryType)
     {
         return Enum.IsDefined(typeof(CategoryType), (CategoryType)categoryType);
     }

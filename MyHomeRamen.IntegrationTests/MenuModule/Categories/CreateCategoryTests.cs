@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
@@ -23,7 +24,7 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory)
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        string mess = await responseMessage.Content.ReadAsStringAsync();
+
         // Assert
         Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
         Assert.True(responseMessage.Headers.Location != null, "Expected Location header to be present in the response.");

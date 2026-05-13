@@ -3,15 +3,21 @@
     <UserSecretsId>051df738-bfb3-4706-9d23-5554266a5b65</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Features\Admin\RemoveEmployee\**" />
+    <Compile Remove="Features\Admin\UpdatePermissions\**" />
+    <Content Remove="Features\Admin\RemoveEmployee\**" />
+    <Content Remove="Features\Admin\UpdatePermissions\**" />
+    <EmbeddedResource Remove="Features\Admin\RemoveEmployee\**" />
+    <EmbeddedResource Remove="Features\Admin\UpdatePermissions\**" />
+    <None Remove="Features\Admin\RemoveEmployee\**" />
+    <None Remove="Features\Admin\UpdatePermissions\**" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Common.Contracts\MyHomeRamen.Common.Contracts.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Infrastructure\MyHomeRamen.Infrastructure.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />
     <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Features\Admin\UpdatePermissions\" />
-    <Folder Include="Features\Admin\RemoveEmployee\" />
   </ItemGroup>
 </Project>

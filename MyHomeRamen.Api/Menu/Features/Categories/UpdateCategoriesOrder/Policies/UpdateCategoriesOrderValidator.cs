@@ -1,6 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
-using MyHomeRamen.Common.Contracts.Menu.Categories;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Policies;
 

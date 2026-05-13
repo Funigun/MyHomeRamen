@@ -1,22 +1,22 @@
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.CreateCategory;
 
-public sealed class CreateCategoryHandler(IMenuDbContext dbContext) : IRequestHandler<CreateCategoryRequest, Guid>
+public sealed class CreateCategoryHandler(IMenuDbContext dbContext) : IRequestHandler<CreateCategoryCommand, CreateCategoryResponse>
 {
-    public async Task<Guid> Handle(CreateCategoryRequest request, CancellationToken cancellationToken)
+    public async Task<CreateCategoryResponse> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        int nextSortOrder = await dbContext.Categories.GetNextSortOrderAsync((CategoryType)request.CategoryType, cancellationToken);
+        int nextSortOrder = await dbContext.Categories.GetNextSortOrderAsync((CategoryType)request.CreateCategoryRequest.CategoryType, cancellationToken);
 
-        Category category = request.ToDomain(nextSortOrder);
+        Category category = request.CreateCategoryRequest.ToDomain(nextSortOrder);
 
         dbContext.Categories.Add(category);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return category.Id.Value;
+        return new CreateCategoryResponse(category.Id.Value);
     }
 }

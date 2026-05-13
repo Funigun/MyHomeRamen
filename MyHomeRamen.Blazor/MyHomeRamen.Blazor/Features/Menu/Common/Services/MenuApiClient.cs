@@ -4,6 +4,8 @@ using MyHomeRamen.Blazor.Features.Menu.Ingredients.Requests;
 using MyHomeRamen.Blazor.Features.Menu.Ingredients.Responses;
 using MyHomeRamen.Blazor.Features.Menu.Products.Requests;
 using MyHomeRamen.Blazor.Features.Menu.Products.Responses;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Common.Services;
 

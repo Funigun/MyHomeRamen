@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Models;
 using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType;
 
@@ -11,7 +11,7 @@ public sealed class GetCategoriesByTypeEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetCategoriesByTypeRequest, IEnumerable<GetCategoriesByTypeResponse>>("api/menu/categories/by-type", HandleAsync)
+            .MapStandardValidatedGet<GetCategoriesByTypeQuery, IEnumerable<GetCategoriesByTypeQuery>>("api/menu/categories/by-type", HandleAsync)
             .WithName("GetCategoriesByTypeEndpoint")
             .WithTags("Categories")
             .WithDescription("Returns a filtered and ordered list of categories for the specified category type.")
@@ -19,8 +19,8 @@ public sealed class GetCategoriesByTypeEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [AsParameters] GetCategoriesByTypeRequest request,
-        [FromServices] IRequestHandler<GetCategoriesByTypeRequest, IEnumerable<GetCategoriesByTypeResponse>> handler,
+        [AsParameters] GetCategoriesByTypeQuery request,
+        [FromServices] IRequestHandler<GetCategoriesByTypeQuery, IEnumerable<GetCategoriesByTypeResponse>> handler,
         CancellationToken cancellationToken)
     {
         IEnumerable<GetCategoriesByTypeResponse> response = await handler.Handle(request, cancellationToken);

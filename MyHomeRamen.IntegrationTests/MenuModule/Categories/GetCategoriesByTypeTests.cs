@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;

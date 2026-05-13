@@ -1,6 +1,7 @@
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
 
-namespace MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
+namespace MyHomeRamen.Api.Menu.Features.Categories.CreateCategory;
 
 internal static class Mappings
 {

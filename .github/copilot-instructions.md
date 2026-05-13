@@ -19,7 +19,7 @@ MyHomeRamen.slnx
 ├── MyHomeRamen.ServiceDefaults/            ← Shared Aspire service defaults (telemetry, health checks, global constants)
 ├── MyHomeRamen.Api/                        ← Main API project exposing REST endpoints
 ├── MyHomeRamen.Api.Common/                 ← Common utilities, extensions, and helpers for API
-├── MyHomeRamen.Common.Contracts/           ← Shared validators, messages objects
+├── MyHomeRamen.Common.Contracts/           ← Shared request/response DTOs and primitive validators (no Commands)
 ├── MyHomeRamen.Domain/                     ← Domain entities, value objects, and services
 ├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
 ├── MyHomeRamen.Infrastructure/             ← Infrastructure services (caching, messaging, email, keycloak)

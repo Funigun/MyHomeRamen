@@ -58,7 +58,6 @@
   </Folder>
   <Folder Name="/_github/agents/tasks/">
     <File Path=".github/agentic-workflow-redesign-plan.md" />
-    <File Path=".github/agents/tasks/endpoint-pipeline-refactor.md" />
     <File Path=".github/ideas.md" />
   </Folder>
   <Folder Name="/_github/instructions/">

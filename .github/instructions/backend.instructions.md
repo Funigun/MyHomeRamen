@@ -55,10 +55,14 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 ### 3) Api layer (`MyHomeRamen.Api`,  `MyHomeRamen.Identity.Api`)
 
 ### 3.1) REPR + CQRS pattern
-Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Handler → {Feature}Response`
+
+**Query flow**: `{Feature}Request → {Feature}Endpoint → {Feature}Query → {Feature}Handler → {Feature}Response`
+
+**Command flow**: `{Feature}Request → {Feature}Endpoint → {Feature}Command → {Feature}Handler → {Feature}Response`
 
 **Query rules** (GET):
 - Use dedicated DbContext extension methods for all data access. Queries use `{name}Query` suffix e.g. `GetProductsForMenuQuery()`.
+- Handler is typed `IRequestHandler<{Feature}Query, {Feature}Response>` and returns the response DTO directly.
 - Map result to a `{Feature}Response` DTO — never return domain entities directly.
 - No `SaveChangesAsync()`, no side effects, no event publishing.
 
@@ -66,9 +70,14 @@ Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Hand
 - `DELETE` → `204 No Content`.
 - `POST` → `201 Created` with `Location` header.
 - `PUT` / `PATCH` → `200 OK` with the data the caller needs. They must use `RouteParamAttribute` for parameters that are required to update entity e.g. Id. This is required to prevent Architecture Tests failure.
+- Commands use a dedicated `{Feature}Command` record (defined in the feature folder, not in `Common.Contracts`) that wraps the `{Feature}Request`. The endpoint binds `{Feature}Request` from body, constructs the command, calls the handler, then constructs the `{Feature}Response` from the handler result.
+- Handler is typed `IRequestHandler<{Feature}Command, TPrimitive>` where `TPrimitive` is the minimal return value needed (e.g. `Guid` for a newly created entity's ID). The endpoint constructs the full `{Feature}Response`.
+- Use `MapStandardValidatedPost<{Feature}Command, {Feature}Response>` — the generic parameters drive OpenAPI metadata and the validation filter type. The validator must target `{Feature}Command`.
 - Do not re-query the database after `SaveChangesAsync()`.
-- Persistance checks (e.g. existence, uniqueness) must be done in `FluentValidation` validators using `IValidationPolicy` and DB extensions — never in handlers.
+- Persistence checks (e.g. existence, uniqueness) must be done in `FluentValidation` validators using `IValidationPolicy` and DB extensions — never in handlers.
 - Always pair with an `IValidationPolicy` implementation using FluentValidation.
+
+Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/CreateCategory/CreateCategoryEndpoint.cs'
 
 ### 3.2) Authorization (mandatory)
 - Every Group must call `RequireAuthorization()` without specifying policy
@@ -81,6 +90,8 @@ Every feature follows: `{Feature}Request → {Feature}Endpoint → {Feature}Hand
 
 ### 3.4) Validation policies
 - Implement `AbstractValidator<T>` in the feature's `Policies/` folder.
+- For **commands**, validate `{Feature}Command` (e.g. `AbstractValidator<CreateCategoryCommand>`), accessing inner request properties via the command's property (e.g. `x.CreateCategoryRequest.Name`).
+- For **queries**, validate the query object directly (e.g. `AbstractValidator<GetCategoriesByTypeQuery>`).
 - Rules requiring DB access use repository interfaces or `DbExtensions` (e.g., `_dbContext.Products.IsNameUniqueAsync(name, ct)`) including entity existence, uniqueness, usage checks etc.
 - Primitive/format rules live in `MyHomeRamen.Common.Contracts` validators, they must always specify the `WithMessage()` for consistent error responses.
 

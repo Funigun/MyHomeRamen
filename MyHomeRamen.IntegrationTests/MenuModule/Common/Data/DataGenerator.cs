@@ -1,12 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using Bogus;
-using MyHomeRamen.Api.Menu.Features.Categories.CreateCategory.Models;
 using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
 using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;
-using MyHomeRamen.Common.Contracts.Menu.Categories;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients;
 using MyHomeRamen.Common.Contracts.Menu.Products;
 using MyHomeRamen.Domain.Common.Category;

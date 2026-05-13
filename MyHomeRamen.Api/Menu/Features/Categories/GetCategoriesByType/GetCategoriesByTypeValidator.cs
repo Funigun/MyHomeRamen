@@ -1,10 +1,9 @@
 using FluentValidation;
-using MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Models;
 using MyHomeRamen.Domain.Menu.Categories;
 
-namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType.Policies;
+namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType;
 
-public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategoriesByTypeRequest>
+public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategoriesByTypeQuery>
 {
     public GetCategoriesByTypeValidator()
     {
