@@ -2,12 +2,10 @@
 using System.Security.Cryptography;
 using Bogus;
 using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
-using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients;
 using MyHomeRamen.Common.Contracts.Menu.Products;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Common.Ingredient;
@@ -16,6 +14,9 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Domain.Menu.Users;
+using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
 
 namespace MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
 

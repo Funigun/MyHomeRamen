@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForDropdown.Models;
 using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 
 namespace MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForDropdown;
 
@@ -19,10 +19,10 @@ public sealed class GetIngredientsForDropdownEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromServices] IRequestHandler<GetIngredientsForDropdownRequest, IEnumerable<GetIngredientsForDropdownResponse>> handler,
+        [FromServices] IRequestHandler<GetIngredientsForDropdownQuery, IEnumerable<GetIngredientsForDropdownResponse>> handler,
         CancellationToken cancellationToken)
     {
-        IEnumerable<GetIngredientsForDropdownResponse> response = await handler.Handle(new GetIngredientsForDropdownRequest(), cancellationToken);
+        IEnumerable<GetIngredientsForDropdownResponse> response = await handler.Handle(new GetIngredientsForDropdownQuery(), cancellationToken);
         return Results.Ok(response);
     }
 }

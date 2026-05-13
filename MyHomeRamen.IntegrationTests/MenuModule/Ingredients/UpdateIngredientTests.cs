@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient.Models;
+using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.IntegrationTests.Common;

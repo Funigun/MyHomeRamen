@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForDropdown.Models;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 
