@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using Bogus;
-using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
 using MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient.Models;
 using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
 using MyHomeRamen.Api.Menu.Features.Products.UpdateProduct.Models;

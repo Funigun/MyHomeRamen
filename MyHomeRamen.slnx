@@ -59,6 +59,10 @@
   <Folder Name="/_github/agents/tasks/">
     <File Path=".github/agentic-workflow-redesign-plan.md" />
     <File Path=".github/ideas.md" />
+    <File Path="plans/menu-categories-slice-structure-plan.md" />
+    <File Path="plans/menu-ingredients-slice-structure-plan.md" />
+    <File Path="plans/menu-products-slice-structure-plan.md" />
+    <File Path="plans/shoppingcart-baskets-slice-structure-plan.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/architecture-tests.instructions.md" />

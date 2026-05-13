@@ -1,15 +1,17 @@
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder;
 
-public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateCategoriesOrderRequest>
+public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateCategoriesOrderCommand>
 {
-    public async Task Handle(UpdateCategoriesOrderRequest request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateCategoriesOrderCommand command, CancellationToken cancellationToken)
     {
+        UpdateCategoriesOrderRequest request = command.UpdateCategoriesOrderRequest;
         IEnumerable<CategoryId> ids = request.Items.Select(i => (CategoryId)i.Id);
 
         IEnumerable<Category> categories = await dbContext.Categories.GetByIds(ids, cancellationToken);

@@ -1,18 +1,18 @@
 using FluentValidation;
-using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
 
-namespace MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Policies;
+namespace MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder;
 
-public sealed class UpdateCategoriesOrderValidator : AbstractValidator<UpdateCategoriesOrderRequest>
+public sealed class UpdateCategoriesOrderValidator : AbstractValidator<UpdateCategoriesOrderCommand>
 {
     public UpdateCategoriesOrderValidator()
     {
-        RuleFor(x => x.Items)
+        RuleFor(x => x.UpdateCategoriesOrderRequest.Items)
             .NotEmpty().WithMessage("Categories list must not be empty.")
             .Must(HaveUniqueIds).WithMessage("Category IDs must be unique within the request.");
 
-        RuleForEach(x => x.Items)
+        RuleForEach(x => x.UpdateCategoriesOrderRequest.Items)
             .ChildRules(item =>
             {
                 item.RuleFor(x => x.Id)

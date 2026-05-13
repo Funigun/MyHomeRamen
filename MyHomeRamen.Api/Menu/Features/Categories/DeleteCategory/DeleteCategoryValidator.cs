@@ -1,12 +1,11 @@
 using FluentValidation;
-using MyHomeRamen.Api.Menu.Features.Categories.DeleteCategory.Models;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Persistance.Common;
 
-namespace MyHomeRamen.Api.Menu.Features.Categories.DeleteCategory.Policies;
+namespace MyHomeRamen.Api.Menu.Features.Categories.DeleteCategory;
 
-public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryRequest>
+public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCommand>
 {
     public DeleteCategoryValidator(IMenuDbContext menuDbContext)
     {

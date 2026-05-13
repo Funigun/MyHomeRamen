@@ -1,6 +1,7 @@
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 
-namespace MyHomeRamen.Api.Menu.Features.Categories.GetMenuCategories.Models;
+namespace MyHomeRamen.Api.Menu.Features.Categories.GetMenuCategories;
 
 internal static class Mappings
 {
