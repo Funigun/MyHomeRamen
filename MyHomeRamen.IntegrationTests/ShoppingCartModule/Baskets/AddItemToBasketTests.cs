@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket.Models;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;

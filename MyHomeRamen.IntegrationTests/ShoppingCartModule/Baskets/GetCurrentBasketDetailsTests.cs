@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketDetails.Models;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
@@ -37,7 +38,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
         Assert.Equal(DataGenerator.GeneratedBaskets.First().Id.Value, details.Id);
         Assert.NotEmpty(details.Items);
 
-        BasketItemDto firstItem = details.Items.First();
+        BasketDetailsItemDto firstItem = details.Items.First();
         Assert.NotEqual(Guid.Empty, firstItem.Id);
         Assert.NotNull(firstItem.Product);
         Assert.False(string.IsNullOrWhiteSpace(firstItem.Product.Name));
@@ -158,7 +159,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
         GetCurrentBasketDetailsResponse? details = await response.Content.ReadFromJsonAsync<GetCurrentBasketDetailsResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(details);
-        BasketItemDto item = details.Items.Single();
+        BasketDetailsItemDto item = details.Items.Single();
 
         Assert.Equal(basketItem.Id.Value, item.Id);
         Assert.Equal(basketItem.Quantity, item.Quantity);
@@ -170,11 +171,11 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
         Assert.Equal(product.Description, item.Product.Description);
         Assert.Equal(product.ImageUrl, item.Product.ImageUrl);
 
-        BasketItemIngredientDto baseIngredientDto = item.Product.BaseIngredients.Single();
+        BasketDetailsIngredientDto baseIngredientDto = item.Product.BaseIngredients.Single();
         Assert.Equal(baseIngredient.Id.Value, baseIngredientDto.Id);
         Assert.Equal(baseIngredient.Name, baseIngredientDto.Name);
 
-        BasketItemIngredientDto customIngredientDto = item.Product.CustomIngredients.Single();
+        BasketDetailsIngredientDto customIngredientDto = item.Product.CustomIngredients.Single();
         Assert.Equal(customIngredient.Id.Value, customIngredientDto.Id);
         Assert.Equal(customIngredient.Name, customIngredientDto.Name);
     }

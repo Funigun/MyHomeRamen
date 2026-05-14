@@ -1,7 +1,9 @@
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 
-namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketSummary.Models;
+namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 
 internal static class Mappings
 {
@@ -10,7 +12,7 @@ internal static class Mappings
             basket.Id.Value,
             basket.Items.Select(item => item.ToDto()));
 
-    public static BasketItemDto ToDto(this BasketItem item)
+    public static BasketSummaryItemDto ToDto(this BasketItem item)
         => new(
             item.Id.Value,
             item.Product.Name,

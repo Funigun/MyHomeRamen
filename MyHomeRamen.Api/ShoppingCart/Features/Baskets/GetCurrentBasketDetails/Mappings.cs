@@ -1,8 +1,10 @@
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 
-namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketDetails.Models;
+namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
 internal static class Mappings
 {
@@ -11,7 +13,7 @@ internal static class Mappings
             basket.Id.Value,
             basket.Items.Select(i => i.ToDto()));
 
-    private static BasketItemDto ToDto(this BasketItem item)
+    private static BasketDetailsItemDto ToDto(this BasketItem item)
         => new(
             item.Id.Value,
             item.Quantity,
@@ -19,12 +21,12 @@ internal static class Mappings
             item.Comment,
             item.Product.ToProductDto());
 
-    private static BasketItemProductDto ToProductDto(this Product product)
+    private static BasketDetailsItemProductDto ToProductDto(this Product product)
         => new(
             product.Id.Value,
             product.Name,
             product.Description,
             product.ImageUrl,
-            product.BaseIngredients.Select(i => new BasketItemIngredientDto(i.Id.Value, i.Name)),
-            product.CustomIngredients.Select(i => new BasketItemIngredientDto(i.Id.Value, i.Name)));
+            product.BaseIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name)),
+            product.CustomIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name)));
 }

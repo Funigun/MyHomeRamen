@@ -1,5 +1,6 @@
 using Bogus;
-using MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket.Models;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 using MyHomeRamen.Common.Contracts.Basket;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
@@ -68,12 +69,12 @@ internal static class DataGenerator
     {
         MenuProduct menuProduct = GetRandomMenuProduct();
 
-        List<IngredientRequestDto> baseIngredients = menuProduct.BaseIngredients
-            .Select(i => new IngredientRequestDto(i.Id, 1))
+        List<BasketIngredientDto> baseIngredients = menuProduct.BaseIngredients
+            .Select(i => new BasketIngredientDto(i.Id, 1))
             .ToList();
 
-        List<IngredientRequestDto> customIngredients = menuProduct.CustomIngredients
-            .Select(i => new IngredientRequestDto(i.Id, 1))
+        List<BasketIngredientDto> customIngredients = menuProduct.CustomIngredients
+            .Select(i => new BasketIngredientDto(i.Id, 1))
             .ToList();
 
         return new AddItemToBasketRequest(
@@ -88,12 +89,12 @@ internal static class DataGenerator
     {
         MenuProduct menuProduct = GetRandomMenuProduct();
 
-        List<IngredientRequestDto> validBaseIngredients = menuProduct.BaseIngredients
-            .Select(i => new IngredientRequestDto(i.Id, 1))
+        List<BasketIngredientDto> validBaseIngredients = menuProduct.BaseIngredients
+            .Select(i => new BasketIngredientDto(i.Id, 1))
             .ToList();
 
-        List<IngredientRequestDto> validCustomIngredients = menuProduct.CustomIngredients
-            .Select(i => new IngredientRequestDto(i.Id, 1))
+        List<BasketIngredientDto> validCustomIngredients = menuProduct.CustomIngredients
+            .Select(i => new BasketIngredientDto(i.Id, 1))
             .ToList();
 
         string tooLongComment = new('a', BasketItemCommentValidator.MaxCommentLength + 1);

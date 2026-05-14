@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketDetails.Models;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
@@ -18,10 +18,10 @@ public sealed class GetCurrentBasketDetailsEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromServices] IRequestHandler<GetCurrentBasketDetailsRequest, GetCurrentBasketDetailsResponse?> handler,
+        [FromServices] IRequestHandler<GetCurrentBasketDetailsQuery, GetCurrentBasketDetailsResponse?> handler,
         CancellationToken cancellationToken)
     {
-        GetCurrentBasketDetailsResponse? response = await handler.Handle(new GetCurrentBasketDetailsRequest(), cancellationToken);
+        GetCurrentBasketDetailsResponse? response = await handler.Handle(new GetCurrentBasketDetailsQuery(), cancellationToken);
         return response is null ? Results.NotFound() : Results.Ok(response);
     }
 }

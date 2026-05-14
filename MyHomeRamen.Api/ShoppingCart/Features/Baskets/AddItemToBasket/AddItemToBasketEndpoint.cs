@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket.Models;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket;
 
@@ -10,7 +11,7 @@ public sealed class AddItemToBasketEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedPost<AddItemToBasketRequest, AddItemToBasketResponse>(
+            .MapStandardValidatedPost<AddItemToBasketCommand, AddItemToBasketResponse>(
                 "api/shoppingcart/basket/items", HandleAsync)
             .WithName("AddItemToBasketEndpoint")
             .WithTags("Baskets")
@@ -20,10 +21,11 @@ public sealed class AddItemToBasketEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromBody] AddItemToBasketRequest request,
-        [FromServices] IRequestHandler<AddItemToBasketRequest, AddItemToBasketResponse> handler,
+        [FromServices] IRequestHandler<AddItemToBasketCommand, AddItemToBasketResponse> handler,
         CancellationToken cancellationToken)
     {
-        AddItemToBasketResponse response = await handler.Handle(request, cancellationToken);
+        AddItemToBasketCommand command = new(request);
+        AddItemToBasketResponse response = await handler.Handle(command, cancellationToken);
         return Results.Created($"/api/shoppingcart/basket/items/{response.BasketItemId}", response);
     }
 }

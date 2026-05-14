@@ -1,5 +1,5 @@
-using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Requests;
-using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services;
 
