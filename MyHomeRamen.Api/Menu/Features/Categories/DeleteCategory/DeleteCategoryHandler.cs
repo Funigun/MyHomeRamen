@@ -1,11 +1,11 @@
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.DeleteCategory;
 
-public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : IRequestHandler<DeleteCategoryCommand, IResult>
+public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : ICommandHandler<DeleteCategoryCommand, IResult>
 {
     public async Task<IResult> Handle(DeleteCategoryCommand id, CancellationToken cancellationToken)
     {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
@@ -12,7 +12,7 @@ public sealed class CreateCategoryEndpoint : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<CreateCategoryCommand, CreateCategoryResponse>("api/menu/categories", HandleAsync)
+        endpointBuilder.MapPost("api/menu/categories", HandleAsync)
                        .WithName("CreateCategoryEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Handles Create Category operations.")
@@ -21,7 +21,7 @@ public sealed class CreateCategoryEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromBody] CreateCategoryRequest request,
-        [FromServices] IRequestHandler<CreateCategoryCommand, CreateCategoryResponse> handler,
+        [FromServices] ICommandHandler<CreateCategoryCommand, CreateCategoryResponse> handler,
         CancellationToken cancellationToken)
     {
         CreateCategoryCommand command = new(request);

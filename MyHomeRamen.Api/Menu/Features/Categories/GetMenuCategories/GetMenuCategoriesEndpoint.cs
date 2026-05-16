@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.GetMenuCategories;
@@ -18,7 +18,7 @@ public sealed class GetMenuCategoriesEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromServices] IRequestHandler<GetMenuCategoriesQuery, IEnumerable<GetMenuCategoriesResponse>> handler,
+        [FromServices] IQueryHandler<GetMenuCategoriesQuery, IEnumerable<GetMenuCategoriesResponse>> handler,
         CancellationToken cancellationToken)
     {
         IEnumerable<GetMenuCategoriesResponse> response = await handler.Handle(new GetMenuCategoriesQuery(), cancellationToken);

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 
@@ -19,7 +19,7 @@ public sealed class UpdateCategoriesOrderEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromBody] UpdateCategoriesOrderRequest request,
-        [FromServices] IRequestHandler<UpdateCategoriesOrderCommand> handler,
+        [FromServices] ICommandHandler<UpdateCategoriesOrderCommand> handler,
         CancellationToken cancellationToken)
     {
         UpdateCategoriesOrderCommand command = new(request);

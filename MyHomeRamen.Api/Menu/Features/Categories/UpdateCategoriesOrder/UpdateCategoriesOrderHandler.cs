@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -7,7 +7,7 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder;
 
-public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateCategoriesOrderCommand>
+public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : ICommandHandler<UpdateCategoriesOrderCommand>
 {
     public async Task Handle(UpdateCategoriesOrderCommand command, CancellationToken cancellationToken)
     {

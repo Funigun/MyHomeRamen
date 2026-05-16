@@ -66,6 +66,7 @@ try
 
     builder.Services.AddSharedServices()
                     .AddEndpoints(apiAssembly)
+                    .AddCommandHandlers(apiAssembly)
                     .AddEndpointHandlers(apiAssembly)
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);

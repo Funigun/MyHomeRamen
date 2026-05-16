@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.DeleteCategory;
@@ -16,7 +16,7 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
-    private static async Task<IResult> HandleAsync(DeleteCategoryCommand id, [FromServices] IRequestHandler<DeleteCategoryCommand, IResult> handler, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(DeleteCategoryCommand id, [FromServices] ICommandHandler<DeleteCategoryCommand, IResult> handler, CancellationToken cancellationToken)
     {
         return await handler.Handle(id, cancellationToken);
     }

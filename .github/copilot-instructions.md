@@ -23,7 +23,6 @@ MyHomeRamen.slnx
 ├── MyHomeRamen.Domain/                     ← Domain entities, value objects, and services
 ├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
 ├── MyHomeRamen.Infrastructure/             ← Infrastructure services (caching, messaging, email, keycloak)
-├── MyHomeRamen.Identity.Api/               ← Identity management via Keycloak
 ├── MyHomeRamen.Worker.Common/              ← Base worker with Quartz config and shared worker services
 ├── MyHomeRamen.Worker.DatabaseInitializer/ ← DB setup and seeding worker
 ├── MyHomeRamen.Worker.MailSender/          ← Email background worker

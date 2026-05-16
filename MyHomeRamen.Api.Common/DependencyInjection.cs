@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.Common.Middleware;
 
 namespace MyHomeRamen.Api.Common;
@@ -79,6 +80,38 @@ public static class DependencyInjection
         {
             Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerWithResponseOpenType);
             services.AddScoped(interfaceType, type);
+        }
+
+        return services;
+    }
+
+    public static IServiceCollection AddCommandHandlers(this IServiceCollection services, Assembly assembly)
+    {
+        Type noResponseHandlerOpenType = typeof(ICommandHandler<>);
+        Type withResponseHandlerOpenType = typeof(ICommandHandler<,>);
+
+        List<Type> noResponseHandlers = assembly.GetExportedTypes()
+                                                .Where(t => t.GetInterfaces()
+                                                             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == noResponseHandlerOpenType))
+                                                .ToList();
+
+        foreach (Type type in noResponseHandlers)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == noResponseHandlerOpenType);
+            services.AddScoped(interfaceType, type);
+            services.Decorate(interfaceType, typeof(CommandValidationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
+        }
+
+        List<Type> withResponseHandlers = assembly.GetExportedTypes()
+                                                   .Where(t => t.GetInterfaces()
+                                                                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == withResponseHandlerOpenType))
+                                                   .ToList();
+
+        foreach (Type type in withResponseHandlers)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == withResponseHandlerOpenType);
+            services.AddScoped(interfaceType, type);
+            services.Decorate(interfaceType, typeof(CommandValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
         }
 
         return services;
