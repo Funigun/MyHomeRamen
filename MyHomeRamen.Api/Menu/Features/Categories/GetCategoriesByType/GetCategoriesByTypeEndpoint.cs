@@ -11,7 +11,7 @@ public sealed class GetCategoriesByTypeEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetCategoriesByTypeQuery, IEnumerable<GetCategoriesByTypeQuery>>("api/menu/categories/by-type", HandleAsync)
+            .MapStandardGet<IEnumerable<GetCategoriesByTypeQuery>>("api/menu/categories/by-type", HandleAsync)
             .WithName("GetCategoriesByTypeEndpoint")
             .WithTags("Categories")
             .WithDescription("Returns a filtered and ordered list of categories for the specified category type.")

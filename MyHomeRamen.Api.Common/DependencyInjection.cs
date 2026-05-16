@@ -117,6 +117,25 @@ public static class DependencyInjection
         return services;
     }
 
+    public static IServiceCollection AddQueryHandlers(this IServiceCollection services, Assembly assembly)
+    {
+        Type queryHandlerOpenType = typeof(IQueryHandler<,>);
+
+        List<Type> queryHandlers = assembly.GetExportedTypes()
+                                           .Where(t => t.GetInterfaces()
+                                                        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == queryHandlerOpenType))
+                                           .ToList();
+
+        foreach (Type type in queryHandlers)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == queryHandlerOpenType);
+            services.AddScoped(interfaceType, type);
+            services.Decorate(interfaceType, typeof(QueryValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
+        }
+
+        return services;
+    }
+
     public static IApplicationBuilder UseMiddlewares(this IApplicationBuilder app)
     {
         app.UseMiddleware<ExceptionMiddleware>();

@@ -81,6 +81,18 @@ public static class EndpointBuilderExtensions
         return routeHandler;
     }
 
+    public static RouteHandlerBuilder MapStandardPut<TRequest, TResponse>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)
+    {
+        RouteHandlerBuilder routeHandler = builder.MapPut(pattern, handler)
+                                                  .Produces<TResponse>(StatusCodes.Status200OK)
+                                                  .ProducesProblem(StatusCodes.Status400BadRequest)
+                                                  .ProducesProblem(StatusCodes.Status404NotFound)
+                                                  .ProducesProblem(StatusCodes.Status500InternalServerError)
+                                                  .WithMetadata(typeof(TRequest).DeclaringType!);
+
+        return routeHandler;
+    }
+
     public static RouteHandlerBuilder MapStandardValidatedPut<TRequest>(this IEndpointRouteBuilder builder, string pattern, Delegate handler)
     {
         return builder.MapStandardPut<TRequest>(pattern, handler)

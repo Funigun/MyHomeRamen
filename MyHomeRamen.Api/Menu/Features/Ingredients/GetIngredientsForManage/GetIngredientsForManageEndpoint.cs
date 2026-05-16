@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
@@ -12,7 +13,7 @@ public sealed class GetIngredientsForManageEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetIngredientsForManageQuery, GetIngredientsForManageResponse>("api/menu/ingredients/manage", HandleAsync)
+            .MapStandardGet<GetIngredientsForManageResponse>("api/menu/ingredients/manage", HandleAsync)
             .WithName("GetIngredientsForManageEndpoint")
             .WithTags("Ingredients")
             .WithDescription("Returns a filtered list of ingredients for the admin management view. Supports optional name (contains, case-insensitive) and category ID filters.")
@@ -22,7 +23,7 @@ public sealed class GetIngredientsForManageEndpoint : IEndpoint
     private static async Task<IResult> HandleAsync(
         [AsParameters] GetIngredientsForManageRequest request,
         [AsParameters] PageParameters pageParameters,
-        [FromServices] IRequestHandler<GetIngredientsForManageQuery, GetIngredientsForManageResponse> handler,
+        [FromServices] IQueryHandler<GetIngredientsForManageQuery, GetIngredientsForManageResponse> handler,
         CancellationToken cancellationToken)
     {
         GetIngredientsForManageQuery query = new(request) { PageParameters = pageParameters };

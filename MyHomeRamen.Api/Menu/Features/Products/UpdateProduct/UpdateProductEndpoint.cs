@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
@@ -13,8 +13,7 @@ public sealed class UpdateProductEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedPutWithResponse<UpdateProductCommand, UpdateProductResponse>(
-                "api/menu/products/{id}", HandleAsync)
+            .MapStandardPut<UpdateProductCommand, UpdateProductResponse>("api/menu/products/{id}", HandleAsync)
             .WithName("UpdateProductEndpoint")
             .WithTags("Products")
             .WithDescription("Updates the name, description, price, category, and ingredients of an existing product.")
@@ -24,7 +23,7 @@ public sealed class UpdateProductEndpoint : IEndpoint
     private static async Task<IResult> HandleAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateProductRequest request,
-        [FromServices] IRequestHandler<UpdateProductCommand, UpdateProductResponse> handler,
+        [FromServices] ICommandHandler<UpdateProductCommand, UpdateProductResponse> handler,
         CancellationToken cancellationToken)
     {
         UpdateProductCommand command = new(new ProductId(id), request);

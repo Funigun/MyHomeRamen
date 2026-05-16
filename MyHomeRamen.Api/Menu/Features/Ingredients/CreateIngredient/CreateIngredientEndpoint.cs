@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
@@ -11,14 +11,14 @@ public sealed class CreateIngredientEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<CreateIngredientCommand, CreateIngredientResponse>("api/menu/ingredients", HandleAsync)
+        endpointBuilder.MapStandardPost<CreateIngredientCommand, CreateIngredientResponse>("api/menu/ingredients", HandleAsync)
                        .WithName("CreateIngredientEndpoint")
                        .WithTags("Ingredients")
                        .WithDescription("Handles Create Ingredient operations.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
-    private static async Task<IResult> HandleAsync([FromBody] CreateIngredientRequest request, [FromServices] IRequestHandler<CreateIngredientCommand, CreateIngredientResponse> handler, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync([FromBody] CreateIngredientRequest request, [FromServices] ICommandHandler<CreateIngredientCommand, CreateIngredientResponse> handler, CancellationToken cancellationToken)
     {
         CreateIngredientCommand command = new(request);
         CreateIngredientResponse response = await handler.Handle(command, cancellationToken);

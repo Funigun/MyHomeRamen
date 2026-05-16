@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
@@ -11,7 +11,7 @@ public sealed class CreateProductEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<CreateProductCommand, CreateProductResponse>("api/menu/products", HandleAsync)
+        endpointBuilder.MapStandardPost<CreateProductCommand, CreateProductResponse>("api/menu/products", HandleAsync)
                        .WithName("CreateProductEndpoint")
                        .WithTags("Products")
                        .WithDescription("Handles Create Product operations.")
@@ -20,7 +20,7 @@ public sealed class CreateProductEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromBody] CreateProductRequest request,
-        [FromServices] IRequestHandler<CreateProductCommand, CreateProductResponse> handler,
+        [FromServices] ICommandHandler<CreateProductCommand, CreateProductResponse> handler,
         CancellationToken cancellationToken)
     {
         CreateProductCommand command = new(request);

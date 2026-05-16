@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Menu.Products.DTOs;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Database;
@@ -9,7 +9,7 @@ using MyHomeRamen.Persistance.Common;
 namespace MyHomeRamen.Api.Menu.Features.Products.GetProductsForManage;
 
 public sealed class GetProductsForManageHandler(IMenuDbContext dbContext)
-    : IRequestHandler<GetProductsForManageQuery, GetProductsForManageResponse>
+    : IQueryHandler<GetProductsForManageQuery, GetProductsForManageResponse>
 {
     public async Task<GetProductsForManageResponse> Handle(
         GetProductsForManageQuery query,

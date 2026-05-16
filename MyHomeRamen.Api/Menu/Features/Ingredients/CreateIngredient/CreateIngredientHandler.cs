@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
@@ -7,7 +7,7 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Ingredients.CreateIngredient;
 
-public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : IRequestHandler<CreateIngredientCommand, CreateIngredientResponse>
+public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : ICommandHandler<CreateIngredientCommand, CreateIngredientResponse>
 {
     public async Task<CreateIngredientResponse> Handle(CreateIngredientCommand command, CancellationToken cancellationToken)
     {

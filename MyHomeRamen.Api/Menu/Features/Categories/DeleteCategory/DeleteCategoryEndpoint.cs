@@ -9,7 +9,7 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedDelete<DeleteCategoryCommand>("api/menu/categories/{id}", HandleAsync)
+        endpointBuilder.MapStandardDelete<DeleteCategoryCommand>("api/menu/categories/{id}", HandleAsync)
                        .WithName("DeleteCategoryEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Handles Delete Category operations.")

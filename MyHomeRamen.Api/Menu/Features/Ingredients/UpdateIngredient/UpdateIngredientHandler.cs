@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
@@ -8,7 +8,7 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient;
 
-public sealed class UpdateIngredientHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateIngredientCommand, UpdateIngredientResponse>
+public sealed class UpdateIngredientHandler(IMenuDbContext dbContext) : ICommandHandler<UpdateIngredientCommand, UpdateIngredientResponse>
 {
     public async Task<UpdateIngredientResponse> Handle(UpdateIngredientCommand request, CancellationToken cancellationToken)
     {

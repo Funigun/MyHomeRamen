@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 
@@ -11,7 +11,7 @@ public sealed class GetProductsByCategoryEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedGet<GetProductsByCategoryQuery, IEnumerable<GetProductsByCategoryResponse>>("api/menu/products", HandleAsync)
+            .MapStandardGet<IEnumerable<GetProductsByCategoryResponse>>("api/menu/products", HandleAsync)
             .WithName("GetProductsByCategoryEndpoint")
             .WithTags("Products")
             .WithDescription("Returns all products for a given category.")
@@ -20,7 +20,7 @@ public sealed class GetProductsByCategoryEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [AsParameters] GetProductsByCategoryRequest request,
-        [FromServices] IRequestHandler<GetProductsByCategoryQuery, IEnumerable<GetProductsByCategoryResponse>> handler,
+        [FromServices] IQueryHandler<GetProductsByCategoryQuery, IEnumerable<GetProductsByCategoryResponse>> handler,
         CancellationToken cancellationToken)
     {
         GetProductsByCategoryQuery query = new(request);
