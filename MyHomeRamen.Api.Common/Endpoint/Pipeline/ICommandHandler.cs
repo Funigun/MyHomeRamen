@@ -7,7 +7,7 @@ public interface ICommandHandler<in TRequest>
 }
 
 public interface ICommandHandler<in TRequest, TResponse>
-           where TRequest : ICommand
+           where TRequest : ICommand<TResponse>
 {
     Task<TResponse> Handle(TRequest command, CancellationToken cancellationToken);
 }
