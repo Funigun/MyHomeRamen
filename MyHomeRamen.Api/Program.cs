@@ -8,6 +8,7 @@ using MyHomeRamen.Api.Orders;
 using MyHomeRamen.Api.Payments;
 using MyHomeRamen.Api.Reservations;
 using MyHomeRamen.Api.ShoppingCart;
+using MyHomeRamen.Api.Users;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Infrastructure.Messaging;
@@ -73,7 +74,8 @@ try
                     .AddShoppingCartModule(databaseConfigurationProvider)
                     .AddOrdersModule(databaseConfigurationProvider)
                     .AddReservationsModule(databaseConfigurationProvider)
-                    .AddPaymentsModule(databaseConfigurationProvider);
+                    .AddPaymentsModule(databaseConfigurationProvider)
+                    .AddUsersModule(databaseConfigurationProvider, builder.Configuration);
 
     builder.Services.ConfigureAuthentication(authorizationConfiguration)
                     .ConfigureAuthorizationPolicies();

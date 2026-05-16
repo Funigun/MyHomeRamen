@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
+using MyHomeRamen.Api.Users.Features.Account.GetAddresses.Models;
 using MyHomeRamen.Domain.Users;
-using MyHomeRamen.Identity.Api.Features.Account.Addresses.GetAddresses.Models;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;

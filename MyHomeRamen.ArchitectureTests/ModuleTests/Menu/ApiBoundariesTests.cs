@@ -71,6 +71,21 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     }
 
     [Fact]
+    public void MenuApi_ShouldNot_DependOn_UsersApi()
+    {
+        // Arrange
+        IEnumerable<string> menuApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Menu");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuApi, usersApi, "Menu API type '{0}' should not depend on Users API type '{1}'");
+
+        // Act & Assert
+        foreach (IArchRule rule in rules)
+        {
+            rule.Check(ArchitectureBuilder.Architecture);
+        }
+    }
+
+    [Fact]
     public void MenuApi_ShouldDepend_OnlyOn_MenuDomain()
     {
         // Arrange

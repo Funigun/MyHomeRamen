@@ -1,5 +1,5 @@
 using System.Net;
-using MyHomeRamen.Identity.Api.Features.Account.Addresses.UpdateAddress.Models;
+using MyHomeRamen.Api.Users.Features.Account.UpdateAddress.Models;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;

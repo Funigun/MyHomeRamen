@@ -1,6 +1,6 @@
+using MyHomeRamen.Api.Users.Features.Account.CreateAddress.Models;
+using MyHomeRamen.Api.Users.Features.Account.UpdateAddress.Models;
 using MyHomeRamen.Common.Contracts.Account;
-using MyHomeRamen.Identity.Api.Features.Account.Addresses.AddAddress.Models;
-using MyHomeRamen.Identity.Api.Features.Account.Addresses.UpdateAddress.Models;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 

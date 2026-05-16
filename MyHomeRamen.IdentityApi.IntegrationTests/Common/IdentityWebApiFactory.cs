@@ -2,7 +2,7 @@ using DotNet.Testcontainers.Builders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Identity.Api;
+using MyHomeRamen.Api;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Infrastructure.Keycloak;
@@ -13,7 +13,7 @@ using Testcontainers.MsSql;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;
 
-public sealed class IdentityWebApiFactory : WebApplicationFactory<IIdentityApiAssemblyMarker>, IAsyncLifetime
+public sealed class IdentityWebApiFactory : WebApplicationFactory<IApiAssemblyMarker>, IAsyncLifetime
 {
     private readonly MsSqlContainer _sqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
                                                                       .WithPassword("Str0ng_P@ssw0rd4Tests")

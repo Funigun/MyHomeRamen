@@ -21,27 +21,11 @@ internal static class ProjectRegistrationExtensions
             ConfigurationConstants.ReservationModuleName,
             ConfigurationConstants.OrderModuleName,
             ConfigurationConstants.ShoppingCartModuleName,
-            ConfigurationConstants.PaymentModuleName
-        ];
-
-        return builder.AddProject<Projects.MyHomeRamen_Api>(ServiceNames.Api(prefix))
-                      .WithModulesAccess(requiredModules, configuration)
-                      .WithRestaurantConfig(configuration)
-                      .WithEnvironment(RealmKey, configuration[RealmKey])
-                      .WithEnvironment(AudienceKey, configuration[AudienceKey])
-                      .WithEnvironment(AuthBaseUrlKey, configuration[AuthBaseUrlKey])
-                      .WithHttpHealthCheck("/health");
-    }
-
-    public static IResourceBuilder<ProjectResource> AddIdentityApiService(this IDistributedApplicationBuilder builder, IConfiguration configuration)
-    {
-        string prefix = configuration[ConfigurationSectionPrefix] ?? throw new Exception("Application name not configured");
-
-        IEnumerable<string> requiredModules = [
+            ConfigurationConstants.PaymentModuleName,
             ConfigurationConstants.IdentityModuleName
         ];
 
-        return builder.AddProject<Projects.MyHomeRamen_Identity_Api>(ServiceNames.IdentityApi(prefix))
+        return builder.AddProject<Projects.MyHomeRamen_Api>(ServiceNames.Api(prefix))
                       .WithModulesAccess(requiredModules, configuration)
                       .WithRestaurantConfig(configuration)
                       .WithEnvironment(RealmKey, configuration[RealmKey])

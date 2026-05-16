@@ -71,6 +71,21 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     }
 
     [Fact]
+    public void PaymentsApi_ShouldNot_DependOn_UsersApi()
+    {
+        // Arrange
+        IEnumerable<string> paymentsApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Payments");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(paymentsApi, usersApi, "Payments API type '{0}' should not depend on Users API type '{1}'");
+
+        // Act & Assert
+        foreach (IArchRule rule in rules)
+        {
+            rule.Check(ArchitectureBuilder.Architecture);
+        }
+    }
+
+    [Fact]
     public void PaymentsApi_ShouldDepend_OnlyOn_PaymentsDomain()
     {
         // Arrange

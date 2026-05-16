@@ -24,8 +24,6 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
 
     public System.Reflection.Assembly DomainAssembly { get; private set; } = typeof(Domain.IDomainAssemblyMarker).Assembly;
 
-    public System.Reflection.Assembly IdentityApiAssembly { get; private set; } = typeof(Identity.Api.IIdentityApiAssemblyMarker).Assembly;
-
     public System.Reflection.Assembly InfrastructureAssembly { get; private set; } = typeof(Infrastructure.IInfrastructureAssemblyMarker).Assembly;
 
     public System.Reflection.Assembly IntegrationTestsAssembly { get; private set; } = typeof(IntegrationTests.IIntegrationTestsAssemblyMarker).Assembly;
@@ -67,7 +65,6 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
             BlazorClientAssembly,
             BlazorServerAssembly,
             DomainAssembly,
-            IdentityApiAssembly,
             InfrastructureAssembly,
             IntegrationTestsAssembly,
             PersistanceAssembly,
