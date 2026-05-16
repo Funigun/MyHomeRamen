@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.Common.Messaging;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Domain.Users;
@@ -8,7 +8,7 @@ using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Api.Users.Features.Account.Register;
 
-public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IUsersDbContext usersDbContext, IMessagesService messagesService) : IRequestHandler<RegisterCommand>
+public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IUsersDbContext usersDbContext, IMessagesService messagesService) : ICommandHandler<RegisterCommand>
 {
     public async Task Handle(RegisterCommand command, CancellationToken cancellationToken)
     {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 
 namespace MyHomeRamen.Api.Users.Features.Account.DeleteAddress;
@@ -9,7 +9,7 @@ public sealed class DeleteAddressEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedDelete<DeleteAddressCommand>("api/account/me/addresses/{id}", HandleAsync)
+        endpointBuilder.MapStandardDelete("api/account/me/addresses/{id}", HandleAsync)
                        .WithName("DeleteAddressEndpoint")
                        .WithTags("account")
                        .WithDescription("Deletes an address from the authenticated user's profile.")
@@ -17,10 +17,13 @@ public sealed class DeleteAddressEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        DeleteAddressCommand id,
-        [FromServices] IRequestHandler<DeleteAddressCommand, IResult> handler,
+        [FromRoute] Guid id,
+        [FromServices] ICommandHandler<DeleteAddressCommand> handler,
         CancellationToken cancellationToken)
     {
-        return await handler.Handle(id, cancellationToken);
+        DeleteAddressCommand command = new(id);
+        await handler.Handle(command, cancellationToken);
+
+        return TypedResults.NoContent();
     }
 }

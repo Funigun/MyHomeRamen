@@ -11,14 +11,17 @@ public sealed class CreateIngredientEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<CreateIngredientCommand, CreateIngredientResponse>("api/menu/ingredients", HandleAsync)
+        endpointBuilder.MapStandardPost<CreateIngredientResponse>("api/menu/ingredients", HandleAsync)
                        .WithName("CreateIngredientEndpoint")
                        .WithTags("Ingredients")
                        .WithDescription("Handles Create Ingredient operations.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
-    private static async Task<IResult> HandleAsync([FromBody] CreateIngredientRequest request, [FromServices] ICommandHandler<CreateIngredientCommand, CreateIngredientResponse> handler, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(
+        [FromBody] CreateIngredientRequest request,
+        [FromServices] ICommandHandler<CreateIngredientCommand, CreateIngredientResponse> handler,
+        CancellationToken cancellationToken)
     {
         CreateIngredientCommand command = new(request);
         CreateIngredientResponse response = await handler.Handle(command, cancellationToken);

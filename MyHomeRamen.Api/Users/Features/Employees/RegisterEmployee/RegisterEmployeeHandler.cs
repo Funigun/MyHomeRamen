@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Infrastructure.Keycloak;
@@ -6,7 +6,7 @@ using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Api.Users.Features.Employees.RegisterEmployee;
 
-public sealed class RegisterEmployeeHandler(IKeycloakAdminService keycloakAdminService, IUsersDbContext usersDbContext) : IRequestHandler<RegisterEmployeeCommand>
+public sealed class RegisterEmployeeHandler(IKeycloakAdminService keycloakAdminService, IUsersDbContext usersDbContext) : ICommandHandler<RegisterEmployeeCommand>
 {
     public async Task Handle(RegisterEmployeeCommand command, CancellationToken cancellationToken)
     {

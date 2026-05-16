@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 
 namespace MyHomeRamen.Api.Users.Features.Account.UpdateAddress;
 
-public sealed class UpdateAddressHandler(IUsersDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<UpdateAddressCommand, UpdateAddressResponse>
+public sealed class UpdateAddressHandler(IUsersDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<UpdateAddressCommand, UpdateAddressResponse>
 {
     public async Task<UpdateAddressResponse> Handle(UpdateAddressCommand command, CancellationToken cancellationToken)
     {

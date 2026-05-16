@@ -28,6 +28,7 @@ public sealed class GetProductsForManageEndpoint : IEndpoint
     {
         GetProductsForManageQuery query = new(pageParameters, request);
         GetProductsForManageResponse response = await handler.Handle(query, cancellationToken);
+        
         return Results.Ok(response);
     }
 }

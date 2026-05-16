@@ -13,7 +13,7 @@ public sealed class UpdateProductEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardPut<UpdateProductCommand, UpdateProductResponse>("api/menu/products/{id}", HandleAsync)
+            .MapStandardPut<UpdateProductResponse>("api/menu/products/{id}", HandleAsync)
             .WithName("UpdateProductEndpoint")
             .WithTags("Products")
             .WithDescription("Updates the name, description, price, category, and ingredients of an existing product.")
@@ -27,7 +27,6 @@ public sealed class UpdateProductEndpoint : IEndpoint
         CancellationToken cancellationToken)
     {
         UpdateProductCommand command = new(new ProductId(id), request);
-
         UpdateProductResponse response = await handler.Handle(command, cancellationToken);
 
         return Results.Ok(response);

@@ -21,7 +21,9 @@ public sealed class GetMenuCategoriesEndpoint : IEndpoint
         [FromServices] IQueryHandler<GetMenuCategoriesQuery, IEnumerable<GetMenuCategoriesResponse>> handler,
         CancellationToken cancellationToken)
     {
-        IEnumerable<GetMenuCategoriesResponse> response = await handler.Handle(new GetMenuCategoriesQuery(), cancellationToken);
+        GetMenuCategoriesQuery query = new();
+        IEnumerable<GetMenuCategoriesResponse> response = await handler.Handle(query, cancellationToken);
+
         return Results.Ok(response);
     }
 }

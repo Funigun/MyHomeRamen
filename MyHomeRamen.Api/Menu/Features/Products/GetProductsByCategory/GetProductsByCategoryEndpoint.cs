@@ -25,6 +25,7 @@ public sealed class GetProductsByCategoryEndpoint : IEndpoint
     {
         GetProductsByCategoryQuery query = new(request);
         IEnumerable<GetProductsByCategoryResponse> response = await handler.Handle(query, cancellationToken);
+
         return Results.Ok(response);
     }
 }

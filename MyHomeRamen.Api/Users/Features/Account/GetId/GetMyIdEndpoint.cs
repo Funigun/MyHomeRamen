@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 
@@ -19,10 +19,11 @@ public sealed class GetMyIdEndpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<GetMyIdResponse>, NotFound>> HandleAsync(
-        [FromServices] IRequestHandler<GetMyIdQuery, GetMyIdResponse> handler,
+        [FromServices] IQueryHandler<GetMyIdQuery, GetMyIdResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetMyIdResponse response = await handler.Handle(new GetMyIdQuery(), cancellationToken);
+        GetMyIdQuery query = new();
+        GetMyIdResponse response = await handler.Handle(query, cancellationToken);
 
         return TypedResults.Ok(response);
     }

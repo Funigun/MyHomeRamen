@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 
@@ -19,10 +19,11 @@ public sealed class GetAddressesEndpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<GetAddressesResponse>, NotFound>> HandleAsync(
-        [FromServices] IRequestHandler<GetAddressesQuery, GetAddressesResponse> handler,
+        [FromServices] IQueryHandler<GetAddressesQuery, GetAddressesResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetAddressesResponse response = await handler.Handle(new GetAddressesQuery(), cancellationToken);
+        GetAddressesQuery query = new();
+        GetAddressesResponse response = await handler.Handle(query, cancellationToken);
 
         return TypedResults.Ok(response);
     }

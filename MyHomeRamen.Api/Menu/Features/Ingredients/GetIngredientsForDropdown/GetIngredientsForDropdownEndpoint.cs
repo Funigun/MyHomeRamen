@@ -22,7 +22,9 @@ public sealed class GetIngredientsForDropdownEndpoint : IEndpoint
         [FromServices] IQueryHandler<GetIngredientsForDropdownQuery, IEnumerable<GetIngredientsForDropdownResponse>> handler,
         CancellationToken cancellationToken)
     {
-        IEnumerable<GetIngredientsForDropdownResponse> response = await handler.Handle(new GetIngredientsForDropdownQuery(), cancellationToken);
+        GetIngredientsForDropdownQuery query = new();
+        IEnumerable<GetIngredientsForDropdownResponse> response = await handler.Handle(query, cancellationToken);
+
         return Results.Ok(response);
     }
 }

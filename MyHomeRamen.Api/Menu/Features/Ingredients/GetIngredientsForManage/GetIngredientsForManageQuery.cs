@@ -5,7 +5,5 @@ using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 
 namespace MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForManage;
 
-public sealed record GetIngredientsForManageQuery(GetIngredientsForManageRequest Request) : IQuery<GetIngredientsForManageResponse>
-{
-    public PageParameters PageParameters { get; set; } = new();
-}
+public sealed record GetIngredientsForManageQuery(GetIngredientsForManageRequest Request, PageParameters PageParameters)
+                   : IQuery<GetIngredientsForManageResponse>;

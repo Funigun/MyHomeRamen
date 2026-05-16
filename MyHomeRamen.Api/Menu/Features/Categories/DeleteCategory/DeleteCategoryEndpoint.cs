@@ -9,15 +9,21 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardDelete<DeleteCategoryCommand>("api/menu/categories/{id}", HandleAsync)
+        endpointBuilder.MapStandardDelete("api/menu/categories/{id}", HandleAsync)
                        .WithName("DeleteCategoryEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Handles Delete Category operations.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
-    private static async Task<IResult> HandleAsync(DeleteCategoryCommand id, [FromServices] ICommandHandler<DeleteCategoryCommand, IResult> handler, CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync(
+        [FromRoute] Guid id,
+        [FromServices] ICommandHandler<DeleteCategoryCommand> handler,
+        CancellationToken cancellationToken)
     {
-        return await handler.Handle(id, cancellationToken);
+        DeleteCategoryCommand command = new(id);
+        await handler.Handle(command, cancellationToken);
+
+        return TypedResults.NoContent();
     }
 }

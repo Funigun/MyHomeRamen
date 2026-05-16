@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
@@ -12,8 +12,7 @@ public sealed class UpdateAddressEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardValidatedPutWithResponse<UpdateAddressCommand, UpdateAddressResponse>(
-                "api/account/me/addresses/{id}", HandleAsync)
+            .MapStandardPut<UpdateAddressResponse>("api/account/me/addresses/{id}", HandleAsync)
             .WithName("UpdateAddressEndpoint")
             .WithTags("account")
             .WithDescription("Updates an existing address of the authenticated user.")
@@ -23,10 +22,11 @@ public sealed class UpdateAddressEndpoint : IEndpoint
     private static async Task<IResult> HandleAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateAddressRequest request,
-        [FromServices] IRequestHandler<UpdateAddressCommand, UpdateAddressResponse> handler,
+        [FromServices] ICommandHandler<UpdateAddressCommand, UpdateAddressResponse> handler,
         CancellationToken cancellationToken)
     {
-        UpdateAddressResponse response = await handler.Handle(new UpdateAddressCommand(id, request), cancellationToken);
+        UpdateAddressCommand command = new(id, request);
+        UpdateAddressResponse response = await handler.Handle(command, cancellationToken);
 
         return Results.Ok(response);
     }

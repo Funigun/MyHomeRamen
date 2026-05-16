@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 
@@ -11,7 +11,7 @@ public class RegisterGuestEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<RegisterGuestCommand, RegisterGuestResponse>("api/account/guest", Handler)
+        endpointBuilder.MapStandardPost<RegisterGuestResponse>("api/account/guest", Handler)
                        .WithTags("account")
                        .WithDescription("Creates new guest account or returns existing one")
                        .AllowAnonymous();
@@ -19,7 +19,7 @@ public class RegisterGuestEndpoint : IEndpoint
 
     private static async Task<Results<Created<RegisterGuestResponse>, BadRequest>> Handler(
         [FromServices] IHttpContextAccessor httpContextAccessor,
-        [FromServices] IRequestHandler<RegisterGuestCommand, RegisterGuestResponse> handler)
+        [FromServices] ICommandHandler<RegisterGuestCommand, RegisterGuestResponse> handler)
     {
         HttpContext httpContext = httpContextAccessor.HttpContext!;
 

@@ -19,11 +19,13 @@ public sealed class GetProductByIdForManageEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        GetProductByIdForManageQuery id,
+        [FromRoute] Guid id,
         [FromServices] IQueryHandler<GetProductByIdForManageQuery, GetProductByIdForManageResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetProductByIdForManageResponse response = await handler.Handle(id, cancellationToken);
+        GetProductByIdForManageQuery query = new(id);
+        GetProductByIdForManageResponse response = await handler.Handle(query, cancellationToken);
+
         return Results.Ok(response);
     }
 }

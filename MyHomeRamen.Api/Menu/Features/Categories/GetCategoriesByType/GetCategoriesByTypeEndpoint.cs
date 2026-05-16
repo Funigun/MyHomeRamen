@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.GetCategoriesByType;
@@ -19,11 +20,13 @@ public sealed class GetCategoriesByTypeEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [AsParameters] GetCategoriesByTypeQuery request,
+        [AsParameters] GetCategoriesByTypeRequest request,
         [FromServices] IQueryHandler<GetCategoriesByTypeQuery, IEnumerable<GetCategoriesByTypeResponse>> handler,
         CancellationToken cancellationToken)
     {
-        IEnumerable<GetCategoriesByTypeResponse> response = await handler.Handle(request, cancellationToken);
+        GetCategoriesByTypeQuery query = new(request.CategoryType);
+        IEnumerable<GetCategoriesByTypeResponse> response = await handler.Handle(query, cancellationToken);
+
         return Results.Ok(response);
     }
 }

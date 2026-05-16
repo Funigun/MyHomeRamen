@@ -11,7 +11,7 @@ public sealed class CreateProductEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<CreateProductCommand, CreateProductResponse>("api/menu/products", HandleAsync)
+        endpointBuilder.MapStandardPost<CreateProductResponse>("api/menu/products", HandleAsync)
                        .WithName("CreateProductEndpoint")
                        .WithTags("Products")
                        .WithDescription("Handles Create Product operations.")
@@ -24,7 +24,6 @@ public sealed class CreateProductEndpoint : IEndpoint
         CancellationToken cancellationToken)
     {
         CreateProductCommand command = new(request);
-
         CreateProductResponse response = await handler.Handle(command, cancellationToken);
 
         return Results.Created($"/api/menu/products/{response.Id}", response);

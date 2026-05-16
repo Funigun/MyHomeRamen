@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Users.Employees.Responses;
 
@@ -19,10 +19,11 @@ public sealed class GetEmployeesEndpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<GetEmployeesResponse>, NotFound>> Handler(
-        [FromServices] IRequestHandler<GetEmployeesQuery, GetEmployeesResponse> handler,
+        [FromServices] IQueryHandler<GetEmployeesQuery, GetEmployeesResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetEmployeesResponse response = await handler.Handle(new GetEmployeesQuery(), cancellationToken);
+        GetEmployeesQuery query = new();
+        GetEmployeesResponse response = await handler.Handle(query, cancellationToken);
 
         return TypedResults.Ok(response);
     }

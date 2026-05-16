@@ -12,7 +12,7 @@ public sealed class CreateCategoryEndpoint : IEndpoint
 
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapPost("api/menu/categories", HandleAsync)
+        endpointBuilder.MapStandardPost<CreateCategoryResponse>("api/menu/categories", HandleAsync)
                        .WithName("CreateCategoryEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Handles Create Category operations.")
@@ -25,7 +25,6 @@ public sealed class CreateCategoryEndpoint : IEndpoint
         CancellationToken cancellationToken)
     {
         CreateCategoryCommand command = new(request);
-
         CreateCategoryResponse response = await handler.Handle(command, cancellationToken);
 
         return Results.Created($"/api/menu/categories/{response.Id}", response);

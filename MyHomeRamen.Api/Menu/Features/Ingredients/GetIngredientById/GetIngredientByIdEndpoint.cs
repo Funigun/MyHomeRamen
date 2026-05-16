@@ -19,11 +19,12 @@ public sealed class GetIngredientByIdEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        GetIngredientByIdQuery id,
+        [FromRoute] Guid id,
         [FromServices] IQueryHandler<GetIngredientByIdQuery, GetIngredientByIdResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetIngredientByIdResponse response = await handler.Handle(id, cancellationToken);
+        GetIngredientByIdQuery query = new(id);
+        GetIngredientByIdResponse response = await handler.Handle(query, cancellationToken);
         return Results.Ok(response);
     }
 }

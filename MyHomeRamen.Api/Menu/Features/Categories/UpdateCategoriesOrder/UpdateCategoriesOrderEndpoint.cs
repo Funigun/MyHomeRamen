@@ -10,7 +10,7 @@ public sealed class UpdateCategoriesOrderEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPut<UpdateCategoriesOrderCommand>("api/menu/categories/order", HandleAsync)
+        endpointBuilder.MapStandardPut<UpdateCategoriesOrderCommand>("api/menu/categories/order", HandleAsync)
                        .WithName("UpdateCategoriesOrderEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Updates the sort order of multiple categories in a single batch operation.")

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 
@@ -19,10 +19,11 @@ public sealed class GetDetailsEndpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<GetDetailsResponse>, NotFound>> HandleAsync(
-        [FromServices] IRequestHandler<GetDetailsQuery, GetDetailsResponse> handler,
+        [FromServices] IQueryHandler<GetDetailsQuery, GetDetailsResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetDetailsResponse response = await handler.Handle(new GetDetailsQuery(), cancellationToken);
+        GetDetailsQuery query = new();
+        GetDetailsResponse response = await handler.Handle(query, cancellationToken);
 
         return TypedResults.Ok(response);
     }

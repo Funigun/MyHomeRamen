@@ -1,5 +1,5 @@
 using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
@@ -7,7 +7,7 @@ using MyHomeRamen.Persistance.Users.Extensions;
 
 namespace MyHomeRamen.Api.Users.Features.Account.CreateAddress;
 
-public sealed class CreateAddressHandler(IUsersDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<CreateAddressCommand, CreateAddressResponse>
+public sealed class CreateAddressHandler(IUsersDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<CreateAddressCommand, CreateAddressResponse>
 {
     public async Task<CreateAddressResponse> Handle(CreateAddressCommand command, CancellationToken cancellationToken)
     {

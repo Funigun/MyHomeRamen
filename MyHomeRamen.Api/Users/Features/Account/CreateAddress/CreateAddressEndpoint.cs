@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
@@ -12,7 +12,7 @@ public sealed class CreateAddressEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<CreateAddressCommand, CreateAddressResponse>("api/account/me/addresses", HandleAsync)
+        endpointBuilder.MapStandardPost<CreateAddressResponse>("api/account/me/addresses", HandleAsync)
                        .WithName("CreateAddressEndpoint")
                        .WithTags("account")
                        .WithDescription("Adds a new address to the authenticated user's profile.")
@@ -21,11 +21,10 @@ public sealed class CreateAddressEndpoint : IEndpoint
 
     private static async Task<Results<Created<CreateAddressResponse>, BadRequest>> HandleAsync(
         [FromBody] CreateAddressRequest request,
-        [FromServices] IRequestHandler<CreateAddressCommand, CreateAddressResponse> handler,
+        [FromServices] ICommandHandler<CreateAddressCommand, CreateAddressResponse> handler,
         CancellationToken cancellationToken)
     {
         CreateAddressCommand command = new(request);
-
         CreateAddressResponse response = await handler.Handle(command, cancellationToken);
 
         return TypedResults.Created($"/api/account/me/addresses/{response.Id}", response);

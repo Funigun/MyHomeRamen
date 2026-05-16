@@ -18,11 +18,12 @@ public sealed class GetProductByIdEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        GetProductByIdQuery id,
+        [FromRoute] Guid id,
         [FromServices] IQueryHandler<GetProductByIdQuery, GetProductByIdResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetProductByIdResponse response = await handler.Handle(id, cancellationToken);
+        GetProductByIdQuery query = new(id);
+        GetProductByIdResponse response = await handler.Handle(query, cancellationToken);
         return Results.Ok(response);
     }
 }

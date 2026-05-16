@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
@@ -12,7 +12,7 @@ using MyHomeRamen.Persistance.Common;
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket;
 
 public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser, IMenuService menuService)
-                  : IRequestHandler<AddItemToBasketCommand, AddItemToBasketResponse>
+                  : ICommandHandler<AddItemToBasketCommand, AddItemToBasketResponse>
 {
     public async Task<AddItemToBasketResponse> Handle(AddItemToBasketCommand command, CancellationToken cancellationToken)
     {

@@ -68,7 +68,6 @@ try
                     .AddEndpoints(apiAssembly)
                     .AddCommandHandlers(apiAssembly)
                     .AddQueryHandlers(apiAssembly)
-                    .AddEndpointHandlers(apiAssembly)
                     .AddAuthorizationPolicies(apiAssembly)
                     .AddValidatorsFromAssembly(apiAssembly);
 

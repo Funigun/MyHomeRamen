@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.Common.Messaging;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
@@ -8,7 +8,7 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Users.Features.Account.RegisterGuest;
 
-public class RegisterGuestHandler(IUsersDbContext dbContext, IMessagesService messagesService) : IRequestHandler<RegisterGuestCommand, RegisterGuestResponse>
+public class RegisterGuestHandler(IUsersDbContext dbContext, IMessagesService messagesService) : ICommandHandler<RegisterGuestCommand, RegisterGuestResponse>
 {
     public async Task<RegisterGuestResponse> Handle(RegisterGuestCommand command, CancellationToken cancellationToken)
     {

@@ -5,16 +5,14 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Ingredients.DeleteIngredient;
 
-public sealed class DeleteIngredientHandler(IMenuDbContext dbContext) : ICommandHandler<DeleteIngredientCommand, IResult>
+public sealed class DeleteIngredientHandler(IMenuDbContext dbContext) : ICommandHandler<DeleteIngredientCommand>
 {
-    public async Task<IResult> Handle(DeleteIngredientCommand id, CancellationToken cancellationToken)
+    public async Task Handle(DeleteIngredientCommand id, CancellationToken cancellationToken)
     {
         Ingredient ingredient = await dbContext.Ingredients.GetById((IngredientId)id.Id, cancellationToken);
 
         dbContext.Ingredients.Remove(ingredient);
 
         await dbContext.SaveChangesAsync(cancellationToken);
-
-        return Results.NoContent();
     }
 }

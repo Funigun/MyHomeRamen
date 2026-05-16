@@ -53,38 +53,6 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddEndpointHandlers(this IServiceCollection services, Assembly assembly)
-    {
-        Type handlerOpenType = typeof(IRequestHandler<>);
-        Type handlerWithResponseOpenType = typeof(IRequestHandler<,>);
-        Type validatorOpenType = typeof(IValidator<>);
-        Type authPolicyOpenType = typeof(IAuthorizationPolicy<>);
-
-        List<Type> noResponseHandlers = assembly.GetExportedTypes()
-                                                .Where(t => t.GetInterfaces()
-                                                             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerOpenType))
-                                                .ToList();
-
-        foreach (Type type in noResponseHandlers)
-        {
-            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerOpenType);
-            services.AddScoped(interfaceType, type);
-        }
-
-        List<Type> withResponseHandlers = assembly.GetExportedTypes()
-                                                   .Where(t => t.GetInterfaces()
-                                                                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerWithResponseOpenType))
-                                                   .ToList();
-
-        foreach (Type type in withResponseHandlers)
-        {
-            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerWithResponseOpenType);
-            services.AddScoped(interfaceType, type);
-        }
-
-        return services;
-    }
-
     public static IServiceCollection AddCommandHandlers(this IServiceCollection services, Assembly assembly)
     {
         Type noResponseHandlerOpenType = typeof(ICommandHandler<>);

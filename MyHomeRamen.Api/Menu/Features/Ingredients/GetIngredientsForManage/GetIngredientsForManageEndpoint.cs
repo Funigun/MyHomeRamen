@@ -26,8 +26,9 @@ public sealed class GetIngredientsForManageEndpoint : IEndpoint
         [FromServices] IQueryHandler<GetIngredientsForManageQuery, GetIngredientsForManageResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetIngredientsForManageQuery query = new(request) { PageParameters = pageParameters };
+        GetIngredientsForManageQuery query = new(request, pageParameters);
         GetIngredientsForManageResponse response = await handler.Handle(query, cancellationToken);
+
         return Results.Ok(response);
     }
 }
