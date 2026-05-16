@@ -1,8 +1,9 @@
 ﻿namespace MyHomeRamen.Api.Common.Endpoint.Models;
 
 public interface IRequestHandler<TRequest>
-             where TRequest : IRequest
+           where TRequest : IRequest
 {
+
     Task Handle(TRequest request, CancellationToken cancellationToken);
 }
 

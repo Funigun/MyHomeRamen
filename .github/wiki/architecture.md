@@ -45,14 +45,6 @@ MyHomeRamen.Persistance/                ← Database contexts and EF Core config
 	└── {Module}DbContextFactory.cs     ← Configuration for design-time DbContext creation (e.g. for CLI migrations)
 ```
 
-## Infrastructure structure
-```
-MyHomeRamen.Infrastructure/
-├── Cache/
-├── Messaging/
-└── Keycloak/
-```
-
 ## API structure
 ```
 MyHomeRamen.Api/
@@ -60,16 +52,12 @@ MyHomeRamen.Api/
     ├── Features/
     │   └── {DomainModelPlural}/
     │       ├── {FeatureName}/
-    │       │   ├── Models/
-    │       │   │   ├── {Entity}Dto.cs           ← optional
-    │       │   │   ├── Mappings.cs
-    │       │   │   ├── {FeatureName}Request.cs
-    │       │   │   └── {FeatureName}Response.cs
-    │       │   ├── Policies/
-    │       │   │   ├── {FeatureName}ValidationPolicy.cs
-    │       │   │   ├── {FeatureName}AuthorizationPolicy.cs  ← optional
+    │       │   ├── {FeatureName}Command.cs / {FeatureName}Query.cs 
     │       │   ├── {FeatureName}Endpoint.cs
-    │       │   └── {FeatureName}Handler.cs
+    │       │   ├-─ {FeatureName}Handler.cs
+    │       │   ├─- {FeatureName}ValidationPolicy.cs
+    │       │   ├─- {FeatureName}AuthorizationPolicy.cs  ← optional
+    │       │   └── Mappings.cs
     │       └── {DomainModel}Group.cs
     ├── Services/						← Shared services for the module
     └── ExternalApis/					← Integration points exposed to other modules
@@ -116,16 +104,7 @@ MyHomeRamen.Blazor/                 ← Server project (prerendering, auth, layo
 │           └── {ActionName}/       ← e.g. CreateProduct/, CategoriesIndex/
 │               ├── {ActionName}Page.razor      ← Routable page wrapping form/list components
 │               ├── {ActionName}Page.razor.cs   ← Code-behind (only if page logic is complex)
-│               └── {ActionName}Request.cs      ← API DTO record for this specific action
 └── Program.cs
-```
-
-## Workers structure
-```
-MyHomeRamen.Worker.Common/              ← Base worker with Quartz config and shared worker services
-MyHomeRamen.Worker.DatabaseInitializer/ ← DB setup and seeding worker
-MyHomeRamen.Worker.MailSender/          ← Email background worker
-MyHomeRamen.Worker.MessagesHandler/     ← RabbitMQ message handler — consumes integration events
 ```
 
 ## Tests structure
@@ -159,24 +138,4 @@ MyHomeRamen.IntegrationTests/           ← Integration tests — API vertical s
 │   │       └── Mappings.cs             ← Domain entity → API request extension methods for test setup
 │   └── {FeatureName}Tests.cs           ← e.g. CreateProductTests.cs — [Fact]/[Theory] test class
 └── IIntegrationTestsAssemblyMarker.cs
-
-MyHomeRamen.ArchitectureTests/          ← Architecture rules enforced via NetArchTest
-├── Common/
-│   ├── ArchitectureBuilder.cs          ← Builds ArchUnitNET Architecture from all project assemblies
-│   └── BaseArchitectureTest.cs         ← Exposes typed Assembly constants for each project;
-│                                       ←   all test classes inherit from this
-├── ModuleTests/                        ← Per-module boundary tests
-│   └── {Module}ModuleBoundriesTests.cs ← Asserts module does not reference other modules' namespaces
-├── ProjectDependencyTests.cs           ← Asserts each project only references its allowed dependencies
-└── IArchitectureTestsAssemblyMarker.cs (implicit via BaseArchitectureTest)
-
-MyHomeRamen.SystemTests/                ← End-to-end tests orchestrated by .NET Aspire
-├── Config/
-│   └── AppConfigurationFixture.cs      ← IAsyncLifetime bootstrapping full AppHost via
-│                                       ←   DistributedApplicationTestingBuilder; waits for all
-│                                       ←   Aspire resources (DB, cache, RabbitMQ, Keycloak, workers)
-│                                       ←   registered as [assembly: AssemblyFixture(typeof(AppConfigurationFixture))]
-├── {WorkflowGroup}/                    ← e.g. KeycloakIntegrationTests/
-│   └── {WorkflowName}Tests.cs          ← e.g. UserRegistrationTests — full distributed flow test
-└── ISystemTestsAssemblyMarker.cs (implicit via AppConfigurationFixture)
 ```
