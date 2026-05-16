@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Users.Features.Account.RegisterGuest.Models;
+using MyHomeRamen.Common.Contracts.Users.Account.Requests;
+using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 
 namespace MyHomeRamen.Api.Users.Features.Account.RegisterGuest;
 
@@ -10,13 +11,15 @@ public class RegisterGuestEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<RegisterGuestRequest, RegisterGuestResponse>("api/account/guest", Handler)
+        endpointBuilder.MapStandardPost<RegisterGuestCommand, RegisterGuestResponse>("api/account/guest", Handler)
                        .WithTags("account")
                        .WithDescription("Creates new guest account or returns existing one")
                        .AllowAnonymous();
     }
 
-    private static async Task<Results<Created<RegisterGuestResponse>, BadRequest>> Handler([FromServices] IHttpContextAccessor httpContextAccessor, [FromServices] IRequestHandler<RegisterGuestRequest, RegisterGuestResponse> handler)
+    private static async Task<Results<Created<RegisterGuestResponse>, BadRequest>> Handler(
+        [FromServices] IHttpContextAccessor httpContextAccessor,
+        [FromServices] IRequestHandler<RegisterGuestCommand, RegisterGuestResponse> handler)
     {
         HttpContext httpContext = httpContextAccessor.HttpContext!;
 
@@ -26,8 +29,8 @@ public class RegisterGuestEndpoint : IEndpoint
             existingGuestId = parsedId;
         }
 
-        RegisterGuestRequest request = new(existingGuestId);
-        RegisterGuestResponse response = await handler.Handle(request, httpContext.RequestAborted);
+        RegisterGuestCommand command = new(new RegisterGuestRequest(existingGuestId));
+        RegisterGuestResponse response = await handler.Handle(command, httpContext.RequestAborted);
 
         return TypedResults.Created($"/account/guest/{response.GuestId}", response);
     }

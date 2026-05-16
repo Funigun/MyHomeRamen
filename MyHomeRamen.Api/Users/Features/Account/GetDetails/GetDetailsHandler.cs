@@ -1,15 +1,15 @@
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Users.Features.Account.GetDetails.Models;
+using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Users.Extensions;
 
 namespace MyHomeRamen.Api.Users.Features.Account.GetDetails;
 
-public sealed class GetDetailsHandler(IUsersDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetDetailsRequest, GetDetailsResponse>
+public sealed class GetDetailsHandler(IUsersDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetDetailsQuery, GetDetailsResponse>
 {
-    public async Task<GetDetailsResponse> Handle(GetDetailsRequest request, CancellationToken cancellationToken)
+    public async Task<GetDetailsResponse> Handle(GetDetailsQuery query, CancellationToken cancellationToken)
     {
         User? user = await dbContext.Users.GetByIdQuery(currentUser.UserId, cancellationToken);
 

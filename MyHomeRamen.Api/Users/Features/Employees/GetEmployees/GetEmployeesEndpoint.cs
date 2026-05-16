@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Users.Features.Employees.GetEmployees.Models;
+using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.Api.WebPresentation;
-using MyHomeRamen.Infrastructure.Keycloak;
-using MyHomeRamen.Infrastructure.Keycloak.Dto;
+using MyHomeRamen.Common.Contracts.Users.Employees.Responses;
 
 namespace MyHomeRamen.Api.Users.Features.Employees.GetEmployees;
 
@@ -20,11 +18,11 @@ public sealed class GetEmployeesEndpoint : IEndpoint
                        .WithDescription("Handles GetEmployees operations.");
     }
 
-    private static async Task<Results<Ok<GetEmployeesResponse>, NotFound>> Handler([FromServices] IKeycloakAdminService adminService, [FromServices] ICurrentUser current, CancellationToken cancellationToken)
+    private static async Task<Results<Ok<GetEmployeesResponse>, NotFound>> Handler(
+        [FromServices] IRequestHandler<GetEmployeesQuery, GetEmployeesResponse> handler,
+        CancellationToken cancellationToken)
     {
-        IEnumerable<KeycloakUserDto> users = await adminService.GetEmployees(cancellationToken);
-
-        GetEmployeesResponse response = new(users.Select(s => s.ToResponse()));
+        GetEmployeesResponse response = await handler.Handle(new GetEmployeesQuery(), cancellationToken);
 
         return TypedResults.Ok(response);
     }

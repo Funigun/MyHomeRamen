@@ -1,14 +1,13 @@
-using MyHomeRamen.Api.Users.Features.Account.CreateAddress.Models;
-using MyHomeRamen.Api.Users.Features.Account.UpdateAddress.Models;
 using MyHomeRamen.Common.Contracts.Account;
+using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
 internal static class DataGenerator
 {
-    internal static AddAddressRequest GenerateValidAddAddressRequest(bool isDefault = false)
+    internal static CreateAddressRequest GenerateValidAddAddressRequest(bool isDefault = false)
     {
-        return new AddAddressRequest(
+        return new CreateAddressRequest(
             Street: "Main Street",
             Building: "10A",
             Apartment: "5",
@@ -17,14 +16,14 @@ internal static class DataGenerator
             IsDefault: isDefault);
     }
 
-    public static TheoryData<AddAddressRequest> InvalidAddAddressRequests() => new()
+    public static TheoryData<CreateAddressRequest> InvalidAddAddressRequests() => new()
     {
-        new AddAddressRequest(string.Empty, "10A", "5", "Warsaw", "00-001", false),
-        new AddAddressRequest(new string('a', AddressValidationExtensions.MaxStreetLength + 1), "10A", "5", "Warsaw", "00-001", false),
-        new AddAddressRequest("Main Street", string.Empty, "5", "Warsaw", "00-001", false),
-        new AddAddressRequest("Main Street", new string('a', AddressValidationExtensions.MaxBuildingLength + 1), "5", "Warsaw", "00-001", false),
-        new AddAddressRequest("Main Street", "10A", "5", string.Empty, "00-001", false),
-        new AddAddressRequest("Main Street", "10A", "5", "Warsaw", string.Empty, false),
+        new CreateAddressRequest(string.Empty, "10A", "5", "Warsaw", "00-001", false),
+        new CreateAddressRequest(new string('a', AddressValidationExtensions.MaxStreetLength + 1), "10A", "5", "Warsaw", "00-001", false),
+        new CreateAddressRequest("Main Street", string.Empty, "5", "Warsaw", "00-001", false),
+        new CreateAddressRequest("Main Street", new string('a', AddressValidationExtensions.MaxBuildingLength + 1), "5", "Warsaw", "00-001", false),
+        new CreateAddressRequest("Main Street", "10A", "5", string.Empty, "00-001", false),
+        new CreateAddressRequest("Main Street", "10A", "5", "Warsaw", string.Empty, false),
     };
 
     internal static UpdateAddressRequest GenerateValidUpdateAddressRequest(bool isDefault = false)

@@ -1,14 +1,14 @@
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Users.Features.Account.GetId.Models;
+using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Users.Extensions;
 
 namespace MyHomeRamen.Api.Users.Features.Account.GetId;
 
-public sealed class GetMyIdHandler(IUsersDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetMyIdRequest, GetMyIdResponse>
+public sealed class GetMyIdHandler(IUsersDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetMyIdQuery, GetMyIdResponse>
 {
-    public async Task<GetMyIdResponse> Handle(GetMyIdRequest request, CancellationToken cancellationToken)
+    public async Task<GetMyIdResponse> Handle(GetMyIdQuery query, CancellationToken cancellationToken)
     {
         Guid? id = await dbContext.Users.GetIdByKeycloakId(currentUser.Id, cancellationToken);
 

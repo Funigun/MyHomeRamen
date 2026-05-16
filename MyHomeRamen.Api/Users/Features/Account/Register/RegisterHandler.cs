@@ -1,6 +1,5 @@
 using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.Api.Common.Messaging;
-using MyHomeRamen.Api.Users.Features.Account.Register.Models;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
@@ -9,15 +8,15 @@ using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Api.Users.Features.Account.Register;
 
-public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IUsersDbContext usersDbContext, IMessagesService messagesService) : IRequestHandler<RegisterRequest>
+public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IUsersDbContext usersDbContext, IMessagesService messagesService) : IRequestHandler<RegisterCommand>
 {
-    public async Task Handle(RegisterRequest request, CancellationToken cancellationToken)
+    public async Task Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
-        KeycloakUserDto keycloakUser = request.ToKeycloakUserDto();
+        KeycloakUserDto keycloakUser = command.Request.ToKeycloakUserDto();
 
         string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Customer, cancellationToken);
 
-        User user = request.ToUserDto(keycloakUserId, RoleConstants.Customer);
+        User user = command.Request.ToUserDto(keycloakUserId, RoleConstants.Customer);
 
         usersDbContext.Users.Add(user);
         await usersDbContext.SaveChangesAsync(cancellationToken);

@@ -1,20 +1,20 @@
 using MyHomeRamen.Api.Common.Endpoint.Models;
 using MyHomeRamen.Api.Common.Messaging;
-using MyHomeRamen.Api.Users.Features.Account.RegisterGuest.Models;
 using MyHomeRamen.Common.Contracts.Messaging;
+using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Users.Features.Account.RegisterGuest;
 
-public class RegisterGuestHandler(IUsersDbContext dbContext, IMessagesService messagesService) : IRequestHandler<RegisterGuestRequest, RegisterGuestResponse>
+public class RegisterGuestHandler(IUsersDbContext dbContext, IMessagesService messagesService) : IRequestHandler<RegisterGuestCommand, RegisterGuestResponse>
 {
-    public async Task<RegisterGuestResponse> Handle(RegisterGuestRequest request, CancellationToken cancellationToken)
+    public async Task<RegisterGuestResponse> Handle(RegisterGuestCommand command, CancellationToken cancellationToken)
     {
-        if (request.ExistingGuestId.HasValue)
+        if (command.Request.ExistingGuestId.HasValue)
         {
-            Guid? existing = await dbContext.Users.GetGuestIdByGuestIdAsync(request.ExistingGuestId.Value, cancellationToken);
+            Guid? existing = await dbContext.Users.GetGuestIdByGuestIdAsync(command.Request.ExistingGuestId.Value, cancellationToken);
             if (existing.HasValue)
             {
                 return new RegisterGuestResponse(existing.Value);
