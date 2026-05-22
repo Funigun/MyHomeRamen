@@ -29,10 +29,11 @@ MyHomeRamen.slnx
 ├── MyHomeRamen.Worker.MessagesHandler/     ← RabbitMQ message handler
 ├── MyHomeRamen.Blazor/                     ← Blazor Server frontend
 ├── MyHomeRamen.Blazor.Client/              ← Blazor WASM frontend
-├── MyHomeRamen.UnitTests/                  ← Unit tests (XUnit, NSubstitute)
-├── MyHomeRamen.IntegrationTests/           ← Integration tests (XUnit, TestContainers)
-├── MyHomeRamen.ArchitectureTests/          ← Architecture tests (XUnit, NetArchRules)
-└── MyHomeRamen.SystemTests/                ← System tests (XUnit, Aspire.Hosting.Testing)
+├── MyHomeRamen.UnitTests/                      ← Unit tests (XUnit, NSubstitute)
+├── MyHomeRamen.IntegrationTests/               ← Integration tests (XUnit, TestContainers)
+├── MyHomeRamen.IdentityApi.IntegrationTests/   ← Identity integration tests
+├── MyHomeRamen.ArchitectureTests/              ← Architecture tests (XUnit, NetArchRules)
+└── MyHomeRamen.SystemTests/                    ← System tests (XUnit, Aspire.Hosting.Testing)
 ```
 
 ## Modules isolation

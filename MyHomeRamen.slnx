@@ -50,7 +50,9 @@
     <File Path=".github/plans/delete-item-plan-backend.md" />
     <File Path=".github/plans/delete-product-plan-backend.md" />
     <File Path=".github/plans/get-basket-details-plan-backend.md" />
+    <File Path=".github/plans/get-product-by-id-backend-plan.md" />
     <File Path=".github/plans/merge-baskets-plan-backend.md" />
+    <File Path=".github/plans/product-customization-frontend-plan.md" />
     <File Path=".github/plans/unlock-basket-plan-backend.md" />
     <File Path=".github/plans/update-item-quantity-plan-backend.md" />
     <File Path=".github/plans/validate-products-plan-backend.md" />
@@ -72,20 +74,11 @@
     <File Path=".github/instructions/module-introduction.instructions.md" />
   </Folder>
   <Folder Name="/_github/scripts/">
-    <File Path=".github/scripts/agents-check-drift.ps1" />
     <File Path=".github/scripts/lint-plan.ps1" />
-    <File Path=".github/scripts/lint-review.ps1" />
-    <File Path=".github/scripts/plan-context.ps1" />
-    <File Path=".github/scripts/pr-finalize.ps1" />
-    <File Path=".github/scripts/review-precompute.ps1" />
-    <File Path=".github/scripts/scope-check.ps1" />
     <File Path=".github/scripts/slice-scaffold.ps1" />
-    <File Path=".github/scripts/task-scaffold.ps1" />
     <File Path=".github/scripts/verify.ps1" />
   </Folder>
-  <Folder Name="/_github/skills/">
-    <File Path=".github/agentic-workflow-redesign-plan.md" />
-  </Folder>
+  <Folder Name="/_github/skills/" />
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
     <File Path=".github/wiki/patterns.md" />
@@ -99,7 +92,6 @@
     <File Path="Wiki/Architecture/0002-aspire-orchestration.md" />
     <File Path="Wiki/Architecture/0003-module-specific-database-contexts.md" />
     <File Path="Wiki/Architecture/0004-restaurant-configuration.md" />
-    <File Path="Wiki/Architecture/0005-route-param-attribute-for-update-requests.md" />
   </Folder>
   <Folder Name="/_wiki/Menu/">
     <File Path="Wiki/Menu ADR/0001-menu-domain.md" />

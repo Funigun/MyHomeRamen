@@ -1,6 +1,6 @@
 ---
 description: 'Instructions for backend projects'
-applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRamen.Identity.Api/**/*.cs,**/MyHomeRamen.Infrastructure/**/*.cs,**/MyHomeRamen.Persistance/**/*.cs'
+applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRamen.Infrastructure/**/*.cs,**/MyHomeRamen.Persistance/**/*.cs'
 ---
 
 # Backend Layer Instructions
@@ -52,7 +52,7 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 - Use `HasConversion` for Enums stored as strings
 - Use `OwnsOne` / `OwnsMany` for value objects, with appropriate configurations for owned types.
 
-### 3) Api layer (`MyHomeRamen.Api`,  `MyHomeRamen.Identity.Api`)
+### 3) Api layer (`MyHomeRamen.Api`)
 
 ### 3.1) REPR + CQRS pattern
 
@@ -62,20 +62,20 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 
 **Query rules** (GET):
 - Use dedicated DbContext extension methods for all data access. Queries use `{name}Query` suffix e.g. `GetProductsForMenuQuery()`.
-- Handler is typed `IRequestHandler<{Feature}Query, {Feature}Response>` and returns the response DTO directly.
+- Handler is typed `IQueryHandler<{Feature}Query, {Feature}Response>` and returns the response DTO directly.
 - Map result to a `{Feature}Response` DTO — never return domain entities directly.
 - No `SaveChangesAsync()`, no side effects, no event publishing.
 
 **Command rules** (POST / PUT / PATCH / DELETE):
 - `DELETE` → `204 No Content`.
 - `POST` → `201 Created` with `Location` header.
-- `PUT` / `PATCH` → `200 OK` with the data the caller needs. They must use `RouteParamAttribute` for parameters that are required to update entity e.g. Id. This is required to prevent Architecture Tests failure.
+- `PUT` / `PATCH` → `200 OK` with the data the caller needs. Route ID parameters must be bound with `[FromRoute] Guid id` and passed into the command constructor — never put the route ID on the request body DTO.
 - Commands use a dedicated `{Feature}Command` record (defined in the feature folder, not in `Common.Contracts`) that wraps the `{Feature}Request`. The endpoint binds `{Feature}Request` from body, constructs the command, calls the handler, then constructs the `{Feature}Response` from the handler result.
-- Handler is typed `IRequestHandler<{Feature}Command, TPrimitive>` where `TPrimitive` is the minimal return value needed (e.g. `Guid` for a newly created entity's ID). The endpoint constructs the full `{Feature}Response`.
-- Use `MapStandardValidatedPost<{Feature}Command, {Feature}Response>` — the generic parameters drive OpenAPI metadata and the validation filter type. The validator must target `{Feature}Command`.
+- Handler is typed `ICommandHandler<{Feature}Command, TPrimitive>` where `TPrimitive` is the minimal return value needed (e.g. `Guid` for a newly created entity's ID). The endpoint constructs the full `{Feature}Response`.
+- Use `MapStandardPost<{Feature}Response>` for POST endpoints. Validation is handled automatically by the `CommandValidationHandler` pipeline decorator — no manual filter registration needed. The validator must target `{Feature}Command`.
 - Do not re-query the database after `SaveChangesAsync()`.
-- Persistence checks (e.g. existence, uniqueness) must be done in `FluentValidation` validators using `IValidationPolicy` and DB extensions — never in handlers.
-- Always pair with an `IValidationPolicy` implementation using FluentValidation.
+- Persistence checks (e.g. existence, uniqueness) must be done in `FluentValidation` validators using DB extensions — never in handlers.
+- Always pair commands with a `AbstractValidator<{Feature}Command>` in the feature's `Policies/` folder; it is auto-discovered and wired by the `CommandValidationHandler` pipeline decorator.
 
 Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/CreateCategory/CreateCategoryEndpoint.cs'
 
@@ -98,16 +98,14 @@ Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/CreateCategory/Create
 ### 3.5) Endpoint configuration
 - Each endpoint class implements `IEndpoint` and defines `WithName()`, `WithDescription()`, `WithTags()` and `RequireAuthorizaiont(<PolicyName>)`/`AllowAnonymous()` .
 - Use extension methods from `EndpointBuilderExtensions` in `MyHomeRamen.Api.Common` for consistent endpoint configuration (e.g., route patterns, generic parameters).
-- Endpoints that require Id in route must:
-  - have request object that implements both `IRequestId` and `IRequest` e.g. `public record struct GetProductByIdRequest(Guid Id) : IRequest, IRequestId;`
-  - name handler parameter name to match route parameter e.g. `api/menu/categories{id}` -> `GetCategoryByIdRequest(Guid Id)` → `HandleAsync(GetCategoryByIdRequest id, ...)` for automatic model binding.
+- Endpoints that require an Id in the route must bind it with `[FromRoute] Guid id` and construct the query/command manually inside the handler delegate, e.g. `[FromRoute] Guid id` → `new GetCategoryByIdQuery(id)`.
 
 ### 3.7) Paged queries
 
 - **`PageParameters`**: For paged GET endpoints, split the incoming query data into two separate `[AsParameters]` parameters in the endpoint signature: one for the filter/request DTO and one for `PageParameters` (from `MyHomeRamen.Api.Common`). Compose them before invoking the handler.
 - **Paged response shape**: Use a flat wrapper record with `(int Page, int PageSize, int TotalCount, IEnumerable<TDto> Items)`.
 - **Count-then-page pattern**: Run `CountAsync` on the unfiltered/filtered `IQueryable` first, then apply ordering and the `Paged()` DB extension. Never paginate before counting.
-- **Endpoint type alignment**: Both `MapStandardValidatedGet<TRequest, TResponse>` and the injected `IRequestHandler<TRequest, TResponse>` must reference the paged wrapper response type — not `IEnumerable<TDto>`.
+- **Endpoint type alignment**: Both `MapStandardGet<TResponse>` and the injected `IQueryHandler<{Feature}Query, TResponse>` must reference the paged wrapper response type — not `IEnumerable<TDto>`. Compose the `{Feature}Query` from request + `PageParameters` in the handler delegate.
 
 Reference: #file:'MyHomeRamen.Api/Menu/Features/Ingredients/GetIngredientsForManage/GetIngredientsForManageHandler.cs'
 

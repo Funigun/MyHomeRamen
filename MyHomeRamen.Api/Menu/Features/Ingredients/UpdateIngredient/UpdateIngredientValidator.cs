@@ -1,15 +1,13 @@
 using FluentValidation;
-using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
 using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Ingredients.UpdateIngredient;
 
 public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredientCommand>
 {
-    public UpdateIngredientValidator(IMenuDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    public UpdateIngredientValidator(IMenuDbContext dbContext)
     {
         RuleFor(x => x.UpdateIngredientRequest.Name)
             .SetValidator(new IngredientNameValidator());
@@ -21,18 +19,16 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
             .SetValidator(new IngredientPriceValidator());
 
         RuleFor(x => x)
-            .MustAsync(async (_, ct) =>
+            .MustAsync(async (command, ct) =>
             {
-                Guid id = httpContextAccessor.GetGuidFromRouteParam("id");
-                return await dbContext.Ingredients.Exists(i => i.Id == (IngredientId)id, ct);
+                return await dbContext.Ingredients.Exists(i => i.Id == command.Id, ct);
             })
             .WithMessage("Ingredient with the specified ID does not exist.");
 
-        RuleFor(x => x.UpdateIngredientRequest.Name)
-            .MustAsync(async (name, ct) =>
+        RuleFor(x => x)
+            .MustAsync(async (command, ct) =>
             {
-                Guid id = httpContextAccessor.GetGuidFromRouteParam("id");
-                return await dbContext.Ingredients.IsIngredientNameUniqueExcludingAsync(name, (IngredientId)id, ct);
+                return await dbContext.Ingredients.IsIngredientNameUniqueExcludingAsync(command.UpdateIngredientRequest.Name, command.Id, ct);
             })
             .WithMessage("Ingredient with this name already exists.");
 

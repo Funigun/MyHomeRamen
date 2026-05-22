@@ -1,18 +1,16 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Common.Contracts.Menu.Products.Validators;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
-using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Products.UpdateProduct;
 
 public sealed class UpdateProductValidator : AbstractValidator<UpdateProductCommand>
 {
-    public UpdateProductValidator(IMenuDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    public UpdateProductValidator(IMenuDbContext dbContext)
     {
         RuleFor(x => x.UpdateProductRequest.Name)
             .SetValidator(new ProductNameValidator());
@@ -24,18 +22,16 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
             .SetValidator(new ProductPriceValidator());
 
         RuleFor(x => x)
-            .MustAsync(async (_, ct) =>
+            .MustAsync(async (command, ct) =>
             {
-                Guid id = httpContextAccessor.GetGuidFromRouteParam("id");
-                return await dbContext.Products.Exists(p => p.Id == (ProductId)id, ct);
+                return await dbContext.Products.Exists(p => p.Id == command.Id, ct);
             })
             .WithMessage("Product with the specified ID does not exist.");
 
-        RuleFor(x => x.UpdateProductRequest.Name)
-            .MustAsync(async (name, ct) =>
+        RuleFor(x => x)
+            .MustAsync(async (command, ct) =>
             {
-                Guid id = httpContextAccessor.GetGuidFromRouteParam("id");
-                return await dbContext.Products.IsProductNameUniqueExcludingAsync(name, (ProductId)id, ct);
+                return await dbContext.Products.IsProductNameUniqueExcludingAsync(command.UpdateProductRequest.Name, command.Id, ct);
             })
             .WithMessage("Product with this name already exists.");
 
@@ -55,6 +51,7 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
                 {
                     return true;
                 }
+
                 IEnumerable<IngredientId> customIngredientIds = ids.Distinct().Select(id => (IngredientId)id);
                 IEnumerable<Ingredient> found = await dbContext.Ingredients.GetByIds(customIngredientIds, ct);
                 return found.Count() == ids.Distinct().Count();

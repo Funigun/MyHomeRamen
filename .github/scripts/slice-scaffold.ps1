@@ -1,54 +1,51 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-  Scaffold deterministic stubs for a feature slice based on plan.approved.md §3.
+  Scaffold deterministic stubs for a feature slice from the #2 Files table in a plan file.
 
 .DESCRIPTION
-  Reads the markdown table in §3 ("Files to create / modify") of an approved
-  plan and creates skeleton files for entries marked `create`.
+  Reads the markdown table in #2 ("Files to create / modify") and creates skeleton
+  files for every row where Action = `create`. Rows with Action = `modify` are logged
+  but never touched. Existing files are never overwritten (idempotent).
 
-  ## §3 table format
+  ## #2 table format
 
-  | File | Action | Type | Options | Rationale |
-  |------|--------|------|---------|-----------|
-  | `MyHomeRamen.Api\Orders\Features\Orders\CreateOrder\CreateOrderEndpoint.cs` | create | endpoint | verb=POST route=orders auth=RestaurantManagerPolicy | ... |
+  | Path | Action | Type | Notes |
+  |------|--------|------|-------|
+  | `MyHomeRamen.Api\ShoppingCart\Features\Baskets\DeleteBasketItem\DeleteBasketItemCommand.cs` | create | command-void | |
+  | `MyHomeRamen.Domain\ShoppingCart\Baskets\Basket.cs` | modify | | Add RemoveItem |
 
-  ### Supported `Type` values
+  ### Type keywords
 
-  Slice types (all live under MyHomeRamen.Api or MyHomeRamen.Identity.Api):
-    endpoint              → {Op}{Entity}Endpoint.cs
-    handler               → {Op}{Entity}Handler.cs
-    request               → Models\{Op}{Entity}Request.cs
-    response              → Models\{Op}{Entity}Response.cs
-    mappings              → Models\Mappings.cs
-    validator             → Policies\{Op}{Entity}Validator.cs        (optional)
-    authorization-policy  → Policies\{Op}{Entity}AuthorizationPolicy.cs  (optional)
+  Contracts (MyHomeRamen.Common.Contracts\{Module}\{Entity}\Requests|Responses\{TypeName}.cs):
+    request           -> sealed record {TypeName}(/* TODO */)
+    response          -> sealed record {TypeName}(/* TODO */)
 
-  Event types:
-    domain-event          → MyHomeRamen.Domain\{Module}\Events\{Name}Event.cs
-    integration-event     → MyHomeRamen.Common.Contracts\Messaging\{Name}IntegrationEvent.cs
+  API slice ({Project}\{Module}\Features\{Entity}\{Feature}\{TypeName}.cs):
+    command           -> ICommand<{Feature}Response>
+    command-void      -> ICommand  (no response -- DELETE / void operations)
+    query             -> IQuery<{Feature}Response>
+    command-handler   -> ICommandHandler<{Feature}Command, {Feature}Response>
+    command-void-handler -> ICommandHandler<{Feature}Command>
+    query-handler     -> IQueryHandler<{Feature}Query, {Feature}Response>
+    validator         -> AbstractValidator<{Feature}Command|Query>
+    endpoint-get      -> MapStandardGet,    IQueryHandler,   returns Ok / NotFound
+    endpoint-post     -> MapStandardPost,   ICommandHandler, returns Created
+    endpoint-put      -> MapStandardPut,    ICommandHandler, returns Ok
+    endpoint-delete   -> MapStandardDelete, ICommandHandler, returns NoContent
 
-  ### Supported `Options` keys
-    verb   — HTTP verb: GET | POST | PUT | DELETE  (required for endpoint)
-    route  — route template, e.g. orders or orders/{id}  (required for endpoint)
-    auth   — constant name from AuthorizationDependencyInjection, e.g. RestaurantManagerPolicy
-    group  — endpoint group name (defaults to the Module segment of the path)
+  Tests:
+    unit-test         -> empty class with TODO comment
+    integration-test  -> class(WebApiFactory) with TODO comment
 
-  ### Path-derived naming
-  For API slice files the script derives Module, Entity, Operation, TypeName from the
-  path:
-    MyHomeRamen.Api\{Module}\Features\{Entity}\{Operation}\{TypeName}.cs
-  The same derivation applies to Identity.Api paths.
-
-  Idempotent: existing files are never overwritten.
-  `modify` rows are logged but not touched by the scaffold.
-  Unknown types are logged as unsupported.
+  Rows with empty or unrecognised Type and Action = `create` are logged as unsupported
+  (e.g. persistence extension files -- create those by hand).
 
 .PARAMETER PlanPath
-  Path to plan.approved.md.
+  Path to the plan markdown file.
 
 .EXAMPLE
-  pwsh .github/scripts/slice-scaffold.ps1 -PlanPath .agent-run/abc/plan.approved.md
+  pwsh .github/scripts/slice-scaffold.ps1 -PlanPath .github/plans/shopping-cart/delete-item-plan-backend.md
 #>
 
 [CmdletBinding()]
@@ -59,23 +56,24 @@ param(
 $ErrorActionPreference = 'Stop'
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '../..')
 
+
 if (-not (Test-Path $PlanPath)) {
     Write-Host "[slice-scaffold] plan not found: $PlanPath"
     exit 3
 }
 
-# ── Parse §3 markdown table ──────────────────────────────────────────
+# -- Parse #2 markdown table --
 $lines = Get-Content $PlanPath
-$inSec3 = $false
+$inSec2 = $false
 $tableRows = New-Object System.Collections.Generic.List[string]
 foreach ($ln in $lines) {
-    if ($ln -match '^##\s+3\.') { $inSec3 = $true; continue }
-    if ($ln -match '^##\s+\d+\.' -and $inSec3) { break }
-    if ($inSec3 -and $ln -match '^\s*\|') { $tableRows.Add($ln) | Out-Null }
+    if ($ln -match '^##\s+2\.') { $inSec2 = $true; continue }
+    if ($ln -match '^##\s+\d+\.' -and $inSec2) { break }
+    if ($inSec2 -and $ln -match '^\s*\|') { $tableRows.Add($ln) | Out-Null }
 }
 
 if ($tableRows.Count -lt 3) {
-    Write-Host "[slice-scaffold] §3 table not found or empty in $PlanPath"
+    Write-Host "[slice-scaffold] #2 table not found or empty in $PlanPath"
     exit 3
 }
 
@@ -83,28 +81,15 @@ if ($tableRows.Count -lt 3) {
 $entries = @()
 for ($i = 2; $i -lt $tableRows.Count; $i++) {
     $cols = ($tableRows[$i] -split '\|') | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' }
-    if ($cols.Count -lt 3) { continue }
+    if ($cols.Count -lt 2) { continue }
     $entries += [pscustomobject]@{
-        Path      = ($cols[0] -replace '^`|`$', '').Trim()
-        Action    = $cols[1].ToLowerInvariant().Trim()
-        Type      = if ($cols.Count -ge 3) { $cols[2].ToLowerInvariant().Trim() } else { '' }
-        Options   = if ($cols.Count -ge 4) { $cols[3].Trim() } else { '' }
-        Rationale = if ($cols.Count -ge 5) { $cols[4].Trim() } else { '' }
+        Path   = ($cols[0] -replace '^`|`$', '').Trim()
+        Action = $cols[1].ToLowerInvariant().Trim()
+        Type   = if ($cols.Count -ge 3) { $cols[2].ToLowerInvariant().Trim() } else { '' }
     }
 }
 
-# ── Option parser ─────────────────────────────────────────────────────
-function Parse-Options([string]$optStr) {
-    $opts = @{}
-    foreach ($token in ($optStr -split '\s+')) {
-        if ($token -match '^([^=]+)=(.+)$') {
-            $opts[$Matches[1].ToLowerInvariant()] = $Matches[2]
-        }
-    }
-    return $opts
-}
-
-# ── Helpers ───────────────────────────────────────────────────────────
+# -- Helpers --
 $created = @(); $skipped = @(); $modified = @(); $unsupported = @()
 
 function Ensure-File([string]$relative, [string]$content) {
@@ -119,213 +104,183 @@ function Ensure-File([string]$relative, [string]$content) {
     $script:created += $relative
 }
 
-# ── Parse API path into components ───────────────────────────────────
-# Handles both direct files and files one subfolder deep (Models\ / Policies\):
-#   {Project}\{Module}\Features\{Entity}\{Operation}\{TypeName}.cs
-#   {Project}\{Module}\Features\{Entity}\{Operation}\{SubFolder}\{TypeName}.cs
+# -- Path parsers --
+
+# {Project}\{Module}\Features\{Entity}\{Feature}\{TypeName}.cs
 function Parse-ApiPath([string]$path) {
     $p = $path -replace '\\', '/'
-    # With subfolder (Models / Policies)
-    if ($p -match '^(MyHomeRamen\.[^/]+)/([^/]+)/Features/([^/]+)/([^/]+)/[^/]+/([^/]+)\.cs$') {
-        return @{
-            Project   = $Matches[1]
-            Module    = $Matches[2]
-            Entity    = $Matches[3]
-            Operation = $Matches[4]
-            TypeName  = $Matches[5]
-        }
-    }
-    # Direct file (Endpoint / Handler)
     if ($p -match '^(MyHomeRamen\.[^/]+)/([^/]+)/Features/([^/]+)/([^/]+)/([^/]+)\.cs$') {
-        return @{
-            Project   = $Matches[1]
-            Module    = $Matches[2]
-            Entity    = $Matches[3]
-            Operation = $Matches[4]
-            TypeName  = $Matches[5]
-        }
+        return @{ Project = $Matches[1]; Module = $Matches[2]; Entity = $Matches[3]; Feature = $Matches[4]; TypeName = $Matches[5] }
     }
     return $null
 }
 
-# ── Template builders ─────────────────────────────────────────────────
+# MyHomeRamen.Common.Contracts\{Module}\{Entity}\Requests|Responses\{TypeName}.cs
+function Parse-ContractsPath([string]$path) {
+    $p = $path -replace '\\', '/'
+    if ($p -match '^MyHomeRamen\.Common\.Contracts/([^/]+)/([^/]+)/([^/]+)/([^/]+)\.cs$') {
+        return @{ Module = $Matches[1]; Entity = $Matches[2]; SubFolder = $Matches[3]; TypeName = $Matches[4] }
+    }
+    return $null
+}
 
-function Build-Endpoint([hashtable]$parts, [hashtable]$opts) {
-    $proj      = $parts.Project
-    $module    = $parts.Module
-    $entity    = $parts.Entity
-    $operation = $parts.Operation
-    $typeName  = $parts.TypeName
-    $ns        = "$proj.$module.Features.$entity.$operation"
-    $group     = if ($opts['group']) { $opts['group'] } else { $module }
+# MyHomeRamen.{Tests}\{Module}Module\{Entity}\{TypeName}.cs
+function Parse-TestPath([string]$path) {
+    $p = $path -replace '\\', '/'
+    if ($p -match '^(MyHomeRamen\.[^/]+)/([^/]+)Module/([^/]+)/([^/]+)\.cs$') {
+        return @{ Project = $Matches[1]; Module = $Matches[2]; Entity = $Matches[3]; TypeName = $Matches[4] }
+    }
+    return $null
+}
 
+# -- Template builders --
+
+function Build-Request([hashtable]$p) {
+    $ns = "MyHomeRamen.Common.Contracts.$($p.Module).$($p.Entity).Requests"
 @"
-using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
+namespace $ns;
+
+public sealed record $($p.TypeName)(/* TODO: complete request properties */);
+"@
+}
+
+function Build-Response([hashtable]$p) {
+    $ns = "MyHomeRamen.Common.Contracts.$($p.Module).$($p.Entity).Responses"
+@"
+namespace $ns;
+
+public sealed record $($p.TypeName)(/* TODO: complete response properties */);
+"@
+}
+
+function Build-Command([hashtable]$p) {
+    $ns     = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat   = $p.Feature
+    $module = $p.Module
+    $entity = $p.Entity
+    $contractsNs = "MyHomeRamen.Common.Contracts.$module.$entity"
+@"
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using ${contractsNs}.Requests;
+using ${contractsNs}.Responses;
 
 namespace $ns;
 
-public sealed class $typeName : IEndpoint
-{
-    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
-    {
-        // TODO: register route per plan
-    }
+public sealed record $($p.TypeName)(/* TODO: complete command properties */) : ICommand<${feat}Response>;
+"@
+}
 
-    private static async Task<IResult> HandleAsync(CancellationToken cancellationToken)
+function Build-CommandVoid([hashtable]$p) {
+    $ns = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+@"
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+
+namespace $ns;
+
+public sealed record $($p.TypeName)(/* TODO: complete command properties */) : ICommand;
+"@
+}
+
+function Build-Query([hashtable]$p) {
+    $ns     = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat   = $p.Feature
+    $module = $p.Module
+    $entity = $p.Entity
+    $contractsNs = "MyHomeRamen.Common.Contracts.$module.$entity"
+@"
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using ${contractsNs}.Responses;
+
+namespace $ns;
+
+public sealed record $($p.TypeName)(/* TODO: complete query properties */) : IQuery<${feat}Response>;
+"@
+}
+
+function Build-CommandHandler([hashtable]$p) {
+    $ns      = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat    = $p.Feature
+    $module  = $p.Module
+    $entity  = $p.Entity
+    $cmdName = "${feat}Command"
+    $respName = "${feat}Response"
+    $contractsNs = "MyHomeRamen.Common.Contracts.$module.$entity"
+@"
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using ${contractsNs}.Responses;
+
+namespace $ns;
+
+public sealed class $($p.TypeName)(/* TODO: inject dependencies */) : ICommandHandler<${cmdName}, ${respName}>
+{
+    public async Task<${respName}> Handle(${cmdName} command, CancellationToken cancellationToken)
     {
-        // TODO: implement per plan
+        // TODO: implement -- see plan
         throw new NotImplementedException();
     }
 }
 "@
 }
 
-function Build-Handler([hashtable]$parts, [hashtable]$opts) {
-    $proj      = $parts.Project
-    $module    = $parts.Module
-    $entity    = $parts.Entity
-    $operation = $parts.Operation
-    $typeName  = $parts.TypeName
-    $ns        = "$proj.$module.Features.$entity.$operation"
-    $modelsNs  = "$ns.Models"
-    $verb      = if ($opts['verb']) { $opts['verb'].ToUpper() } else { 'GET' }
-    $reqType   = "${operation}Request"
-    $respType  = "${operation}Response"
-
-    $responseGeneric = switch ($verb) {
-        'DELETE' { 'IResult' }
-        'POST'   { 'Guid' }
-        default  { $respType }
-    }
-
-    $handleSig = switch ($verb) {
-        'DELETE' { "[FromRoute] $reqType id" }
-        default  { "$reqType request" }
-    }
-
-    $handleParam = switch ($verb) {
-        'DELETE' { 'id' }
-        default  { 'request' }
-    }
-
+function Build-CommandVoidHandler([hashtable]$p) {
+    $ns      = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat    = $p.Feature
+    $cmdName = "${feat}Command"
 @"
-using MyHomeRamen.Api.Common.Endpoint.Models;
-using $modelsNs;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 
 namespace $ns;
 
-public sealed class $typeName(/* TODO: inject db context */) : IRequestHandler<$reqType, $responseGeneric>
+public sealed class $($p.TypeName)(/* TODO: inject dependencies */) : ICommandHandler<${cmdName}>
 {
-    public async Task<$responseGeneric> Handle($handleSig, CancellationToken cancellationToken)
+    public async Task Handle(${cmdName} command, CancellationToken cancellationToken)
     {
-        // TODO: implement — see plan
+        // TODO: implement -- see plan
         throw new NotImplementedException();
     }
 }
 "@
 }
 
-function Build-Request([hashtable]$parts, [hashtable]$opts) {
-    $proj      = $parts.Project
-    $module    = $parts.Module
-    $entity    = $parts.Entity
-    $operation = $parts.Operation
-    $typeName  = $parts.TypeName
-    $ns        = "$proj.$module.Features.$entity.$operation.Models"
-    $verb      = if ($opts['verb']) { $opts['verb'].ToUpper() } else { 'GET' }
-    $respType  = "${operation}Response"
-
-    # Route-bound single-ID requests (GET by id / DELETE)
-    $isRouteId = ($verb -eq 'DELETE') -or ($verb -eq 'GET' -and $opts['route'] -match '\{id\}')
-    # PUT carries body + route ID
-    $isPut = ($verb -eq 'PUT')
-
-    if ($isRouteId) {
+function Build-QueryHandler([hashtable]$p) {
+    $ns       = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat     = $p.Feature
+    $module   = $p.Module
+    $entity   = $p.Entity
+    $qryName  = "${feat}Query"
+    $respName = "${feat}Response"
+    $contractsNs = "MyHomeRamen.Common.Contracts.$module.$entity"
 @"
-using MyHomeRamen.Api.Common.Endpoint.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using ${contractsNs}.Responses;
 
 namespace $ns;
 
-public record struct $typeName : IRequestId<$typeName>, IRequest<$(if ($verb -eq 'DELETE') { 'IResult' } else { $respType })>
+public sealed class $($p.TypeName)(/* TODO: inject dependencies */) : IQueryHandler<${qryName}, ${respName}>
 {
-    public Guid Id { get; set; }
-}
-"@
-    } elseif ($isPut) {
-@"
-using MyHomeRamen.Api.Common.Endpoint.Models;
-
-namespace $ns;
-
-public sealed record $typeName(/* TODO: body properties */) : IRequest<$respType>
-{
-    [RouteParam]
-    public Guid Id { get; init; }
-}
-"@
-    } else {
-@"
-using MyHomeRamen.Api.Common.Endpoint.Models;
-
-namespace $ns;
-
-public sealed record $typeName(/* TODO: properties */) : IRequest<$respType>;
-"@
+    public async Task<${respName}> Handle(${qryName} query, CancellationToken cancellationToken)
+    {
+        // TODO: implement -- see plan
+        throw new NotImplementedException();
     }
 }
-
-function Build-Response([hashtable]$parts) {
-    $proj      = $parts.Project
-    $module    = $parts.Module
-    $entity    = $parts.Entity
-    $operation = $parts.Operation
-    $typeName  = $parts.TypeName
-    $ns        = "$proj.$module.Features.$entity.$operation.Models"
-
-@"
-namespace $ns;
-
-public sealed record $typeName(/* TODO: response properties */);
 "@
 }
 
-function Build-Mappings([hashtable]$parts) {
-    $proj      = $parts.Project
-    $module    = $parts.Module
-    $entity    = $parts.Entity
-    $operation = $parts.Operation
-    $ns        = "$proj.$module.Features.$entity.$operation.Models"
-
-@"
-namespace $ns;
-
-internal static class Mappings
-{
-    // TODO: add extension methods to map between domain objects and request/response models
-}
-"@
-}
-
-function Build-Validator([hashtable]$parts) {
-    $proj      = $parts.Project
-    $module    = $parts.Module
-    $entity    = $parts.Entity
-    $operation = $parts.Operation
-    $typeName  = $parts.TypeName
-    $ns        = "$proj.$module.Features.$entity.$operation.Policies"
-    $modelsNs  = "$proj.$module.Features.$entity.$operation.Models"
-    $reqType   = "${operation}Request"
-
+function Build-Validator([hashtable]$p) {
+    $ns     = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat   = $p.Feature
+    # Infer whether this validates a command or query from the feature name  both are safe to leave as TODO
+    $target = "${feat}Command"
 @"
 using FluentValidation;
-using $modelsNs;
 
 namespace $ns;
 
-public sealed class $typeName : AbstractValidator<$reqType>
+public sealed class $($p.TypeName) : AbstractValidator<${target}>
 {
-    public $typeName(/* TODO: inject db context if async rules needed */)
+    // TODO: inject IDbContext if async validation rules are needed
+    public $($p.TypeName)()
     {
         // TODO: add validation rules per plan
     }
@@ -333,66 +288,202 @@ public sealed class $typeName : AbstractValidator<$reqType>
 "@
 }
 
-function Build-AuthorizationPolicy([hashtable]$parts) {
-    $proj      = $parts.Project
-    $module    = $parts.Module
-    $entity    = $parts.Entity
-    $operation = $parts.Operation
-    $typeName  = $parts.TypeName
-    $ns        = "$proj.$module.Features.$entity.$operation"
-    $modelsNs  = "$ns.Models"
-    $respType  = "${operation}Response"
-
+function Build-EndpointGet([hashtable]$p) {
+    $ns      = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat    = $p.Feature
+    $tn      = $p.TypeName
+    $module  = $p.Module
+    $entity  = $p.Entity
+    $contractsNs = "MyHomeRamen.Common.Contracts.$module.$entity"
 @"
-using MyHomeRamen.Api.Common.Authorization;
-using $modelsNs;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using ${contractsNs}.Responses;
 
 namespace $ns;
 
-public sealed class $typeName(ICurrentUser currentUser) : IAuthorizationPolicy<$respType>
+public sealed class $tn : IEndpoint
 {
-    public async Task<bool> IsAuthorized($respType response)
+    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        // TODO: implement authorization logic per plan.approved.md §5
-        return await Task.FromResult(false);
+        endpointBuilder
+            // TODO: set correct route
+            // TODO: set auth policy (.AllowAnonymous() or .RequireAuthorization(...))
+            .MapStandardGet<${feat}Response>("api/TODO", HandleAsync)
+            .WithName("$tn")
+            .WithTags("$entity");
+    }
+
+    private static async Task<Results<Ok<${feat}Response>, NotFound>> HandleAsync(
+        // TODO: add route/query params ([FromRoute] Guid id, [AsParameters] ..., etc.)
+        [FromServices] IQueryHandler<${feat}Query, ${feat}Response> handler,
+        CancellationToken cancellationToken)
+    {
+        ${feat}Query query = new(/* TODO */);
+        ${feat}Response? response = await handler.Handle(query, cancellationToken);
+
+        return response is null ? TypedResults.NotFound() : TypedResults.Ok(response);
     }
 }
 "@
 }
 
-function Build-DomainEvent([string]$path, [string]$typeName) {
-    # Derive namespace from path: MyHomeRamen.Domain\{Module}\Events\{Name}Event.cs
-    $p = $path -replace '\\', '/'
-    if ($p -match '^(MyHomeRamen\.Domain)/([^/]+)/Events/') {
-        $ns = "MyHomeRamen.Domain.$($Matches[2]).Events"
-    } else {
-        $ns = 'MyHomeRamen.Domain.Events'
-    }
-
+function Build-EndpointPost([hashtable]$p) {
+    $ns      = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat    = $p.Feature
+    $tn      = $p.TypeName
+    $module  = $p.Module
+    $entity  = $p.Entity
+    $contractsNs = "MyHomeRamen.Common.Contracts.$module.$entity"
 @"
-using MyHomeRamen.Api.Common.Domain;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using ${contractsNs}.Requests;
+using ${contractsNs}.Responses;
 
 namespace $ns;
 
-public sealed class $typeName(/* TODO: add relevant domain object */) : IDomainEvent
+public sealed class $tn : IEndpoint
 {
-    // TODO: expose properties needed by event handlers
+    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder
+            // TODO: set correct route
+            // TODO: set auth policy (.AllowAnonymous() or .RequireAuthorization(...))
+            .MapStandardPost<${feat}Response>("api/TODO", HandleAsync)
+            .WithName("$tn")
+            .WithTags("$entity");
+    }
+
+    private static async Task<Results<Created<${feat}Response>, BadRequest>> HandleAsync(
+        [FromBody] ${feat}Request request,
+        [FromServices] ICommandHandler<${feat}Command, ${feat}Response> handler,
+        CancellationToken cancellationToken)
+    {
+        ${feat}Command command = new(request);
+        ${feat}Response response = await handler.Handle(command, cancellationToken);
+
+        // TODO: update Created location URL
+        return TypedResults.Created(`$"/api/TODO/{response}", response);
+    }
 }
 "@
 }
 
-function Build-IntegrationEvent([string]$typeName) {
+function Build-EndpointPut([hashtable]$p) {
+    $ns      = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat    = $p.Feature
+    $tn      = $p.TypeName
+    $module  = $p.Module
+    $entity  = $p.Entity
+    $contractsNs = "MyHomeRamen.Common.Contracts.$module.$entity"
 @"
-namespace MyHomeRamen.Common.Contracts.Messaging;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using ${contractsNs}.Requests;
+using ${contractsNs}.Responses;
 
-public record $typeName(
-    Guid Id
-    // TODO: add event properties
-);
+namespace $ns;
+
+public sealed class $tn : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder
+            // TODO: set correct route (typically includes {id})
+            // TODO: set auth policy (.AllowAnonymous() or .RequireAuthorization(...))
+            .MapStandardPut<${feat}Response>("api/TODO/{id}", HandleAsync)
+            .WithName("$tn")
+            .WithTags("$entity");
+    }
+
+    private static async Task<Results<Ok<${feat}Response>, NotFound, BadRequest>> HandleAsync(
+        [FromRoute] Guid id,
+        [FromBody] ${feat}Request request,
+        [FromServices] ICommandHandler<${feat}Command, ${feat}Response> handler,
+        CancellationToken cancellationToken)
+    {
+        ${feat}Command command = new(new(id), request);
+        ${feat}Response response = await handler.Handle(command, cancellationToken);
+
+        return TypedResults.Ok(response);
+    }
+}
 "@
 }
 
-# ── Process entries ───────────────────────────────────────────
+function Build-EndpointDelete([hashtable]$p) {
+    $ns     = "$($p.Project).$($p.Module).Features.$($p.Entity).$($p.Feature)"
+    $feat   = $p.Feature
+    $tn     = $p.TypeName
+    $entity = $p.Entity
+@"
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+
+namespace $ns;
+
+public sealed class $tn : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder
+            // TODO: set correct route (typically includes {id})
+            // TODO: set auth policy (.AllowAnonymous() or .RequireAuthorization(...))
+            .MapStandardDelete("api/TODO/{id}", HandleAsync)
+            .WithName("$tn")
+            .WithTags("$entity");
+    }
+
+    private static async Task<Results<NoContent, NotFound, BadRequest>> HandleAsync(
+        // TODO: add route params ([FromRoute] Guid id, etc.)
+        [FromServices] ICommandHandler<${feat}Command> handler,
+        CancellationToken cancellationToken)
+    {
+        ${feat}Command command = new(/* TODO */);
+        await handler.Handle(command, cancellationToken);
+
+        return TypedResults.NoContent();
+    }
+}
+"@
+}
+
+function Build-UnitTest([hashtable]$p) {
+    $ns = "MyHomeRamen.UnitTests.$($p.Module)Module.$($p.Entity)"
+@"
+namespace $ns;
+
+public sealed class $($p.TypeName)
+{
+    // TODO: implement unit test cases per plan
+}
+"@
+}
+
+function Build-IntegrationTest([hashtable]$p) {
+    $ns = "MyHomeRamen.IntegrationTests.$($p.Module)Module.$($p.Entity)"
+@"
+using MyHomeRamen.IntegrationTests.Common;
+
+namespace $ns;
+
+public sealed class $($p.TypeName)(WebApiFactory apiFactory)
+{
+    // TODO: implement integration test cases per plan
+}
+"@
+}
+
+# -- Process entries --
 foreach ($e in $entries) {
     if ($e.Action -eq 'modify') {
         $modified += $e.Path
@@ -404,49 +495,99 @@ foreach ($e in $entries) {
         continue
     }
 
-    $opts  = Parse-Options $e.Options
     $pNorm = $e.Path -replace '/', '\'
 
-    switch ($e.Type) {
+    $content = switch ($e.Type) {
 
-        # ── Slice files (endpoint / handler / models / policies) ──────
-        { $_ -in @('endpoint','handler','request','response','mappings','validator','authorization-policy') } {
+        # -- Contracts --
+        'request' {
+            $parts = Parse-ContractsPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse contracts path)"; continue }
+            Build-Request $parts
+        }
+        'response' {
+            $parts = Parse-ContractsPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse contracts path)"; continue }
+            Build-Response $parts
+        }
+
+        # -- API slice --
+        'command' {
             $parts = Parse-ApiPath $pNorm
-            if (-not $parts) {
-                $unsupported += "$($e.Path) (could not parse API path for type '$($e.Type)')"
-                continue
-            }
-
-            $content = switch ($e.Type) {
-                'endpoint'             { Build-Endpoint            $parts $opts }
-                'handler'              { Build-Handler             $parts $opts }
-                'request'              { Build-Request             $parts $opts }
-                'response'             { Build-Response            $parts }
-                'mappings'             { Build-Mappings            $parts }
-                'validator'            { Build-Validator           $parts }
-                'authorization-policy' { Build-AuthorizationPolicy $parts }
-            }
-            Ensure-File $pNorm $content
-            break
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-Command $parts
+        }
+        'command-void' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-CommandVoid $parts
+        }
+        'query' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-Query $parts
+        }
+        'command-handler' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-CommandHandler $parts
+        }
+        'command-void-handler' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-CommandVoidHandler $parts
+        }
+        'query-handler' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-QueryHandler $parts
+        }
+        'validator' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-Validator $parts
+        }
+        'endpoint-get' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-EndpointGet $parts
+        }
+        'endpoint-post' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-EndpointPost $parts
+        }
+        'endpoint-put' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-EndpointPut $parts
+        }
+        'endpoint-delete' {
+            $parts = Parse-ApiPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse API path)"; continue }
+            Build-EndpointDelete $parts
         }
 
-        # ── Domain event ──────────────────────────────────────────────
-        'domain-event' {
-            $typeName = [System.IO.Path]::GetFileNameWithoutExtension($pNorm)
-            Ensure-File $pNorm (Build-DomainEvent $pNorm $typeName)
-            break
+        # -- Tests --
+        'unit-test' {
+            $parts = Parse-TestPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse test path)"; continue }
+            Build-UnitTest $parts
         }
-
-        # ── Integration event ─────────────────────────────────────────
-        'integration-event' {
-            $typeName = [System.IO.Path]::GetFileNameWithoutExtension($pNorm)
-            Ensure-File $pNorm (Build-IntegrationEvent $typeName)
-            break
+        'integration-test' {
+            $parts = Parse-TestPath $pNorm
+            if (-not $parts) { $unsupported += "$($e.Path) (could not parse test path)"; continue }
+            Build-IntegrationTest $parts
         }
 
         default {
             $unsupported += "$($e.Path) (unknown type: '$($e.Type)')"
+            $null
         }
+    }
+
+    if ($null -ne $content) {
+        Ensure-File $pNorm $content
     }
 }
 

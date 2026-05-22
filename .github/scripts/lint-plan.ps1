@@ -15,7 +15,7 @@
   Absolute or repo-relative path to plan.md to lint. Required.
 
 .EXAMPLE
-  pwsh ./scripts/lint-plan.ps1 -PlanPath ./.agent-run/abc123/plan.md
+  pwsh .github/scripts/lint-plan.ps1 -PlanPath .github/plans/menu/add-category-plan-backend.md
 #>
 
 [CmdletBinding()]
@@ -41,16 +41,15 @@ if ($lines[0] -notmatch '^#\s+Plan:\s+\S') {
     Add-Issue "missing top-level heading. First line must match '# Plan: <title>'."
 }
 
-# ── 2. Required sections 1..8 ────────────────────────────────────────
+# ── 2. Required sections 1..7 ────────────────────────────────────────
 $expected = @(
     @{ N = 1; Hint = 'Problem' },
-    @{ N = 2; Hint = 'Proposed approach' },
-    @{ N = 3; Hint = 'Files to create / modify' },
-    @{ N = 4; Hint = 'API contract' },
-    @{ N = 5; Hint = 'Domain & data model' },
-    @{ N = 6; Hint = 'Tests' },
-    @{ N = 7; Hint = 'Risks' },
-    @{ N = 8; Hint = 'Out of scope' }
+    @{ N = 2; Hint = 'Files to create / modify' },
+    @{ N = 3; Hint = 'Domain changes' },
+    @{ N = 4; Hint = 'API details' },
+    @{ N = 5; Hint = 'Tests' },
+    @{ N = 6; Hint = 'Risks' },
+    @{ N = 7; Hint = 'Out of scope' }
 )
 $sectionStart = @{}
 foreach ($e in $expected) {
@@ -71,46 +70,46 @@ function Get-SectionLines([int]$n) {
     $start = $sectionStart[$n] + 1
     # next §N+1 or §N+2 or end of file
     $end = $lines.Count - 1
-    foreach ($k in ($n + 1)..9) {
+    foreach ($k in ($n + 1)..8) {
         if ($sectionStart.ContainsKey($k)) { $end = $sectionStart[$k] - 1; break }
     }
     return $lines[$start..$end]
 }
 
-# ── 3. §3 table structure ────────────────────────────────────────────
-if ($sectionStart.ContainsKey(3)) {
-    $sec3 = Get-SectionLines 3
-    $tableLines = $sec3 | Where-Object { $_ -match '^\s*\|' }
+# ── 3. §2 files table structure ──────────────────────────────────────
+if ($sectionStart.ContainsKey(2)) {
+    $sec2 = Get-SectionLines 2
+    $tableLines = $sec2 | Where-Object { $_ -match '^\s*\|' }
     if ($tableLines.Count -lt 3) {
-        Add-Issue "§3 must contain a markdown table with header + divider + at least one row (got $($tableLines.Count) line(s))."
+        Add-Issue "§2 must contain a markdown table with header + divider + at least one row (got $($tableLines.Count) line(s))."
     } else {
         $headerCols = ($tableLines[0] -split '\|') | ForEach-Object { $_.Trim() } | Where-Object { $_ }
-        $needed = @('Path', 'Action', 'Rationale')
+        $needed = @('Path', 'Action', 'Type')
         $missing = $needed | Where-Object { $h = $_; -not ($headerCols | Where-Object { $_ -ieq $h }) }
         if ($missing) {
-            Add-Issue "§3 table header must contain columns 'Path | Action | Rationale' (missing: $($missing -join ', '))."
+            Add-Issue "§2 table header must contain columns 'Path | Action | Type' (missing: $($missing -join ', '))."
         }
         # Validate body rows
         $bodyRows = $tableLines | Select-Object -Skip 2
         $rowIdx = 0
         foreach ($row in $bodyRows) {
             $rowIdx++
-            $cols = ($row -split '\|') | ForEach-Object { $_.Trim() }
-            # First and last entries from a leading/trailing pipe are empty
-            $cols = $cols | Where-Object { $_ -ne '' }
-            if ($cols.Count -lt 3) {
-                Add-Issue "§3 table row #$rowIdx has fewer than 3 columns: '$row'"
+            # Split on pipe; leading/trailing pipes produce empty first/last entries — skip them
+            $allCols = ($row -split '\|') | ForEach-Object { $_.Trim() }
+            $allCols = $allCols[1..($allCols.Count - 2)]   # drop leading/trailing empty entries
+            if ($allCols.Count -lt 2 -or -not $allCols[0] -or -not $allCols[1]) {
+                Add-Issue "§2 table row #$rowIdx must have non-empty Path and Action columns: '$row'"
                 continue
             }
-            $action = $cols[1].ToLowerInvariant()
+            $action = $allCols[1].ToLowerInvariant()
             if ($action -notin @('create', 'modify', 'delete')) {
-                Add-Issue "§3 table row #$rowIdx has unknown Action '$($cols[1])' (expected create/modify/delete)."
+                Add-Issue "§2 table row #$rowIdx has unknown Action '$($allCols[1])' (expected create/modify/delete)."
             }
         }
     }
 }
 
-# ── 4. Rate-limit rule on auth-sensitive endpoints ───────────────────
+# ── 4. Rate-limit rule on auth-sensitive endpoints (§4 API details) ──
 if ($sectionStart.ContainsKey(4)) {
     $sec4Text = (Get-SectionLines 4) -join "`n"
     $authRx = '(?i)(\blogin\b|\bsignin\b|\bsign-in\b|\bsignup\b|\bsign-up\b|\b2fa\b|\bmfa\b|\bpassword\b|\brefresh[- ]?token\b|\breset[- ]?password\b|\bforgot[- ]?password\b|/auth/)'
@@ -121,11 +120,11 @@ if ($sectionStart.ContainsKey(4)) {
     }
 }
 
-# ── 5. §6 Tests must list at least one unit test ─────────────────────
-if ($sectionStart.ContainsKey(6)) {
-    $sec6Text = (Get-SectionLines 6) -join "`n"
-    if ($sec6Text -notmatch '(?i)unit') {
-        Add-Issue "§6 must mention at least one unit test (none found)."
+# ── 5. §5 Tests must list at least one unit test ─────────────────────
+if ($sectionStart.ContainsKey(5)) {
+    $sec5Text = (Get-SectionLines 5) -join "`n"
+    if ($sec5Text -notmatch '(?i)unit') {
+        Add-Issue "§5 must mention at least one unit test (none found)."
     }
 }
 
