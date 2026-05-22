@@ -1,8 +1,8 @@
 ---
 name: drax-planner
 description: Research codebase and generate structured implementation and testing plans within 
-tools: ['codebase', 'search', 'fetch']
-model: sonnet
+tools: ['codebase', 'search', 'fetch', 'read', 'edit']
+model: claude-sonnet-4.6
 ---
 
 # drax-planner
@@ -43,6 +43,20 @@ Determine if database migrations are required based on domain model changes and 
 - Identify which module(s) and domain models are affected
 - Migration name pattern: `{YYYYMMDD}_{DescriptiveName}` e.g. `20240615_AddDescriptionToRecipe`
 
+## Path format rules (must follow exactly)
+
+These formats are required by the scaffold script's path parsers — any deviation causes the file to be skipped as unsupported:
+
+| File type | Required path format |
+|-----------|---------------------|
+| API slice (command, handler, validator, endpoint) | `MyHomeRamen.Api\{Module}\Features\{Entity}\{Feature}\{TypeName}.cs` — exactly 5 segments after the project, **no extra subfolders** |
+| Integration test | `MyHomeRamen.IntegrationTests\{Module}Module\{Entity}\{TypeName}.cs` — `{Entity}` folder is mandatory |
+| Unit test | `MyHomeRamen.UnitTests\{Module}Module\{Entity}\{TypeName}.cs` — `{Entity}` folder is mandatory |
+| Contract request | `MyHomeRamen.Common.Contracts\{Module}\{Entity}\Requests\{TypeName}.cs` |
+| Contract response | `MyHomeRamen.Common.Contracts\{Module}\{Entity}\Responses\{TypeName}.cs` |
+
+> Validators belong in the **feature folder** (same level as the command/handler) — never in a `Policies/` subfolder.
+
 ## Plan Validation (backend only)
 
 Once a backend plan file has been written, run the lint script against it:
@@ -54,6 +68,13 @@ pwsh .github/scripts/lint-plan.ps1 -PlanPath <path-to-plan-file>
 - If the script exits with code **0** → proceed.
 - If the script exits with code **1** → fix every reported issue in the plan file and re-run until clean.
 - Do **not** proceed to the next step while there are lint issues.
+
+## Valid Modules
+
+The only valid module names are: `Users`, `Menu`, `Orders`, `ShoppingCart`, `Reservations`, `Payments`.
+
+- Always use the exact module name from this list in plan titles, file paths, and folder structures.
+- Never invent or abbreviate module names (e.g. use `ShoppingCart`, not `Basket` or `Cart`).
 
 ## Plan Files Preparation Process
 

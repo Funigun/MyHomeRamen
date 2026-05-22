@@ -39,7 +39,6 @@
     <File Path=".github/copilot-instructions.md" />
   </Folder>
   <Folder Name="/_github/agents/">
-    <File Path=".github/agents/000-module-initiator.agent.md" />
     <File Path=".github/agents/drax-implementation.agent.md" />
     <File Path=".github/agents/drax-planning.agent.md" />
     <File Path=".github/agents/drax-reviewer.agent.md" />
@@ -61,6 +60,7 @@
     <File Path=".github/instructions/module-introduction.instructions.md" />
   </Folder>
   <Folder Name="/_github/scripts/">
+    <File Path=".github/plans/DeleteBasketItem/backend-plan.md" />
     <File Path=".github/scripts/lint-plan.ps1" />
     <File Path=".github/scripts/slice-scaffold.ps1" />
     <File Path=".github/scripts/verify.ps1" />

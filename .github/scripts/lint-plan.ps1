@@ -128,6 +128,42 @@ if ($sectionStart.ContainsKey(5)) {
     }
 }
 
+# ── 6. Module name validation ────────────────────────────────────────
+$validModules = @('Users', 'Menu', 'Orders', 'ShoppingCart', 'Reservations', 'Payments')
+if ($lines[0] -match '^#\s+Plan:\s+(\S[^-]+?)\s+-') {
+    $planModule = $Matches[1].Trim()
+    if ($planModule -notin $validModules) {
+        Add-Issue "§title module '$planModule' is not a valid module. Valid modules: $($validModules -join ', ')."
+    }
+}
+# Check paths in §2 for invalid module names
+if ($sectionStart.ContainsKey(2)) {
+    $sec2 = Get-SectionLines 2
+    $bodyRows = ($sec2 | Where-Object { $_ -match '^\s*\|' }) | Select-Object -Skip 2
+    $rowIdx = 0
+    foreach ($row in $bodyRows) {
+        $rowIdx++
+        $allCols = ($row -split '\|') | ForEach-Object { $_.Trim() }
+        $allCols = $allCols[1..($allCols.Count - 2)]
+        if ($allCols.Count -ge 1 -and $allCols[0]) {
+            $path = $allCols[0]
+            foreach ($m in @('Basket', 'Cart', 'Shopping_Cart', 'shopping-cart', 'basket')) {
+                if ($path -match [regex]::Escape($m)) {
+                    Add-Issue "§2 table row #$rowIdx path '$path' uses invalid module name '$m'. Use 'ShoppingCart' instead."
+                }
+            }
+            # Check if path contains any module-like segment that isn't in valid list
+            # Match segments that look like module names (PascalCase folder after known project prefixes)
+            if ($path -match '\\(?:Menu|Users|Orders|ShoppingCart|Reservations|Payments|([A-Z][a-zA-Z]+))\\') {
+                $segment = $Matches[1]
+                if ($segment -and $segment -notin $validModules) {
+                    Add-Issue "§2 table row #$rowIdx path '$path' contains unrecognized module segment '$segment'. Valid modules: $($validModules -join ', ')."
+                }
+            }
+        }
+    }
+}
+
 # ── Report ────────────────────────────────────────────────────────────
 if ($issues.Count -eq 0) {
     Write-Host "[lint-plan] OK — $PlanPath"

@@ -75,7 +75,7 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 - Use `MapStandardPost<{Feature}Response>` for POST endpoints. Validation is handled automatically by the `CommandValidationHandler` pipeline decorator — no manual filter registration needed. The validator must target `{Feature}Command`.
 - Do not re-query the database after `SaveChangesAsync()`.
 - Persistence checks (e.g. existence, uniqueness) must be done in `FluentValidation` validators using DB extensions — never in handlers.
-- Always pair commands with a `AbstractValidator<{Feature}Command>` in the feature's `Policies/` folder; it is auto-discovered and wired by the `CommandValidationHandler` pipeline decorator.
+- Always pair commands with a `AbstractValidator<{Feature}Command>` in the feature folder (same level as the command/handler); it is auto-discovered and wired by the `CommandValidationHandler` pipeline decorator.
 
 Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/CreateCategory/CreateCategoryEndpoint.cs'
 

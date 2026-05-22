@@ -85,7 +85,7 @@ for ($i = 2; $i -lt $tableRows.Count; $i++) {
     $entries += [pscustomobject]@{
         Path   = ($cols[0] -replace '^`|`$', '').Trim()
         Action = $cols[1].ToLowerInvariant().Trim()
-        Type   = if ($cols.Count -ge 3) { $cols[2].ToLowerInvariant().Trim() } else { '' }
+        Type   = if ($cols.Count -ge 3) { ($cols[2] -replace '^`|`$', '').ToLowerInvariant().Trim() } else { '' }
     }
 }
 

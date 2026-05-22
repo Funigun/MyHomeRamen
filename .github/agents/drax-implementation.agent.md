@@ -2,7 +2,7 @@
 name: drax-implementer
 description: Implement features and changes based on structured implementation plans and coding standards.
 tools: ['codebase', 'search', 'editFiles', 'execute']
-model: gemini-3.1-pro
+model: claude-sonnet-4.6
 ---
 
 # Drax Implementer Agent
@@ -36,6 +36,8 @@ Always load:
 
 Loading files is crucial for output quality. 
 Do not proceed to next steps before loading all files and analyzing their content for relevant information and guidance.
+
+At this point do not search for additional patterns, next step will scaffold backend (if in scope) which should make the task easier.
 
 ### 3) Implementation
 
