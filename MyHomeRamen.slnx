@@ -44,19 +44,6 @@
     <File Path=".github/agents/drax-planning.agent.md" />
     <File Path=".github/agents/drax-reviewer.agent.md" />
   </Folder>
-  <Folder Name="/_github/agents/plans/">
-    <File Path=".github/plans/checkout-plan-backend.md" />
-    <File Path=".github/plans/clear-basket-plan-backend.md" />
-    <File Path=".github/plans/delete-item-plan-backend.md" />
-    <File Path=".github/plans/delete-product-plan-backend.md" />
-    <File Path=".github/plans/get-basket-details-plan-backend.md" />
-    <File Path=".github/plans/get-product-by-id-backend-plan.md" />
-    <File Path=".github/plans/merge-baskets-plan-backend.md" />
-    <File Path=".github/plans/product-customization-frontend-plan.md" />
-    <File Path=".github/plans/unlock-basket-plan-backend.md" />
-    <File Path=".github/plans/update-item-quantity-plan-backend.md" />
-    <File Path=".github/plans/validate-products-plan-backend.md" />
-  </Folder>
   <Folder Name="/_github/agents/tasks/">
     <File Path=".github/agentic-workflow-redesign-plan.md" />
     <File Path=".github/ideas.md" />
