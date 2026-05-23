@@ -107,20 +107,23 @@ The §2 table must always include rows for every file that will be changed, dele
 - <new method / value object / error — name only>
 - Migration needed: yes / no
 
-## 4. API details
+## 4. Persistance extensions
+- <new repository method / query — name only>
+
+## 5. API details
 - Endpoint: `{METHOD} {path}`
 - Auth: `{policy}`
 - Request: `{route/body params}` → Response: `{status}`
 - Validation rules: <non-obvious rules only>
 
-## 5. Tests
+## 6. Tests
 - Unit: `MethodName_Scenario` (happy / exception)
 - Integration: `EndpointAction_Scenario` (happy / auth / validation)
 
-## 6. Risks / decisions for human approval
+## 7. Risks / decisions for human approval
 - <only open questions or deviations from standard patterns>
 
-## 7. Out of scope
+## 8. Out of scope
 ```
 
 ### Frontend File Process (if frontend involved)

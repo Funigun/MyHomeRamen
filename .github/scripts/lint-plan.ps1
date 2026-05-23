@@ -46,10 +46,11 @@ $expected = @(
     @{ N = 1; Hint = 'Problem' },
     @{ N = 2; Hint = 'Files to create / modify' },
     @{ N = 3; Hint = 'Domain changes' },
-    @{ N = 4; Hint = 'API details' },
-    @{ N = 5; Hint = 'Tests' },
-    @{ N = 6; Hint = 'Risks' },
-    @{ N = 7; Hint = 'Out of scope' }
+    @{ N = 4; Hint = 'Persistance extensions' },
+    @{ N = 5; Hint = 'API details' },
+    @{ N = 6; Hint = 'Tests' },
+    @{ N = 7; Hint = 'Risks' },
+    @{ N = 8; Hint = 'Out of scope' }
 )
 $sectionStart = @{}
 foreach ($e in $expected) {

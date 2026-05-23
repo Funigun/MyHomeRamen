@@ -1,44 +1,44 @@
 # Plan: ShoppingCart - Delete Basket Item
 
 ## 1. Problem
-Users need to remove a specific item from their basket. The endpoint accepts `basketId` and `basketItemId` from the route and is accessible anonymously. No equivalent endpoint exists yet.
+Users need to remove a specific item from their basket. The endpoint targets a `BasketItem` owned by a `Basket` aggregate, identified by route parameters. No equivalent delete-item endpoint exists yet in the `ShoppingCart` module.
 
 ## 2. Files to create / modify
+
 | Path | Action | Type | Notes |
 |------|--------|------|-------|
-| `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemCommand.cs` | create | `command-void` | No request body — `BasketId` and `BasketItemId` are route params only |
-| `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemEndpoint.cs` | create | `endpoint-delete` | Route: `api/shoppingcart/baskets/{basketId}/items/{basketItemId}`; `AllowAnonymous` |
-| `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemHandler.cs` | create | `command-void-handler` | |
-| `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemValidator.cs` | create | `validator` | Existence checks via DB extensions |
-| `MyHomeRamen.Persistance\ShoppingCart\Extensions\BasketItemDbExtensions.cs` | create | | Existence check scoped to a basket |
-| `MyHomeRamen.Domain\ShoppingCart\Baskets\Basket.cs` | modify | | Add `RemoveItem(BasketItemId itemId)` |
-| `MyHomeRamen.Domain\Common\Basket\BasketErrors.cs` | modify | | Add `BasketItemNotFound()` static factory |
-| `MyHomeRamen.UnitTests\ShoppingCartModule\Baskets\BasketBehaviorTests.cs` | modify | | Add `RemoveItem` unit test cases |
-| `MyHomeRamen.IntegrationTests\ShoppingCartModule\BasketItems\DeleteBasketItemTests.cs` | create | `integration-test` | |
+| `MyHomeRamen.Api\ShoppingCart\Features\Baskets\DeleteBasketItem\DeleteBasketItemCommand.cs` | create | `command-void` | Holds `BasketId` and `BasketItemId` (both `Guid`) |
+| `MyHomeRamen.Api\ShoppingCart\Features\Baskets\DeleteBasketItem\DeleteBasketItemHandler.cs` | create | `command-void-handler` | Loads basket, calls `RemoveItem`, saves |
+| `MyHomeRamen.Api\ShoppingCart\Features\Baskets\DeleteBasketItem\DeleteBasketItemValidator.cs` | create | `validator` | Checks basket exists; checks item belongs to basket |
+| `MyHomeRamen.Api\ShoppingCart\Features\Baskets\DeleteBasketItem\DeleteBasketItemEndpoint.cs` | create | `endpoint-delete` | Two `[FromRoute] Guid` params; `AllowAnonymous`; returns `204 No Content` |
+| `MyHomeRamen.Domain\ShoppingCart\Basket\Basket.cs` | modify | | Add `RemoveItem(BasketItemId)` method |
+| `MyHomeRamen.Domain\ShoppingCart\Basket\BasketErrors.cs` | modify | | Add `ItemNotFound` error factory |
+| `MyHomeRamen.Persistance\ShoppingCart\Extensions\BasketDbExtensions.cs` | modify | | Add `BasketExistsAsync(BasketId)` and `BasketItemExistsAsync(BasketId, BasketItemId)` extension methods |
+| `MyHomeRamen.IntegrationTests\ShoppingCartModule\Baskets\DeleteBasketItemTests.cs` | create | `integration-test` | |
+| `MyHomeRamen.UnitTests\ShoppingCartModule\Basket\BasketValidationTests.cs` | modify | | Add `RemoveItem` method tests |
 
 ## 3. Domain changes
-- `Basket.RemoveItem(BasketItemId itemId)` — removes item from `_items`; throws `BasketErrors.BasketItemNotFound()` if item with given ID is not present
-- `BasketErrors.BasketItemNotFound()` — new static factory in `MyHomeRamen.Domain\Common\Basket\BasketErrors.cs`
-- Migration needed: no
+- `Basket.RemoveItem(BasketItemId basketItemId)` — removes the matching child entity; raises no cross-aggregate event
+- `BasketErrors.ItemNotFound()` — `DomainException` factory for missing basket item
+- Migration needed: **no**
 
-## 4. API details
-- Endpoint: `DELETE api/shoppingcart/baskets/{basketId}/items/{basketItemId}`
+## 4. Persistence extensions
+- `BasketExistsAsync(BasketId basketId, CancellationToken ct)` — used by validator to confirm basket exists
+- `BasketItemExistsAsync(BasketId basketId, BasketItemId basketItemId, CancellationToken ct)` — used by validator to confirm item belongs to basket
+
+## 5. API details
+- Endpoint: `DELETE /api/shoppingcart/baskets/{basketId}/items/{basketItemId}`
 - Auth: `AllowAnonymous`
 - Request: `[FromRoute] Guid basketId`, `[FromRoute] Guid basketItemId` → Response: `204 No Content`
-- Validation rules: basket with `basketId` must exist; basket item with `basketItemId` must exist and belong to that basket (single `ExistsInBasketAsync(BasketItemId, BasketId, ct)` check on `BasketItemDbExtensions`)
+- Validation rules: basket with `basketId` must exist; basket item with `basketItemId` must belong to that basket — DB checks via persistence extensions; domain behaviour covered by unit tests (§6)
 
-## 5. Tests
-- Unit: `RemoveItem_ShouldRemoveItem_WhenItemExists` (happy)
-- Unit: `RemoveItem_ShouldThrowDomainException_WhenItemNotFound` (exception)
-- Integration: `DeleteBasketItem_ShouldReturnNoContent_WhenRequestIsValid` (happy)
-- Integration: `DeleteBasketItem_ShouldReturnNotFound_WhenBasketDoesNotExist` (not-found)
-- Integration: `DeleteBasketItem_ShouldReturnBadRequest_WhenBasketItemDoesNotExist` (validation)
-- Integration: `DeleteBasketItem_ShouldReturnBadRequest_WhenItemDoesNotBelongToBasket` (validation)
+## 6. Tests
+- Unit: `RemoveItem_ValidItem` (happy), `RemoveItem_ItemNotFound` (exception)
+- Integration: `DeleteBasketItem_ValidIds` (happy), `DeleteBasketItem_BasketNotFound` (not-found), `DeleteBasketItem_ItemNotFound` (not-found)
 
-## 6. Risks / decisions for human approval
-- Anonymous access means any caller knowing both IDs can delete the item — confirm this is intentional.
-- Confirm whether `BasketItemGroup.cs` route group already exists; if not, it must be created.
+## 7. Risks / decisions for human approval
+- None — straightforward delete; no cross-module side effects required.
 
-## 7. Out of scope
-- Recalculating basket totals after item removal
-- Soft-delete vs hard-delete strategy for basket items
+## 8. Out of scope
+- Recalculating basket totals after item removal (handled by separate domain logic if it already exists)
+- Emitting an integration event on item removal

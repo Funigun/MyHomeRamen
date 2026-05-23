@@ -64,7 +64,9 @@
     <File Path=".github/scripts/slice-scaffold.ps1" />
     <File Path=".github/scripts/verify.ps1" />
   </Folder>
-  <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/skills/">
+    <File Path=".github/plans/DeleteBasketItem/backend-plan.md" />
+  </Folder>
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
     <File Path=".github/wiki/patterns.md" />

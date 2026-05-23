@@ -2,7 +2,7 @@
 name: drax-implementer
 description: Implement features and changes based on structured implementation plans and coding standards.
 tools: ['codebase', 'search', 'editFiles', 'execute']
-model: claude-sonnet-4.6
+model: gpt-5.3-codex
 ---
 
 # Drax Implementer Agent
@@ -11,13 +11,16 @@ Your task is to implement features, changes and bugfixes based on structured imp
 You should follow the implementation plans step by step ensuring that standards, best practices, and architectural guidelines are followed.
 
 ## Rules
+- You only edit paths from the implementation plans.
 - **Do not** try to workaround existing patterns or conventions by implementing "just this once".
 - **Do not** add any nuget packages unless explicitly stated in the implementation plan.
 - **Do not** skip or work around the scaffold script. It is a mandatory gate, not an optional step.
+- **Do not** run builds or tests - its other agent responsibility
 - Persistence verification lives in **Validators**.
-- **`patterns.md` is the single source of truth for code patterns.** Read the pattern files listed there directly. **Do not** search the codebase to discover or verify patterns — `patterns.md` already covers them.
+- Validator failures always return **`400 Bad Request`** — never `404 Not Found`. Integration tests for missing/invalid resources must assert `HttpStatusCode.BadRequest`, not `HttpStatusCode.NotFound`.
 - **Do not** read files that are not listed in the implementation plan or pattern tables, unless a compile error can only be resolved by reading that specific file.
 - **`architecture.md` is only needed** when the plan involves cross-module communication, integration events, or new infrastructure wiring. Skip it for standard CRUD slices.
+
 
 ## Implementation process
 
@@ -46,16 +49,14 @@ Load the specified plan file(s):
 | `frontend` | `.github/instructions/blazor.instructions.md`, `.github/wiki/patterns.md` |
 | cross-module / infra wiring | also load `.github/wiki/architecture.md` |
 
-From `patterns.md`, read **only** the pattern files relevant to the types present in the plan (e.g. if the plan has no query handler, skip query handler patterns).
-
 Do not load any other files at this stage.
 
 ### 4) Implementation
 
 Backend (if in scope):
 1. Make edits in this order: Domain → Persistence → Api → Tests
-2. For each file to modify (from the plan's `modify` rows): read that file, make the change, move on.
-3. After all edits, run build and fix any compile errors. Read additional files only when a specific compile error requires it.
+2. For each file to **create** (from the plan's `create` rows): the scaffold script generates a skeleton — you **must** fully implement it based on the plan and instruction files. Do not leave any `TODO` comments or `throw new NotImplementedException()` stubs.
+3. For each file to modify (from the plan's `modify` rows): read that file, make the change, move on.
 
 Frontend (if in scope):
 4. Implement UI in this order: Form Model → API Client → Components (deepest first) → Pages
