@@ -25,7 +25,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result);
     }
@@ -42,7 +42,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -73,7 +73,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Forbidden, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -88,6 +88,6 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

@@ -26,7 +26,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Products);
     }
@@ -42,7 +42,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -59,7 +59,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Forbidden, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.All(result.Products, p => Assert.Contains(partialName, p.Name, StringComparison.OrdinalIgnoreCase));
     }
@@ -105,7 +105,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Products);
         Assert.All(result.Products, p => Assert.Contains(p.Id, expectedProductIds));
@@ -128,7 +128,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Products);
         Assert.Contains(result.Products, p => p.Id == product.Id.Value);
@@ -152,7 +152,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.All(result.Products, p =>
         {
@@ -175,7 +175,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.True(result.TotalCount > 1);
         Assert.Single(result.Products);

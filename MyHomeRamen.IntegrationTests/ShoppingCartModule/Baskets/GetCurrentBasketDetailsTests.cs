@@ -86,7 +86,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.NotFound);
     }
 
     [Fact]

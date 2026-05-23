@@ -28,7 +28,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductByIdForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.Equal(product.Id.Value, result.Id);
         Assert.Equal(product.Name, result.Name);
@@ -48,7 +48,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -67,7 +67,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Forbidden, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductByIdForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.Equal(expectedCategoryId, result.CategoryId);
         Assert.Equal(expectedIngredientIds.OrderBy(id => id), result.IngredientIds.OrderBy(id => id));

@@ -66,7 +66,7 @@ public static partial class DbExtensions
             => await products.Exists(p => p.Name.ToLower() != name.ToLower(), cancellationToken);
 
         public async Task<bool> IsProductNameUniqueExcludingAsync(string name, ProductId excludeId, CancellationToken cancellationToken = default)
-            => await products.Exists(p => p.Id == excludeId || p.Name.ToLower() != name.ToLower(), cancellationToken);
+            => !await products.Exists(p => p.Id != excludeId && p.Name.ToLower() == name.ToLower(), cancellationToken);
 
         public async Task<bool> IsCategoryUsedByProductAsync(CategoryId categoryId, CancellationToken cancellationToken = default)
             => await products.Exists(p => p.Categories.Any(c => c.Id == categoryId), cancellationToken);

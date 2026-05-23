@@ -29,7 +29,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.Created);
 
         AddItemToBasketResponse? responseBody = await response.Content.ReadFromJsonAsync<AddItemToBasketResponse>(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(responseBody);
@@ -56,7 +56,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.Created);
 
         AddItemToBasketResponse? responseBody = await response.Content.ReadFromJsonAsync<AddItemToBasketResponse>(cancellationToken: TestContext.Current.CancellationToken);
         Assert.NotNull(responseBody);
@@ -80,7 +80,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -105,6 +105,6 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

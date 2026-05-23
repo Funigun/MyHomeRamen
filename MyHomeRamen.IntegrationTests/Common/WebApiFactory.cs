@@ -82,6 +82,7 @@ public sealed class WebApiFactory : WebApplicationFactory<IApiAssemblyMarker>, I
             services.ReconfigureDbContext<ShoppingCartDbContext>(_sqlCartContainer.GetConnectionString());
             services.ReconfigureCache(_redisContainer.GetConnectionString());
             services.ReconfigureTokenOptions();
+            services.ReconfigureClaimsTransformation();
         })
         .UseEnvironment("Test");
     }

@@ -23,7 +23,7 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductByIdResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.Equal(product.Id.Value, result.Id);
         Assert.Equal(product.Name, result.Name);
@@ -59,7 +59,7 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductByIdResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.Equal(product.BaseIngredients.Count, result.BaseIngredients.Count);
 
@@ -86,7 +86,7 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetProductByIdResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.Equal(product.CustomIngredients.Count, result.CustomIngredients.Count);
 
@@ -112,6 +112,6 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

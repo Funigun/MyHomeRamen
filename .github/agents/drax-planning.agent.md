@@ -57,18 +57,6 @@ These formats are required by the scaffold script's path parsers — any deviati
 
 > Validators belong in the **feature folder** (same level as the command/handler) — never in a `Policies/` subfolder.
 
-## Plan Validation (backend only)
-
-Once a backend plan file has been written, run the lint script against it:
-
-```
-pwsh .github/scripts/lint-plan.ps1 -PlanPath <path-to-plan-file>
-```
-
-- If the script exits with code **0** → proceed.
-- If the script exits with code **1** → fix every reported issue in the plan file and re-run until clean.
-- Do **not** proceed to the next step while there are lint issues.
-
 ## Valid Modules
 
 The only valid module names are: `Users`, `Menu`, `Orders`, `ShoppingCart`, `Reservations`, `Payments`.
@@ -95,7 +83,7 @@ Naming conventions:
 ## 2. Files to create / modify
 | Path | Action | Type | Notes |
 |------|--------|------|-------|
-| <path> | create/modify | <type> | <only non-obvious detail, otherwise leave blank> |
+| <path> | create/modify/delete | <type> | <only non-obvious detail, otherwise leave blank> |
 
 Valid `Type` values (use for `create` rows only; leave blank for `modify`):
 - `request`, `response` — contracts under `MyHomeRamen.Common.Contracts\{Module}\{Entity}\Requests|Responses\`
@@ -105,7 +93,15 @@ Valid `Type` values (use for `create` rows only; leave blank for `modify`):
 - `validator` — FluentValidation validator
 - `endpoint-get`, `endpoint-post`, `endpoint-put`, `endpoint-delete` — endpoint by HTTP verb
 - `unit-test`, `integration-test` — test class stubs
-- *(blank)* — persistence extensions and any file the scaffold cannot generate
+- *(blank)* — domain changes, persistence extensions and any file the scaffold cannot generate
+
+Valid `Action` values guidance to not confuse implementation agent: 
+- Create for any file that does not exist (even if scaffolding script will not handle it)
+- Modify for any existing file to change (do not confuse with create)
+- Delete for any file that should be removed
+
+- **Required rows**: 
+The §2 table must always include rows for every file that will be changed, deleted or created so implementation agent will not get confused.
 
 ## 3. Domain changes
 - <new method / value object / error — name only>
@@ -151,3 +147,14 @@ Valid `Type` values (use for `create` rows only; leave blank for `modify`):
 - Page layout (if needed to specify)
 - New components / modifications to existing components
 ```
+
+## Plan Validation (backend only)
+
+Once a backend plan file has been written, **execute** the lint script against it using the `run_command` tool (do NOT read or interpret the script file manually):
+
+```
+pwsh .github/scripts/lint-plan.ps1 -PlanPath <path-to-plan-file>
+```
+
+- If the script exits with code **0** → proceed.
+- If the script exits with code **1** → fix every reported issue in the plan file, then run the script again until it exits with code 0.

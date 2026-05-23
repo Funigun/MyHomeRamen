@@ -22,7 +22,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
 
         Product product = Product.Create(
             Guid.NewGuid(),
-            $"UpdateTest_{Guid.NewGuid():N}".PadRight(15)[..15],
+            $"UpdateTest_Random_Product_Name",
             "Original product description that is long enough to pass validation.",
             10.0m,
             string.Empty,
@@ -34,7 +34,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         UpdateProductRequest request = new(
-            $"UpdatedProduct_{Guid.NewGuid():N}"[..20],
+            $"UpdateTest_Random_Product_Name_Updated",
             "Updated product description that is long enough to be valid.",
             25.0m,
             productCategory.Id.Value,
@@ -49,10 +49,8 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-
         // Assert — 200 returned
-        Assert.True(response.StatusCode == HttpStatusCode.OK, $"Expected 200 OK but got {response.StatusCode} with `{responseContent}`.");
+        await response.AssertStatusCode(HttpStatusCode.OK);
 
         UpdateProductResponse? result = await response.Content.ReadFromJsonAsync<UpdateProductResponse>(TestContext.Current.CancellationToken);
         Assert.NotNull(result);
@@ -84,7 +82,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 Bad Request but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -101,7 +99,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.Unauthorized, $"Expected 401 Unauthorized but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -121,7 +119,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.Forbidden, $"Expected 403 Forbidden but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -133,7 +131,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
 
         Product productA = Product.Create(
             Guid.NewGuid(),
-            $"ProductA_{Guid.NewGuid():N}"[..20],
+            $"ProductA_{Guid.NewGuid():N}",
             "Description for product A that is long enough to pass validation.",
             10.0m,
             string.Empty,
@@ -165,7 +163,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 Bad Request but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Theory]
@@ -184,6 +182,6 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 Bad Request but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

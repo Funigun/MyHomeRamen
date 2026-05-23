@@ -88,6 +88,15 @@ public static class DependencyInjection
     public static IServiceCollection AddQueryHandlers(this IServiceCollection services, Assembly assembly)
     {
         Type queryHandlerOpenType = typeof(IQueryHandler<,>);
+        Type validatorOpenType = typeof(IValidator<>);
+
+        HashSet<Type> validatedQueryTypes = assembly.GetExportedTypes()
+                                                    .Where(t => t.GetInterfaces()
+                                                                 .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == validatorOpenType))
+                                                    .SelectMany(t => t.GetInterfaces()
+                                                                      .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == validatorOpenType)
+                                                                      .Select(i => i.GetGenericArguments()[0]))
+                                                    .ToHashSet();
 
         List<Type> queryHandlers = assembly.GetExportedTypes()
                                            .Where(t => t.GetInterfaces()
@@ -98,7 +107,12 @@ public static class DependencyInjection
         {
             Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == queryHandlerOpenType);
             services.AddScoped(interfaceType, type);
-            services.Decorate(interfaceType, typeof(QueryValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
+
+            Type queryType = interfaceType.GetGenericArguments()[0];
+            if (validatedQueryTypes.Contains(queryType))
+            {
+                services.Decorate(interfaceType, typeof(QueryValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
+            }
         }
 
         return services;

@@ -26,7 +26,7 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(expectedStatusCode);
         Assert.True(responseMessage.Headers.Location != null, "Expected Location header to be present in the response.");
     }
 
@@ -44,7 +44,7 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(expectedStatusCode);
     }
 
     [Theory]
@@ -64,7 +64,7 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(expectedStatusCode);
     }
 
     [Theory]
@@ -82,7 +82,7 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(expectedStatusCode);
     }
 
     [Fact]
@@ -101,7 +101,7 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(expectedStatusCode);
     }
 
     [Fact]

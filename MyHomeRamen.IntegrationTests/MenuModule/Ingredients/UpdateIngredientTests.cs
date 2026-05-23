@@ -32,7 +32,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         UpdateIngredientRequest request = new(
-            $"Updated_{Guid.NewGuid():N}",
+            $"Updated_With_Valid_Name",
             "Updated description text here",
             3.99m,
             [ingredientCategory.Id.Value]);
@@ -45,10 +45,8 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-
         // Assert — 200 returned
-        Assert.True(response.StatusCode == HttpStatusCode.OK, $"Expected 200 OK but got {response.StatusCode} with `{responseContent}`.");
+        await response.AssertStatusCode(HttpStatusCode.OK);
 
         UpdateIngredientResponse? result = await response.Content.ReadFromJsonAsync<UpdateIngredientResponse>(TestContext.Current.CancellationToken);
         Assert.NotNull(result);
@@ -79,7 +77,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.Unauthorized, $"Expected 401 Unauthorized but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -99,7 +97,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.Forbidden, $"Expected 403 Forbidden but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -118,7 +116,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 Bad Request but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Theory]
@@ -137,7 +135,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 Bad Request but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -175,7 +173,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 Bad Request but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -206,6 +204,6 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert — self-rename passes name-uniqueness check
-        Assert.True(response.StatusCode == HttpStatusCode.OK, $"Expected 200 OK but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.OK);
     }
 }

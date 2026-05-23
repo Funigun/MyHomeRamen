@@ -10,16 +10,10 @@ public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCo
     public DeleteCategoryValidator(IMenuDbContext menuDbContext)
     {
         RuleFor(x => x.Id)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Category ID must not be empty.")
-            .ChildRules(id =>
-                {
-                    id.RuleFor(id => id)
-                        .MustAsync(CategoryExists(menuDbContext)).WithMessage("Category with the specified ID does not exist.");
-
-                    id.RuleFor(id => id)
-                        .MustAsync(CategoryIsNotUsed(menuDbContext)).WithMessage("Category is still in use and cannot be deleted.");
-                }
-            );
+            .MustAsync(CategoryExists(menuDbContext)).WithMessage("Category with the specified ID does not exist.")
+            .MustAsync(CategoryIsNotUsed(menuDbContext)).WithMessage("Category is still in use and cannot be deleted.");
     }
 
     private static Func<Guid, CancellationToken, Task<bool>> CategoryExists(IMenuDbContext menuDbContext)

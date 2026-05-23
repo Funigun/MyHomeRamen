@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -51,6 +52,22 @@ internal static class HttpClientExtensions
         requestMessage.Headers.Add(SchemeHeader, scheme);
 
         return requestMessage;
+    }
+
+    internal static async Task<string> ReadMessageContent(this HttpResponseMessage responseMessage)
+    {
+        return await responseMessage.Content?.ReadAsStringAsync(TestContext.Current.CancellationToken) ?? string.Empty;
+    }
+
+    internal static async Task AssertStatusCode(this HttpResponseMessage responseMessage, HttpStatusCode expected)
+    {
+        if (responseMessage.StatusCode == expected)
+        {
+            return;
+        }
+
+        string content = await responseMessage.ReadMessageContent();
+        Assert.Fail($"Expected status code {expected} but got {responseMessage.StatusCode}. Response body: {content}");
     }
 
     internal static HttpRequestMessage WithGuestCookie(this HttpRequestMessage requestMessage, string guestId)

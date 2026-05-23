@@ -7,29 +7,33 @@ Users need to remove a specific item from their basket. The endpoint accepts `ba
 | Path | Action | Type | Notes |
 |------|--------|------|-------|
 | `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemCommand.cs` | create | `command-void` | No request body — `BasketId` and `BasketItemId` are route params only |
-| `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemEndpoint.cs` | create | `endpoint-delete` | Route: `/baskets/{basketId}/items/{basketItemId}`; `AllowAnonymous` |
+| `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemEndpoint.cs` | create | `endpoint-delete` | Route: `api/shoppingcart/baskets/{basketId}/items/{basketItemId}`; `AllowAnonymous` |
 | `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemHandler.cs` | create | `command-void-handler` | |
 | `MyHomeRamen.Api\ShoppingCart\Features\BasketItems\DeleteBasketItem\DeleteBasketItemValidator.cs` | create | `validator` | Existence checks via DB extensions |
-| `MyHomeRamen.Persistance\ShoppingCart\Extensions\BasketItemDbExtensions.cs` | modify | | Add existence check scoped to a basket |
+| `MyHomeRamen.Persistance\ShoppingCart\Extensions\BasketItemDbExtensions.cs` | create | | Existence check scoped to a basket |
+| `MyHomeRamen.Domain\ShoppingCart\Baskets\Basket.cs` | modify | | Add `RemoveItem(BasketItemId itemId)` |
+| `MyHomeRamen.Domain\Common\Basket\BasketErrors.cs` | modify | | Add `BasketItemNotFound()` static factory |
+| `MyHomeRamen.UnitTests\ShoppingCartModule\Baskets\BasketBehaviorTests.cs` | modify | | Add `RemoveItem` unit test cases |
 | `MyHomeRamen.IntegrationTests\ShoppingCartModule\BasketItems\DeleteBasketItemTests.cs` | create | `integration-test` | |
 
 ## 3. Domain changes
-- `Basket.RemoveItem(BasketItemId itemId)` — domain method to encapsulate item removal
+- `Basket.RemoveItem(BasketItemId itemId)` — removes item from `_items`; throws `BasketErrors.BasketItemNotFound()` if item with given ID is not present
+- `BasketErrors.BasketItemNotFound()` — new static factory in `MyHomeRamen.Domain\Common\Basket\BasketErrors.cs`
 - Migration needed: no
 
 ## 4. API details
-- Endpoint: `DELETE /baskets/{basketId}/items/{basketItemId}`
+- Endpoint: `DELETE api/shoppingcart/baskets/{basketId}/items/{basketItemId}`
 - Auth: `AllowAnonymous`
 - Request: `[FromRoute] Guid basketId`, `[FromRoute] Guid basketItemId` → Response: `204 No Content`
-- Validation rules: basket with `basketId` must exist; basket item with `basketItemId` must exist and belong to that basket
+- Validation rules: basket with `basketId` must exist; basket item with `basketItemId` must exist and belong to that basket (single `ExistsInBasketAsync(BasketItemId, BasketId, ct)` check on `BasketItemDbExtensions`)
 
 ## 5. Tests
-- Unit: `RemoveItem_Happy` (happy)
-- Unit: `RemoveItem_ItemNotFound` (exception)
-- Integration: `DeleteBasketItem_Happy` (happy)
-- Integration: `DeleteBasketItem_BasketNotFound` (not-found)
-- Integration: `DeleteBasketItem_BasketItemNotFound` (not-found)
-- Integration: `DeleteBasketItem_ItemNotBelongingToBasket` (validation)
+- Unit: `RemoveItem_ShouldRemoveItem_WhenItemExists` (happy)
+- Unit: `RemoveItem_ShouldThrowDomainException_WhenItemNotFound` (exception)
+- Integration: `DeleteBasketItem_ShouldReturnNoContent_WhenRequestIsValid` (happy)
+- Integration: `DeleteBasketItem_ShouldReturnNotFound_WhenBasketDoesNotExist` (not-found)
+- Integration: `DeleteBasketItem_ShouldReturnBadRequest_WhenBasketItemDoesNotExist` (validation)
+- Integration: `DeleteBasketItem_ShouldReturnBadRequest_WhenItemDoesNotBelongToBasket` (validation)
 
 ## 6. Risks / decisions for human approval
 - Anonymous access means any caller knowing both IDs can delete the item — confirm this is intentional.

@@ -93,9 +93,12 @@ Use `HttpClientExtensions.AddAuthorizationHeader(UserRoles role)` to attach a JW
 - **Employee / Customer** — use `[InlineData]` to test each forbidden role in one theory.
 - **No header** — clear current header and omit the call entirely to test unauthenticated scenarios.
 
-### 3.5) Examples
-- `CreateProduct_ShouldReturnCreated_ForValidRequest` — generates a valid product via `DataGenerator`, maps it to a request via `Mappings`, authenticates as Admin, posts to the endpoint, asserts 201 and a `Location` header.
-- `CreateProduct_ShouldReturnBadRequest_ForInvalidRequest` — feeds all invalid field permutations from `DataGenerator.InvalidCreateProductRequests()` via `[MemberData]`, asserts each returns 400.
+### 3.4) Status code assertions
+Always use `await responseMessage.AssertStatusCode(HttpStatusCode.Xxx)` instead of `Assert.Equal(HttpStatusCode.Xxx, responseMessage.StatusCode)` or `Assert.True(responseMessage.StatusCode == ...)`.
+
+The extension method is defined in `HttpClientExtensions` and automatically includes the response body in the failure message, making failures easy to diagnose without any additional setup.
+- `CreateProduct_ShouldReturnCreated_ForValidRequest` — generates a valid product via `DataGenerator`, maps it to a request via `Mappings`, authenticates as Admin, posts to the endpoint, asserts 201 via `AssertStatusCode` and checks `Location` header.
+- `CreateProduct_ShouldReturnBadRequest_ForInvalidRequest` — feeds all invalid field permutations from `DataGenerator.InvalidCreateProductRequests()` via `[MemberData]`, asserts each returns 400 via `AssertStatusCode`.
 
 ## 4) System tests (`MyHomeRamen.SystemTests`)
 

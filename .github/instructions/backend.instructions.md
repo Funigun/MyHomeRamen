@@ -80,8 +80,7 @@ applyTo: '**/MyHomeRamen.Domain/**/*.cs,**/MyHomeRamen.Api/**/*.cs,**/MyHomeRame
 Reference: #file:'MyHomeRamen.Api/Menu/Features/Categories/CreateCategory/CreateCategoryEndpoint.cs'
 
 ### 3.2) Authorization (mandatory)
-- Every Group must call `RequireAuthorization()` without specifying policy
-- Use `AllowAnonymous` or `RequireAuthorization(<POLICY>)` per endpoint depending on the requirement.
+- Each endpoint must use `AllowAnonymous` or `RequireAuthorization(<POLICY>)` per endpoint depending on the requirement.
 
 ### 3.3) Mappings
 - use public sealed record for DTOs and Request/Response objects

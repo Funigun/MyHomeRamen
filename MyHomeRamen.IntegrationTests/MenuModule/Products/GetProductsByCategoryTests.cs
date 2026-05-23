@@ -25,7 +25,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.All(result, product =>
@@ -53,7 +53,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.Empty(result);
     }
@@ -69,7 +69,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -99,6 +99,6 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }
