@@ -1,31 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 
 namespace MyHomeRamen.Api.Menu.Features.Products.CreateProduct;
 
 public sealed class CreateProductEndpoint : IEndpoint
 {
-    public string GroupName { get; init; } = "Menu";
-
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardValidatedPost<CreateProductRequest, CreateProductResponse>("products", HandleAsync)
+        endpointBuilder.MapStandardPost<CreateProductResponse>("api/menu/products", HandleAsync)
                        .WithName("CreateProductEndpoint")
+                       .WithTags("Products")
                        .WithDescription("Handles Create Product operations.")
                        .RequireAuthorization(AuthorizationDependencyInjection.RestaurantManagerPolicy);
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromBody] CreateProductRequest request, 
-        [FromServices] IRequestHandler<CreateProductRequest, Guid> handler,
+        [FromBody] CreateProductRequest request,
+        [FromServices] ICommandHandler<CreateProductCommand, CreateProductResponse> handler,
         CancellationToken cancellationToken)
     {
-        Guid id = await handler.Handle(request, cancellationToken);
-        CreateProductResponse response = new(id);
+        CreateProductCommand command = new(request);
+        CreateProductResponse response = await handler.Handle(command, cancellationToken);
 
-        return Results.Created($"/api/menu/products/{id}", response);
+        return Results.Created($"/api/menu/products/{response.Id}", response);
     }
 }

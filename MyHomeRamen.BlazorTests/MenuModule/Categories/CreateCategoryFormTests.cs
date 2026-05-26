@@ -2,14 +2,13 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using MyHomeRamen.Blazor.Features.Menu.Categories.Components;
-using MyHomeRamen.Blazor.Features.Menu.Categories.Requests;
-using MyHomeRamen.Blazor.Features.Menu.Categories.Responses;
 using MyHomeRamen.Blazor.Features.Menu.Common.Models;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services;
 using MyHomeRamen.BlazorTests.Common.Helpers;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 
 namespace MyHomeRamen.BlazorTests.MenuModule.Categories;
 

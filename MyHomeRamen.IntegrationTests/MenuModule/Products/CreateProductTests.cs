@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using MyHomeRamen.Api.Menu.Features.Products.CreateProduct.Models;
+using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IntegrationTests.MenuModule.Common.Data;

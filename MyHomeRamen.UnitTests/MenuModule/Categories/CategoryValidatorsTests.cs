@@ -1,5 +1,5 @@
 using FluentValidation.Results;
-using MyHomeRamen.Common.Contracts.Menu.Categories;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
 using MyHomeRamen.Domain.Common.Category;
 
 namespace MyHomeRamen.UnitTests.MenuModule.Categories;

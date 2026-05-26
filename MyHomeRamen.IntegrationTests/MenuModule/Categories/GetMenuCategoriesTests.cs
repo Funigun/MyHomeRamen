@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Api.Menu.Features.Categories.GetMenuCategories.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
@@ -28,7 +28,7 @@ public sealed class GetMenuCategoriesTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<IEnumerable<GetMenuCategoriesResponse>>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result);
         Assert.All(result, c => Assert.NotEqual(Guid.Empty, c.Id));
@@ -44,6 +44,6 @@ public sealed class GetMenuCategoriesTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
     }
 }

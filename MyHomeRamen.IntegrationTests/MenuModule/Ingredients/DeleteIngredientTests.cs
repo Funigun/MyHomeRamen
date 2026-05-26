@@ -34,10 +34,8 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory)
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        string responseContent = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-
         // Assert — 204 returned
-        Assert.True(response.StatusCode == HttpStatusCode.NoContent, $"Expected 204 NoContent but got {response.StatusCode} with `{responseContent}`.");
+        await response.AssertStatusCode(HttpStatusCode.NoContent);
 
         // Assert — deleted record no longer exists in DB
         bool stillExists = await apiFactory.MenuDbContext.Ingredients
@@ -58,7 +56,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.Unauthorized, $"Expected 401 Unauthorized but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -77,7 +75,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.Forbidden, $"Expected 403 Forbidden but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -94,7 +92,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 BadRequest but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -111,7 +109,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 BadRequest but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -128,6 +126,6 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory)
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(response.StatusCode == HttpStatusCode.BadRequest, $"Expected 400 BadRequest but got {response.StatusCode}.");
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

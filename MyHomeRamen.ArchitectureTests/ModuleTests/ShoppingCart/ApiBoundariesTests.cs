@@ -71,6 +71,21 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     }
 
     [Fact]
+    public void ShoppingCartApi_ShouldNot_DependOn_UsersApi()
+    {
+        // Arrange
+        IEnumerable<string> shoppingCartApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.ShoppingCart");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(shoppingCartApi, usersApi, "ShoppingCart API type '{0}' should not depend on Users API type '{1}'");
+
+        // Act & Assert
+        foreach (IArchRule rule in rules)
+        {
+            rule.Check(ArchitectureBuilder.Architecture);
+        }
+    }
+
+    [Fact]
     public void ShoppingCartApi_ShouldDepend_OnlyOn_ShoppingCartDomain()
     {
         // Arrange

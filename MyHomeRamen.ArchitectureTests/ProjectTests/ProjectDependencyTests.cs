@@ -47,27 +47,6 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     }
 
     [Fact]
-    public void IdentityApi_ShouldDepend_OnlyOnAllowedAssemblies()
-    {
-        IEnumerable<Assembly> allowedAssemblies =
-        [
-            architectureBuilder.ApiCommonAssembly,
-            architectureBuilder.DomainAssembly,
-            architectureBuilder.InfrastructureAssembly,
-            architectureBuilder.PersistanceAssembly,
-            architectureBuilder.ServiceDefaultsAssembly,
-            architectureBuilder.ApiContractsAssembly
-        ];
-
-        IEnumerable<IArchRule> identityApiRules = PrepareProjectRules(architectureBuilder.IdentityApiAssembly, allowedAssemblies);
-
-        foreach (IArchRule rule in identityApiRules)
-        {
-            rule.Check(architectureBuilder.Architecture);
-        }
-    }
-
-    [Fact]
     public void Api_ShouldDepend_OnlyOnAllowedAssemblies()
     {
         IEnumerable<Assembly> allowedAssemblies =

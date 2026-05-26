@@ -22,8 +22,6 @@ public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuild
 
     protected IObjectProvider<IType> DomainLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.DomainAssembly).As("Domain Layer");
 
-    protected IObjectProvider<IType> IdentityApiLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.IdentityApiAssembly).As("Identity API Layer");
-
     protected IObjectProvider<IType> InfrastructureLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.InfrastructureAssembly).As("Infrastructure Layer");
 
     protected IObjectProvider<IType> IntegrationTestsLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.IntegrationTestsAssembly).As("Integration Tests Layer");

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
@@ -12,6 +13,7 @@ using MyHomeRamen.Persistance.Payments;
 using MyHomeRamen.Persistance.Reservations;
 using MyHomeRamen.Persistance.ShoppingCart;
 using StackExchange.Redis;
+using System.Security.Claims;
 
 namespace MyHomeRamen.IntegrationTests.Common.Configuration;
 
@@ -67,6 +69,13 @@ internal static class ApiServicesExtensions
         return services;
     }
 
+    internal static IServiceCollection ReconfigureClaimsTransformation(this IServiceCollection services)
+    {
+        services.RemoveAll<IClaimsTransformation>();
+        services.AddTransient<IClaimsTransformation, PassThroughClaimsTransformation>();
+        return services;
+    }
+
     internal static void ReconfigureDbContext<T>(this IServiceCollection services, string connectionString)
                 where T : DbContext
     {
@@ -84,4 +93,9 @@ internal static class ApiServicesExtensions
             options.EnableSensitiveDataLogging();
         });
     }
+}
+
+internal sealed class PassThroughClaimsTransformation : IClaimsTransformation
+{
+    public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal) => Task.FromResult(principal);
 }

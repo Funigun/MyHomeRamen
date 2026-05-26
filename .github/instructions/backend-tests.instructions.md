@@ -1,29 +1,26 @@
 ---
 description: 'Instructions for backend projects'
-applyTo: '**/MyHomeRamen.UnitTests/**/*.cs,**/MyHomeRamen.IntegrationTests/**/*.cs,**/MyHomeRamen.SystemTests/**/*.cs'
+applyTo: '**/MyHomeRamen.UnitTests/**/*.cs,**/MyHomeRamen.IntegrationTests/**/*.cs'
 ---
 
 # Backend Layer Instructions
 
 ## 1) General Guidelines
-- Use XUnit.v3 library for testing framework.
-- Use NSubstitute for mocking dependencies.
-- Use XUnit syntax for assertions.
-- Use AAA pattern: Arrange, Act, Assert.
-- Use `Theory` and `InlineData` for parameterized tests that cover up to 5 scenarios per test method.
-- Use `Theory` and `MemberData` for more complex parameterized tests that require multiple parameters or complex objects.
-  Test data should be defined in separate class in dedicated folder for reusability and maintainability
-- Always use `TheoryData<T>` (not `IEnumerable<object[]>`) for `[MemberData]` sources to satisfy **xUnit1042** and get compile-time type safety. The `[MemberData]` source method must be `public static`.
+- Testing framework: XUnit.v3 library
+- Mocking framework: NSubstitute
+- Assertions: XUnit syntax
+- Use AAA pattern
+- Use `Theory` and `InlineData` for tests that cover up to 5 scenarios
+- Use `Theory` and `MemberData` for complex tests that require multiple parameters or complex objects
+- Define test data in separate files
+- Always use `TheoryData<T>` (not `IEnumerable<object[]>`) for `public static [MemberData]` sources
 
 ## 2) Unit tests (`MyHomeRamen.UnitTests`)
 
 ### 2.1) Conventions and strategy
-- Focus on domain models creation, validation and behavior.
-- Organize tests by module e.g. `MenuModule`, `OrderModule`.
-- Organize module folders by domain models e.g. `Ingredients`, `Orders`.
-- Module shared test utilities e.g. Collection Fixtures, Test data, etc should be placed in `Common` dedicated for concrete module.
-- Split tests by concern e.g. `ProductValidationTests`, `ProductValidatorTests`, `ProductBehaviorTests`, `ProductEventsTests`, etc.
-- Accepted test method naming conventions: `{DomainModel}_Should{ExpectedBehavior}_When{StateUnderTest}`, `{MethodName}_Should{ExpectedBehavior}_When{StateUnderTest}`
+- Domain models creation, validation and behavior.
+- Location pattern: `{Module}/{Model}/{Concern}Tests.cs`.
+- E.g. concern `ProductValidationTests`, `ProductValidatorTests`, `ProductBehaviorTests`, `ProductEventsTests`, etc.
 
 ### 2.2) Domain Creation & Validation
 - Use a private helper factory method (e.g., `CreateProduct(...)`) with optional named parameters and sensible valid defaults so each test only sets the value under test.
@@ -38,11 +35,8 @@ applyTo: '**/MyHomeRamen.UnitTests/**/*.cs,**/MyHomeRamen.IntegrationTests/**/*.
 - Focus on whole domain logic from Aggregate root methods to domain events.
 
 ### 2.4) API Validators
-API validator tests verify that FluentValidation validators in `MyHomeRamen.Common.Contracts` enforce contract-level rules correctly.
-
-- Focus on testing abstract validators logic of API endpoints.
-- Add one consistency test **per exported constant** that verifies the validator constant matches the corresponding `{Model}Constants` value in the Domain layer to keep contract and domain in sync.
-- Call `validator.Validate(value)` and assert on the returned `ValidationResult`.
+API validator tests verify that FluentValidation validators in `MyHomeRamen.Common.Contracts`
+Add one test **per exported constant** that matches corresponding `{Model}Constants` value in the Domain layer
 
 Verify FluentValidation messages fragment as per table:
 | Rule | Fragment to assert |
@@ -53,26 +47,6 @@ Verify FluentValidation messages fragment as per table:
 | `GreaterThanOrEqualTo` | `"greater than or equal to"` |
 | `LessThanOrEqualTo` | `"less than or equal to"` |
 
-### 2.5) Structure
-```
-├── /MyHomeRamen.UnitTests/
-│	├-─ {Module}/
-│	│	├-─ Common/
-│	│	│	-- AssemblyFixtures/
-│	│	│	-- TestData/
-│	│	├── {Aggegate}/
-│	│	│	├── Common/
-│	│	│	│	├-─ CollectionFixtures/
-│	│	│	│	└── TestData/
-│	│	│	├── {Aggegate}ValidatorTests.cs
-│	│	│	├── {Aggegate}BehaviorTests.cs
-│	│	│	├── {Aggegate}EventsTests.cs
-```	
-
-### 2.6) Examples
-- `Create_Should_ThrowDomainException_When_NameIsTooShort` — calls `CreateProduct(name: string.Empty)`, asserts `DomainException` is thrown with message matching `ProductErrors.NameTooShort`.
-- `ProductPriceValidator_Should_HaveSameMaxPriceAsDomain` - verifies `ProductPriceValidator.MaxPrice` equals `ProductConstants.MaxPrice` to ensure contract and domain stay in sync.
-
 ## 3) Integration tests (`MyHomeRamen.IntegrationTests`)
 
 ### 3.1) Conventions and strategy
@@ -81,7 +55,6 @@ Verify FluentValidation messages fragment as per table:
 - Organize module folders by API endpoints e.g. `Products`, `Orders`.
 - Organize module folders by features e.g. `CreateProducTests` etc.
 - Set `Common` folder for each module to define shared test data generators and seeders.
-- Accepted naming convention: `{MethodName}_Should{Behavior}_For{Condition}` (e.g., `CreateProduct_ShouldReturnCreated_ForValidRequest`).
 - Inject `WebApiFactory` via primary constructor — do not use field injection or base classes.
 
 ### 3.2) Test data management (`/Common/Data/` folder)
@@ -94,49 +67,14 @@ Verify FluentValidation messages fragment as per table:
 - Provides `public static TheoryData<TRequest>` methods for `[MemberData]` theory data — **never use `IEnumerable<object[]>`**.
 - Boundary values in invalid-data methods must reference the shared validator constants directly (e.g., `ProductNameValidator.MinLength`) so test cases stay in sync if limits change.
 
-```csharp
-// Valid entity generation
-internal static Product GenerateValidProduct() => ValidProductFaker.Generate();
-
-// Strongly-typed theory data for [MemberData]
-public static TheoryData<CreateProductRequest> InvalidCreateProductRequests() => new()
-{
-    new CreateProductRequest(string.Empty, validDescription, ...),   // Name: empty
-    new CreateProductRequest(tooShortName,  validDescription, ...),  // Name: too short
-    ...
-};
-```
-
 #### 3.2.2) DataSeeder
 - Static class with one `internal static async Task Seed{Module}(IDb context)` method per module.
 - Seeds entities in dependency order: e.g., Categories → Ingredients → Products.
 - Called once from `WebApiFactory.InitializeAsync`.
 
-```csharp
-internal static async Task SeedMenuModule(IMenuDbContext dbContext)
-{
-    List<Category>   categories  = DataGenerator.GenerateValidCategories(5);
-    List<Ingredient> ingredients = DataGenerator.GenerateValidIngredients(10);
-    List<Product>    products    = DataGenerator.GenerateValidProducts(20, categories, ingredients);
-
-    dbContext.Categories.AddRange(categories);
-    dbContext.Ingredients.AddRange(ingredients);
-    dbContext.Products.AddRange(products);
-
-    await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-}
-```
-
 #### 3.2.3) Mappings
 - Static class with `internal static` extension methods that map domain entities to API request models.
 - Used in tests to build requests from seeded entities without duplicating field mappings.
-
-```csharp
-internal static CreateProductRequest ToCreateProductRequest(this Product product) =>
-    new(product.Name, product.Description, product.Price,
-        product.Categories[0].Id,
-        product.BaseIngredients.Select(i => (Guid)i.Id));
-```
 
 ### 3.3) Authorization Testing
 Use `HttpClientExtensions.AddAuthorizationHeader(UserRoles role)` to attach a JWT token issued by `JwtTokenFactory`:
@@ -144,48 +82,9 @@ Use `HttpClientExtensions.AddAuthorizationHeader(UserRoles role)` to attach a JW
 - **Employee / Customer** — use `[InlineData]` to test each forbidden role in one theory.
 - **No header** — clear current header and omit the call entirely to test unauthenticated scenarios.
 
-```csharp
-// Admin: test validation, not auth
-apiFactory.HttpClient.AddAuthorizationHeader(UserRoles.Admin);
+### 3.4) Status code assertions
+Always use `await responseMessage.AssertStatusCode(HttpStatusCode.Xxx)` instead of `Assert.Equal(HttpStatusCode.Xxx, responseMessage.StatusCode)` or `Assert.True(responseMessage.StatusCode == ...)`.
 
-// Multiple forbidden roles via InlineData
-[Theory]
-[InlineData(UserRoles.Employee)]
-[InlineData(UserRoles.Customer)]
-public async Task Endpoint_ShouldReturnForbidden_ForNonAdminUser(UserRoles role)
-{
-    apiFactory.HttpClient.AddAuthorizationHeader(role);
-    ...
-}
-```
-
-### 3.4) Structure
-```
-├── /MyHomeRamen.IntegrationTests/
-│	├── Common/
-│   │   ├── Configuration/          ← Shared API configurations (e.g. FakeUser, JwtTokenFactory) and extesions (e.g. HttpClientExtensions)
-│   │   ├── BaseIntegrationTest.cs
-│   │   └── WebApiFactgory.cs
-│	├── {Module}/
-│	│	├── Common/
-│	│	│	-- Data/				← Test data generators and seeders for the module
-│	│	├── {Aggregate}/
-│	│	│	├── {Feature}Tests.cs   ← e.g. CreateProductTests.cs, UpdateProductTests.cs, etc.
-```
-
-### 3.5) Examples
-- `CreateProduct_ShouldReturnCreated_ForValidRequest` — generates a valid product via `DataGenerator`, maps it to a request via `Mappings`, authenticates as Admin, posts to the endpoint, asserts 201 and a `Location` header.
-- `CreateProduct_ShouldReturnBadRequest_ForInvalidRequest` — feeds all invalid field permutations from `DataGenerator.InvalidCreateProductRequests()` via `[MemberData]`, asserts each returns 400.
-
-## 4) System tests (`MyHomeRamen.SystemTests`)
-
-### 4.1) Conventions and strategy
-- Focus on testing the entire system end-to-end, including API, database, and external dependencies.
-- Organize tests by user scenarios e.g. `ProductManagement`, `OrderProcessing`.
-- Accepted naming convention: `{Scenario}_Should{ExpectedOutcome}_When{Condition}` (e.g., `ProductManagement_ShouldSucceed_ForValidWorkflow`).
-- Use `.NET Aspire Testing` (`Aspire.Hosting.Testing`) for full application orchestration — do not use `WebApplicationFactory` or TestContainers in these tests.
-
-### 4.2) Configuration (`Configuration` folder)
-- Assembly Fixture that bootstraps the entire application via `DistributedApplicationTestingBuilder`
-- Configure required environment variables
-
+The extension method is defined in `HttpClientExtensions` and automatically includes the response body in the failure message, making failures easy to diagnose without any additional setup.
+- `CreateProduct_ShouldReturnCreated_ForValidRequest` — generates a valid product via `DataGenerator`, maps it to a request via `Mappings`, authenticates as Admin, posts to the endpoint, asserts 201 via `AssertStatusCode` and checks `Location` header.
+- `CreateProduct_ShouldReturnBadRequest_ForInvalidRequest` — feeds all invalid field permutations from `DataGenerator.InvalidCreateProductRequests()` via `[MemberData]`, asserts each returns 400 via `AssertStatusCode`.

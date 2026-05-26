@@ -1,5 +1,5 @@
-using MyHomeRamen.Blazor.Features.Menu.Products.Responses;
-using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Requests;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.Menu.Products.DTOs;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models;
 
@@ -28,5 +28,5 @@ public sealed class IngredientCustomizationModel
             Quantity = 1
         };
 
-    public IngredientRequestDto ToRequest() => new(Id, Quantity);
+    public BasketIngredientDto ToRequest() => new(Id, Quantity);
 }

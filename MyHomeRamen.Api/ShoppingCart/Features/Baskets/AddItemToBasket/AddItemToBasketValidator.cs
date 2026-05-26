@@ -1,0 +1,50 @@
+using FluentValidation;
+using MyHomeRamen.Common.Contracts.Basket;
+using MyHomeRamen.Common.Contracts.Menu;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+
+namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket;
+
+public sealed class AddItemToBasketValidator : AbstractValidator<AddItemToBasketCommand>
+{
+    public AddItemToBasketValidator(IMenuService menuService)
+    {
+        RuleFor(x => x.AddItemToBasketRequest.ProductId)
+            .NotEmpty();
+
+        RuleFor(x => x.AddItemToBasketRequest.Quantity)
+            .SetValidator(new BasketItemQuantityValidator());
+
+        RuleFor(x => x.AddItemToBasketRequest.BaseIngredients)
+            .NotNull();
+
+        RuleForEach(x => x.AddItemToBasketRequest.BaseIngredients)
+            .ChildRules(ingredient =>
+            {
+                ingredient.RuleFor(i => i.Id).NotEmpty();
+                ingredient.RuleFor(i => i.Quantity).SetValidator(new BasketItemQuantityValidator());
+            });
+
+        RuleFor(x => x.AddItemToBasketRequest.CustomIngredients)
+            .NotNull();
+
+        RuleForEach(x => x.AddItemToBasketRequest.CustomIngredients)
+            .ChildRules(ingredient =>
+            {
+                ingredient.RuleFor(i => i.Id).NotEmpty();
+                ingredient.RuleFor(i => i.Quantity).SetValidator(new BasketItemQuantityValidator());
+            });
+
+        RuleFor(x => x.AddItemToBasketRequest.Comments)
+            .SetValidator(new BasketItemCommentValidator()!);
+
+        RuleFor(x => x)
+            .MustAsync(async (cmd, ct) =>
+                await menuService.ValidateProductConfigurationAsync(
+                    cmd.AddItemToBasketRequest.ProductId,
+                    cmd.AddItemToBasketRequest.BaseIngredients.Select(i => i.Id).ToList(),
+                    cmd.AddItemToBasketRequest.CustomIngredients.Select(i => i.Id).ToList(),
+                    ct))
+            .WithMessage("Product configuration is invalid: product does not exist or the selected ingredients are not valid for this product.");
+    }
+}

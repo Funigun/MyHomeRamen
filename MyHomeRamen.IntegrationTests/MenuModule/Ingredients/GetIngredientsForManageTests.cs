@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForManage.Models;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
@@ -24,7 +24,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Ingredients);
     }
@@ -40,7 +40,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -57,7 +57,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Forbidden, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.All(result.Ingredients, i => Assert.Contains(partialName, i.Name, StringComparison.OrdinalIgnoreCase));
     }
@@ -103,7 +103,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Ingredients);
         Assert.All(result.Ingredients, i => Assert.Contains(i.Id, expectedIngredientIds));
@@ -123,7 +123,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory)
             .ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.Empty(result.Ingredients);
     }

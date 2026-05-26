@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
-using MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketSummary.Models;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
@@ -61,7 +62,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
         GetCurrentBasketSummaryResponse? getResponse = await response.Content.ReadFromJsonAsync<GetCurrentBasketSummaryResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(getResponse);
-        BasketItemDto actualItem = getResponse.Items.First(i => i.Id == expectedItem.Id.Value);
+        BasketSummaryItemDto actualItem = getResponse.Items.First(i => i.Id == expectedItem.Id.Value);
 
         Assert.Equal(expectedItem.Product.Name, actualItem.ProductName);
         Assert.Equal(expectedItem.Product.ImageUrl, actualItem.ProductImageUrl);
@@ -109,7 +110,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
         GetCurrentBasketSummaryResponse? getResponse = await response.Content.ReadFromJsonAsync<GetCurrentBasketSummaryResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(getResponse);
-        BasketItemDto actualItem = getResponse.Items.First(i => i.Id == expectedItem.Id.Value);
+        BasketSummaryItemDto actualItem = getResponse.Items.First(i => i.Id == expectedItem.Id.Value);
 
         Assert.Equal(expectedItem.Product.Name, actualItem.ProductName);
         Assert.Equal(expectedItem.Product.ImageUrl, actualItem.ProductImageUrl);

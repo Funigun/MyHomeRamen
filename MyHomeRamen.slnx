@@ -26,7 +26,6 @@
     <Project Path="MyHomeRamen.Api/MyHomeRamen.Api.csproj" />
     <Project Path="MyHomeRamen.Common.Contracts/MyHomeRamen.Common.Contracts.csproj" Id="bcb8c49d-382c-48e4-af52-366f0e369c58" />
     <Project Path="MyHomeRamen.Domain/MyHomeRamen.Domain.csproj" Id="690fccbf-0bbd-4dfc-87f4-279ef5b197af" />
-    <Project Path="MyHomeRamen.Identity.Api/MyHomeRamen.Identity.Api.csproj" />
     <Project Path="MyHomeRamen.Infrastructure/MyHomeRamen.Infrastructure.csproj" Id="853a229a-8c66-4303-8d66-759a85cae6fb" />
     <Project Path="MyHomeRamen.Persistance/MyHomeRamen.Persistance.csproj" Id="9ad85f83-8ea5-4d3c-b052-5b65f48b1791" />
   </Folder>
@@ -40,44 +39,40 @@
     <File Path=".github/copilot-instructions.md" />
   </Folder>
   <Folder Name="/_github/agents/">
-    <File Path=".github/agents/000-module-initiator.agent.md" />
     <File Path=".github/agents/drax-implementation.agent.md" />
     <File Path=".github/agents/drax-planning.agent.md" />
     <File Path=".github/agents/drax-reviewer.agent.md" />
-    <File Path=".github/agents/drax-task-creator.agent.md" />
   </Folder>
-  <Folder Name="/_github/agents/input/">
-    <File Path=".github/agents/input/feature-brief-example.md" />
-    <File Path=".github/agents/input/feature-brief-template.md" />
-  </Folder>
-  <Folder Name="/_github/agents/output/">
-    <File Path=".github/agents/output/delete-account-brief.md" />
-  </Folder>
-  <Folder Name="/_github/agents/plans/">
-    <File Path=".github/plans/checkout-plan-backend.md" />
-    <File Path=".github/plans/clear-basket-plan-backend.md" />
-    <File Path=".github/plans/delete-item-plan-backend.md" />
-    <File Path=".github/plans/delete-product-plan-backend.md" />
-    <File Path=".github/plans/get-basket-details-plan-backend.md" />
-    <File Path=".github/plans/merge-baskets-plan-backend.md" />
-    <File Path=".github/plans/unlock-basket-plan-backend.md" />
-    <File Path=".github/plans/update-item-quantity-plan-backend.md" />
-    <File Path=".github/plans/validate-products-plan-backend.md" />
+  <Folder Name="/_github/agents/tasks/">
+    <File Path=".github/ideas.md" />
+    <File Path="plans/menu-categories-slice-structure-plan.md" />
+    <File Path="plans/menu-ingredients-slice-structure-plan.md" />
+    <File Path="plans/menu-products-slice-structure-plan.md" />
+    <File Path="plans/shoppingcart-baskets-slice-structure-plan.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
-    <File Path=".github/instructions/architecture-tests.instructions.md" />
     <File Path=".github/instructions/backend-tests.instructions.md" />
     <File Path=".github/instructions/backend.instructions.md" />
-    <File Path=".github/instructions/blazor-tests.instructions.md" />
     <File Path=".github/instructions/blazor.instructions.md" />
     <File Path=".github/instructions/module-introduction.instructions.md" />
   </Folder>
-  <Folder Name="/_github/skills/" />
-  <Folder Name="/_github/skills/code-quality/">
-    <File Path=".github/skills/code-quality/skill.md" />
+  <Folder Name="/_github/scripts/">
+    <File Path=".github/scripts/lint-plan.ps1" />
+    <File Path=".github/scripts/slice-scaffold.ps1" />
+    <File Path=".github/scripts/verify.ps1" />
   </Folder>
-  <Folder Name="/_github/skills/solution-structure/">
-    <File Path=".github/skills/solution-structure/skill.md" />
+  <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/skills/caveman/">
+    <File Path=".github/skills/caveman/skill.md" />
+  </Folder>
+  <Folder Name="/_github/wiki/">
+    <File Path=".github/wiki/architecture.md" />
+  </Folder>
+  <Folder Name="/_github/wiki/menu_module/">
+    <File Path=".github/wiki/MenuModule/features.md" />
+  </Folder>
+  <Folder Name="/_github/wiki/shopping_cart_module/">
+    <File Path=".github/wiki/ShoppingCartModule/features.md" />
   </Folder>
   <Folder Name="/_github/workflows/">
     <File Path=".github/workflows/pr-checks.yml" />
@@ -88,7 +83,6 @@
     <File Path="Wiki/Architecture/0002-aspire-orchestration.md" />
     <File Path="Wiki/Architecture/0003-module-specific-database-contexts.md" />
     <File Path="Wiki/Architecture/0004-restaurant-configuration.md" />
-    <File Path="Wiki/Architecture/0005-route-param-attribute-for-update-requests.md" />
   </Folder>
   <Folder Name="/_wiki/Menu/">
     <File Path="Wiki/Menu ADR/0001-menu-domain.md" />

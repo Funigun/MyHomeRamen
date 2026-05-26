@@ -1,8 +1,3 @@
 ﻿namespace MyHomeRamen.Api.Common.Endpoint.Models;
 
-public sealed record PageParameters
-{
-    public int PageNumber { get; init; } = 1;
-
-    public int PageSize { get; init; } = 10;
-}
+public sealed record PageParameters(int PageNumber = 1, int PageSize = 10);

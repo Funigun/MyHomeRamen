@@ -1,0 +1,30 @@
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using MyHomeRamen.Api.Common.Endpoint;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Common.Contracts.Users.Account.Responses;
+
+namespace MyHomeRamen.Api.Users.Features.Account.GetId;
+
+public sealed class GetMyIdEndpoint : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
+    {
+        endpointBuilder.MapStandardGet<GetMyIdResponse>("api/account/me/id", HandleAsync)
+                       .WithName("GetMyIdEndpoint")
+                       .WithTags("account")
+                       .WithDescription("Returns the authenticated user's internal ID.")
+                       .RequireAuthorization(AuthorizationDependencyInjection.AnyAuthenticatedPolicy);
+    }
+
+    private static async Task<Results<Ok<GetMyIdResponse>, NotFound>> HandleAsync(
+        [FromServices] IQueryHandler<GetMyIdQuery, GetMyIdResponse> handler,
+        CancellationToken cancellationToken)
+    {
+        GetMyIdQuery query = new();
+        GetMyIdResponse response = await handler.Handle(query, cancellationToken);
+
+        return TypedResults.Ok(response);
+    }
+}

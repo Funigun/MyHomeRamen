@@ -1,4 +1,4 @@
-using MyHomeRamen.Common.Contracts.Menu.Ingredients;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
 
 namespace MyHomeRamen.UnitTests.MenuModule.Ingredients;
 

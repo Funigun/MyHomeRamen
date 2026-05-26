@@ -1,3 +1,4 @@
+using MyHomeRamen.Api.Common;
 using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Menu.Services;
 using MyHomeRamen.Common.Contracts.Menu;

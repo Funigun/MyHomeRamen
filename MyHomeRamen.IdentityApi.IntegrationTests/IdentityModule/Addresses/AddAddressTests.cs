@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Identity.Api.Features.Account.Addresses.AddAddress.Models;
+using MyHomeRamen.Common.Contracts.Users.Account.Requests;
+using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
@@ -13,7 +14,7 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory)
     public async Task AddAddress_ShouldReturn201_WithNewAddress()
     {
         // Arrange
-        AddAddressRequest request = DataGenerator.GenerateValidAddAddressRequest(isDefault: false);
+        CreateAddressRequest request = DataGenerator.GenerateValidAddAddressRequest(isDefault: false);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses")
             .WithJsonContent(request)
@@ -26,7 +27,7 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory)
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.NotNull(response.Headers.Location);
 
-        AddAddressResponse? body = await response.Content.ReadFromJsonAsync<AddAddressResponse>(TestContext.Current.CancellationToken);
+        CreateAddressResponse? body = await response.Content.ReadFromJsonAsync<CreateAddressResponse>(TestContext.Current.CancellationToken);
         Assert.NotNull(body);
         Assert.NotEqual(Guid.Empty, body.Id);
     }
@@ -35,7 +36,7 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory)
     public async Task AddAddress_ShouldReturn400_WhenUserHas5Addresses()
     {
         // Arrange
-        AddAddressRequest request = DataGenerator.GenerateValidAddAddressRequest();
+        CreateAddressRequest request = DataGenerator.GenerateValidAddAddressRequest();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses")
             .WithJsonContent(request)
@@ -52,7 +53,7 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory)
     public async Task AddAddress_ShouldReturn401_WhenUnauthenticated()
     {
         // Arrange
-        AddAddressRequest request = DataGenerator.GenerateValidAddAddressRequest();
+        CreateAddressRequest request = DataGenerator.GenerateValidAddAddressRequest();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses")
             .WithJsonContent(request);
@@ -66,7 +67,7 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory)
 
     [Theory]
     [MemberData(nameof(DataGenerator.InvalidAddAddressRequests), MemberType = typeof(DataGenerator))]
-    public async Task AddAddress_ShouldReturn400_WhenPayloadInvalid(AddAddressRequest request)
+    public async Task AddAddress_ShouldReturn400_WhenPayloadInvalid(CreateAddressRequest request)
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses")

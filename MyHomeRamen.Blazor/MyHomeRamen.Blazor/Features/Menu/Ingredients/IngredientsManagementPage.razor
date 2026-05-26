@@ -6,13 +6,14 @@
 @using MyHomeRamen.Blazor.Features.Menu.Categories
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Components
 @using MyHomeRamen.Blazor.Features.Menu.Common.Constants
-@using MyHomeRamen.Blazor.Features.Menu.Categories.Requests
-@using MyHomeRamen.Blazor.Features.Menu.Categories.Responses
+@using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs
+@using MyHomeRamen.Common.Contracts.Menu.Categories.Requests
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
-@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Responses
+@using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses
 @using MyHomeRamen.Blazor.Common.Models
+@using MyHomeRamen.Common.Contracts.Menu.Categories.Responses
 
 @inject MenuApiClient MenuApiClient
 @inject MenuNavigationService MenuNavigation
@@ -117,8 +118,8 @@
         _errorMessage = null;
         try
         {
-            List<CategoryOrderItem> orderItems = items
-                .Select((item, index) => new CategoryOrderItem(item.Id, index))
+            List<CategoryOrderItemDto> orderItems = items
+                .Select((item, index) => new CategoryOrderItemDto(item.Id, index))
                 .ToList();
 
             UpdateCategoriesOrderRequest request = new(orderItems);

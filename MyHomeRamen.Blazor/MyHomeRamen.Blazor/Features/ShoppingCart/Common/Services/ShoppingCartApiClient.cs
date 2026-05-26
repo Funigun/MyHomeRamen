@@ -1,5 +1,5 @@
-using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Requests;
-using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services;
 
@@ -17,5 +17,11 @@ public sealed class ShoppingCartApiClient(HttpClient httpClient)
     public async Task<GetCurrentBasketSummaryResponse?> GetCurrentBasketSummaryAsync(CancellationToken ct = default)
     {
         return await httpClient.GetFromJsonAsync<GetCurrentBasketSummaryResponse>("/api/shoppingcart/baskets", ct);
+    }
+
+    public async Task RemoveItem(Guid basketId, Guid itemId, CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/shoppingcart/baskets/{basketId}/items/{itemId}", ct);
+        response.EnsureSuccessStatusCode();
     }
 }

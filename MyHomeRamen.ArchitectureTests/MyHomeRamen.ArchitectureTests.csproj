@@ -9,7 +9,6 @@
     <ProjectReference Include="..\MyHomeRamen.Blazor\MyHomeRamen.Blazor.Client\MyHomeRamen.Blazor.Client.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Blazor\MyHomeRamen.Blazor\MyHomeRamen.Blazor.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
-    <ProjectReference Include="..\MyHomeRamen.Identity.Api\MyHomeRamen.Identity.Api.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Infrastructure\MyHomeRamen.Infrastructure.csproj" />
     <ProjectReference Include="..\MyHomeRamen.IntegrationTests\MyHomeRamen.IntegrationTests.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />

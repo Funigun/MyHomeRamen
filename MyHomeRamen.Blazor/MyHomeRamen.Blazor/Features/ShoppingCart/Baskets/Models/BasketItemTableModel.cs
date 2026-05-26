@@ -1,4 +1,4 @@
-using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models;
 
@@ -14,7 +14,7 @@ public sealed class BasketItemTableModel
 
     public decimal Price { get; init; }
 
-    public static BasketItemTableModel FromResponse(BasketItemResponse response)
+    public static BasketItemTableModel FromResponse(BasketSummaryItemDto response)
     {
         return new BasketItemTableModel
         {

@@ -17,14 +17,14 @@ internal static class ApiDependencyInjection
 
         services.AddHttpClient<CustomerAccountApiClient>(client =>
             {
-                client.BaseAddress = new Uri($"https+http://{ServiceNames.IdentityApi(infrastructurePrefix)}");
+                client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
             }
         ).AddHttpMessageHandler<AuthHeaderHandler>()
          .AddHttpMessageHandler<GuestCookieForwardingHandler>();
 
         services.AddHttpClient<EmployeeApiClient>(client =>
             {
-                client.BaseAddress = new Uri($"https+http://{ServiceNames.IdentityApi(infrastructurePrefix)}");
+                client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
             }
         ).AddHttpMessageHandler<AdminAuthHeaderHandler>();
 

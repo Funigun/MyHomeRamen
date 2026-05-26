@@ -1,16 +1,16 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForDropdown.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Features.Ingredients.GetIngredientsForDropdown;
 
 public sealed class GetIngredientsForDropdownHandler(IMenuDbContext dbContext)
-    : IRequestHandler<GetIngredientsForDropdownRequest, IEnumerable<GetIngredientsForDropdownResponse>>
+    : IQueryHandler<GetIngredientsForDropdownQuery, IEnumerable<GetIngredientsForDropdownResponse>>
 {
     public async Task<IEnumerable<GetIngredientsForDropdownResponse>> Handle(
-        GetIngredientsForDropdownRequest request,
+        GetIngredientsForDropdownQuery request,
         CancellationToken cancellationToken)
     {
         return await dbContext.Ingredients

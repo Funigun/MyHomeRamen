@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketSummary.Models;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Persistance.Common;
@@ -9,9 +9,9 @@ using MyHomeRamen.Persistance.Common;
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 
 public sealed class GetCurrentBasketSummaryHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser)
-                  : IRequestHandler<GetCurrentBasketSummaryRequest, GetCurrentBasketSummaryResponse>
+                  : IQueryHandler<GetCurrentBasketSummaryQuery, GetCurrentBasketSummaryResponse>
 {
-    public async Task<GetCurrentBasketSummaryResponse> Handle(GetCurrentBasketSummaryRequest request, CancellationToken cancellationToken)
+    public async Task<GetCurrentBasketSummaryResponse> Handle(GetCurrentBasketSummaryQuery request, CancellationToken cancellationToken)
     {
         User? user = await dbContext.Users.AsNoTracking()
                                              .Where(u => u.Id == (UserId)currentUser.UserId)

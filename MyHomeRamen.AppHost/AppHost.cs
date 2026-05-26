@@ -19,16 +19,6 @@ IResourceBuilder<ProjectResource> mailingWorker = builder.AddMailingWorker(confi
                                                          .WithReference(rabbitmq)
                                                          .WaitFor(rabbitmq);
 
-IResourceBuilder<ProjectResource> identityApiService = builder.AddIdentityApiService(config)
-                                                              .WithReference(rabbitmq)
-                                                              .WithReference(cache)
-                                                              .WithReference(keyCloak)
-                                                              .WaitFor(rabbitmq)
-                                                              .WaitFor(cache)
-                                                              .WaitFor(keyCloak)
-                                                              .WaitFor(dbMigrator)
-                                                              .WaitFor(messagesHandler);
-
 IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
                                                       .WithReference(rabbitmq)
                                                       .WithReference(cache)
@@ -39,15 +29,12 @@ IResourceBuilder<ProjectResource> apiService = builder.AddApiService(config)
                                                       .WaitFor(messagesHandler);
 
 IResourceBuilder<ProjectResource> blazor = builder.AddBlazor(config)
-                                                  .WithReference(identityApiService)
                                                   .WithReference(apiService)
                                                   .WithReference(keyCloak)
-                                                  .WaitFor(identityApiService)
                                                   .WaitFor(apiService)
                                                   .WaitFor(keyCloak)
                                                   .WithExplicitStart();
 
-identityApiService.WithReference(blazor);
 apiService.WithReference(blazor);
 
 builder.Eventing.Subscribe<BeforeStartEvent>((_, _) =>

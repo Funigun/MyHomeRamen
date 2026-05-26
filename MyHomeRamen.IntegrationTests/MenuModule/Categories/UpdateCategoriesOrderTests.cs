@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Menu.Features.Categories.UpdateCategoriesOrder.Models;
+using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
@@ -29,7 +30,7 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == HttpStatusCode.NoContent, $"Expected status code {HttpStatusCode.NoContent} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(HttpStatusCode.NoContent);
 
         foreach (CategoryOrderItemDto item in items)
         {
@@ -55,7 +56,7 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == HttpStatusCode.Unauthorized, $"Expected status code {HttpStatusCode.Unauthorized} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -75,7 +76,7 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == HttpStatusCode.Forbidden, $"Expected status code {HttpStatusCode.Forbidden} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Theory]
@@ -91,6 +92,6 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory)
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == HttpStatusCode.BadRequest, $"Expected status code {HttpStatusCode.BadRequest} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

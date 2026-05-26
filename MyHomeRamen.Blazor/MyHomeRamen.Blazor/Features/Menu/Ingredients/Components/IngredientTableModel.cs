@@ -1,4 +1,4 @@
-using MyHomeRamen.Blazor.Features.Menu.Ingredients.Responses;
+using MyHomeRamen.Common.Contracts.Menu.Ingredients.DTOs;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.Components;
 
@@ -10,7 +10,7 @@ public sealed class IngredientTableModel
 
     public string Description { get; init; } = string.Empty;
 
-    public static IngredientTableModel FromResponse(IngredientForManageItemResponse response)
+    public static IngredientTableModel FromResponse(IngredientForManageDto response)
     {
         return new IngredientTableModel
         {

@@ -4,7 +4,7 @@ namespace MyHomeRamen.Api.Common.Authorization;
 
 public interface ICurrentUser
 {
-    string Id { get; init; }
+    string Id { get; }
 
     Guid UserId { get; }
 

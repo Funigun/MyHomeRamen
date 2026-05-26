@@ -1,10 +1,13 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Domain.Users.Database;
 
 namespace MyHomeRamen.Api.WebPresentation;
 
-public sealed class KeycloakClaimsTransformation : IClaimsTransformation
+public sealed class KeycloakClaimsTransformation(IUsersDbContext usersDbContext) : IClaimsTransformation
 {
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
@@ -13,6 +16,7 @@ public sealed class KeycloakClaimsTransformation : IClaimsTransformation
             return principal;
         }
 
+        await SetUserIdClaim(principal, identity);
         TransformRoles(principal, identity);
 
         return principal;
@@ -41,6 +45,28 @@ public sealed class KeycloakClaimsTransformation : IClaimsTransformation
             }
 
             identity.RemoveClaim(resourceAccessClaim);
+        }
+    }
+
+    private async Task SetUserIdClaim(ClaimsPrincipal principal, ClaimsIdentity identity)
+    {
+        Claim? keycloakId = principal.FindFirst(ClaimConstants.KeycloakIdClaim);
+
+        if (keycloakId != null)
+        {
+            Guid userId = await usersDbContext.Users.AsNoTracking()
+                                                    .Where(user => user.KeycloakUserId == keycloakId.Value)
+                                                    .Select(user => user.Id)
+                                                    .FirstOrDefaultAsync();
+
+            Claim? domainIdClaim = identity.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.DomainIdClaim);
+
+            if (domainIdClaim != null)
+            {
+                identity.RemoveClaim(domainIdClaim);
+            }
+
+            identity.AddClaim(new Claim(ClaimConstants.DomainIdClaim, userId.ToString()));
         }
     }
 }

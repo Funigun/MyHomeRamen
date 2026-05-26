@@ -33,7 +33,7 @@ public static partial class DbExtensions
             => await ingredients.Exists(i => i.Name.ToLower() != name.ToLower(), cancellationToken);
 
         public async Task<bool> IsIngredientNameUniqueExcludingAsync(string name, IngredientId excludeId, CancellationToken cancellationToken = default)
-            => await ingredients.Exists(i => i.Id == excludeId || i.Name.ToLower() != name.ToLower(), cancellationToken);
+            => !await ingredients.Exists(i => i.Id != excludeId && i.Name.ToLower() == name.ToLower(), cancellationToken);
 
         public async Task<bool> IsCategoryUsedByIngredientAsync(CategoryId categoryId, CancellationToken cancellationToken = default)
             => await ingredients.Exists(i => i.Categories.Any(c => c.Id == categoryId), cancellationToken);

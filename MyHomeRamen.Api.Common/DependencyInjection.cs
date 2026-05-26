@@ -1,14 +1,13 @@
 ﻿using System.Reflection;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint;
 using MyHomeRamen.Api.Common.Endpoint.Models;
-using MyHomeRamen.Api.Common.Hateoas.Builder;
-using MyHomeRamen.Api.Common.Hateoas.Common;
+using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.Common.Middleware;
 
 namespace MyHomeRamen.Api.Common;
@@ -18,8 +17,6 @@ public static class DependencyInjection
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
         services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddScoped<IHateoasBuilderFactory, HateoasBuilderFactory>();
-        services.AddScoped<HateoasLinkService>();
         services.AddScoped<ICurrentUser, CurrentUser>();
 
         return services;
@@ -53,42 +50,69 @@ public static class DependencyInjection
             services.AddTransient(typeof(IEndpoint), endpointType);
         }
 
-        IEnumerable<Type> groups = assembly.GetTypes()
-                                           .Where(type => typeof(IGroupEndpoint).IsAssignableFrom(type) && !type.IsAbstract && !type.IsInterface);
+        return services;
+    }
 
-        foreach (Type group in groups)
+    public static IServiceCollection AddCommandHandlers(this IServiceCollection services, Assembly assembly)
+    {
+        Type noResponseHandlerOpenType = typeof(ICommandHandler<>);
+        Type withResponseHandlerOpenType = typeof(ICommandHandler<,>);
+
+        List<Type> noResponseHandlers = assembly.GetExportedTypes()
+                                                .Where(t => t.GetInterfaces()
+                                                             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == noResponseHandlerOpenType))
+                                                .ToList();
+
+        foreach (Type type in noResponseHandlers)
         {
-            services.AddTransient(typeof(IGroupEndpoint), group);
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == noResponseHandlerOpenType);
+            services.AddScoped(interfaceType, type);
+            services.Decorate(interfaceType, typeof(CommandValidationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
+        }
+
+        List<Type> withResponseHandlers = assembly.GetExportedTypes()
+                                                   .Where(t => t.GetInterfaces()
+                                                                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == withResponseHandlerOpenType))
+                                                   .ToList();
+
+        foreach (Type type in withResponseHandlers)
+        {
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == withResponseHandlerOpenType);
+            services.AddScoped(interfaceType, type);
+            services.Decorate(interfaceType, typeof(CommandValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
         }
 
         return services;
     }
 
-    public static IServiceCollection AddEndpointHandlers(this IServiceCollection services, Assembly assembly)
+    public static IServiceCollection AddQueryHandlers(this IServiceCollection services, Assembly assembly)
     {
-        Type handler = typeof(IRequestHandler<>);
-        Type handlerType = typeof(IRequestHandler<,>);
+        Type queryHandlerOpenType = typeof(IQueryHandler<,>);
+        Type validatorOpenType = typeof(IValidator<>);
 
-        List<Type>? types = assembly.GetExportedTypes()
-                                    .Where(t => t.GetInterfaces()
-                                                     .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handler))
-                                    .ToList();
+        HashSet<Type> validatedQueryTypes = assembly.GetExportedTypes()
+                                                    .Where(t => t.GetInterfaces()
+                                                                 .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == validatorOpenType))
+                                                    .SelectMany(t => t.GetInterfaces()
+                                                                      .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == validatorOpenType)
+                                                                      .Select(i => i.GetGenericArguments()[0]))
+                                                    .ToHashSet();
 
-        foreach (Type type in types)
+        List<Type> queryHandlers = assembly.GetExportedTypes()
+                                           .Where(t => t.GetInterfaces()
+                                                        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == queryHandlerOpenType))
+                                           .ToList();
+
+        foreach (Type type in queryHandlers)
         {
-            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handler);
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == queryHandlerOpenType);
             services.AddScoped(interfaceType, type);
-        }
 
-        types = assembly.GetExportedTypes()
-                        .Where(t => t.GetInterfaces()
-                                         .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerType))
-                        .ToList();
-
-        foreach (Type type in types)
-        {
-            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerType);
-            services.AddScoped(interfaceType, type);
+            Type queryType = interfaceType.GetGenericArguments()[0];
+            if (validatedQueryTypes.Contains(queryType))
+            {
+                services.Decorate(interfaceType, typeof(QueryValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
+            }
         }
 
         return services;
@@ -105,54 +129,9 @@ public static class DependencyInjection
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-        ILookup<string, IGroupEndpoint> endpointGroups = app.Services.GetServices<IGroupEndpoint>()
-                                                                        .ToLookup(g => g.GroupName);
-
-        List<IEndpoint> endpoints = app.Services.GetServices<IEndpoint>().ToList();
-
-        Dictionary<string, List<IEndpoint>> groupedEndpoints = [];
-        List<IEndpoint> ungroupedEndpoints = [];
+        IEnumerable<IEndpoint> endpoints = app.Services.GetServices<IEndpoint>();
 
         foreach (IEndpoint endpoint in endpoints)
-        {
-            if (!string.IsNullOrEmpty(endpoint.GroupName))
-            {
-                if (!groupedEndpoints.TryGetValue(endpoint.GroupName, out List<IEndpoint>? groupEndpoints))
-                {
-                    groupEndpoints = [];
-                    groupedEndpoints[endpoint.GroupName] = groupEndpoints;
-                }
-
-                groupEndpoints.Add(endpoint);
-            }
-            else
-            {
-                ungroupedEndpoints.Add(endpoint);
-            }
-        }
-
-        foreach (KeyValuePair<string, List<IEndpoint>> group in groupedEndpoints)
-        {
-            string groupName = group.Key;
-            List<IEndpoint> groupEndpoints = group.Value;
-
-#pragma warning disable CA1308 // Normalize strings to uppercase
-            string groupRoute = $"api/{groupName.ToLowerInvariant()}";
-#pragma warning restore CA1308 // Normalize strings to uppercase
-            RouteGroupBuilder routeGroupBuilder = app.MapGroup(groupRoute);
-
-            foreach (IGroupEndpoint endpointGroup in endpointGroups[groupName])
-            {
-                endpointGroup.Configure(routeGroupBuilder);
-            }
-
-            foreach (IEndpoint endpoint in groupEndpoints)
-            {
-                endpoint.MapEndpoint(routeGroupBuilder);
-            }
-        }
-
-        foreach (IEndpoint endpoint in ungroupedEndpoints)
         {
             endpoint.MapEndpoint(app);
         }
