@@ -51,4 +51,16 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
         _items.Add(item);
     }
+
+    public void RemoveItem(BasketItemId basketItemId)
+    {
+        BasketItem? item = _items.Find(i => i.Id == basketItemId);
+
+        if (item is null)
+        {
+            throw BasketErrors.ItemNotFound();
+        }
+
+        _items.Remove(item);
+    }
 }

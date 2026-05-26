@@ -12,19 +12,20 @@ You **DO NOT** write code or change any files.
 
 ## Rules:
 - never implement feature by yourself
-- do not search for existing patterns as `patterns.md` contains all canonical patterns.
+- do not search for existing patterns/implementations - there are dedicated `features.md` files to load according to instructions below
 - one feature per plan file, if multiple features are needed, create multiple plan files
 - keep plans **concise** — omit anything obvious from patterns, architecture, or coding standards
 - do not restate pattern names in rationale (e.g. "follows command pattern" is redundant)
 - do not include full method/record signatures, field lists, or implementation notes — names are enough
 - do not list validation messages verbatim unless they are non-obvious
 - do not describe what a file does if its purpose is clear from its name and the patterns doc
-- test cases: list names only with a one-word qualifier (happy / auth / validation / not-found); no descriptions
 
 ## What to NOT to do:
 - do not run builds, tests
 - do not write code, create folders or files
 - do not modify instructions / agents / scripts / code
+
+## 
 
 ## Required Instructions / Skills
 
@@ -34,9 +35,13 @@ Conditional reading:
 
 Always load:
 - `.github/wiki/architecture.md`
-- `.github/wiki/patterns.md`
 - `.github/copilot-instructions.md`
-  
+
+Module feature files (load if file exists):
+- For each module being **worked on or integrated with**, load `.github/wiki/{Module}Module/features.md`
+- Example: working on `ShoppingCart` that integrates with `Menu` → load both `.github/wiki/ShoppingCartModule/features.md` and `.github/wiki/MenuModule/features.md`
+- Skip silently if the file does not exist for a given module
+
 ## Check for migrations
 
 Determine if database migrations are required based on domain model changes and if so:
@@ -61,9 +66,6 @@ These formats are required by the scaffold script's path parsers — any deviati
 
 The only valid module names are: `Users`, `Menu`, `Orders`, `ShoppingCart`, `Reservations`, `Payments`.
 
-- Always use the exact module name from this list in plan titles, file paths, and folder structures.
-- Never invent or abbreviate module names (e.g. use `ShoppingCart`, not `Basket` or `Cart`).
-
 ## Plan Files Preparation Process
 
 ### Files location
@@ -86,19 +88,16 @@ Naming conventions:
 | <path> | create/modify/delete | <type> | <only non-obvious detail, otherwise leave blank> |
 
 Valid `Type` values (use for `create` rows only; leave blank for `modify`):
-- `request`, `response` — contracts under `MyHomeRamen.Common.Contracts\{Module}\{Entity}\Requests|Responses\`
-- `command`, `command-void` — command with / without response
-- `query` — query
-- `command-handler`, `command-void-handler`, `query-handler` — matching handlers
-- `validator` — FluentValidation validator
-- `endpoint-get`, `endpoint-post`, `endpoint-put`, `endpoint-delete` — endpoint by HTTP verb
-- `unit-test`, `integration-test` — test class stubs
-- *(blank)* — domain changes, persistence extensions and any file the scaffold cannot generate
+- request, response — contracts under `MyHomeRamen.Common.Contracts\{Module}\{Entity}\Requests|Responses\`
+- command, command-void — command with / without response
+- query — query
+- command-handler, command-void-handler, query-handler — matching handlers
+- validator — FluentValidation validator
+- endpoint-get, endpoint-post, endpoint-put, endpoint-delete — endpoint by HTTP verb
+- unit-test, integration-test — test class stubs
+- (blank) — domain changes, persistence extensions and any file the scaffold cannot generate
 
-Valid `Action` values guidance to not confuse implementation agent: 
-- Create for any file that does not exist (even if scaffolding script will not handle it)
-- Modify for any existing file to change (do not confuse with create)
-- Delete for any file that should be removed
+Valid `Action` values: Create, Modify, Delete 
 
 - **Required rows**: 
 The §2 table must always include rows for every file that will be changed, deleted or created so implementation agent will not get confused.
@@ -117,8 +116,8 @@ The §2 table must always include rows for every file that will be changed, dele
 - Validation rules: <non-obvious rules only>
 
 ## 6. Tests
-- Unit: `MethodName_Scenario` (happy / exception)
-- Integration: `EndpointAction_Scenario` (happy / auth / validation)
+- Unit: `{MethodName}_Should{ExpectedBehavior}_When{StateUnderTest}` (happy / exception)
+- Integration: `{MethodName}_Should{Behavior}_For{Condition}` (happy / auth / validation / bad request)
 
 ## 7. Risks / decisions for human approval
 - <only open questions or deviations from standard patterns>
@@ -159,5 +158,4 @@ Once a backend plan file has been written, **execute** the lint script against i
 pwsh .github/scripts/lint-plan.ps1 -PlanPath <path-to-plan-file>
 ```
 
-- If the script exits with code **0** → proceed.
-- If the script exits with code **1** → fix every reported issue in the plan file, then run the script again until it exits with code 0.
+Once script is finish, stop, do not read output and handoff to user for review.

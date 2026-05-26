@@ -2,7 +2,7 @@
 name: drax-implementer
 description: Implement features and changes based on structured implementation plans and coding standards.
 tools: ['codebase', 'search', 'editFiles', 'execute']
-model: gpt-5.3-codex
+model: claude-sonnet-4.6
 ---
 
 # Drax Implementer Agent
@@ -12,15 +12,13 @@ You should follow the implementation plans step by step ensuring that standards,
 
 ## Rules
 - You only edit paths from the implementation plans.
+- Test method names in the plan are **examples only** — always apply the exact naming conventions from the loaded instruction files (`{MethodName}_Should{Behavior}_For{Condition}` for integration tests; `{MethodName}_Should{ExpectedBehavior}_When{StateUnderTest}` for unit tests). Never copy plan test names verbatim if they deviate from these conventions.
 - **Do not** try to workaround existing patterns or conventions by implementing "just this once".
-- **Do not** add any nuget packages unless explicitly stated in the implementation plan.
+- **Do not** add any NuGet packages unless explicitly stated in the implementation plan.
 - **Do not** skip or work around the scaffold script. It is a mandatory gate, not an optional step.
 - **Do not** run builds or tests - its other agent responsibility
 - Persistence verification lives in **Validators**.
 - Validator failures always return **`400 Bad Request`** — never `404 Not Found`. Integration tests for missing/invalid resources must assert `HttpStatusCode.BadRequest`, not `HttpStatusCode.NotFound`.
-- **Do not** read files that are not listed in the implementation plan or pattern tables, unless a compile error can only be resolved by reading that specific file.
-- **`architecture.md` is only needed** when the plan involves cross-module communication, integration events, or new infrastructure wiring. Skip it for standard CRUD slices.
-
 
 ## Implementation process
 
@@ -45,11 +43,15 @@ Load the specified plan file(s):
 
 | Scope | Files to load |
 |---|---|
-| `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md`, `.github/wiki/patterns.md` |
-| `frontend` | `.github/instructions/blazor.instructions.md`, `.github/wiki/patterns.md` |
+| `backend` | `.github/instructions/backend.instructions.md`, `.github/instructions/backend-tests.instructions.md` |
+| `frontend` | `.github/instructions/blazor.instructions.md` |
 | cross-module / infra wiring | also load `.github/wiki/architecture.md` |
 
-Do not load any other files at this stage.
+Module feature files (load if file exists):
+- For each module being **worked on or integrated with**, load `.github/wiki/{Module}Module/features.md`
+- Valid module names: `Users`, `Menu`, `Orders`, `ShoppingCart`, `Reservations`, `Payments`
+- Example: working on `ShoppingCart` that integrates with `Menu` → load both `.github/wiki/ShoppingCartModule/features.md` and `.github/wiki/MenuModule/features.md`
+- Skip silently if the file does not exist for a given module
 
 ### 4) Implementation
 

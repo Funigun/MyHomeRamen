@@ -16,4 +16,7 @@ public static class BasketErrors
 
     public static DomainException BasketItemsLimitReached()
         => new($"Basket cannot contain more than {BasketConstants.MaxProductsCount} items.");
+
+    public static DomainException ItemNotFound()
+        => new("Basket item was not found.");
 }

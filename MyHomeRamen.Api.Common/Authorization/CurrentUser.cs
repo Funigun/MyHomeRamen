@@ -7,7 +7,7 @@ namespace MyHomeRamen.Api.Common.Authorization;
 
 public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, RestaurantConfigurationProvider configurationProvider) : ICurrentUser
 {
-    public string Id { get; init; } = httpContextAccessor.GetIdentityId();
+    public string Id => httpContextAccessor.GetIdentityId();
 
     public Guid UserId => httpContextAccessor.TryGetUserId()
                        ?? httpContextAccessor.TryGetGuestId()

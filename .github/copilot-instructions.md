@@ -48,9 +48,15 @@ MyHomeRamen.slnx
 ## Testing
 Project uses xUnit for unit, integration and architecture tests.
 - Architecture Tests: enforce architectural rules using NetArchRules
-- Unit Tests: focus on testing domain logic and application services that do not have infrastructure or external dependencies
-- Integration Tests (Test Containers): test individual services in isolation (e.g. API + DB) using TestContainers
-- Integration Tests (Aspire): test complete distributed workflows spanning multiple independent services (API + Identity + Workers + External services) orchestrated by .NET Aspire
+- Unit Tests: 
+	- focus on testing domain logic and application services that do not have infrastructure or external dependencies
+	- naming conventions: `{DomainModel}_Should{ExpectedBehavior}_When{StateUnderTest}`, `{MethodName}_Should{ExpectedBehavior}_When{StateUnderTest}`
+- Integration Tests (Test Containers): 
+	- test individual services in isolation (e.g. API + DB) using TestContainers
+	- naming convention: `{MethodName}_Should{Behavior}_For{Condition}` (e.g., `CreateProduct_ShouldReturnCreated_ForValidRequest`)
+- Integration Tests (Aspire): 
+	- test complete distributed workflows spanning multiple independent services (API + Identity + Workers + External services) orchestrated by .NET Aspire
+	- naming convention: `{Scenario}_Should{ExpectedOutcome}_When{Condition}` (e.g., `ProductManagement_ShouldSucceed_ForValidWorkflow`)
 
 ## Copilot standards
 - Load all relevant instruction files as described in the agent instructions.

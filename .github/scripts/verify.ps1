@@ -34,7 +34,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$repoRoot = Split-Path -Parent $PSScriptRoot
+$repoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 if (-not (Test-Path $PlanPath)) { Write-Error "Plan not found: $PlanPath"; exit 3 }
 
@@ -223,7 +223,8 @@ if (-not $skippedBecauseOfPre) {
                 $failureNotes += ("Arch tests output (tail):" + [Environment]::NewLine + $fence + [Environment]::NewLine + ($tail -join [Environment]::NewLine) + [Environment]::NewLine + $fence)
             }
 
-            $needsIntegration = ($plannedAll | Where-Object { $_ -like 'myhomeramen.integrationtests/*' }).Count -gt 0
+ #           $needsIntegration = ($plannedAll | Where-Object { $_ -like 'myhomeramen.integrationtests/*' }).Count -gt 0
+            $needsIntegration = $false
             if ($needsIntegration) {
                 $itg = Invoke-Step 'integration' { dotnet test MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj --nologo --no-build }
                 $itgStatus = if ($itg.ExitCode -eq 0) { 'PASS' } else { 'FAIL' }

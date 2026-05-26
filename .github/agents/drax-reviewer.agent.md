@@ -71,6 +71,8 @@ Read following files before starting the review:
 | Plan called for a test (unit/integration), code is missing it | **blocking** |
 | Calling other module via dedicated service or by consuming integration event | **blocking** |
 | Used DbContext / DbSet<T> extension method | **suggestion** |
+| Proper unit tests implemented (if in scope) | **suggestion** |
+| Proper integration tests implemented (if in scope) | **suggestion** |
 
 ### 2.2. Out of scope (do not flag)
 - Style (whitespace, member ordering — if the analyzer passed).
@@ -91,6 +93,8 @@ Produce `.github/plans/{feature}/code-review.md` with the following structure:
 <2-4 sentences — is the change ready to merge>
 
 ## Findings
+
+#
 
 | # | Severity | File:Line | Rationale | Suggested fix |
 |---|----------|-----------|-----------|---------------|

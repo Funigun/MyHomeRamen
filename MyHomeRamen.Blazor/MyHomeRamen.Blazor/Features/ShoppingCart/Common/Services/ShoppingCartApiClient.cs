@@ -18,4 +18,10 @@ public sealed class ShoppingCartApiClient(HttpClient httpClient)
     {
         return await httpClient.GetFromJsonAsync<GetCurrentBasketSummaryResponse>("/api/shoppingcart/baskets", ct);
     }
+
+    public async Task RemoveItem(Guid basketId, Guid itemId, CancellationToken ct = default)
+    {
+        using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/shoppingcart/baskets/{basketId}/items/{itemId}", ct);
+        response.EnsureSuccessStatusCode();
+    }
 }

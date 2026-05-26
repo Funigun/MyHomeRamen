@@ -27,6 +27,7 @@
 </div>
 
 @code {
+    private Guid _basketId;
     private List<BasketItemTableModel> _items = [];
     private bool _isLoading;
     private decimal _total;
@@ -62,6 +63,7 @@
         GetCurrentBasketSummaryResponse? response = await ShoppingCartApiClient.GetCurrentBasketSummaryAsync();
         if (response is not null)
         {
+            _basketId = response.Id;
             _items = response.Items.Select(BasketItemTableModel.FromResponse).ToList();
             _total = _items.Sum(i => i.Price * i.Quantity);
         }
@@ -70,9 +72,10 @@
         _isMenuOpen = true;
     }
 
-    private Task HandleRemoveAsync(Guid id)
+    private async Task HandleRemoveAsync(Guid id)
     {
-        return Task.CompletedTask;
+        await ShoppingCartApiClient.RemoveItem(_basketId, id);
+        await LoadBasketAsync();
     }
 
     private Task HandleUpdateQuantityAsync((Guid Id, int Quantity) args)
