@@ -4,9 +4,7 @@
 
 using System.Text.RegularExpressions;
 
-Console.WriteLine("Enter the path to the plan file:");
-string filePath = Console.ReadLine() ?? "";
-string featurePlanPath = filePath;
+string featurePlanPath = args[0];
 
 if (!File.Exists(featurePlanPath))
 {

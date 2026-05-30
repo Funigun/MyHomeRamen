@@ -33,19 +33,19 @@ public static partial class DbExtensions
             => baskets
                 .Include(b => b.Items)
                 .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active);
+
+        public IQueryable<Basket> GetCurrentBasketSummary(Guid userId)
+            => baskets.AsNoTracking()
+                      .Where(b => b.User.Id == (UserId)userId && b.Status == BasketStatus.Active)
+                      .Include(basket => basket.Items)
+                        .ThenInclude(item => item.Product);
+
+        public Task<bool> ItemExistsQuery(UserId userId, BasketItemId basketItemId, BasketId basketId, CancellationToken cancellationToken)
+            => baskets.AsNoTracking()
+                      .AnyAsync(
+                                b => b.Id == basketId
+                             && b.User.Id == userId
+                             && b.Items.Any(i => i.Id == basketItemId),
+                                cancellationToken);
     }
-
-    public static IQueryable<Basket> GetCurrentBasketSummary(this IQueryable<Basket> baskets, Guid userId)
-        => baskets.AsNoTracking()
-                  .Where(b => b.User.Id == (UserId)userId && b.Status == BasketStatus.Active)
-                  .Include(basket => basket.Items)
-                    .ThenInclude(item => item.Product);
-
-    public static Task<bool> ItemExistsQuery(this IQueryable<Basket> baskets, UserId userId, BasketItemId basketItemId, BasketId basketId, CancellationToken cancellationToken)
-        => baskets.AsNoTracking()
-                  .AnyAsync(
-                            b => b.Id == basketId
-                         && b.User.Id == userId
-                         && b.Items.Any(i => i.Id == basketItemId),
-                            cancellationToken);
 }

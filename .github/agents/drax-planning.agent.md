@@ -1,7 +1,7 @@
 ---
 name: drax-planner
 description: Research codebase and generate structured implementation and testing plans within 
-tools: ['codebase', 'search', 'fetch', 'read', 'edit']
+tools: ['codebase', 'search', 'fetch', 'read', 'edit', 'execute']
 model: claude-sonnet-4.6
 ---
 
@@ -155,7 +155,7 @@ The §2 table must always include rows for every file that will be changed, dele
 Once a backend plan file has been written, **execute** the lint script against it using the `run_command` tool (do NOT read or interpret the script file manually):
 
 ```
-dotnet run MyHomeRamen/Scripts/PlanReview/gith8ubPlanReviewScript.cs -- <path-to-plan-file>
+dotnet run ./Scripts/PlanReview/PlanReviewScript.cs -- .github/plans/{feature}/backend-plan.md
 ```
 
 Once script is finish, stop, do not read output and handoff to user for review.
