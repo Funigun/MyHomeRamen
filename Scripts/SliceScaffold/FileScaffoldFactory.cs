@@ -1,6 +1,3 @@
-#:include FileType.cs
-#:include FileDetails.cs
-
 public static class FileScaffoldFactory
 {
     // Placeholders used in all templates

@@ -1,6 +1,3 @@
-#:include FileAction.cs
-#:include FileType.cs
-
 public class FileDetails
 {
     public string Path { get; init; }

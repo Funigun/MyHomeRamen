@@ -10,14 +10,18 @@
   <Folder Name="/Scripts/">
     <File Path="Scripts/Directory.Build.props" />
   </Folder>
+  <Folder Name="/Scripts/Common/">
+    <File Path="Scripts/Common/FileAction.cs" />
+    <File Path="Scripts/Common/FileType.cs" />
+    <File Path="Scripts/Common/PlanFileConstants.cs" />
+    <File Path="Scripts/Common/PlanFileService.cs" />
+  </Folder>
   <Folder Name="/Scripts/PlanReview/">
     <File Path="Scripts/PlanReview/PlanReviewScript.cs" />
   </Folder>
   <Folder Name="/Scripts/ScliceScaffold/">
-    <File Path="Scripts/SliceScaffold/FileAction.cs" />
     <File Path="Scripts/SliceScaffold/FileDetails.cs" />
     <File Path="Scripts/SliceScaffold/FileScaffoldFactory.cs" />
-    <File Path="Scripts/SliceScaffold/FileType.cs" />
     <File Path="Scripts/SliceScaffold/SliceScaffoldScript.cs" />
   </Folder>
   <Folder Name="/Solution Items/">

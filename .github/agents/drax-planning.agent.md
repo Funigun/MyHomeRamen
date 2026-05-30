@@ -155,7 +155,7 @@ The §2 table must always include rows for every file that will be changed, dele
 Once a backend plan file has been written, **execute** the lint script against it using the `run_command` tool (do NOT read or interpret the script file manually):
 
 ```
-pwsh .github/scripts/lint-plan.ps1 -PlanPath <path-to-plan-file>
+dotnet run MyHomeRamen/Scripts/PlanReview/gith8ubPlanReviewScript.cs -- <path-to-plan-file>
 ```
 
 Once script is finish, stop, do not read output and handoff to user for review.
