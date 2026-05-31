@@ -16,6 +16,14 @@
     <File Path="Scripts/Common/PlanFileConstants.cs" />
     <File Path="Scripts/Common/PlanFileService.cs" />
   </Folder>
+  <Folder Name="/Scripts/ImplementationVerify/">
+    <File Path="Scripts/ImplementationVerify/CheckResult.cs" />
+    <File Path="Scripts/ImplementationVerify/DiffParser.cs" />
+    <File Path="Scripts/ImplementationVerify/ImplementationVerifyScript.cs" />
+    <File Path="Scripts/ImplementationVerify/PlanParser.cs" />
+    <File Path="Scripts/ImplementationVerify/ReportRenderer.cs" />
+    <File Path="Scripts/ImplementationVerify/StepRunner.cs" />
+  </Folder>
   <Folder Name="/Scripts/PlanReview/">
     <File Path="Scripts/PlanReview/PlanReviewScript.cs" />
   </Folder>
@@ -62,10 +70,6 @@
   </Folder>
   <Folder Name="/_github/agents/tasks/">
     <File Path=".github/ideas.md" />
-    <File Path="plans/menu-categories-slice-structure-plan.md" />
-    <File Path="plans/menu-ingredients-slice-structure-plan.md" />
-    <File Path="plans/menu-products-slice-structure-plan.md" />
-    <File Path="plans/shoppingcart-baskets-slice-structure-plan.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/backend-tests.instructions.md" />
