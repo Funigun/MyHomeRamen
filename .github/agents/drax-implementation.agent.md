@@ -34,7 +34,7 @@ Load the specified plan file(s):
 > If the script fails, stop and report the error — do not work around it by creating files manually.
 >
 > ```
-> dotnet run MyHomeRamen/Scripts/SliceScaffold/ScliceScaffoldScript.cs -- <path-to-plan-file>
+> dotnet run ./Scripts/SliceScaffold/SliceScaffoldScript.cs -- .github/plans/{feature}/backend-plan.md
 > ```
 >
 > Only proceed to step 3 after the script exits with code 0.

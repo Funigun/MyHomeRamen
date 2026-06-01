@@ -24,7 +24,7 @@ public class PlanFile
 
     public bool TryGetFilesTableSection(out string[] tableLines, out string? message)
     {
-        string? section2Key = Sections.Keys.FirstOrDefault(k => k == PlanFileConstants.FilesSectionHeader);
+        string? section2Key = Sections.Keys.FirstOrDefault(k => k == PlanFileConstants.FilesSectionHeader.Replace("## ", "").Trim());
         tableLines = [];
 
         if (section2Key is null)
