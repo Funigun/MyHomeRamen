@@ -1,0 +1,24 @@
+<Project>
+	<PropertyGroup>
+		<TargetFramework>net11.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+
+		<AnalysisLevel>latest</AnalysisLevel>
+		<AnalysisMode>All</AnalysisMode>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<ExperimentalFileBasedProgramEnableIncludeDirective>True</ExperimentalFileBasedProgramEnableIncludeDirective>
+		<ExperimentalFileBasedProgramEnableTransitiveDirectives>True</ExperimentalFileBasedProgramEnableTransitiveDirectives>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Shared scripting files from Scripts\Common -->
+		<Compile Include="..\Common\FileType.cs" />
+		<Compile Include="..\Common\FileAction.cs" />
+		<Compile Include="..\Common\PlanFileConstants.cs" />
+		<Compile Include="..\Common\PlanFileService.cs" />
+		<!-- Add other shared files here as needed -->
+	</ItemGroup>
+</Project>

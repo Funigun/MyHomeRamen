@@ -7,6 +7,31 @@
     <Project Path="MyHomeRamen.Blazor/MyHomeRamen.Blazor.Client/MyHomeRamen.Blazor.Client.csproj" />
     <Project Path="MyHomeRamen.Blazor/MyHomeRamen.Blazor/MyHomeRamen.Blazor.csproj" />
   </Folder>
+  <Folder Name="/Scripts/">
+    <File Path="Scripts/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/Scripts/Common/">
+    <File Path="Scripts/Common/FileAction.cs" />
+    <File Path="Scripts/Common/FileType.cs" />
+    <File Path="Scripts/Common/PlanFileConstants.cs" />
+    <File Path="Scripts/Common/PlanFileService.cs" />
+  </Folder>
+  <Folder Name="/Scripts/ImplementationVerify/">
+    <File Path="Scripts/ImplementationVerify/CheckResult.cs" />
+    <File Path="Scripts/ImplementationVerify/DiffParser.cs" />
+    <File Path="Scripts/ImplementationVerify/ImplementationVerifyScript.cs" />
+    <File Path="Scripts/ImplementationVerify/PlanParser.cs" />
+    <File Path="Scripts/ImplementationVerify/ReportRenderer.cs" />
+    <File Path="Scripts/ImplementationVerify/StepRunner.cs" />
+  </Folder>
+  <Folder Name="/Scripts/PlanReview/">
+    <File Path="Scripts/PlanReview/PlanReviewScript.cs" />
+  </Folder>
+  <Folder Name="/Scripts/ScliceScaffold/">
+    <File Path="Scripts/SliceScaffold/FileDetails.cs" />
+    <File Path="Scripts/SliceScaffold/FileScaffoldFactory.cs" />
+    <File Path="Scripts/SliceScaffold/SliceScaffoldScript.cs" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
@@ -45,10 +70,6 @@
   </Folder>
   <Folder Name="/_github/agents/tasks/">
     <File Path=".github/ideas.md" />
-    <File Path="plans/menu-categories-slice-structure-plan.md" />
-    <File Path="plans/menu-ingredients-slice-structure-plan.md" />
-    <File Path="plans/menu-products-slice-structure-plan.md" />
-    <File Path="plans/shoppingcart-baskets-slice-structure-plan.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/backend-tests.instructions.md" />
@@ -62,9 +83,6 @@
     <File Path=".github/scripts/verify.ps1" />
   </Folder>
   <Folder Name="/_github/skills/" />
-  <Folder Name="/_github/skills/caveman/">
-    <File Path=".github/skills/caveman/skill.md" />
-  </Folder>
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
   </Folder>

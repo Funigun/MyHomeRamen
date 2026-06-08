@@ -52,11 +52,12 @@ public sealed class WebApiFactory : WebApplicationFactory<IApiAssemblyMarker>, I
         FakeUser user = new();
         DbContextOptions<MenuDbContext> options = new DbContextOptionsBuilder<MenuDbContext>().UseSqlServer(_sqlContainer.GetConnectionString()).Options;
         MenuDbContext = new MenuDbContext(options, user);
-        await DataSeeder.SeedMenuModule(MenuDbContext);
 
         DbContextOptions<ShoppingCartDbContext> shoppingCartOptions = new DbContextOptionsBuilder<ShoppingCartDbContext>().UseSqlServer(_sqlCartContainer.GetConnectionString()).Options;
         ShoppingCartDbContext = new ShoppingCartDbContext(shoppingCartOptions, user);
-        await ShoppingCartDataSeeder.SeedShoppingCartModule(ShoppingCartDbContext);
+
+        IEnumerable<Task> dbContexts = [DataSeeder.SeedMenuModule(MenuDbContext), ShoppingCartDataSeeder.SeedShoppingCartModule(ShoppingCartDbContext)];
+        await Task.WhenAll(dbContexts);
 
         HttpClient = CreateClient();
     }

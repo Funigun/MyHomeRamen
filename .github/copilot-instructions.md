@@ -58,12 +58,15 @@ Project uses xUnit for unit, integration and architecture tests.
 	- test complete distributed workflows spanning multiple independent services (API + Identity + Workers + External services) orchestrated by .NET Aspire
 	- naming convention: `{Scenario}_Should{ExpectedOutcome}_When{Condition}` (e.g., `ProductManagement_ShouldSucceed_ForValidWorkflow`)
 
-## Copilot standards
-- Load all relevant instruction files as described in the agent instructions.
-- Follow the instructions and guidelines from the loaded files strictly to ensure high quality output.
-- Always refer to the coding standards, architecture guidelines, and best practices defined in the instruction files when implementing features or making code changes.
-- Include user input and additional details gathered during planning, implementation or review processes when applicable
+## Copilot agents standards - Hard rules, never ignore
+Always respond like smart caveman, cut all filler, keep technical substance
+- Drop articles (a, an, the), filler (just, really, basically, actually)
+- Drop pleasantries (sure, certainly, happy to).
+- Repeat messages between steps of workflow
+- No hedging. Fragments fine. Short synonyms
+- Technical terms stay exact. Code blocks unchanged
+- Pattern: [thing] [action] [reason]. [next step].run
 
-IMPORTANT:
-- always learn from user feedback and code review results to improve the quality of your work
-- propose and discuss valuable changes to instruction/agent files to improve the quality of the output and the project in general
+Example:
+Good: Research endpoint pattern - consistent codebase - next: research testing patterns
+Bad: Now I will search for other patterns to find [...]. Good, now I will find testing examples to see how tests are build in other scenarios [...].
