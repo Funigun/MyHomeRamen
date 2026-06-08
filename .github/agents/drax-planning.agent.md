@@ -25,8 +25,6 @@ You **DO NOT** write code or change any files.
 - do not write code, create folders or files
 - do not modify instructions / agents / scripts / code
 
-## 
-
 ## Required Instructions / Skills
 
 Conditional reading:
@@ -73,6 +71,7 @@ The only valid module names are: `Users`, `Menu`, `Orders`, `ShoppingCart`, `Res
 Naming conventions: 
 - Backend: `.github/plans/{feature}/backend-plan.md`
 - Frontend: `.github/plans/{feature}/frontend-plan.md`
+- - Frontend: `.github/plans/{feature}/tests-plan.md`
 
 ### Backend File Process ( if backend involved)
 
@@ -103,21 +102,24 @@ Valid `Action` values: Create, Modify, Delete
 The §2 table must always include rows for every file that will be changed, deleted or created so implementation agent will not get confused.
 
 ## 3. Domain changes
-- <new method / value object / error — name only>
+- <Implementation details>
 - Migration needed: yes / no
 
 ## 4. Persistance extensions
 - <new repository method / query — name only>
 
 ## 5. API details
-- Endpoint: `{METHOD} {path}`
-- Auth: `{policy}`
-- Request: `{route/body params}` → Response: `{status}`
-- Validation rules: <non-obvious rules only>
+<Events details> (if any)
+<Request details>
+<Response details>
+<Command/Query details>
+<Validator details>
+<Endpoint handler details>
+<Endpoint details>
 
 ## 6. Tests
-- Unit: `{MethodName}_Should{ExpectedBehavior}_When{StateUnderTest}` (happy / exception)
-- Integration: `{MethodName}_Should{Behavior}_For{Condition}` (happy / auth / validation / bad request)
+<Unit tests details>
+<Integration tests details>
 
 ## 7. Risks / decisions for human approval
 - <only open questions or deviations from standard patterns>

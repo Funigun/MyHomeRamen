@@ -63,4 +63,9 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
         _items.Remove(item);
     }
+
+    public void Clear()
+    {
+        _items.Clear();
+    }
 }

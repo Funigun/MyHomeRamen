@@ -48,8 +48,8 @@ All extensions live in `MyHomeRamen.Persistance/ShoppingCart/Extensions/` as `pa
 | `BasketDbExtensions.cs` | `GetCurrentBasketSummary(this IQueryable<Basket>, Guid userId)` | `AsNoTracking`. Filters active basket for user. Includes items → product only (no ingredients). |
 | `UserDbExtensions.cs` | `IQueryable<User>.FindByIdAsync(UserId, CancellationToken)` | Returns `User?` by id. `AsNoTracking` not applied — default tracking. |
 | `BasketDbExtensions` | `Task<bool> ItemExistsQuery(this IQueryable<Basket>, UserId, BasketItemId, BasketId, CancellationToken)` | Checks if a basket item with given id exists in the specified active basket of the user. |
-| `GetByIdForUserTracked` | `IQueryable<Basket>.GetByIdForUserTracked(BasketId, UserId)` | Tracked. Filters by id, user, active status. Includes Items. |
-| `GetByIdForUser` | `IQueryable<Basket>.GetByIdForUser(BasketId, UserId)` | `AsNoTracking`. Filters by id, user, active status. Includes Items. |
+| `BasketDbExtensions` | `IQueryable<Basket>.GetByIdForUserTracked(BasketId, UserId)` | Tracked. Filters by id, user, active status. Includes Items. |
+| `BasketDbExtensions` | `IQueryable<Basket>.GetByIdForUser(BasketId, UserId)` | `AsNoTracking`. Filters by id, user, active status. Includes Items. |
 
 ---
 
@@ -63,3 +63,4 @@ All slices are under `MyHomeRamen.Api/ShoppingCart/Features/Baskets/`. Route pre
 | `GetCurrentBasketDetails` | `GET api/shoppingcart/basket/summary` | `AllowAnonymous` | Fetches active basket via `ForUser` (full graph: items → product → ingredients) → maps to response → returns `200 Ok` or `404 NotFound` if no active basket | None |
 | `GetCurrentBasketSummary` | `GET api/shoppingcart/baskets` | `AllowAnonymous` | Validates user exists and guest/auth state is consistent → fetches active basket via `GetCurrentBasketSummary` (items → product only) → maps to response → returns `200 Ok` | None |
 | `DeleteBasketItem` | `DELETE api/shoppingcart/baskets/{basketId}/items/{basketItemId}` | `AllowAnonymous` | Builds `DeleteBasketItemCommand(BasketId, BasketItemId)` → dispatches to handler → returns `204 NoContent` | None |
+| `ClearBasket` | `DELETE api/shoppingcart/baskets/{basketId}` | `AllowAnonymous` | Builds `ClearBasketCommand(BasketId)` → dispatches to handler → returns `204 NoContent` | None |

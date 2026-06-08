@@ -6,14 +6,14 @@ applyTo: '**/MyHomeRamen.UnitTests/**/*.cs,**/MyHomeRamen.IntegrationTests/**/*.
 # Backend Layer Instructions
 
 ## 1) General Guidelines
-- Testing framework: XUnit.v3 library
-- Mocking framework: NSubstitute
+- Packages: XUnit.v3, NSubstitute
 - Assertions: XUnit syntax
 - Use AAA pattern
 - Use `Theory` and `InlineData` for tests that cover up to 5 scenarios
 - Use `Theory` and `MemberData` for complex tests that require multiple parameters or complex objects
 - Define test data in separate files
 - Always use `TheoryData<T>` (not `IEnumerable<object[]>`) for `public static [MemberData]` sources
+- Endpoints, Query/Command handlers and Validation policies are globally registered, no need to verify that.
 
 ## 2) Unit tests (`MyHomeRamen.UnitTests`)
 
@@ -50,12 +50,9 @@ Verify FluentValidation messages fragment as per table:
 ## 3) Integration tests (`MyHomeRamen.IntegrationTests`)
 
 ### 3.1) Conventions and strategy
-- Focus on testing API endpoints and their integration with the database and other services.
-- Organize tests by module e.g. `MenuModule`, `OrderModule`.
-- Organize module folders by API endpoints e.g. `Products`, `Orders`.
-- Organize module folders by features e.g. `CreateProducTests` etc.
-- Set `Common` folder for each module to define shared test data generators and seeders.
-- Inject `WebApiFactory` via primary constructor — do not use field injection or base classes.
+- Test API endpoints with integration with the database and other services
+- Organize tests by `{Module}Module/{Aggregate}/{UseCase}Tests.`, e.g., `OrderModule/Order/CreateOrderTests.cs`
+- Inject `WebApiFactory` via primary constructor
 
 ### 3.2) Test data management (`/Common/Data/` folder)
 

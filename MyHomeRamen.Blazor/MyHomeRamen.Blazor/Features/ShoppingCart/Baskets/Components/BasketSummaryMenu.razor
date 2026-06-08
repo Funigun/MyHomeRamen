@@ -19,6 +19,7 @@
             <BasketMenuPanel Items="_items"
                              IsLoading="_isLoading"
                              Total="_total"
+                             OnClear="ClearBasketAsync"
                              OnRemove="HandleRemoveAsync"
                              OnUpdateQuantity="HandleUpdateQuantityAsync"
                              OnCheckout="HandleCheckoutAsync" />
@@ -75,6 +76,12 @@
     private async Task HandleRemoveAsync(Guid id)
     {
         await ShoppingCartApiClient.RemoveItem(_basketId, id);
+        await LoadBasketAsync();
+    }
+
+    private async Task ClearBasketAsync()
+    {
+        await ShoppingCartApiClient.ClearBasket(_basketId);
         await LoadBasketAsync();
     }
 
