@@ -1,0 +1,43 @@
+﻿@page "/checkout"
+
+<PageTitle>Checkout</PageTitle>
+
+<MudPaper Outlined="true" Class="mt-2">
+    <MudStepper>
+        <MudStep Title="Shopping cart">
+            <MudCard Class="mt-2">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">Your shopping cart is empty.</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudStep>
+
+        <MudStep Title="Shipping">
+            <MudCard Class="mt-2">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">Choose Shipping method</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudStep>
+
+        <MudStep Title="Payment">
+            <MudCard Class="mt-2">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">Choose Payment method</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudStep>
+
+        <MudStep Title="Summary">
+            <MudCard Class="mt-2">
+                <MudCardContent>
+                    <MudText Typo="Typo.h6">Confirm order</MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudStep>
+    </MudStepper>
+</MudPaper>
+
+@code {
+
+}

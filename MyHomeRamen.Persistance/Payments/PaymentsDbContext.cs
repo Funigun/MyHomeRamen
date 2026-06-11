@@ -4,9 +4,9 @@ using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Payments.Orders;
-using MyHomeRamen.Domain.Payments.PaymentGroups;
-using MyHomeRamen.Domain.Payments.PaymentProviders;
-using MyHomeRamen.Domain.Payments.Payments;
+using MyHomeRamen.Domain.Payments.PaymentChannels;
+using MyHomeRamen.Domain.Payments.PaymentGateways;
+using MyHomeRamen.Domain.Payments.PaymentMethods;
 using MyHomeRamen.Domain.Payments.Users;
 using MyHomeRamen.Persistance.Payments.Converters;
 
@@ -21,7 +21,11 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
         _currentUser = currentUser;
     }
 
-    public DbSet<Payment> Payments { get; set; }
+    public DbSet<PaymentMethod> PaymentMethods { get; set; }
+
+    public DbSet<PaymentChannel> PaymentChannels { get; set; }
+
+    public DbSet<PaymentGateway> PaymentGateways { get; set; }
 
     public DbSet<Order> Orders { get; set; }
 
@@ -31,9 +35,7 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public DbSet<PaymentProvider> PaymentProviders { get; set; }
 
-    public DbSet<PaymentGroup> PaymentGroups { get; set; }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -149,12 +151,12 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-        configurationBuilder.Properties<PaymentId>().HaveConversion<PaymentIdConverter>();
+        configurationBuilder.Properties<PaymentMethodId>().HaveConversion<PaymentMethodIdConverter>();
+        configurationBuilder.Properties<PaymentChannelId>().HaveConversion<PaymentChannelIdConverter>();
+        configurationBuilder.Properties<PaymentGatewayId>().HaveConversion<PaymentGatewayIdConverter>();
         configurationBuilder.Properties<OrderId>().HaveConversion<OrderIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
-        configurationBuilder.Properties<PaymentProviderId>().HaveConversion<PaymentProviderIdConverter>();
-        configurationBuilder.Properties<PaymentGroupId>().HaveConversion<PaymentGroupIdConverter>();
     }
 }

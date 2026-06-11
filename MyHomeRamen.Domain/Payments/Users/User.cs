@@ -1,5 +1,4 @@
 using MyHomeRamen.Api.Common.Domain;
-using MyHomeRamen.Domain.Payments.Payments;
 
 namespace MyHomeRamen.Domain.Payments.Users;
 
@@ -7,7 +6,6 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 {
     private readonly List<Role> _roles = [];
     private readonly List<Permission> _permissions = [];
-    private readonly List<Payment> _payments = [];
 
     public UserId Id { get; private set; }
 
@@ -19,10 +17,6 @@ public sealed class User : AuditableEntity, IEntity<UserId>
 
     public string PhoneNumber { get; private set; }
 
-    public Payment? DefaultMethod { get; private set; }
-
-    public ICollection<Payment> Payments => _payments.ToList();
-
     public ICollection<Role> Roles => _roles.ToList();
 
     public ICollection<Permission> Permissions => _permissions.ToList();
@@ -31,17 +25,16 @@ public sealed class User : AuditableEntity, IEntity<UserId>
     {
     }
 
-    private User(UserId id, Payment? defaultMethod, List<Role> roles, List<Permission> permissions)
+    private User(UserId id, List<Role> roles, List<Permission> permissions)
     {
         Id = id;
-        DefaultMethod = defaultMethod;
         _roles = roles;
         _permissions = permissions;
     }
 
-    public static User Create(UserId id, string firstName, string lastName, string email, string phoneNumber, Payment? defaultMethod, List<Role> roles, List<Permission> permissions)
+    public static User Create(UserId id, string firstName, string lastName, string email, string phoneNumber, List<Role> roles, List<Permission> permissions)
     {
-        User user = new(id, defaultMethod, roles, permissions)
+        User user = new(id, roles, permissions)
         {
             FirstName = firstName,
             LastName = lastName,

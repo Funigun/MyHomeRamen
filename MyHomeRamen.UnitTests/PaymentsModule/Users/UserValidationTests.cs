@@ -1,6 +1,5 @@
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.User;
-using MyHomeRamen.Domain.Payments.Payments;
 using MyHomeRamen.Domain.Payments.Users;
 
 namespace MyHomeRamen.UnitTests.PaymentsModule.Users;
@@ -8,14 +7,6 @@ namespace MyHomeRamen.UnitTests.PaymentsModule.Users;
 public class UserValidationTests
 {
     private static readonly UserId TestUserId = new(Guid.NewGuid());
-    private static readonly PaymentId TestPaymentId = new(Guid.NewGuid());
-    private static readonly Guid TestReferenceId = Guid.NewGuid();
-
-    private static readonly Payment TestPayment = Payment.Create(
-        TestPaymentId,
-        TestReferenceId,
-        "Credit Card",
-        "https://example.com/image.png");
 
     private static readonly List<Permission> ValidPermissions =
     [
@@ -95,7 +86,6 @@ public class UserValidationTests
             lastName,
             email,
             phoneNumber,
-            TestPayment,
             roles ?? ValidRoles,
             permissions ?? ValidPermissions);
     }

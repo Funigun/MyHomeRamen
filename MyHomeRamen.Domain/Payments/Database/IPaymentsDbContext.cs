@@ -1,16 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api.Common.Domain;
 using MyHomeRamen.Domain.Payments.Orders;
-using MyHomeRamen.Domain.Payments.PaymentGroups;
-using MyHomeRamen.Domain.Payments.PaymentProviders;
-using MyHomeRamen.Domain.Payments.Payments;
+using MyHomeRamen.Domain.Payments.PaymentChannels;
+using MyHomeRamen.Domain.Payments.PaymentGateways;
+using MyHomeRamen.Domain.Payments.PaymentMethods;
 using MyHomeRamen.Domain.Payments.Users;
 
 namespace MyHomeRamen.Domain.Payments.Database;
 
 public interface IPaymentsDbContext : IBaseDbContext
 {
-    DbSet<Payment> Payments { get; }
+    DbSet<PaymentMethod> PaymentMethods { get; }
+
+    DbSet<PaymentChannel> PaymentChannels { get; }
+
+    DbSet<PaymentGateway> PaymentGateways { get; }
 
     DbSet<Order> Orders { get; }
 
@@ -19,8 +23,4 @@ public interface IPaymentsDbContext : IBaseDbContext
     DbSet<Role> Roles { get; }
 
     DbSet<Permission> Permissions { get; }
-
-    DbSet<PaymentProvider> PaymentProviders { get; }
-
-    DbSet<PaymentGroup> PaymentGroups { get; }
 }

@@ -30,10 +30,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                .IsRequired()
                .HasMaxLength(UserConstants.MaxPhoneNumberLength);
 
-        builder.HasOne(x => x.DefaultMethod)
-               .WithMany()
-               .IsRequired(false);
-
         builder.HasMany(x => x.Roles)
                .WithMany()
                .UsingEntity(j => j.ToTable("UserRoles"));

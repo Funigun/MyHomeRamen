@@ -51,7 +51,7 @@ public sealed class BasketClearTests
             new ProductId(Guid.NewGuid()),
             new ProductId(Guid.NewGuid()),
             "Test Product Name",
-            "Test product description text",
+            "Test product description text that match minimum domain requirements",
             10m,
             "http://example.com/img.png",
             [],
@@ -61,7 +61,6 @@ public sealed class BasketClearTests
             new BasketItemId(Guid.NewGuid()),
             product,
             1,
-            10m,
             null);
     }
 }

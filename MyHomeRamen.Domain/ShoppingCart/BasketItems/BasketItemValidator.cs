@@ -8,7 +8,6 @@ internal static class BasketItemValidator
     {
         CheckProduct(item);
         CheckQuantity(item);
-        CheckPrice(item);
     }
 
     private static void CheckProduct(BasketItem item)
@@ -24,14 +23,6 @@ internal static class BasketItemValidator
         if (item.Quantity < BasketConstants.MinQuantity)
         {
             throw BasketErrors.BasketItemQuantityInvalid();
-        }
-    }
-
-    private static void CheckPrice(BasketItem item)
-    {
-        if (item.Price < 0)
-        {
-            throw BasketErrors.BasketItemPriceInvalid();
         }
     }
 }

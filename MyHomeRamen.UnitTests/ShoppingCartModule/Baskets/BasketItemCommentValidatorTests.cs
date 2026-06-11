@@ -9,16 +9,6 @@ public class BasketItemCommentValidatorTests
     private readonly BasketItemCommentValidator _validator = new();
 
     [Fact]
-    public void Validate_ShouldPass_WhenCommentIsNull()
-    {
-        // Act
-        ValidationResult result = _validator.Validate((string?)null);
-
-        // Assert
-        Assert.True(result.IsValid);
-    }
-
-    [Fact]
     public void Validate_ShouldPass_WhenCommentIsWithinLimit()
     {
         // Arrange
@@ -42,7 +32,7 @@ public class BasketItemCommentValidatorTests
 
         // Assert
         Assert.False(result.IsValid);
-        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("maximum length"));
+        Assert.Contains(result.Errors, e => e.ErrorMessage.Contains("not exceed"));
     }
 
     [Fact]

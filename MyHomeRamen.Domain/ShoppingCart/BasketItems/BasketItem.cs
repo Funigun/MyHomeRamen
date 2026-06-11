@@ -19,18 +19,17 @@ public sealed class BasketItem : AuditableEntity, IEntity<BasketItemId>
     {
     }
 
-    private BasketItem(BasketItemId id, Product product, int quantity, decimal price, string? comment)
+    private BasketItem(BasketItemId id, Product product, int quantity, string? comment)
     {
         Id = id;
         Product = product;
         Quantity = quantity;
-        Price = price;
         Comment = comment;
     }
 
-    public static BasketItem Create(BasketItemId id, Product product, int quantity, decimal price, string? comment)
+    public static BasketItem Create(BasketItemId id, Product product, int quantity, string? comment)
     {
-        BasketItem item = new(id, product, quantity, price, comment);
+        BasketItem item = new(id, product, quantity, comment);
         item.Price = item.Product.TotalPrice * item.Quantity;
 
         BasketItemValidator.Validate(item);
