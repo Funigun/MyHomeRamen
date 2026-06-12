@@ -1,8 +1,8 @@
 ---
 name: drax-planner
 description: Research codebase and generate structured implementation and testing plans within 
-tools: ['codebase', 'search', 'fetch', 'read', 'edit', 'execute']
-model: claude-sonnet-4.6
+tools: ['search', 'web/fetch', 'read', 'edit', 'execute']
+model: mai-code-1-flash
 ---
 
 # drax-planner

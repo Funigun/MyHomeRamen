@@ -89,6 +89,9 @@
   <Folder Name="/_github/wiki/menu_module/">
     <File Path=".github/wiki/MenuModule/features.md" />
   </Folder>
+  <Folder Name="/_github/wiki/payments_module/">
+    <File Path=".github/wiki/PaymentsModule/features.md" />
+  </Folder>
   <Folder Name="/_github/wiki/shopping_cart_module/">
     <File Path=".github/wiki/ShoppingCartModule/features.md" />
   </Folder>
