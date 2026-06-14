@@ -1,5 +1,5 @@
 using FluentValidation.Results;
-using MyHomeRamen.Common.Contracts.Basket;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
 using MyHomeRamen.Domain.Common.Basket;
 
 namespace MyHomeRamen.UnitTests.ShoppingCartModule.Baskets;

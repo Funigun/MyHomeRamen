@@ -1,43 +1,39 @@
 ﻿@page "/checkout"
 
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Components
+
 <PageTitle>Checkout</PageTitle>
 
 <MudPaper Outlined="true" Class="mt-2">
     <MudStepper>
         <MudStep Title="Shopping cart">
-            <MudCard Class="mt-2">
-                <MudCardContent>
-                    <MudText Typo="Typo.h6">Your shopping cart is empty.</MudText>
-                </MudCardContent>
-            </MudCard>
+            <BasketDetailsStep/>
         </MudStep>
 
         <MudStep Title="Shipping">
-            <MudCard Class="mt-2">
-                <MudCardContent>
-                    <MudText Typo="Typo.h6">Choose Shipping method</MudText>
-                </MudCardContent>
-            </MudCard>
+            <ShippingDetailsStep/>
         </MudStep>
 
         <MudStep Title="Payment">
-            <MudCard Class="mt-2">
-                <MudCardContent>
-                    <MudText Typo="Typo.h6">Choose Payment method</MudText>
-                </MudCardContent>
-            </MudCard>
+            <PaymentDetailsStep/>
         </MudStep>
 
         <MudStep Title="Summary">
-            <MudCard Class="mt-2">
-                <MudCardContent>
-                    <MudText Typo="Typo.h6">Confirm order</MudText>
-                </MudCardContent>
-            </MudCard>
+            <CheckoutSummaryStep/>
         </MudStep>
     </MudStepper>
 </MudPaper>
 
 @code {
 
+
+    private async Task ControlStepCompletion(StepperInteractionEventArgs arg)
+    {
+        
+    }
+
+    private async Task ControlStepNavigation(StepperInteractionEventArgs arg)
+    {
+
+    }
 }

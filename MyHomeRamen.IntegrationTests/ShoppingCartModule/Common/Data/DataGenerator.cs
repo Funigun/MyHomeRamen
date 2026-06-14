@@ -1,13 +1,13 @@
 using Bogus;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
-using MyHomeRamen.Common.Contracts.Basket;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MenuDataGenerator = MyHomeRamen.IntegrationTests.MenuModule.Common.Data.DataGenerator;
 using MenuProduct = MyHomeRamen.Domain.Menu.Products.Product;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
 
 namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
 

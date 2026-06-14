@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace MyHomeRamen.Common.Contracts.Basket;
+namespace MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
 
 public sealed class BasketItemCommentValidator : AbstractValidator<string?>
 {
