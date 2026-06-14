@@ -23,4 +23,8 @@ public interface IShoppingCartDbContext : IBaseDbContext
     DbSet<Role> Roles { get; }
 
     DbSet<Permission> Permissions { get; }
+    
+    DbSet<PaymentDetails.PaymentDetails> PaymentDetails { get; }
+    
+    DbSet<ShippingDetails.ShippingDetails> ShippingDetails { get; }
 }

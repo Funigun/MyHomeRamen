@@ -23,7 +23,6 @@ internal static class DataGenerator
                 new BasketItemId(Guid.NewGuid()),
                 f.PickRandom(products),
                 f.Random.Int(1, 10),
-                Math.Round(f.Random.Decimal(0.5m, 100m), 2),
                 null
             ));
 

@@ -55,14 +55,12 @@ internal static class Mappings
     internal static BasketItem ToBasketItem(
         this Product product,
         int quantity,
-        decimal price,
         string? comment)
     {
         return BasketItem.Create(
             new BasketItemId(Guid.CreateVersion7()),
             product,
             quantity,
-            price,
             comment);
     }
 }

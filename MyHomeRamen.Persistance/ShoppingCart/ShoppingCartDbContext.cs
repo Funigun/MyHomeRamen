@@ -2,11 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Domain;
-using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
+using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
+using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
 using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
@@ -34,6 +36,10 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
     public DbSet<Role> Roles { get; set; }
 
     public DbSet<Permission> Permissions { get; set; }
+
+    public DbSet<PaymentDetails> PaymentDetails { get; set; }
+
+    public DbSet<ShippingDetails> ShippingDetails { get; set; }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

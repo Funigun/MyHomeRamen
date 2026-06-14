@@ -135,7 +135,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
             [baseIngredient],
             [customIngredient]);
 
-        BasketItem basketItem = BasketItem.Create(new BasketItemId(Guid.NewGuid()), product, 2, 50.0m, "No extra spice");
+        BasketItem basketItem = BasketItem.Create(new BasketItemId(Guid.NewGuid()), product, 2, "No extra spice");
 
         Basket basket = Basket.Create(new BasketId(Guid.NewGuid()), user);
         AddItemsToBasket(basket, basketItem);

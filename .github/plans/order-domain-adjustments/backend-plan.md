@@ -28,7 +28,7 @@ Current `Order` aggregate was built before checkout flow existed. It needs to be
 - None new — extensions will be added in create-order feature plans
 
 ## 5. API details
-- No new endpoints in this plan — purely domain + persistence layer changes
+- No new endpoints in this plan — purely domain + persistence layer changesdo
 
 ## 6. Tests
 **Unit tests:** `MyHomeRamen.UnitTests\OrdersModule\Orders\OrderValidationTests.cs`

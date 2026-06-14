@@ -15,11 +15,13 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
     public BasketStatus Status { get; private set; }
 
+    public PaymentDetails.PaymentDetails? PaymentDetails { get; private set; } = default!;
+
+    public ShippingDetails.ShippingDetails? ShippingDetails { get; private set; } = default!;
+
     public IReadOnlyList<BasketItem> Items => _items.ToList();
 
-    private Basket()
-    {
-    }
+    private Basket() { }
 
     private Basket(BasketId id, User user)
     {

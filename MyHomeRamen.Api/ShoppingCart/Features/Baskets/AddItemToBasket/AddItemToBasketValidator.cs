@@ -1,7 +1,6 @@
 using FluentValidation;
-using MyHomeRamen.Common.Contracts.Basket;
 using MyHomeRamen.Common.Contracts.Menu;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
 
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket;
 

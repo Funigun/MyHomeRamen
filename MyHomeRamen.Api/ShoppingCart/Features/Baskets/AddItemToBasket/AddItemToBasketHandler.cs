@@ -3,6 +3,7 @@ using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Products;
@@ -40,7 +41,7 @@ public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICu
         dbContext.Ingredients.AddRange(product.BaseIngredients);
         dbContext.Ingredients.AddRange(product.CustomIngredients);
 
-        Domain.ShoppingCart.BasketItems.BasketItem basketItem = product.ToBasketItem(command.AddItemToBasketRequest.Quantity, product.TotalPrice, command.AddItemToBasketRequest.Comments);
+        BasketItem basketItem = product.ToBasketItem(command.AddItemToBasketRequest.Quantity, command.AddItemToBasketRequest.Comments);
 
         basket.AddItem(basketItem);
         dbContext.BasketItems.Add(basketItem);

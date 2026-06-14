@@ -29,6 +29,18 @@ public static partial class DbExtensions
                 .AsNoTracking()
                 .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active);
 
+        public IQueryable<Basket> GetByIdForUserWithPayment(BasketId basketId, UserId userId)
+            => baskets
+                .AsNoTracking()
+                .Include(b => b.PaymentDetails)
+                .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active);
+
+        public IQueryable<Basket> GetByIdForUserWithShipping(BasketId basketId, UserId userId)
+            => baskets
+                .AsNoTracking()
+                .Include(b => b.ShippingDetails)
+                .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active);
+
         public IQueryable<Basket> GetByIdForUserTracked(BasketId basketId, UserId userId)
             => baskets
                 .Include(b => b.Items)
