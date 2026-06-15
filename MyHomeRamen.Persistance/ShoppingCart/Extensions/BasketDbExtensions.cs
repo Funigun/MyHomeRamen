@@ -41,6 +41,16 @@ public static partial class DbExtensions
                 .Include(b => b.ShippingDetails)
                 .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active);
 
+        public IQueryable<Basket> GetByIdForUserWithShippingTracked(BasketId basketId, UserId userId)
+            => baskets
+                .Include(b => b.ShippingDetails)
+                .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active);
+
+        public IQueryable<Basket> GetByIdForUserWithPaymentTracked(BasketId basketId, UserId userId)
+            => baskets
+                .Include(b => b.PaymentDetails)
+                .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active);
+
         public IQueryable<Basket> GetByIdForUserTracked(BasketId basketId, UserId userId)
             => baskets
                 .Include(b => b.Items)

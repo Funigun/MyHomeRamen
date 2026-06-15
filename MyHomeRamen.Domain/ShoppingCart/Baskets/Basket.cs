@@ -70,4 +70,24 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
     {
         _items.Clear();
     }
+
+    public void UpdateShippingDetails(ShippingDetails.ShippingDetails details)
+    {
+        if (Status != BasketStatus.Active)
+        {
+            throw BasketErrors.BasketNotActive();
+        }
+
+        ShippingDetails = details;
+    }
+
+    public void UpdatePaymentDetails(PaymentDetails.PaymentDetails details)
+    {
+        if (Status != BasketStatus.Active)
+        {
+            throw BasketErrors.BasketNotActive();
+        }
+
+        PaymentDetails = details;
+    }
 }

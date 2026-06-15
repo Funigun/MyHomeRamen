@@ -14,5 +14,12 @@ public static class PaymentMethodDbExtensions
                         .Where(method => method.IsActive)
                         .OrderBy(method => method.DisplayOrder);
         }
+
+        public IQueryable<PaymentMethod> GetById(PaymentMethodId id)
+        {
+            return query.AsNoTracking()
+                        .Include(method => method.PaymentChannels)
+                        .Where(method => method.Id == id && method.IsActive);
+        }
     }
 }

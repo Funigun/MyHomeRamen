@@ -16,4 +16,7 @@ public static class BasketErrors
 
     public static DomainException ItemNotFound()
         => new("Basket item was not found.");
+
+    public static DomainException BasketNotActive()
+        => new("Basket is not active.");
 }

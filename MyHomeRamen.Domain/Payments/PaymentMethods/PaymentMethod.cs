@@ -36,4 +36,9 @@ public sealed class PaymentMethod : AuditableEntity, IEntity<PaymentMethodId>
 
         return paymentMethod;
     }
+
+    public bool HasActiveChannel(PaymentChannelId channelId)
+    {
+        return _paymentChannels.Any(channel => channel.Id == channelId && channel.IsActive);
+    }
 }
