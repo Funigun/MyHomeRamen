@@ -14,11 +14,6 @@ public sealed class ShoppingCartApiClient(HttpClient httpClient)
             ?? throw new InvalidOperationException("Empty response from AddItemToBasket endpoint.");
     }
 
-    public async Task<GetCurrentBasketSummaryResponse?> GetCurrentBasketSummaryAsync(CancellationToken ct = default)
-    {
-        return await httpClient.GetFromJsonAsync<GetCurrentBasketSummaryResponse>("/api/shoppingcart/baskets", ct);
-    }
-
     public async Task RemoveItem(Guid basketId, Guid itemId, CancellationToken ct = default)
     {
         using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/shoppingcart/baskets/{basketId}/items/{itemId}", ct);
@@ -29,5 +24,15 @@ public sealed class ShoppingCartApiClient(HttpClient httpClient)
     {
         using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/shoppingcart/baskets/{basketId}", ct);
         response.EnsureSuccessStatusCode();
+    }
+
+    public async Task<GetCurrentBasketSummaryResponse?> GetCurrentBasketSummaryAsync(CancellationToken ct = default)
+    {
+        return await httpClient.GetFromJsonAsync<GetCurrentBasketSummaryResponse>("/api/shoppingcart/basket/summary", ct);
+    }
+
+    public async Task<GetCurrentBasketDetailsResponse?> GetCurrentBasketDetailsAsync(CancellationToken ct = default)
+    {
+        return await httpClient.GetFromJsonAsync<GetCurrentBasketDetailsResponse>("/api/shoppingcart/basket/details", ct);
     }
 }

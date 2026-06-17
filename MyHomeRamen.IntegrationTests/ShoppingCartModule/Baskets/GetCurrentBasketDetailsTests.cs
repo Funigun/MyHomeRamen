@@ -15,7 +15,7 @@ namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
 
 public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
 {
-    private const string EndpointBase = "/api/shoppingcart/basket/summary";
+    private const string EndpointBase = "/api/shoppingcart/basket/details";
 
     [Fact]
     public async Task GetCurrentBasketDetails_ShouldReturnOk_WhenAuthenticatedUserHasActiveBasket()

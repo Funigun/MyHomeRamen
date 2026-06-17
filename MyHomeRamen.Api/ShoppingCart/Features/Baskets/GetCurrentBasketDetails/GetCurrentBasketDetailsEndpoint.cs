@@ -10,10 +10,10 @@ public sealed class GetCurrentBasketDetailsEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<GetCurrentBasketDetailsResponse>("api/shoppingcart/basket/summary", HandleAsync)
+            .MapStandardGet<GetCurrentBasketDetailsResponse>("api/shoppingcart/basket/details", HandleAsync)
             .WithName("GetCurrentBasketDetailsEndpoint")
             .WithTags("Baskets")
-            .WithDescription("Returns the active basket summary for the current user or guest.")
+            .WithDescription("Returns the active basket details for the current user or guest.")
             .AllowAnonymous();
     }
 

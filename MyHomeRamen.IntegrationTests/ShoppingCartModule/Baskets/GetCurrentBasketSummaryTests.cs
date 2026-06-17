@@ -12,7 +12,7 @@ namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
 
 public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
 {
-    private const string EndpointBase = "/api/shoppingcart/baskets";
+    private const string EndpointBase = "/api/shoppingcart/basket/summary";
 
     [Theory]
     [InlineData(UserRoles.Customer)]
