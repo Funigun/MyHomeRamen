@@ -1,7 +1,8 @@
+using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 
-namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models;
+namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization;
 
 public sealed class ProductCustomizationModel
 {
@@ -19,7 +20,7 @@ public sealed class ProductCustomizationModel
 
     public List<IngredientCustomizationModel> CustomIngredients { get; init; } = [];
 
-    public static ProductCustomizationModel FromResponse(GetProductByIdResponse response) =>
+    public static ProductCustomizationModel FromGetByIdResponse(GetProductByIdResponse response) =>
         new()
         {
             ProductId = response.Id,
@@ -34,11 +35,26 @@ public sealed class ProductCustomizationModel
                 .ToList()
         };
 
-    public AddItemToBasketRequest ToRequest() =>
+    public AddItemToBasketRequest ToAddItemToBasketRequest() =>
         new(
             ProductId,
             Quantity,
             BaseIngredients.Select(i => i.ToRequest()).ToList(),
             CustomIngredients.Where(i => i.IsSelected).Select(i => i.ToRequest()).ToList(),
             string.IsNullOrWhiteSpace(Comments) ? null : Comments);
+
+    public ProductCustomizationModel FromBasketItemDetailsModel(CheckoutBasketItemModel checkoutItemModel) =>
+        new()
+        {
+            ProductId = checkoutItemModel.Product.Id,
+            Name = checkoutItemModel.Product.Name,
+            Description = checkoutItemModel.Product.Description,
+            Quantity = checkoutItemModel.Quantity,
+            BaseIngredients = checkoutItemModel.Product.BaseIngredients
+                .Select(i => IngredientCustomizationModel.FromBasketDetailsDto(i))
+                .ToList(),
+            CustomIngredients = checkoutItemModel.Product.CustomIngredients
+                .Select(i => IngredientCustomizationModel.FromBasketDetailsDto(i))
+                .ToList()
+        };
 }

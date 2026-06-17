@@ -1,7 +1,8 @@
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails;
 using MyHomeRamen.Common.Contracts.Menu.Products.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 
-namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models;
+namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization;
 
 public sealed class IngredientCustomizationModel
 {
@@ -29,4 +30,15 @@ public sealed class IngredientCustomizationModel
         };
 
     public BasketIngredientDto ToRequest() => new(Id, Quantity);
+
+    public static IngredientCustomizationModel FromBasketDetailsDto(CheckoutIngredientModel dto) =>
+        new()
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            Description = dto.Description,
+            Price = dto.Price,
+            IsSelected = true,
+            Quantity = 1
+        };
 }

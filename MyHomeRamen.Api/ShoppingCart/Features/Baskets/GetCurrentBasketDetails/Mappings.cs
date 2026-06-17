@@ -27,6 +27,6 @@ internal static class Mappings
             product.Name,
             product.Description,
             product.ImageUrl,
-            product.BaseIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name)),
-            product.CustomIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name)));
+            product.BaseIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name, i.Description, i.Price)),
+            product.CustomIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name, i.Description, i.Price)));
 }

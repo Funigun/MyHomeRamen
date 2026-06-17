@@ -2,7 +2,7 @@ using FluentValidation;
 using MyHomeRamen.Blazor.Common.Models;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
 
-namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models;
+namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization;
 
 public sealed class ProductCustomizationValidator : BaseValidator<ProductCustomizationModel>
 {
