@@ -1,6 +1,6 @@
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 
-namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Models;
+namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.BasketMenu;
 
 public sealed class BasketItemTableModel
 {

@@ -11,18 +11,18 @@ public sealed class GetAvailableMethodsEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<IEnumerable<PaymentMethodResponse>>("api/payments/available-methods", HandleAsync)
+            .MapStandardGet<IEnumerable<GetAvailableMethodsResponse>>("api/payments/available-methods", HandleAsync)
             .WithName("GetAvailableMethodsEndpoint")
             .WithTags("PaymentMethods")
             .AllowAnonymous();
     }
 
-    private static async Task<Results<Ok<IEnumerable<PaymentMethodResponse>>, NotFound>> HandleAsync(
-        [FromServices] IQueryHandler<GetAvailableMethodsQuery, IEnumerable<PaymentMethodResponse>> handler,
+    private static async Task<Results<Ok<IEnumerable<GetAvailableMethodsResponse>>, NotFound>> HandleAsync(
+        [FromServices] IQueryHandler<GetAvailableMethodsQuery, IEnumerable<GetAvailableMethodsResponse>> handler,
         CancellationToken cancellationToken)
     {
         GetAvailableMethodsQuery query = new();
-        IEnumerable<PaymentMethodResponse> response = await handler.Handle(query, cancellationToken);
+        IEnumerable<GetAvailableMethodsResponse> response = await handler.Handle(query, cancellationToken);
 
         return TypedResults.Ok(response);
     }

@@ -35,7 +35,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
         GetCurrentBasketDetailsResponse? details = await response.Content.ReadFromJsonAsync<GetCurrentBasketDetailsResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(details);
-        Assert.Equal(DataGenerator.GeneratedBaskets.First().Id.Value, details.Id);
+        Assert.Equal(DataGenerator.GeneratedBaskets.First().Id.Value, details.BasketId);
         Assert.NotEmpty(details.Items);
 
         BasketDetailsItemDto firstItem = details.Items.First();
@@ -66,7 +66,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory)
         GetCurrentBasketDetailsResponse? details = await response.Content.ReadFromJsonAsync<GetCurrentBasketDetailsResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(details);
-        Assert.Equal(DataGenerator.GeneratedBaskets.Skip(1).First().Id.Value, details.Id);
+        Assert.Equal(DataGenerator.GeneratedBaskets.Skip(1).First().Id.Value, details.BasketId);
         Assert.NotEmpty(details.Items);
     }
 
