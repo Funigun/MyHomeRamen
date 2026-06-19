@@ -1,4 +1,5 @@
 ﻿using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails;
 
@@ -23,6 +24,18 @@ public class CheckoutBasketItemModel
             Price = basketDetailsItemDto.Price,
             Comment = basketDetailsItemDto.Comment,
             Product = CheckoutProductModel.FromDetailsDto(basketDetailsItemDto.Product)
+        };
+    }
+
+    public static CheckoutBasketItemModel FromAddItemResponse(AddItemToBasketResponse response, CheckoutBasketItemModel source)
+    {
+        return new()
+        {
+            Id = response.BasketItemId,
+            Quantity = source.Quantity,
+            Price = source.Price,
+            Comment = source.Comment,
+            Product = source.Product
         };
     }
 }

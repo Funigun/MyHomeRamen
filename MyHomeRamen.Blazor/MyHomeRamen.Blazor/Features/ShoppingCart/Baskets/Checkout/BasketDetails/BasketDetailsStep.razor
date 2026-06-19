@@ -1,20 +1,27 @@
-﻿<MudCard Class="mt-2">
+﻿@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+
+@inject ShoppingCartApiClient ShoppingCartApiClient
+
+<MudCard Class="mt-2">
     <MudCardContent>
-        <MudText Typo="Typo.h6">BasketDetailsStep</MudText>
+        <MudStack Spacing="3">
+            <MudText Typo="Typo.h6">Your basket</MudText>
+
+            <BasketItemsTable Items="Model.Items"
+                              BasketId="Model.BasketId"
+                              OnItemsChanged="HandleItemsChangedAsync" />
+
+        </MudStack>
     </MudCardContent>
 </MudCard>
 
 @code {
-    [Parameter] public EventCallback<bool> MoveToNext { get; set; }
-    [Parameter] public EventCallback<bool> MoveToPrevious { get; set; }
+    [Parameter, EditorRequired] public CheckoutModel Model { get; set; } = default!;
 
-    private async Task HandleNextClickAsync()
+    private Task HandleItemsChangedAsync()
     {
-        await MoveToNext.InvokeAsync(true);
-    }
-
-    private async Task HandlePreviousClickAsync()
-    {
-        await MoveToPrevious.InvokeAsync(true);
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }

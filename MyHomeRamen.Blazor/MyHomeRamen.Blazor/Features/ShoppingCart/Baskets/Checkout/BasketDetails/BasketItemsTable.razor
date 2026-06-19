@@ -1,0 +1,127 @@
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+@using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses
+
+@inject IDialogService DialogService
+@inject ShoppingCartApiClient ShoppingCartApiClient
+
+@if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">Your basket is empty.</MudAlert>
+}
+else
+{
+    <MudTable Items="Items" Dense="true" Hover="true">
+        <HeaderContent>
+            <MudTh>Product</MudTh>
+            <MudTh>Qty</MudTh>
+            <MudTh>Price</MudTh>
+            <MudTh>Comment</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Product">
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.body2">@context.Product.Name</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Product.Description</MudText>
+                </MudStack>
+            </MudTd>
+            <MudTd DataLabel="Qty">@context.Quantity</MudTd>
+            <MudTd DataLabel="Price">@context.Price.ToString("C")</MudTd>
+            <MudTd DataLabel="Comment">@context.Comment</MudTd>
+            <MudTd DataLabel="Actions">
+                <MudStack Row="true" Spacing="1">
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   OnClick="@(() => HandleEditClickAsync(context))"
+                                   Disabled="_isBusy" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Size="Size.Small"
+                                   OnClick="@(() => HandleDeleteClickAsync(context))"
+                                   Disabled="_isBusy" />
+                </MudStack>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@if (_errorMessage is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mt-2">@_errorMessage</MudAlert>
+}
+
+@code {
+    [Parameter, EditorRequired] public ICollection<CheckoutBasketItemModel> Items { get; set; } = [];
+    [Parameter, EditorRequired] public Guid BasketId { get; set; }
+    [Parameter] public EventCallback OnItemsChanged { get; set; }
+
+    private bool _isBusy;
+    private string? _errorMessage;
+
+    private async Task HandleDeleteClickAsync(CheckoutBasketItemModel item)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            "Remove item",
+            $"Remove {item.Product.Name} from your basket?",
+            yesText: "Remove",
+            cancelText: "Cancel");
+
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        _isBusy = true;
+        _errorMessage = null;
+        try
+        {
+            await ShoppingCartApiClient.RemoveItem(BasketId, item.Id);
+            Items.Remove(item);
+            await OnItemsChanged.InvokeAsync();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to remove item. Please try again.";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private async Task HandleEditClickAsync(CheckoutBasketItemModel item)
+    {
+        ProductCustomizationModel model = new ProductCustomizationModel().FromBasketItemDetailsModel(item);
+
+        DialogParameters<ProductCustomizationDialog> parameters = new();
+        parameters.Add(x => x.Model, model);
+        parameters.Add(x => x.OnItemAdded, EventCallback.Factory.Create<AddItemToBasketResponse>(this, response => HandleItemAddedAsync(item, response)));
+
+        DialogOptions options = new() { MaxWidth = MaxWidth.Small, FullWidth = true, CloseOnEscapeKey = true };
+
+        await DialogService.ShowAsync<ProductCustomizationDialog>("Customize Your Order", parameters, options);
+    }
+
+    private async Task HandleItemAddedAsync(CheckoutBasketItemModel originalItem, AddItemToBasketResponse response)
+    {
+        _isBusy = true;
+        _errorMessage = null;
+        try
+        {
+            await ShoppingCartApiClient.RemoveItem(BasketId, originalItem.Id);
+            Items.Remove(originalItem);
+            Items.Add(CheckoutBasketItemModel.FromAddItemResponse(response, originalItem));
+            await OnItemsChanged.InvokeAsync();
+        }
+        catch (HttpRequestException)
+        {
+            _errorMessage = "Failed to update basket item. Please try again.";
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+}

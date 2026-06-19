@@ -50,6 +50,7 @@ public sealed class ProductCustomizationModel
             Name = checkoutItemModel.Product.Name,
             Description = checkoutItemModel.Product.Description,
             Quantity = checkoutItemModel.Quantity,
+            Comments = checkoutItemModel.Comment,
             BaseIngredients = checkoutItemModel.Product.BaseIngredients
                 .Select(i => IngredientCustomizationModel.FromBasketDetailsDto(i))
                 .ToList(),

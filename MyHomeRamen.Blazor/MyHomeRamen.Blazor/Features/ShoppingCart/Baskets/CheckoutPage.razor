@@ -1,42 +1,86 @@
 ﻿@page "/checkout"
 
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.PaymentDetails
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.Summary
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+@using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses
+
+@inject ShoppingCartApiClient ShoppingCartApiClient
 
 <PageTitle>Checkout</PageTitle>
 
-<MudPaper Outlined="true" Class="mt-2">
-    <MudStepper>
-        <MudStep Title="Shopping cart">
-            <BasketDetailsStep/>
-        </MudStep>
+<MudPaper Outlined="true" Class="mt-2" Style="width: 60%; justify-self: center">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mt-2" />
+    }
+    else
+    {
+        <MudStepper OnPreviewInteraction="OnPreviewInteraction">
+            <MudStep Title="Shopping cart" @bind-Completed="_checkoutModel.ShoppingCartConfirmed" >
+                <BasketDetailsStep Model="_checkoutModel" />
+            </MudStep>
 
-        <MudStep Title="Shipping">
-            <ShippingDetailsStep/>
-        </MudStep>
+            <MudStep Title="Shipping">
+                <ShippingDetailsStep />
+            </MudStep>
 
-        <MudStep Title="Payment">
-            <PaymentDetailsStep/>
-        </MudStep>
+            <MudStep Title="Payment">
+                <PaymentDetailsStep/>
+            </MudStep>
 
-        <MudStep Title="Summary">
-            <CheckoutSummaryStep/>
-        </MudStep>
-    </MudStepper>
+            <MudStep Title="Summary">
+                <CheckoutSummaryStep/>
+            </MudStep>
+        </MudStepper>
+    }
 </MudPaper>
 
-@code {
+    @code {
+    private CheckoutModel _checkoutModel = new();
+    private bool _isLoading = true;
 
-
-    private async Task ControlStepCompletion(StepperInteractionEventArgs arg)
+    protected override async Task OnInitializedAsync()
     {
-        
+        await GetCurrentBasketDetailsAsync();
     }
 
-    private async Task ControlStepNavigation(StepperInteractionEventArgs arg)
+    private async Task GetCurrentBasketDetailsAsync()
     {
-
+        try
+        {
+            GetCurrentBasketDetailsResponse? response = await ShoppingCartApiClient.GetCurrentBasketDetailsAsync();
+            if (response is not null)
+            {
+                _checkoutModel.FromDetailsResponse(response);
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
+
+    private async Task OnPreviewInteraction(StepperInteractionEventArgs arg)
+    {
+        switch (arg.StepIndex)
+        {
+            case 0:
+                _checkoutModel.ShoppingCartConfirmed = arg.Action == StepAction.Complete;
+                break;
+
+            case 1:
+                break;
+
+            case 2:
+                break;
+
+            case 3:
+                break;
+        }
+    }
+
 }
