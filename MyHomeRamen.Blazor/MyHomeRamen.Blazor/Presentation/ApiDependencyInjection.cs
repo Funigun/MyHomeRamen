@@ -1,6 +1,7 @@
 using MyHomeRamen.Blazor.Features.Account.Common.Services;
 using MyHomeRamen.Blazor.Features.Admin.Employees;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services;
+using MyHomeRamen.Blazor.Features.Payments.Common.Services;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services;
 using MyHomeRamen.Blazor.Presentation.Authentication;
 using MyHomeRamen.Blazor.Presentation.GuestAuthentication;
@@ -36,6 +37,13 @@ internal static class ApiDependencyInjection
          .AddHttpMessageHandler<GuestCookieForwardingHandler>();
 
         services.AddHttpClient<ShoppingCartApiClient>(client =>
+            {
+                client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
+            }
+        ).AddHttpMessageHandler<AuthHeaderHandler>()
+         .AddHttpMessageHandler<GuestCookieForwardingHandler>();
+
+        services.AddHttpClient<PaymentApiClient>(client =>
             {
                 client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
             }

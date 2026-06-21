@@ -1,20 +1,162 @@
-﻿<MudCard Class="mt-2">
-    <MudCardContent>
-        <MudText Typo="Typo.h6">Payment details</MudText>
-    </MudCardContent>
-</MudCard>
+@using MyHomeRamen.Blazor.Features.Payments.Common.Services
+@using MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+@using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses
+@using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses
+
+@inject PaymentApiClient PaymentApiClient
+@inject ShoppingCartApiClient ShoppingCartApiClient
+@inject ISnackbar Snackbar
+
+@if (_isLoading)
+{
+    <MudCard Class="mt-2">
+        <MudCardContent>
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        </MudCardContent>
+    </MudCard>
+}
+else
+{
+    <MudCard Class="mt-2">
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Class="mb-4">Payment details</MudText>
+
+            <MudGrid>
+                <MudItem xs="4">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2">Payment method</MudText>
+                    @foreach (AvailableMethodModel method in _availableMethods)
+                    {
+                        bool isSelected = Model.PaymentDetails.PaymentMethodId == method.Id.ToString();
+                        <MudPaper Outlined="true"
+                                  Class="@($"pa-3 mb-2 cursor-pointer {(isSelected ? "border-primary" : "")}")"
+                                  Style="@(isSelected ? "border: 2px solid var(--mud-palette-primary);" : "border: 1px solid var(--mud-palette-lines-default);")"
+                                  @onclick="() => SelectMethod(method)">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                @if (!string.IsNullOrEmpty(method.Image))
+                                {
+                                    <MudImage Src="@method.Image" Alt="@method.Name" Height="32" ObjectFit="ObjectFit.Contain" />
+                                }
+                                <MudText Typo="Typo.body1">@method.Name</MudText>
+                            </MudStack>
+                        </MudPaper>
+                    }
+                </MudItem>
+
+                <MudItem xs="8">
+                    @if (_selectedMethod is not null)
+                    {
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">Payment channel</MudText>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                            @foreach (AvailableChannelModel channel in _selectedMethod.Channels)
+                            {
+                                bool isSelected = Model.PaymentDetails.PaymentChannelId == channel.Id.ToString();
+                                <MudPaper Outlined="true"
+                                          Class="@($"pa-2 cursor-pointer")"
+                                          Style="@(isSelected ? "border: 2px solid var(--mud-palette-primary);" : "border: 1px solid var(--mud-palette-lines-default);")"
+                                          @onclick="() => SelectChannel(channel)">
+                                    <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                                        @if (!string.IsNullOrEmpty(channel.ImageUrl))
+                                        {
+                                            <MudImage Src="@channel.ImageUrl" Alt="@channel.Name" Height="40" ObjectFit="ObjectFit.Contain" />
+                                        }
+                                        <MudText Typo="Typo.caption" Align="Align.Center">@channel.Name</MudText>
+                                    </MudStack>
+                                </MudPaper>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">Select a payment method to see available channels.</MudText>
+                    }
+                </MudItem>
+            </MudGrid>
+        </MudCardContent>
+    </MudCard>
+}
 
 @code {
+    [Parameter, EditorRequired] public CheckoutModel Model { get; set; } = default!;
     [Parameter] public EventCallback<bool> MoveToNext { get; set; }
     [Parameter] public EventCallback<bool> MoveToPrevious { get; set; }
 
-    private async Task HandleNextClickAsync()
+    private bool _isLoading = true;
+    private List<AvailableMethodModel> _availableMethods = [];
+    private AvailableMethodModel? _selectedMethod;
+
+    protected override async Task OnInitializedAsync()
     {
-        await MoveToNext.InvokeAsync(true);
+        _isLoading = true;
+        try
+        {
+            IEnumerable<GetAvailableMethodsResponse> methods = await PaymentApiClient.GetAvailableMethodsAsync();
+            _availableMethods = methods.Select(AvailableMethodModel.FromResponse).ToList();
+
+            PaymentDetailsResponse? paymentDetails = await ShoppingCartApiClient.GetPaymentDetailsAsync(Model.BasketId);
+            if (paymentDetails is not null)
+            {
+                Model.SetPaymentDetails(paymentDetails);
+            }
+
+            if (!string.IsNullOrEmpty(Model.PaymentDetails.PaymentMethodId))
+            {
+                _selectedMethod = _availableMethods.FirstOrDefault(m => m.Id.ToString() == Model.PaymentDetails.PaymentMethodId);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Failed to load payment details.", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
-    private async Task HandlePreviousClickAsync()
+    private void SelectMethod(AvailableMethodModel method)
     {
-        await MoveToPrevious.InvokeAsync(true);
+        _selectedMethod = method;
+        Model.PaymentDetails.PaymentMethodId = method.Id.ToString();
+        Model.PaymentDetails.PaymentChannelId = string.Empty;
+    }
+
+    private void SelectChannel(AvailableChannelModel channel)
+    {
+        Model.PaymentDetails.PaymentChannelId = channel.Id.ToString();
+    }
+
+    public async Task<bool> ValidateAndSaveAsync()
+    {
+        if (string.IsNullOrEmpty(Model.PaymentDetails.PaymentMethodId))
+        {
+            Snackbar.Add("Please select a payment method.", Severity.Warning);
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(Model.PaymentDetails.PaymentChannelId))
+        {
+            Snackbar.Add("Please select a payment channel.", Severity.Warning);
+            return false;
+        }
+
+        try
+        {
+            bool success = await ShoppingCartApiClient.UpdatePaymentDetailsAsync(Model.BasketId, Model.PaymentDetails);
+            if (success)
+            {
+                Snackbar.Add("Payment details saved.", Severity.Success);
+                return true;
+            }
+
+            Snackbar.Add("Failed to save payment details.", Severity.Error);
+            return false;
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("An error occurred while saving payment details.", Severity.Error);
+            return false;
+        }
     }
 }

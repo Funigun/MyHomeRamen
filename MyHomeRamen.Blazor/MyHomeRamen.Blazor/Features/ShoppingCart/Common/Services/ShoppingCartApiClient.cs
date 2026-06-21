@@ -1,3 +1,4 @@
+using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.PaymentDetails;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
@@ -60,6 +61,18 @@ public sealed class ShoppingCartApiClient(HttpClient httpClient)
         UpdateShippingDetailsRequest request = new(model.PersonalPickup, model.Delivery, addressDto);
 
         using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"/api/shopping-cart/{basketId}/update-shipping-details", request, ct);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<PaymentDetailsResponse?> GetPaymentDetailsAsync(Guid basketId, CancellationToken ct = default)
+    {
+        return await httpClient.GetFromJsonAsync<PaymentDetailsResponse>($"/api/shopping-cart/{basketId}/payment-details", ct);
+    }
+
+    public async Task<bool> UpdatePaymentDetailsAsync(Guid basketId, PaymentDetailsModel model, CancellationToken ct = default)
+    {
+        UpdatePaymentDetailsRequest request = new(model.PaymentMethodId, model.PaymentChannelId);
+        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"/api/shopping-cart/{basketId}/update-payment-details", request, ct);
         return response.IsSuccessStatusCode;
     }
 }

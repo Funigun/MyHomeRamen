@@ -29,7 +29,7 @@
             </MudStep>
 
             <MudStep Title="Payment">
-                <PaymentDetailsStep/>
+                <PaymentDetailsStep @ref="_paymentDetailsStep" Model="_checkoutModel" @bind-Completed="_checkoutModel.PaymentMethodConfirmed" />
             </MudStep>
 
             <MudStep Title="Summary">
@@ -43,6 +43,7 @@
     private CheckoutModel _checkoutModel = new();
     private bool _isLoading = true;
     private ShippingDetailsStep _shippingDetailsStep = default!;
+    private PaymentDetailsStep _paymentDetailsStep = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,6 +90,18 @@
                 break;
 
             case 2:
+                if (arg.Action == StepAction.Complete)
+                {
+                    bool success = await _paymentDetailsStep.ValidateAndSaveAsync();
+                    if (!success)
+                    {
+                        arg.Cancel = true;
+                    }
+                    else
+                    {
+                        _checkoutModel.PaymentMethodConfirmed = true;
+                    }
+                }
                 break;
 
             case 3:
