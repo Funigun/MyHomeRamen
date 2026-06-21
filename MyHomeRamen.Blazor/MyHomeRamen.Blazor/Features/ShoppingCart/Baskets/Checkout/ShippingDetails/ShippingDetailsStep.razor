@@ -1,16 +1,182 @@
-﻿<MudCard Class="mt-2">
-    <MudCardContent>
-        <MudText Typo="Typo.h6">Shipping details</MudText>
-    </MudCardContent>
-</MudCard>
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+@using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses
+
+@inject ShoppingCartApiClient ShoppingCartApiClient
+@inject ISnackbar Snackbar
+
+@if (_isLoading)
+{
+    <MudCard Class="mt-2">
+        <MudCardContent>
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        </MudCardContent>
+    </MudCard>
+}
+else
+{
+    <MudCard Class="mt-2">
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Class="mb-4">Shipping details</MudText>
+
+            <MudRadioGroup T="string" @bind-Value="@SelectedShippingMethod" Class="mb-4">
+                <MudRadio T="string" Value="@("Pickup")" Color="Color.Primary">Personal Pickup</MudRadio>
+                <MudRadio T="string" Value="@("Delivery")" Color="Color.Primary">Delivery</MudRadio>
+            </MudRadioGroup>
+
+            @if (Model.ShippingDetails.Delivery)
+            {
+                <MudForm @ref="_form" Model="@Model.ShippingDetails.ShippingAddress" Validation="@_addressValidator.ValidateValue">
+                    <MudGrid>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField T="string" Label="Street" @bind-Value="Model.ShippingDetails.ShippingAddress!.Street" For="@(() => Model.ShippingDetails.ShippingAddress!.Street)" Required="true" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField T="string" Label="Building" @bind-Value="Model.ShippingDetails.ShippingAddress!.Building" For="@(() => Model.ShippingDetails.ShippingAddress!.Building)" Required="true" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField T="string" Label="Apartment" @bind-Value="Model.ShippingDetails.ShippingAddress!.Apartment" For="@(() => Model.ShippingDetails.ShippingAddress!.Apartment)" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField T="string" Label="City" @bind-Value="Model.ShippingDetails.ShippingAddress!.City" For="@(() => Model.ShippingDetails.ShippingAddress!.City)" Required="true" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField T="string" Label="Zip Code" @bind-Value="Model.ShippingDetails.ShippingAddress!.ZipCode" For="@(() => Model.ShippingDetails.ShippingAddress!.ZipCode)" Required="true" />
+                        </MudItem>
+                    </MudGrid>
+                </MudForm>
+            }
+        </MudCardContent>
+    </MudCard>
+}
 
 @code {
+    [Parameter, EditorRequired] public CheckoutModel Model { get; set; } = default!;
     [Parameter] public EventCallback<bool> MoveToNext { get; set; }
     [Parameter] public EventCallback<bool> MoveToPrevious { get; set; }
 
+    private bool _isLoading = true;
+    private bool _isSaving;
+    private MudForm? _form;
+    private readonly ShippingAddressValidator _addressValidator = new();
+
+    private string? SelectedShippingMethod
+    {
+        get
+        {
+            if (Model.ShippingDetails.Delivery) return "Delivery";
+            if (Model.ShippingDetails.PersonalPickup) return "Pickup";
+            return null;
+        }
+
+        set
+        {
+            Model.ShippingDetails.Delivery = value == "Delivery";
+            Model.ShippingDetails.PersonalPickup = value == "Picup";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            ShippingDetailsResponse? response = await ShoppingCartApiClient.GetShippingDetailsAsync(Model.BasketId);
+            if (response is not null)
+            {
+                Model.SetShippingDetails(response);
+            }
+
+            if (Model.ShippingDetails.ShippingAddress is null)
+            {
+                Model.ShippingDetails.ShippingAddress = new ShippingAddressModel();
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Failed to load shipping details.", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void OnShippingMethodChanged(string value)
+    {
+        if (value == "Pickup")
+        {
+            Model.ShippingDetails.PersonalPickup = true;
+            Model.ShippingDetails.Delivery = false;
+        }
+        else if (value == "Delivery")
+        {
+            Model.ShippingDetails.PersonalPickup = false;
+            Model.ShippingDetails.Delivery = true;
+            if (Model.ShippingDetails.ShippingAddress is null)
+            {
+                Model.ShippingDetails.ShippingAddress = new ShippingAddressModel();
+            }
+        }
+    }
+
+    public async Task<bool> ValidateAndSaveAsync()
+    {
+        if (string.IsNullOrEmpty(SelectedShippingMethod))
+        {
+            Snackbar.Add("Please select a shipping method.", Severity.Warning);
+            return false;
+        }
+
+        if (Model.ShippingDetails.Delivery)
+        {
+            if (_form is not null)
+            {
+                await _form.Validate();
+                if (!_form.IsValid)
+                {
+                    Snackbar.Add("Please correct the errors in the shipping address.", Severity.Warning);
+                    return false;
+                }
+            }
+        }
+
+        _isSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            bool success = await ShoppingCartApiClient.UpdateShippingDetailsAsync(Model.BasketId, Model.ShippingDetails);
+            if (success)
+            {
+                await MoveToNext.InvokeAsync(true);
+                return true;
+            }
+            else
+            {
+                Snackbar.Add("Failed to update shipping details.", Severity.Error);
+                return false;
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("An error occurred while saving shipping details.", Severity.Error);
+            return false;
+        }
+        finally
+        {
+            _isSaving = false;
+            StateHasChanged();
+        }
+    }
+
     private async Task HandleNextClickAsync()
     {
-        await MoveToNext.InvokeAsync(true);
+        bool success = await ValidateAndSaveAsync();
+        if (success)
+        {
+            await MoveToNext.InvokeAsync(true);
+        }
     }
 
     private async Task HandlePreviousClickAsync()

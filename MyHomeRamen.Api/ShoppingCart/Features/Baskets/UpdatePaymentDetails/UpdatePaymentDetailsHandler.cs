@@ -7,7 +7,7 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.UpdatePaymentDetails;
 
-internal sealed class UpdatePaymentDetailsHandler(IShoppingCartDbContext dbContext) : ICommandHandler<UpdatePaymentDetailsCommand>
+public sealed class UpdatePaymentDetailsHandler(IShoppingCartDbContext dbContext) : ICommandHandler<UpdatePaymentDetailsCommand>
 {
     public async Task Handle(UpdatePaymentDetailsCommand request, CancellationToken cancellationToken)
     {

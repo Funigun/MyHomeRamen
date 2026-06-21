@@ -1,3 +1,5 @@
+using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 
@@ -34,5 +36,30 @@ public sealed class ShoppingCartApiClient(HttpClient httpClient)
     public async Task<GetCurrentBasketDetailsResponse?> GetCurrentBasketDetailsAsync(CancellationToken ct = default)
     {
         return await httpClient.GetFromJsonAsync<GetCurrentBasketDetailsResponse>("/api/shoppingcart/basket/details", ct);
+    }
+
+    public async Task<ShippingDetailsResponse?> GetShippingDetailsAsync(Guid basketId, CancellationToken ct = default)
+    {
+        return await httpClient.GetFromJsonAsync<ShippingDetailsResponse>($"/api/shopping-cart/{basketId}/shipping-details", ct);
+    }
+
+    public async Task<bool> UpdateShippingDetailsAsync(Guid basketId, ShippingDetailsModel model, CancellationToken ct = default)
+    {
+        ShippingAddressDto? addressDto = null;
+        if (model.Delivery && model.ShippingAddress is not null)
+        {
+            addressDto = new ShippingAddressDto(
+                model.ShippingAddress.Street,
+                model.ShippingAddress.Building,
+                model.ShippingAddress.Apartment,
+                model.ShippingAddress.City,
+                model.ShippingAddress.ZipCode
+            );
+        }
+
+        UpdateShippingDetailsRequest request = new(model.PersonalPickup, model.Delivery, addressDto);
+
+        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"/api/shopping-cart/{basketId}/update-shipping-details", request, ct);
+        return response.IsSuccessStatusCode;
     }
 }

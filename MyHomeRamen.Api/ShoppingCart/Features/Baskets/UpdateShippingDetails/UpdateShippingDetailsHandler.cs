@@ -4,10 +4,9 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Persistance.Common;
 
-
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.UpdateShippingDetails;
 
-internal sealed class UpdateShippingDetailsHandler(IShoppingCartDbContext dbContext) : ICommandHandler<UpdateShippingDetailsCommand>
+public sealed class UpdateShippingDetailsHandler(IShoppingCartDbContext dbContext) : ICommandHandler<UpdateShippingDetailsCommand>
 {
     public async Task Handle(UpdateShippingDetailsCommand request, CancellationToken cancellationToken)
     {

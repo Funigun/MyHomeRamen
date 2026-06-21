@@ -24,8 +24,8 @@
                 <BasketDetailsStep Model="_checkoutModel" />
             </MudStep>
 
-            <MudStep Title="Shipping">
-                <ShippingDetailsStep />
+            <MudStep Title="Shipping" @bind-Completed="_checkoutModel.ShippingAddressConfirmed">
+                <ShippingDetailsStep @ref="_shippingDetailsStep" Model="_checkoutModel" />
             </MudStep>
 
             <MudStep Title="Payment">
@@ -42,6 +42,7 @@
     @code {
     private CheckoutModel _checkoutModel = new();
     private bool _isLoading = true;
+    private ShippingDetailsStep _shippingDetailsStep = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -73,6 +74,18 @@
                 break;
 
             case 1:
+                if (arg.Action == StepAction.Complete)
+                {
+                    bool success = await _shippingDetailsStep.ValidateAndSaveAsync();
+                    if (!success)
+                    {
+                        arg.Cancel = true;
+                    }
+                    else
+                    {
+                        _checkoutModel.ShippingAddressConfirmed = true;
+                    }
+                }
                 break;
 
             case 2:
