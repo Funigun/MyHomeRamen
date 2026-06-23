@@ -1,12 +1,75 @@
-﻿<MudCard Class="mt-2">
+﻿@using MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails
+<MudCard Class="mt-2">
     <MudCardContent>
         <MudText Typo="Typo.h6">Order Summary</MudText>
+
+        <MudStack>
+            <MudText>Products</MudText>
+            <MudCollapse>
+                @foreach (CheckoutBasketItemModel item in CheckoutModel.Items)
+                {
+                    <MudStack Row="true" >
+                        <ImageDisplay Style="width:50px;height:50px;" />
+                        <MudText>@item.Product.Name</MudText>
+                        <MudText>@(item.Quantity * item.Price).ToString("C")</MudText>
+                    </MudStack>
+                }
+            </MudCollapse>
+        </MudStack>
+
+        <MudStack>
+            @if(CheckoutModel.ShippingDetails.PersonalPickup)
+            {
+                <MudText>Shipping - Personal pickup</MudText>
+            }
+            else
+            {
+                <MudText>Shipping Address</MudText>
+                <MudCollapse>
+                    <MudStack>
+                        <MudText>
+                            @($"{CheckoutModel.ShippingDetails.ShippingAddress!.Street} {CheckoutModel.ShippingDetails.ShippingAddress!.Building} / {CheckoutModel.ShippingDetails.ShippingAddress!.Apartment}")
+                        </MudText>
+
+                        <MudText>
+                            @($"{CheckoutModel.ShippingDetails.ShippingAddress!.ZipCode} {CheckoutModel.ShippingDetails.ShippingAddress!.City}")
+                        </MudText>
+                    </MudStack>
+                </MudCollapse>
+            }
+        </MudStack>
+
+        <MudStack>
+            <MudText>Payment</MudText>
+            <MudCollapse>
+                <MudStack Row="true">
+                    <ImageDisplay Style="width:50px;height:50px;"/>
+                    <MudText>
+                        @if (SelectedChannel != null)
+                        {
+                            @($"{SelectedMethod.Name} - {SelectedChannel.Name}")
+                        }
+                        else
+                        {
+                            @SelectedMethod.Name
+                        }                        
+                    </MudText>
+                </MudStack>
+            </MudCollapse>
+        </MudStack>
+        
     </MudCardContent>
 </MudCard>
 
 @code {
     [Parameter] public EventCallback<bool> MoveToNext { get; set; }
     [Parameter] public EventCallback<bool> MoveToPrevious { get; set; }
+    [Parameter] public CheckoutModel CheckoutModel { get; set; }
+    [Parameter] public IEnumerable<AvailableMethodModel> AvailableMethods { get; set; }
+
+    private AvailableMethodModel SelectedMethod => AvailableMethods.First(m => m.Id.ToString() == CheckoutModel.PaymentDetails.PaymentMethodId);
+    private AvailableChannelModel? SelectedChannel => SelectedMethod.Channels.FirstOrDefault(c => c.Id.ToString() == CheckoutModel.PaymentDetails.PaymentChannelId);
 
     private async Task HandleNextClickAsync()
     {

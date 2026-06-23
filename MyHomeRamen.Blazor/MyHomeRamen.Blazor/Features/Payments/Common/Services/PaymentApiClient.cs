@@ -6,7 +6,7 @@ public sealed class PaymentApiClient(HttpClient httpClient)
 {
     public async Task<IEnumerable<GetAvailableMethodsResponse>> GetAvailableMethodsAsync(CancellationToken ct = default)
     {
-        return await httpClient.GetFromJsonAsync<IEnumerable<GetAvailableMethodsResponse>>("/api/payments/methods/available", ct)
+        return await httpClient.GetFromJsonAsync<IEnumerable<GetAvailableMethodsResponse>>("/api/payments/available-methods", ct)
             ?? [];
     }
 }

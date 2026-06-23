@@ -6,8 +6,12 @@
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.Summary
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+@using MyHomeRamen.Blazor.Features.Payments.Common.Services
+@using MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models
+@using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses
 @using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses
 
+@inject PaymentApiClient PaymentApiClient
 @inject ShoppingCartApiClient ShoppingCartApiClient
 
 <PageTitle>Checkout</PageTitle>
@@ -28,12 +32,12 @@
                 <ShippingDetailsStep @ref="_shippingDetailsStep" Model="_checkoutModel" />
             </MudStep>
 
-            <MudStep Title="Payment">
-                <PaymentDetailsStep @ref="_paymentDetailsStep" Model="_checkoutModel" @bind-Completed="_checkoutModel.PaymentMethodConfirmed" />
+            <MudStep Title="Payment" @bind-Completed="_checkoutModel.PaymentMethodConfirmed">
+                <PaymentDetailsStep @ref="_paymentDetailsStep" Model="_checkoutModel" AvailableMethods="_availableMethods" />
             </MudStep>
 
             <MudStep Title="Summary">
-                <CheckoutSummaryStep/>
+                <CheckoutSummaryStep CheckoutModel="_checkoutModel" AvailableMethods="_availableMethods"/>
             </MudStep>
         </MudStepper>
     }
@@ -44,6 +48,7 @@
     private bool _isLoading = true;
     private ShippingDetailsStep _shippingDetailsStep = default!;
     private PaymentDetailsStep _paymentDetailsStep = default!;
+    private IEnumerable<AvailableMethodModel> _availableMethods = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,10 +59,15 @@
     {
         try
         {
+            IEnumerable<GetAvailableMethodsResponse> methods= await PaymentApiClient.GetAvailableMethodsAsync();
+            _availableMethods = methods.Select(AvailableMethodModel.FromResponse).ToList();
+
             GetCurrentBasketDetailsResponse? response = await ShoppingCartApiClient.GetCurrentBasketDetailsAsync();
+            
             if (response is not null)
             {
-                _checkoutModel.FromDetailsResponse(response);
+                _checkoutModel.FromDetailsResponse(response!);
+
             }
         }
         finally
@@ -84,7 +94,7 @@
                     }
                     else
                     {
-                        _checkoutModel.ShippingAddressConfirmed = true;
+                        _checkoutModel.ShippingAddressConfirmed = arg.Action == StepAction.Complete;
                     }
                 }
                 break;
@@ -99,7 +109,7 @@
                     }
                     else
                     {
-                        _checkoutModel.PaymentMethodConfirmed = true;
+                        _checkoutModel.PaymentMethodConfirmed = arg.Action == StepAction.Complete;
                     }
                 }
                 break;

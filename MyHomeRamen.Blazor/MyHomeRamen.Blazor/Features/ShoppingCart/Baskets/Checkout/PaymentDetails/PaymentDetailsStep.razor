@@ -2,7 +2,6 @@
 @using MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
-@using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses
 @using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses
 
 @inject PaymentApiClient PaymentApiClient
@@ -26,7 +25,7 @@ else
             <MudGrid>
                 <MudItem xs="4">
                     <MudText Typo="Typo.subtitle2" Class="mb-2">Payment method</MudText>
-                    @foreach (AvailableMethodModel method in _availableMethods)
+                    @foreach (AvailableMethodModel method in AvailableMethods)
                     {
                         bool isSelected = Model.PaymentDetails.PaymentMethodId == method.Id.ToString();
                         <MudPaper Outlined="true"
@@ -79,11 +78,12 @@ else
 
 @code {
     [Parameter, EditorRequired] public CheckoutModel Model { get; set; } = default!;
+    [Parameter] public IEnumerable<AvailableMethodModel> AvailableMethods { get; set; } = [];
     [Parameter] public EventCallback<bool> MoveToNext { get; set; }
     [Parameter] public EventCallback<bool> MoveToPrevious { get; set; }
 
     private bool _isLoading = true;
-    private List<AvailableMethodModel> _availableMethods = [];
+    
     private AvailableMethodModel? _selectedMethod;
 
     protected override async Task OnInitializedAsync()
@@ -91,9 +91,6 @@ else
         _isLoading = true;
         try
         {
-            IEnumerable<GetAvailableMethodsResponse> methods = await PaymentApiClient.GetAvailableMethodsAsync();
-            _availableMethods = methods.Select(AvailableMethodModel.FromResponse).ToList();
-
             PaymentDetailsResponse? paymentDetails = await ShoppingCartApiClient.GetPaymentDetailsAsync(Model.BasketId);
             if (paymentDetails is not null)
             {
@@ -102,7 +99,7 @@ else
 
             if (!string.IsNullOrEmpty(Model.PaymentDetails.PaymentMethodId))
             {
-                _selectedMethod = _availableMethods.FirstOrDefault(m => m.Id.ToString() == Model.PaymentDetails.PaymentMethodId);
+                _selectedMethod = AvailableMethods.FirstOrDefault(m => m.Id.ToString() == Model.PaymentDetails.PaymentMethodId);
             }
         }
         catch (Exception)
@@ -129,13 +126,13 @@ else
 
     public async Task<bool> ValidateAndSaveAsync()
     {
-        if (string.IsNullOrEmpty(Model.PaymentDetails.PaymentMethodId))
+        if (_selectedMethod is null)
         {
             Snackbar.Add("Please select a payment method.", Severity.Warning);
             return false;
         }
 
-        if (string.IsNullOrEmpty(Model.PaymentDetails.PaymentChannelId))
+        if (_selectedMethod.Channels.Any() && string.IsNullOrEmpty(Model.PaymentDetails.PaymentChannelId))
         {
             Snackbar.Add("Please select a payment channel.", Severity.Warning);
             return false;

@@ -99,8 +99,12 @@
     {
         if (_jsModule is not null)
         {
-            await _jsModule.InvokeVoidAsync("unregisterClickOutside", _menuRef);
-            await _jsModule.DisposeAsync();
+            try
+            {
+                await _jsModule.InvokeVoidAsync("unregisterClickOutside", _menuRef);
+                await _jsModule.DisposeAsync();
+            }
+            catch {}
         }
 
         _dotNetRef?.Dispose();

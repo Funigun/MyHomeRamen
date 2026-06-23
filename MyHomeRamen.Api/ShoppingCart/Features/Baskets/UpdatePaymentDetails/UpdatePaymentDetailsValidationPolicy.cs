@@ -14,9 +14,12 @@ public sealed class UpdatePaymentDetailsValidationPolicy : AbstractValidator<Upd
             .Must(id => Guid.TryParse(id, out _))
             .WithMessage("Invalid PaymentMethodId format.");
 
-        RuleFor(x => x.Request.PaymentChannelId)
-            .Must(id => Guid.TryParse(id, out _))
-            .WithMessage("Invalid PaymentChannelId format.");
+        When(x => !string.IsNullOrEmpty(x.Request.PaymentChannelId), () =>
+        {
+            RuleFor(x => x.Request.PaymentChannelId)
+                .Must(id => Guid.TryParse(id, out _))
+                .WithMessage("Invalid PaymentChannelId format.");
+        });
 
         RuleFor(x => x)
             .MustAsync(async (cmd, ct) => await dbContext.ShoppingCarts.GetByIdForUserTracked(cmd.BasketId, cmd.UserId).AnyAsync(ct))
@@ -26,7 +29,14 @@ public sealed class UpdatePaymentDetailsValidationPolicy : AbstractValidator<Upd
         RuleFor(x => x.Request)
             .MustAsync(async (req, ct) =>
             {
-                if (!Guid.TryParse(req.PaymentMethodId, out Guid methodId) || !Guid.TryParse(req.PaymentChannelId, out Guid channelId))
+                Guid channelId = Guid.Empty;
+
+                if (!Guid.TryParse(req.PaymentMethodId, out Guid methodId))
+                {
+                    return false;
+                }
+
+                if (!string.IsNullOrEmpty(req.PaymentChannelId) && !Guid.TryParse(req.PaymentChannelId, out channelId))
                 {
                     return false;
                 }

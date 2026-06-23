@@ -13,6 +13,11 @@ internal sealed class PaymentService(IPaymentsDbContext dbContext) : IPaymentSer
         PaymentMethod? method = await dbContext.PaymentMethods.GetById(new(methodId))
                                                               .FirstOrDefaultAsync(ct);
 
-        return method is not null && method.HasActiveChannel(new(channelId));
+        if (method == null) { return false; }
+
+        bool selectedMethodWithoutChannel = !method.HasChannels() && channelId == Guid.Empty;
+        bool selectedMethodWithChannel = method.HasChannels() && method.HasActiveChannel(new(channelId));
+
+        return selectedMethodWithoutChannel || selectedMethodWithChannel;
     }
 }
