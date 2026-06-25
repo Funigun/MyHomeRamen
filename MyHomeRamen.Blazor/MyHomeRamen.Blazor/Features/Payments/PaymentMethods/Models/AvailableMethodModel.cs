@@ -5,8 +5,11 @@ namespace MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models;
 public sealed class AvailableMethodModel
 {
     public Guid Id { get; set; }
+
     public string Name { get; set; } = string.Empty;
+
     public string Image { get; set; } = string.Empty;
+
     public List<AvailableChannelModel> Channels { get; set; } = [];
 
     public static AvailableMethodModel FromResponse(GetAvailableMethodsResponse response) => new()

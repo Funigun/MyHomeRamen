@@ -4,29 +4,31 @@
     <MudCardContent>
         <MudText Typo="Typo.h6">Order Summary</MudText>
 
-        <MudStack>
-            <MudText>Products</MudText>
-            <MudCollapse>
+        <MudStack Style="margin-top: 50px;">
+            <MudButton OnClick="OnProductsSectionExpandCollapseClick">Products</MudButton>
+            <MudDivider />
+            <MudCollapse Expanded="productsSectionExpanded">
                 @foreach (CheckoutBasketItemModel item in CheckoutModel.Items)
                 {
-                    <MudStack Row="true" >
+                    <MudStack Row="true" Style="align-items: center">
                         <ImageDisplay Style="width:50px;height:50px;" />
                         <MudText>@item.Product.Name</MudText>
-                        <MudText>@(item.Quantity * item.Price).ToString("C")</MudText>
+                        <MudText>@(item.Quantity * item.Price)</MudText>
                     </MudStack>
                 }
             </MudCollapse>
         </MudStack>
 
-        <MudStack>
-            @if(CheckoutModel.ShippingDetails.PersonalPickup)
-            {
-                <MudText>Shipping - Personal pickup</MudText>
-            }
-            else
-            {
-                <MudText>Shipping Address</MudText>
-                <MudCollapse>
+        <MudStack Style="margin-top: 50px;">
+            <MudButton OnClick="OnShippingSectionExpandCollapseClick">Shipping</MudButton>
+            <MudDivider />
+            <MudCollapse Expanded="shippingSectionExpanded">
+                @if (CheckoutModel.ShippingDetails.PersonalPickup)
+                {
+                    <MudText>Personal pickup</MudText>
+                }
+                else
+                {
                     <MudStack>
                         <MudText>
                             @($"{CheckoutModel.ShippingDetails.ShippingAddress!.Street} {CheckoutModel.ShippingDetails.ShippingAddress!.Building} / {CheckoutModel.ShippingDetails.ShippingAddress!.Apartment}")
@@ -36,14 +38,15 @@
                             @($"{CheckoutModel.ShippingDetails.ShippingAddress!.ZipCode} {CheckoutModel.ShippingDetails.ShippingAddress!.City}")
                         </MudText>
                     </MudStack>
-                </MudCollapse>
-            }
+                }
+            </MudCollapse>
         </MudStack>
 
-        <MudStack>
-            <MudText>Payment</MudText>
-            <MudCollapse>
-                <MudStack Row="true">
+        <MudStack Style="margin-top: 50px;">
+            <MudButton OnClick="OnPaymentSectionExpandCollapseClick">Payment</MudButton>
+            <MudDivider />
+            <MudCollapse Expanded="paymentSectionExpanded">
+                <MudStack Row="true" Style="align-items: center">
                     <ImageDisplay Style="width:50px;height:50px;"/>
                     <MudText>
                         @if (SelectedChannel != null)
@@ -70,6 +73,14 @@
 
     private AvailableMethodModel SelectedMethod => AvailableMethods.First(m => m.Id.ToString() == CheckoutModel.PaymentDetails.PaymentMethodId);
     private AvailableChannelModel? SelectedChannel => SelectedMethod.Channels.FirstOrDefault(c => c.Id.ToString() == CheckoutModel.PaymentDetails.PaymentChannelId);
+
+    private bool productsSectionExpanded = true;
+    private bool shippingSectionExpanded = true;
+    private bool paymentSectionExpanded = false;
+    
+    private void OnProductsSectionExpandCollapseClick() => productsSectionExpanded = !productsSectionExpanded;
+    private void OnShippingSectionExpandCollapseClick() => shippingSectionExpanded = !shippingSectionExpanded;
+    private void OnPaymentSectionExpandCollapseClick() => paymentSectionExpanded = !paymentSectionExpanded;
 
     private async Task HandleNextClickAsync()
     {
