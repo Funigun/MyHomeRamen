@@ -1,9 +1,9 @@
 using FluentValidation;
-using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Common.Contracts.Account;
 using MyHomeRamen.Domain.Common.Address;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Users.Extensions;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Api.Users.Features.Account.CreateAddress;
 

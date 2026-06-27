@@ -4,7 +4,6 @@
   </PropertyGroup>
 	
   <ItemGroup>
-    <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Api\MyHomeRamen.Api.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />

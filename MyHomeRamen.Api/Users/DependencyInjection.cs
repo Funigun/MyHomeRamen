@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Persistance;
 

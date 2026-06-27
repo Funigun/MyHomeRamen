@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.Users.Database;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;

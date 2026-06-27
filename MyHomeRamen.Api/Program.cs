@@ -1,8 +1,7 @@
 using System.Reflection;
 using FluentValidation;
-using MyHomeRamen.Api.Common;
-using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Common.Extentsions;
+using MyHomeRamen.Api.Common.Middleware;
 using MyHomeRamen.Api.Menu;
 using MyHomeRamen.Api.Orders;
 using MyHomeRamen.Api.Payments;
@@ -10,6 +9,8 @@ using MyHomeRamen.Api.Reservations;
 using MyHomeRamen.Api.ShoppingCart;
 using MyHomeRamen.Api.Users;
 using MyHomeRamen.Api.WebPresentation;
+using MyHomeRamen.Features;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.ServiceDefaults;
@@ -94,7 +95,10 @@ try
 
     WebApplication app = builder.Build();
 
-    app.UseMiddlewares();
+    app.UseMiddleware<ExceptionMiddleware>();
+    app.UseMiddleware<LoggingMiddleware>();
+    app.UseMiddleware<PerformanceMiddleware>();
+
     app.UseRouting();
 
     if (app.Environment.IsDevelopment())

@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Domain.Menu.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Persistance.Menu.Converters;
 
 namespace MyHomeRamen.Persistance.Menu;

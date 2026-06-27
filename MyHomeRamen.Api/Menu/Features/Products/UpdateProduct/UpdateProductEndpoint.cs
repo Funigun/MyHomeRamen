@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Api.Menu.Features.Products.UpdateProduct;
 

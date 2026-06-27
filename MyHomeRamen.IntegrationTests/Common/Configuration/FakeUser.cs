@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.IntegrationTests.Common.Configuration;
 

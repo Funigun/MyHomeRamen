@@ -1,4 +1,4 @@
-﻿using MyHomeRamen.Api.Common.Domain;
+﻿using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Payments.PaymentChannels;
 
 namespace MyHomeRamen.Domain.Payments.PaymentMethods;

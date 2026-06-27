@@ -2,7 +2,6 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Persistance.Common;
-using MyHomeRamen.Persistance.ShoppingCart;
 
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.UpdateShippingDetails;
 

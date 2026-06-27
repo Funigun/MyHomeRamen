@@ -1,5 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Persistance;
 
 namespace MyHomeRamen.Api.ShoppingCart;

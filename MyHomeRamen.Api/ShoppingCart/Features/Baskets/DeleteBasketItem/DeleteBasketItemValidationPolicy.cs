@@ -1,9 +1,9 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Persistance.Common;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.DeleteBasketItem;
 

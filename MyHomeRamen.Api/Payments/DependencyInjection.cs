@@ -1,7 +1,6 @@
-using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Api.Payments.Services;
 using MyHomeRamen.Common.Contracts.Payments;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Persistance;
 
 namespace MyHomeRamen.Api.Payments;

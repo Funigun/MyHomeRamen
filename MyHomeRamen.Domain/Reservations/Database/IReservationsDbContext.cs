@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Reservations.Bookings;
 using MyHomeRamen.Domain.Reservations.Tables;
 using MyHomeRamen.Domain.Reservations.Users;

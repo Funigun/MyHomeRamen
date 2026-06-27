@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;

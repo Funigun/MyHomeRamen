@@ -1,6 +1,6 @@
 using System.Text;
 using Microsoft.Extensions.Logging;
-using MyHomeRamen.Api.Common.Messaging;
+using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Infrastructure.Messaging.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;

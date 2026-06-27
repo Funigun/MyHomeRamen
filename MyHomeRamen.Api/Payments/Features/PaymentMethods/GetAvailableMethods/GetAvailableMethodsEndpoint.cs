@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses;
+using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Api.Payments.Features.PaymentMethods.GetAvailableMethods;
 

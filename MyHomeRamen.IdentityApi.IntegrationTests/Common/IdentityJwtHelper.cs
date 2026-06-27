@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;

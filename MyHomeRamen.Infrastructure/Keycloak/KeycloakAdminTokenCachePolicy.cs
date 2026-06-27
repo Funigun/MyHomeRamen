@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Cache;
+using MyHomeRamen.Features.Common.Cache;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
 

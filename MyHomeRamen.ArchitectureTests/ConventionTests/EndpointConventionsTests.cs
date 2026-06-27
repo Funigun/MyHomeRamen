@@ -1,8 +1,9 @@
 ﻿using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnitV3;
-using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.ArchitectureTests.Common;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 using Xunit.Sdk;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 

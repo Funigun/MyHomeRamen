@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Orders.Ingredients;
 using MyHomeRamen.Domain.Orders.Orders;
 using MyHomeRamen.Domain.Orders.Payments;

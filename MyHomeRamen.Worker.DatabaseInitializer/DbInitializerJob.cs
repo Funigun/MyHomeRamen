@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Payments.Database;

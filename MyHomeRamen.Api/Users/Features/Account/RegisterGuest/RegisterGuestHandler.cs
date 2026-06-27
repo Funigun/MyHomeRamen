@@ -1,9 +1,9 @@
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
-using MyHomeRamen.Api.Common.Messaging;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
+using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Users.Features.Account.RegisterGuest;

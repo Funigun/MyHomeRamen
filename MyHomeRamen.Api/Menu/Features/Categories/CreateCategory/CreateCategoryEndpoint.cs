@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 
 namespace MyHomeRamen.Api.Menu.Features.Categories.CreateCategory;
 

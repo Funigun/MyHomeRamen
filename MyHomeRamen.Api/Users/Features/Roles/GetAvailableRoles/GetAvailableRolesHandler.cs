@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Users.Roles.Responses;
 using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Infrastructure.Keycloak.Dto;

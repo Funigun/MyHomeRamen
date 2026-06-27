@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MyHomeRamen.Api.Common.Cache;
+using MyHomeRamen.Features.Common.Cache;
 
 namespace MyHomeRamen.Infrastructure.Cache;
 

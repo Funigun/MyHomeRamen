@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
+using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Api.Users.Features.Account.RegisterGuest;
 

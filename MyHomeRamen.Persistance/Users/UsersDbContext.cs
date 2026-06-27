@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Configuration;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
+using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Persistance.Common.GuidConvention;
 
 namespace MyHomeRamen.Persistance.Users;

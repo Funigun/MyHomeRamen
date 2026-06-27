@@ -9,8 +9,8 @@
      <None Remove="Orders\Domain\**" />
    </ItemGroup>
    <ItemGroup>
-    <ProjectReference Include="..\MyHomeRamen.Api.Common\MyHomeRamen.Api.Common.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Features\MyHomeRamen.Features.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Infrastructure\MyHomeRamen.Infrastructure.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />
     <ProjectReference Include="..\MyHomeRamen.ServiceDefaults\MyHomeRamen.ServiceDefaults.csproj" />

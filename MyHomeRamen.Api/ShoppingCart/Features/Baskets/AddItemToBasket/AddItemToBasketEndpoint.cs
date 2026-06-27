@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.AddItemToBasket;
 

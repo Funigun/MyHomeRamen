@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Database;
@@ -10,6 +9,7 @@ using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;

@@ -39,7 +39,7 @@ apiService.WithReference(blazor);
 
 builder.Eventing.Subscribe<BeforeStartEvent>((_, _) =>
 {
-    keyCloak.WithEndpoint("https", ep => ep.Port = 12000);
+    keyCloak.WithEndpoint("https", ep => ep.TargetPort = 12000);
     return Task.CompletedTask;
 });
 

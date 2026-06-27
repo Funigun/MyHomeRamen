@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	
+  <ItemGroup>
+    <Folder Include="Menu\" />
+    <Folder Include="Restaurants\" />
+    <Folder Include="Users\" />
+    <Folder Include="Orders\" />
+    <Folder Include="Payments\" />
+    <Folder Include="Reservations\" />
+    <Folder Include="ShoppingCart\" />
+  </ItemGroup>
+
+</Project>

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MyHomeRamen.Api.Common.Messaging;
+using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Infrastructure.Messaging.Configuration;
 
 namespace MyHomeRamen.Infrastructure.Messaging;

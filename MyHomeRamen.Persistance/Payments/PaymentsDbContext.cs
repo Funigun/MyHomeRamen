@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Payments.Orders;
 using MyHomeRamen.Domain.Payments.PaymentChannels;
 using MyHomeRamen.Domain.Payments.PaymentGateways;
 using MyHomeRamen.Domain.Payments.PaymentMethods;
 using MyHomeRamen.Domain.Payments.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Persistance.Payments.Converters;
 
 namespace MyHomeRamen.Persistance.Payments;

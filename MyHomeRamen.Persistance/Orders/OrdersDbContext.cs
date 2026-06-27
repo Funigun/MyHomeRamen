@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Orders.Ingredients;
 using MyHomeRamen.Domain.Orders.Orders;
 using MyHomeRamen.Domain.Orders.Payments;
 using MyHomeRamen.Domain.Orders.Products;
 using MyHomeRamen.Domain.Orders.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Persistance.Orders.Converters;
 
 namespace MyHomeRamen.Persistance.Orders;

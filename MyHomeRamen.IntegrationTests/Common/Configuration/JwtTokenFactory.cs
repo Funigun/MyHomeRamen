@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using Microsoft.IdentityModel.Tokens;
-using MyHomeRamen.Api.Common.Authorization;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.IntegrationTests.Common.Configuration;
 

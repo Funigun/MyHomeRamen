@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Payments.Orders;
 using MyHomeRamen.Domain.Payments.PaymentChannels;
 using MyHomeRamen.Domain.Payments.PaymentGateways;

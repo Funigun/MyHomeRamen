@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Api.Common.Cache;
-using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Features.Common.Cache;
+using MyHomeRamen.Features.Common.Configurations;
 
 namespace MyHomeRamen.Infrastructure.Cache;
 

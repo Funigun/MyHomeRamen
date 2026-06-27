@@ -51,7 +51,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.ApiCommonAssembly,
+            architectureBuilder.ApiFeaturesAssembly,
             architectureBuilder.DomainAssembly,
             architectureBuilder.InfrastructureAssembly,
             architectureBuilder.PersistanceAssembly,
@@ -73,7 +73,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
         IEnumerable<Assembly> allowedAssemblies =
         [
             architectureBuilder.DomainAssembly,
-            architectureBuilder.ApiCommonAssembly
+            architectureBuilder.ApiFeaturesAssembly
         ];
 
         IEnumerable<IArchRule> infrastructureRules = PrepareProjectRules(architectureBuilder.InfrastructureAssembly, allowedAssemblies);
@@ -90,7 +90,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
         IEnumerable<Assembly> allowedAssemblies =
         [
             architectureBuilder.DomainAssembly,
-            architectureBuilder.ApiCommonAssembly
+            architectureBuilder.ApiFeaturesAssembly
         ];
 
         IEnumerable<IArchRule> persistanceRules = PrepareProjectRules(architectureBuilder.PersistanceAssembly, allowedAssemblies);
@@ -126,7 +126,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.ApiCommonAssembly,
+            architectureBuilder.ApiFeaturesAssembly,
             architectureBuilder.WorkerCommonAssembly,
             architectureBuilder.DomainAssembly,
             architectureBuilder.InfrastructureAssembly,
@@ -148,7 +148,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.ApiCommonAssembly,
+            architectureBuilder.ApiFeaturesAssembly,
             architectureBuilder.WorkerCommonAssembly,
             architectureBuilder.DomainAssembly,
             architectureBuilder.InfrastructureAssembly,
@@ -182,7 +182,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     public void CommonProjects_ShouldNotHave_AnyProjectDependencies()
     {
         // Arrange
-        Assembly[] commonAssemblies = [architectureBuilder.WorkerCommonAssembly, architectureBuilder.ServiceDefaultsAssembly, architectureBuilder.ApiCommonAssembly];
+        Assembly[] commonAssemblies = [architectureBuilder.WorkerCommonAssembly, architectureBuilder.ServiceDefaultsAssembly, architectureBuilder.ApiFeaturesAssembly];
 
         IEnumerable<Assembly> otherProjectAssemblies = architectureBuilder.AllAssemblies
             .Where(a => !commonAssemblies.Any(c => c.FullName == a.FullName));

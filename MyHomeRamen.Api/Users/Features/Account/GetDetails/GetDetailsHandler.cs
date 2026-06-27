@@ -1,9 +1,9 @@
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Persistance.Users.Extensions;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Api.Users.Features.Account.GetDetails;
 

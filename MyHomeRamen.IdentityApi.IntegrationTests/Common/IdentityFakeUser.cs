@@ -1,8 +1,8 @@
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;
 

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Features.Common.Configurations;
 
 namespace MyHomeRamen.Persistance.Users;
 

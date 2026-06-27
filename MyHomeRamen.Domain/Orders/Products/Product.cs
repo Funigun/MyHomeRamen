@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Orders.Ingredients;
 
 namespace MyHomeRamen.Domain.Orders.Products;

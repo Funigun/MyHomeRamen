@@ -1,5 +1,5 @@
 using System.Text.Json.Serialization;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 
 namespace MyHomeRamen.Domain.Menu.Categories;
 

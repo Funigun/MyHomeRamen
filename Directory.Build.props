@@ -19,12 +19,6 @@
 				runtime; build; native; contentfiles; analyzers; buildtransitive
 			</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="StyleCop.Analyzers" >
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>
-				runtime; build; native; contentfiles; analyzers; buildtransitive
-			</IncludeAssets>
-		</PackageReference>
 	</ItemGroup>
 
 	<!-- Aspire Hosting Exclusive -->
@@ -71,12 +65,31 @@
 		<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
 	</ItemGroup>
 
+	<!-- Features Exclusive -->
+	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Features`))'">
+		<PackageReference Include="Scalar.AspNetCore" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+		<PackageReference Include="Serilog"/>
+		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
+		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" />
+		<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
+		<PackageReference Include="Scrutor" />
+	</ItemGroup>
+
 	<!-- Persistance Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Persistance`))'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
 	</ItemGroup>
 	
 	<!-- Infrastructure Exclusive -->

@@ -47,10 +47,10 @@
     <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />
   </Folder>
   <Folder Name="/Web API/">
-    <Project Path="MyHomeRamen.Api.Common/MyHomeRamen.Api.Common.csproj" Id="befa9a57-ff72-4c9f-a6fe-6be0475dfb0e" />
     <Project Path="MyHomeRamen.Api/MyHomeRamen.Api.csproj" />
     <Project Path="MyHomeRamen.Common.Contracts/MyHomeRamen.Common.Contracts.csproj" Id="bcb8c49d-382c-48e4-af52-366f0e369c58" />
     <Project Path="MyHomeRamen.Domain/MyHomeRamen.Domain.csproj" Id="690fccbf-0bbd-4dfc-87f4-279ef5b197af" />
+    <Project Path="MyHomeRamen.Features/MyHomeRamen.Features.csproj" Id="e79f3eae-6ebf-4da9-8d51-5b22c080dc90" />
     <Project Path="MyHomeRamen.Infrastructure/MyHomeRamen.Infrastructure.csproj" Id="853a229a-8c66-4303-8d66-759a85cae6fb" />
     <Project Path="MyHomeRamen.Persistance/MyHomeRamen.Persistance.csproj" Id="9ad85f83-8ea5-4d3c-b052-5b65f48b1791" />
   </Folder>

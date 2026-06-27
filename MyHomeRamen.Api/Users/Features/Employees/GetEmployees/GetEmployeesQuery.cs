@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Users.Employees.Responses;
 
 namespace MyHomeRamen.Api.Users.Features.Employees.GetEmployees;

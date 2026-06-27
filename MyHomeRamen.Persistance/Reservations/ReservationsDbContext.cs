@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Reservations.Bookings;
 using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.Reservations.Tables;
 using MyHomeRamen.Domain.Reservations.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Persistance.Reservations.Converters;
 
 namespace MyHomeRamen.Persistance.Reservations;

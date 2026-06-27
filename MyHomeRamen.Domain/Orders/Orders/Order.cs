@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Orders.Payments;
 using MyHomeRamen.Domain.Orders.Products;
 using MyHomeRamen.Domain.Orders.Users;

@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 
 namespace MyHomeRamen.Domain.Payments.Orders;
 

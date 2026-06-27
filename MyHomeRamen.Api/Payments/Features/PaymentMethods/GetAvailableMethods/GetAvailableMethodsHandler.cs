@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses;
 using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Persistance.Payments.Extensions;

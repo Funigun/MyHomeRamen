@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
-using MyHomeRamen.Api.Common.Cache;
+using MyHomeRamen.Features.Common.Cache;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
 

@@ -1,5 +1,5 @@
-﻿using MyHomeRamen.Api.Common.Messaging;
-using MyHomeRamen.Common.Contracts.Messaging;
+﻿using MyHomeRamen.Common.Contracts.Messaging;
+using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Worker.Common;
 
 namespace MyHomeRamen.Worker.MessagesHandler;

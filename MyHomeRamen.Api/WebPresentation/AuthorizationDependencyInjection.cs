@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Features.Common.Configurations;
 using Scalar.AspNetCore;
 
 namespace MyHomeRamen.Api.WebPresentation;

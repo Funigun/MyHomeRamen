@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using MyHomeRamen.Api.Common.Endpoint;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Api.ShoppingCart.Features.Baskets.DeleteBasketItem;
 

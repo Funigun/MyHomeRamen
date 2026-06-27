@@ -1,4 +1,4 @@
-using MyHomeRamen.Api.Common.Domain;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Reservations.Bookings;
 
 namespace MyHomeRamen.Domain.Reservations.Users;

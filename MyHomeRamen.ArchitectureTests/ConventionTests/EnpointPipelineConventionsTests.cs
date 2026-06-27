@@ -1,7 +1,8 @@
 ﻿using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnitV3;
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
 using MyHomeRamen.ArchitectureTests.Common;
+using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 
 namespace MyHomeRamen.ArchitectureTests.ConventionTests;

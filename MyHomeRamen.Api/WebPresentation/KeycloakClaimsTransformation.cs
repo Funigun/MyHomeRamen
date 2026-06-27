@@ -2,8 +2,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Api.Common.Authorization;
 using MyHomeRamen.Domain.Users.Database;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Api.WebPresentation;
 

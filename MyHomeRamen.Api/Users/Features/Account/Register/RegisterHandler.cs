@@ -1,8 +1,8 @@
-using MyHomeRamen.Api.Common.Endpoint.Pipeline;
-using MyHomeRamen.Api.Common.Messaging;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Domain.Users;
 using MyHomeRamen.Domain.Users.Database;
+using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Infrastructure.Keycloak.Dto;
 

@@ -1,5 +1,5 @@
-using MyHomeRamen.Api.Common.Authorization;
-using MyHomeRamen.Api.Common.Configuration;
+using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.ServiceDefaults;
 using MyHomeRamen.Worker.Common;
