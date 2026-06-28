@@ -55,12 +55,6 @@ Load the specified plan file(s):
 | `frontend` | `.github/instructions/blazor.instructions.md` |
 | cross-module / infra wiring | also load `.github/wiki/architecture.md` |
 
-Module feature files (load if file exists):
-- For each module being **worked on or integrated with**, load `.github/wiki/{Module}Module/features.md`
-- Valid module names: `Users`, `Menu`, `Orders`, `ShoppingCart`, `Reservations`, `Payments`
-- Example: working on `ShoppingCart` that integrates with `Menu` → load both `.github/wiki/ShoppingCartModule/features.md` and `.github/wiki/MenuModule/features.md`
-- Skip silently if the file does not exist for a given module
-
 ### 4) Implementation
 
 Backend (if in scope):

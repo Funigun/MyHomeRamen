@@ -89,43 +89,7 @@
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
   </Folder>
-  <Folder Name="/_github/wiki/menu_module/">
-    <File Path=".github/wiki/MenuModule/features.md" />
-  </Folder>
-  <Folder Name="/_github/wiki/payments_module/">
-    <File Path=".github/wiki/PaymentsModule/features.md" />
-  </Folder>
-  <Folder Name="/_github/wiki/shopping_cart_module/">
-    <File Path=".github/wiki/ShoppingCartModule/features.md" />
-  </Folder>
   <Folder Name="/_github/workflows/">
     <File Path=".github/workflows/pr-checks.yml" />
-  </Folder>
-  <Folder Name="/_wiki/" />
-  <Folder Name="/_wiki/Architecture/">
-    <File Path="Wiki/Architecture/0001-modular-monolith-architecture.md" />
-    <File Path="Wiki/Architecture/0002-aspire-orchestration.md" />
-    <File Path="Wiki/Architecture/0003-module-specific-database-contexts.md" />
-    <File Path="Wiki/Architecture/0004-restaurant-configuration.md" />
-  </Folder>
-  <Folder Name="/_wiki/Menu/">
-    <File Path="Wiki/Menu ADR/0001-menu-domain.md" />
-  </Folder>
-  <Folder Name="/_wiki/Orders/">
-    <File Path="Wiki/Orders ADR/0001-orders-domain.md" />
-  </Folder>
-  <Folder Name="/_wiki/Payments/">
-    <File Path="Wiki/Payments ADR/0001-payments-domain.md" />
-  </Folder>
-  <Folder Name="/_wiki/Reservations/">
-    <File Path="Wiki/Reservations ADR/0001-reservations-domain.md" />
-  </Folder>
-  <Folder Name="/_wiki/Shopping Cart/">
-    <File Path="Wiki/Shopping Cart ADR/0001-shopping-cart-domain.md" />
-  </Folder>
-  <Folder Name="/_wiki/Users/">
-    <File Path="Wiki/Users ADR/0001-users-domain.md" />
-    <File Path="Wiki/Users ADR/0002-users-authentication.md" />
-    <File Path="Wiki/Users ADR/0003-application-scopes.md" />
   </Folder>
 </Solution>
