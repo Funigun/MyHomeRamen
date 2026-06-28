@@ -1,0 +1,16 @@
+using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+using MyHomeRamen.Domain.Menu.Categories;
+
+namespace MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
+
+internal static class Mappings
+{
+    public static Category ToDomain(this CreateCategoryRequest request, int nextSortOrder)
+    {
+        return Category.Create(
+            Guid.NewGuid(),
+            request.Name,
+            nextSortOrder,
+            (CategoryType)request.CategoryType);
+    }
+}

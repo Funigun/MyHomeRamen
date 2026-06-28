@@ -2,15 +2,24 @@
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
-	
-  <ItemGroup>
-    <Folder Include="Menu\" />
-    <Folder Include="Restaurants\" />
-    <Folder Include="Users\" />
-    <Folder Include="Orders\" />
-    <Folder Include="Payments\" />
-    <Folder Include="Reservations\" />
-    <Folder Include="ShoppingCart\" />
-  </ItemGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\MyHomeRamen.Common.Contracts\MyHomeRamen.Common.Contracts.csproj" />
+		<ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentValidation" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+		<PackageReference Include="Scrutor" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Restaurants\" />
+		<Folder Include="Users\" />
+		<Folder Include="Orders\" />
+		<Folder Include="Payments\" />
+		<Folder Include="Reservations\" />
+		<Folder Include="ShoppingCart\" />
+	</ItemGroup>
 </Project>

@@ -3,6 +3,7 @@ using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Menu.Features.Products.Common;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Api.Menu.Services;
