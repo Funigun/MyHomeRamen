@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api;
+using MyHomeRamen.Features.Users.Services;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
-using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Persistance.Users;
 using Testcontainers.MsSql;
 

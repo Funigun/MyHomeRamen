@@ -1,7 +1,8 @@
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
+using MyHomeRamen.Features.Users.Services;
+using MyHomeRamen.Features.Users.Services.Dto;
 using MyHomeRamen.Infrastructure.Keycloak.Constants;
-using MyHomeRamen.Infrastructure.Keycloak.Dto;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
 

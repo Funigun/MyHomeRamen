@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyHomeRamen.Features.Users.Services;
 using MyHomeRamen.Infrastructure.Cache;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
