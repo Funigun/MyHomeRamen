@@ -1,6 +1,6 @@
-using MyHomeRamen.Api.Payments.Services;
 using MyHomeRamen.Common.Contracts.Payments;
 using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features.Payments.Services;
 using MyHomeRamen.Persistance;
 
 namespace MyHomeRamen.Api.Payments;
@@ -14,3 +14,4 @@ public static class DependencyInjection
         return services;
     }
 }
+

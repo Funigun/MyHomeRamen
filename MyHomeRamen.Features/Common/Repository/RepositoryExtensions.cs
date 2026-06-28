@@ -4,7 +4,7 @@ using MyHomeRamen.Domain.Abstractions;
 
 namespace MyHomeRamen.Features.Common.Repository;
 
-public static class DbExtensions
+public static partial class DbExtensions
 {
     extension<TEntity>(IQueryable<TEntity> query)
         where TEntity : class

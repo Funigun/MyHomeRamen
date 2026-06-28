@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Api.Common.Exceptions;
+﻿namespace MyHomeRamen.Features.Common.Exceptions;
 
 public sealed record ResponseBody
 {

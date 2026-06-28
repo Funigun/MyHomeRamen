@@ -9,17 +9,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="FluentValidation" />
-		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
-		<PackageReference Include="Scrutor" />
-	</ItemGroup>
-
-	<ItemGroup>
+		<Folder Include="Menu\Services\" />
 		<Folder Include="Restaurants\" />
 		<Folder Include="Users\" />
 		<Folder Include="Orders\" />
-		<Folder Include="Payments\" />
 		<Folder Include="Reservations\" />
-		<Folder Include="ShoppingCart\" />
 	</ItemGroup>
 </Project>

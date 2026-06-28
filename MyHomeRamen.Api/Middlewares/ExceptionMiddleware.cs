@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
 using FluentValidation;
-using MyHomeRamen.Api.Common.Exceptions;
 using MyHomeRamen.Features.Common.Exceptions;
 
 namespace MyHomeRamen.Api.Common.Middleware;

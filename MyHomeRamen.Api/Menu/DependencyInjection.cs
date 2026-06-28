@@ -1,6 +1,6 @@
-using MyHomeRamen.Api.Menu.Services;
 using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features.Menu.Services;
 using MyHomeRamen.Persistance;
 
 namespace MyHomeRamen.Api.Menu;
