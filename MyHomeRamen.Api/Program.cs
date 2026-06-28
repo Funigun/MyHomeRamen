@@ -2,20 +2,15 @@ using System.Reflection;
 using FluentValidation;
 using MyHomeRamen.Api.Common.Extentsions;
 using MyHomeRamen.Api.Common.Middleware;
-using MyHomeRamen.Api.Menu;
-using MyHomeRamen.Api.Orders;
-using MyHomeRamen.Api.Payments;
-using MyHomeRamen.Api.Reservations;
-using MyHomeRamen.Api.ShoppingCart;
-using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Features;
-using MyHomeRamen.Features.Users;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.ServiceDefaults;
 using Scalar.AspNetCore;
 using Serilog;
+using MyHomeRamen.Api.DependencyInjection;
+using MyHomeRamen.Api.Authorization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

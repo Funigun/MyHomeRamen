@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Authorization;
 
-namespace MyHomeRamen.Api.WebPresentation;
+namespace MyHomeRamen.Api.Authorization;
 
 public sealed class KeycloakClaimsTransformation(IUsersDbContext usersDbContext) : IClaimsTransformation
 {

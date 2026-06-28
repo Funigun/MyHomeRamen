@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
-namespace MyHomeRamen.Api.WebPresentation;
+namespace MyHomeRamen.Api.Authorization;
 
 internal sealed class TokenTransformer : IOpenApiDocumentTransformer
 {

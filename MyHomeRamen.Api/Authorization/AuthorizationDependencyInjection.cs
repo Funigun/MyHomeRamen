@@ -4,7 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using MyHomeRamen.Features.Common.Configurations;
 using Scalar.AspNetCore;
 
-namespace MyHomeRamen.Api.WebPresentation;
+namespace MyHomeRamen.Api.Authorization;
 
 internal static class AuthorizationDependencyInjection
 {
