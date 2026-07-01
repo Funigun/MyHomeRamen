@@ -1,5 +1,5 @@
 using FluentValidation;
-using MyHomeRamen.Common.Contracts.Account;
+using MyHomeRamen.Common.Contracts.Users.Account.Validators;
 
 namespace MyHomeRamen.Features.Users.Features.Account.Register;
 

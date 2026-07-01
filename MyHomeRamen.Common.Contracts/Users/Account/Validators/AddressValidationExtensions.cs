@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace MyHomeRamen.Common.Contracts.Account;
+namespace MyHomeRamen.Common.Contracts.Users.Account.Validators;
 
 public static class AddressValidationExtensions
 {

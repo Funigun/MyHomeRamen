@@ -4,10 +4,28 @@ using MyHomeRamen.Domain.Menu.Categories;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.Common;
 
+
+public interface IDbQuery : IQueryable<Category>
+{
+
+}
+
 public static partial class DbExtensions
 {
+    extension (IDbQuery query)
+    {
+        public IQueryable<Category> ForCategoryType(CategoryType categoryType)
+            => query.AsNoTracking()
+                    .Where(c => c.CategoryType == categoryType)
+                    .OrderBy(c => c.SortOrder);
+        public async Task<bool> IsCategoryNameUniqueAsync(string name, CancellationToken cancellationToken = default)
+            => !await query.AsNoTracking().AnyAsync(c => c.Name.ToLower() == name.ToLower(), cancellationToken);
+    }
+
     extension(IQueryable<Category> categories)
     {
+        public IDbQuery Query() { return (IDbQuery)categories.AsNoTracking(); }
+
         public IQueryable<Category> ForCategoryType(CategoryType categoryType)
             => categories.AsNoTracking()
                          .Where(c => c.CategoryType == categoryType)

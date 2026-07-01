@@ -1,8 +1,9 @@
 using FluentValidation;
+using MyHomeRamen.Blazor.Common.Models;
 
 namespace MyHomeRamen.Blazor.Features.Account.AccountManagement.Components;
 
-public sealed class AddressValidator : AbstractValidator<AddressFormModel>
+public sealed class AddressValidator : BaseValidator<AddressFormModel>
 {
     public AddressValidator()
     {
@@ -12,14 +13,4 @@ public sealed class AddressValidator : AbstractValidator<AddressFormModel>
         RuleFor(x => x.City).NotEmpty().MaximumLength(100);
         RuleFor(x => x.ZipCode).NotEmpty().MaximumLength(10);
     }
-
-    public Func<object, string, Task<IEnumerable<string>>> ValidateValue => async (model, propertyName) =>
-    {
-        FluentValidation.Results.ValidationResult result = await ValidateAsync(ValidationContext<AddressFormModel>.CreateWithOptions((AddressFormModel)model, x => x.IncludeProperties(propertyName)));
-        if (result.IsValid)
-        {
-            return Array.Empty<string>();
-        }
-        return result.Errors.Select(e => e.ErrorMessage);
-    };
 }

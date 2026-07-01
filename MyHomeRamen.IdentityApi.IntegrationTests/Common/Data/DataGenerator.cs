@@ -1,5 +1,5 @@
-using MyHomeRamen.Common.Contracts.Account;
 using MyHomeRamen.Common.Contracts.Users.Account.Requests;
+using MyHomeRamen.Common.Contracts.Users.Account.Validators;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 

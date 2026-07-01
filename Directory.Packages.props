@@ -25,7 +25,7 @@
     <PackageVersion Include="Aspire.RabbitMQ.Client.v7" Version="9.5.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="13.4.6" />
     <PackageVersion Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.2.2" />
-    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.2.2" />
+    <PackageVersion Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.4.6" />
     <PackageVersion Include="StackExchange.Redis" Version="2.11.0" />
     <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.4.6" />
     <PackageVersion Include="OpenTelemetry.Api" Version="1.16.0" />

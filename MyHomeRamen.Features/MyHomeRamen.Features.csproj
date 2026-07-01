@@ -9,7 +9,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Menu\Services\" />
+		<Folder Include="Common\Database\" />
 		<Folder Include="Restaurants\" />
 		<Folder Include="Orders\" />
 		<Folder Include="Reservations\" />
