@@ -70,9 +70,6 @@
   </Folder>
   <Folder Name="/_github/agents/tasks/">
     <File Path=".github/ideas.md" />
-    <File Path=".github/plans/checkout/BasketSummaryStep-frontend-plan.md" />
-    <File Path=".github/plans/checkout/PaymentDetailsStep-frontend-plan.md" />
-    <File Path=".github/plans/checkout/ShippingDetailsStep-frontend-plan.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/backend-tests.instructions.md" />
