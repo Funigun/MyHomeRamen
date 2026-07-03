@@ -6,7 +6,7 @@ using MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
 
-public sealed class CreateCategoryHandler(IMenuDbContext dbContext) : ICommandHandler<CreateCategoryCommand, CreateCategoryResponse>
+public sealed class CreateCategoryHandler(IMenuDbContext dbContext, ICategoryRepository categoryRepository) : ICommandHandler<CreateCategoryCommand, CreateCategoryResponse>
 {
     public async Task<CreateCategoryResponse> Handle(CreateCategoryCommand command, CancellationToken cancellationToken)
     {

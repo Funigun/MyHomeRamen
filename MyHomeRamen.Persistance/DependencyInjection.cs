@@ -8,6 +8,8 @@ using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
@@ -34,6 +36,8 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IMenuDbContext, MenuDbContext>();
+        services.AddScoped<IMenuUnitOfWork>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<ICategoryRepository>(provider => provider.GetRequiredService<MenuDbContext>());
 
         return services;
     }

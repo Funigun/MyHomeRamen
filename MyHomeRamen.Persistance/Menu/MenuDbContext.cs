@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -7,17 +9,21 @@ using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Cache;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Persistance.Menu.Converters;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
+public partial class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext, IMenuUnitOfWork
 {
     private readonly ICurrentUser _currentUser = default!;
+    private readonly ICacheService _cacheService = default!;
 
-    public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser) : this(options)
+    public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser, ICacheService cacheService) : this(options)
     {
         _currentUser = currentUser;
+        _cacheService = cacheService;
     }
 
     public DbSet<Product> Products { get; set; }
@@ -152,5 +158,17 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
                     break;
             }
         }
+    }
+
+    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<User, object>>, Expression> valuesToUpdate) where TEntity : class
+    {
+        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
+
+        foreach (KeyValuePair<Expression<Func<User, object>>, Expression> kvp in valuesToUpdate)
+        {
+            settersBuilder.SetProperty(kvp.Key, kvp.Value);
+        }
+
+        return settersBuilder;
     }
 }
