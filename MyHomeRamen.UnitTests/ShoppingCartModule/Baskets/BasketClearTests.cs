@@ -1,10 +1,7 @@
-using MyHomeRamen.Domain.Common;
-using MyHomeRamen.Domain.Common.Basket;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using Xunit;
 
 namespace MyHomeRamen.UnitTests.ShoppingCartModule.Baskets;
 

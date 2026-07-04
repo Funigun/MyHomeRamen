@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Infrastructure.Messaging.Configuration;
 

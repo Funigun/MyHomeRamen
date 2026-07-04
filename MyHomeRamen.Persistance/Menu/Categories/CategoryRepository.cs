@@ -1,39 +1,40 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
 public partial class MenuDbContext : ICategoryRepository
 {
-    public void Add(Category entity) => Categories.Add(entity);
+    public void Add(Category entity) 
+        => Categories.Add(entity);
 
-    public Task<int> Count(Expression<Func<Category, bool>>? predicate = null, CancellationToken cancellationToken = default)
-        => predicate is null ? Categories.CountAsync(cancellationToken) : Categories.CountAsync(predicate, cancellationToken);
+    public void AddRange(IEnumerable<Category> entities) 
+        => Categories.AddRange(entities);
 
-    public void Delete(Category entity) => Categories.Remove(entity);
+    async Task<int> IRepository<Category, CategoryId>.Count(CancellationToken cancellationToken) 
+        => await Categories.CountAsync(cancellationToken);
 
-    public async Task<int> ExecuteDelete(Expression<Func<Category, bool>> predicate, CancellationToken cancellationToken = default)
+    public void Delete(Category entity) 
+        => Categories.Remove(entity);
+
+    public async Task<int> ExecuteDelete(Expression<Func<Category, bool>> predicate, CancellationToken cancellationToken) 
+        => await Categories.Where(predicate).ExecuteDeleteAsync(cancellationToken);
+
+    public async Task<int> ExecuteUpdate(Expression<Func<Category, bool>> filterPredicate, Dictionary<Expression<Func<Category, object>>, Expression> valuesToUpdate, CancellationToken cancellationToken)
     {
-        int rows = await Categories.Where(predicate).ExecuteDeleteAsync(cancellationToken);
-
-        await _cacheService.RemoveByTagsAsync(["Category"], cancellationToken);
-
-        return rows;
+        UpdateSettersBuilder<Category> settersBuilder = PrepareSettersBuilder<Category>(valuesToUpdate);
+        return await Categories.Where(filterPredicate).ExecuteUpdateAsync(s => settersBuilder.BuildSettersExpression(), cancellationToken);
     }
 
-    public Task<int> ExecuteUpdate(Expression<Func<Category, bool>> filterPredicate, Dictionary<Expression<Func<Category, object>>, Expression> valuesToUpdate, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    public async Task<bool> Exists(Expression<Func<Category, bool>> predicate, CancellationToken cancellationToken) 
+        => await Categories.AsNoTracking().AnyAsync(predicate, cancellationToken);
 
-    public Task<bool> Exists(Expression<Func<Category, bool>> predicate, CancellationToken cancellationToken = default) => Categories.AnyAsync(predicate, cancellationToken);
+    ICategoryQuery ICategoryRepository.Query() => this;
 
-    public Task<Category?> GetByIdOrDefault(CategoryId id, CancellationToken cancellationToken = default) => Categories.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
-
-    public ICategoryQuery Query() => this;
-
-    public ICategorySpecification Specification() => this;
+    ICategorySpecification ICategoryRepository.Specification() => this;
 }
 

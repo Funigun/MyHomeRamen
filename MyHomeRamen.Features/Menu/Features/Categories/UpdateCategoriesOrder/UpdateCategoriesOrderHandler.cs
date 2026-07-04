@@ -2,8 +2,7 @@ using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.UpdateCategoriesOrder;
 
@@ -14,7 +13,7 @@ public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : ICo
         UpdateCategoriesOrderRequest request = command.UpdateCategoriesOrderRequest;
         IEnumerable<CategoryId> ids = request.Items.Select(i => (CategoryId)i.Id);
 
-        IEnumerable<Category> categories = await dbContext.Categories.GetByIds(ids, cancellationToken);
+        IEnumerable<Category> categories = await dbContext.Category.Query().GetByIds(ids, cancellationToken);
 
         await ReorderCategories(categories, request, cancellationToken);
     }

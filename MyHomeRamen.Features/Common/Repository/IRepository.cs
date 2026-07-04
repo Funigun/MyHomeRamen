@@ -9,14 +9,15 @@ public interface IRepository<TEntity, TId>
 {
     void Add(TEntity entity);
 
-    Task<bool> Exists(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
+    void AddRange(IEnumerable<TEntity> entities);
+
+    Task<bool> Exists(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 
     void Delete(TEntity entity);
 
-    Task<int> ExecuteDelete(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<int> ExecuteDelete(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 
-    Task<int> ExecuteUpdate(Expression<Func<TEntity, bool>> filterPredicate, Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate, CancellationToken cancellationToken = default);
+    Task<int> ExecuteUpdate(Expression<Func<TEntity, bool>> filterPredicate, Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate, CancellationToken cancellationToken);
 
-    Task<int> Count(Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default);
+    Task<int> Count(CancellationToken cancellationToken);
 }
-

@@ -3,7 +3,7 @@ using MyHomeRamen.Domain.Menu.Products;
 
 namespace MyHomeRamen.Domain.Menu.Users;
 
-public sealed class User : AuditableEntity, IEntity<UserId>
+public class User : AuditableEntity, IEntity<UserId>
 {
     private readonly List<Product> _favoriteProducts = [];
     private readonly List<Role> _roles = [];

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Reservations.Database;
@@ -10,6 +9,9 @@ using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Menu.Features.Users.Common;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
@@ -38,6 +40,9 @@ public static class DependencyInjection
         services.AddScoped<IMenuDbContext, MenuDbContext>();
         services.AddScoped<IMenuUnitOfWork>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<ICategoryRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<IProductRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<IIngredientRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<IUserRepository>(provider => provider.GetRequiredService<MenuDbContext>());
 
         return services;
     }

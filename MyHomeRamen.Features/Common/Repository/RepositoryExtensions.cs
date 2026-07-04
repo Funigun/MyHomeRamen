@@ -12,6 +12,9 @@ public static partial class DbExtensions
         public IQueryable<TEntity> Paged(int pageNumber, int pageSize)
             => query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
+        public IQueryable<TEntity> Sorted<TKey>(Expression<Func<TEntity, TKey>> keySelector, string sortOrder)
+            => sortOrder.ToLower() == "asc" ? query.OrderBy(keySelector) : query.OrderByDescending(keySelector);
+
         public async Task<bool> Exists(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken = default)
             => await query.AsNoTracking().AnyAsync(filter, cancellationToken);
     }

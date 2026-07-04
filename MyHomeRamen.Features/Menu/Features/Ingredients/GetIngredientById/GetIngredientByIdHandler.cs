@@ -1,9 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
-using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
-using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientById;
 
@@ -14,10 +12,7 @@ public sealed class GetIngredientByIdHandler(IMenuDbContext dbContext)
     {
         IngredientId ingredientId = request.Id;
 
-        Ingredient ingredient = await dbContext.Ingredients
-            .Include(i => i.Categories)
-            .AsSplitQuery()
-            .GetByIdQuery(ingredientId, cancellationToken);
+        Ingredient ingredient = await dbContext.Ingredient.Specification().ById(ingredientId, cancellationToken);
 
         return ingredient.ToResponse();
     }

@@ -1,11 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.DTOs;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
-using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
-using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
-using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForManage;
 
@@ -16,19 +13,22 @@ public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext)
         GetIngredientsForManageQuery query,
         CancellationToken cancellationToken)
     {
-        IQueryable<Ingredient> ingredientQuery = dbContext.Ingredients.ForManage(query.Request.Name, query.Request.CategoryIds);
+        List<Ingredient> ingredients = await dbContext.Ingredient.Query()
+                                                                 .GetForManage(query.Request.Name, query.Request.CategoryIds, cancellationToken);
 
-        int totalCount = await ingredientQuery.CountAsync(cancellationToken);
+        int totalCount = ingredients.Count;
 
-        ingredientQuery = ingredientQuery.OrderBy(ingredient => ingredient.Name)
-                     .Paged(query.PageParameters.PageNumber, query.PageParameters.PageSize);
+        ingredients = ingredients.OrderBy(ingredient => ingredient.Name)
+                                .Skip((query.PageParameters.PageNumber - 1) * query.PageParameters.PageSize)
+                                .Take(query.PageParameters.PageSize)
+                                .ToList();
 
-        List<IngredientForManageDto> ingredients = await ingredientQuery.Select(ingredient => ingredient.ToResponse()).ToListAsync(cancellationToken);
+        List<IngredientForManageDto> ingredientDtos = ingredients.Select(ingredient => ingredient.ToResponse()).ToList();
 
         return new GetIngredientsForManageResponse(
             Page: query.PageParameters.PageNumber,
             PageSize: query.PageParameters.PageSize,
             TotalCount: totalCount,
-            Ingredients: ingredients);
+            Ingredients: ingredientDtos);
     }
 }

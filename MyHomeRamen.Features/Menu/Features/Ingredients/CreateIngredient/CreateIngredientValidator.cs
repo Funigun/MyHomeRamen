@@ -1,7 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.CreateIngredient;
 
@@ -19,7 +18,7 @@ public sealed class CreateIngredientValidator : AbstractValidator<CreateIngredie
             .SetValidator(new IngredientPriceValidator());
 
         RuleFor(x => x.CreateIngredientRequest.Name)
-            .MustAsync(async (name, ct) => await dbContext.Ingredients.IsIngredientNameUniqueAsync(name, ct))
+            .MustAsync(async (name, ct) => await dbContext.Ingredient.Query().IsIngredientNameUnique(name, ct))
             .WithMessage("Ingredient with this name already exists.");
 
         RuleFor(x => x.CreateIngredientRequest.CategoryIds)

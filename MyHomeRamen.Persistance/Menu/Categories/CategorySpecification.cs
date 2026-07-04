@@ -6,7 +6,11 @@ namespace MyHomeRamen.Persistance.Menu;
 
 public partial class MenuDbContext : ICategorySpecification
 {
-    public Task<Category> ById(CategoryId categoryId, CancellationToken cancellationToken = default) => Categories.FirstAsync(c => c.Id == categoryId, cancellationToken);
+    public async Task<Category> ById(CategoryId categoryId, CancellationToken cancellationToken = default) 
+        => await Categories.FirstAsync(c => c.Id == categoryId, cancellationToken);
+
+    public async Task<IEnumerable<Category>> ByIds(IEnumerable<CategoryId> categoryIds, CancellationToken cancellationToken = default)
+        => await Categories.Where(category => categoryIds.Contains(category.Id)).ToListAsync(cancellationToken);
 
     public async Task<List<Category>> GetRemainingForResequencing(CategoryType categoryType, CategoryId excludeId, CancellationToken cancellationToken = default)
         => await Categories.Where(c => c.CategoryType == categoryType && c.Id != excludeId)

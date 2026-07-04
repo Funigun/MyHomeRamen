@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -34,8 +33,8 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory)
 
         foreach (CategoryOrderItemDto item in items)
         {
-            Category? updated = await apiFactory.MenuDbContext.Categories.AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == (CategoryId)item.Id, TestContext.Current.CancellationToken);
+            Category? updated = await apiFactory.MenuDbContext.Category.Specification()
+                .ById((CategoryId)item.Id, TestContext.Current.CancellationToken);
 
             Assert.NotNull(updated);
             Assert.Equal(item.SortOrder, updated.SortOrder);

@@ -1,5 +1,3 @@
-using MyHomeRamen.Domain.Common.Address;
-
 namespace MyHomeRamen.Domain.Users;
 
 public class Address

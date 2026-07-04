@@ -1,8 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Features.Common.Repository;
-using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 
@@ -22,14 +20,14 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
         RuleFor(x => x)
             .MustAsync(async (command, ct) =>
             {
-                return await dbContext.Ingredients.Exists(i => i.Id == command.Id, ct);
+                return await dbContext.Ingredient.Exists(i => i.Id == command.Id, ct);
             })
             .WithMessage("Ingredient with the specified ID does not exist.");
 
         RuleFor(x => x)
             .MustAsync(async (command, ct) =>
             {
-                return await dbContext.Ingredients.IsIngredientNameUniqueExcludingAsync(command.UpdateIngredientRequest.Name, command.Id, ct);
+                return await dbContext.Ingredient.Query().IsIngredientNameUniqueExcluding(command.UpdateIngredientRequest.Name, command.Id, ct);
             })
             .WithMessage("Ingredient with this name already exists.");
 

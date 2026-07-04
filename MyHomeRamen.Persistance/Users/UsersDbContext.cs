@@ -136,9 +136,9 @@ public class UsersDbContext : IdentityDbContext<User, Role, Guid>, IUsersDbConte
         }
     }
 
-    public Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
     {
-        return Task.CompletedTask;
+        await Task.CompletedTask;
     }
 
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)

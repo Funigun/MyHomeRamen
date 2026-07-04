@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -30,7 +29,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
             [],
             [productCategory]);
 
-        apiFactory.MenuDbContext.Products.Add(product);
+        apiFactory.MenuDbContext.Product.Add(product);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         UpdateProductRequest request = new(
@@ -57,9 +56,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
         Assert.Equal(product.Id.Value, result.Id);
 
         // Assert — updated fields persisted
-        Product? updated = await apiFactory.MenuDbContext.Products
-            .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == product.Id, TestContext.Current.CancellationToken);
+        Product? updated = await apiFactory.MenuDbContext.Product.Query().ById(product.Id, TestContext.Current.CancellationToken);
 
         Assert.NotNull(updated);
         Assert.Equal(request.Name, updated.Name);
@@ -149,7 +146,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory)
             [],
             [productCategory]);
 
-        apiFactory.MenuDbContext.Products.AddRange(productA, productB);
+        apiFactory.MenuDbContext.Product.AddRange([productA, productB]);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         UpdateProductRequest request = productA.ToUpdateProductRequest() with { Name = productB.Name };

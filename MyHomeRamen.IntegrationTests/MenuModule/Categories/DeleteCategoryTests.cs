@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
@@ -18,7 +17,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory)
         Category cat2 = Category.Create(Guid.NewGuid(), $"DelTest2_{Guid.NewGuid():N}", 901, categoryType);
         Category cat3 = Category.Create(Guid.NewGuid(), $"DelTest3_{Guid.NewGuid():N}", 902, categoryType);
 
-        apiFactory.MenuDbContext.Categories.AddRange(cat1, cat2, cat3);
+        apiFactory.MenuDbContext.Category.AddRange([cat1, cat2, cat3]);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         Guid idToDelete = cat2.Id;
@@ -33,17 +32,13 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory)
         await response.AssertStatusCode(HttpStatusCode.NoContent);
 
         // Assert — deleted record no longer exists in DB
-        bool stillExists = await apiFactory.MenuDbContext.Categories
-            .AsNoTracking()
-            .AnyAsync(c => c.Id == (CategoryId)idToDelete, TestContext.Current.CancellationToken);
+        bool stillExists = await apiFactory.MenuDbContext.Category.Query()
+            .Exists((CategoryId)idToDelete, TestContext.Current.CancellationToken);
         Assert.False(stillExists, "Deleted category should no longer exist in DB.");
 
         // Assert — ALL remaining categories of the same type have contiguous sort orders starting from 1
-        List<Category> allRemaining = await apiFactory.MenuDbContext.Categories
-            .AsNoTracking()
-            .Where(c => c.CategoryType == categoryType)
-            .OrderBy(c => c.SortOrder)
-            .ToListAsync(TestContext.Current.CancellationToken);
+        List<Category> allRemaining = await apiFactory.MenuDbContext.Category.Query()
+            .GetByType(categoryType, TestContext.Current.CancellationToken);
 
         for (int i = 0; i < allRemaining.Count; i++)
         {

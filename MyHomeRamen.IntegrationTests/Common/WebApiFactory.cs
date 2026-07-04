@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
@@ -38,7 +39,7 @@ public sealed class WebApiFactory : WebApplicationFactory<IApiAssemblyMarker>, I
 
     private readonly RedisContainer _redisContainer = new RedisBuilder("redis:8.2").Build();
 
-    public MenuDbContext MenuDbContext { get; private set; } = default!;
+    public IMenuDbContext MenuDbContext { get; private set; } = default!;
 
     public ShoppingCartDbContext ShoppingCartDbContext { get; private set; } = default!;
 
@@ -68,7 +69,7 @@ public sealed class WebApiFactory : WebApplicationFactory<IApiAssemblyMarker>, I
         await _sqlCartContainer.DisposeAsync();
         await _redisContainer.DisposeAsync();
 
-        await MenuDbContext.DisposeAsync();
+        await ((IAsyncDisposable)MenuDbContext).DisposeAsync();
         await ShoppingCartDbContext.DisposeAsync();
 
         HttpClient.Dispose();

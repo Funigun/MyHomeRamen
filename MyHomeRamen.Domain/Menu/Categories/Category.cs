@@ -1,9 +1,8 @@
-using System.Text.Json.Serialization;
 using MyHomeRamen.Domain.Abstractions;
 
 namespace MyHomeRamen.Domain.Menu.Categories;
 
-public sealed class Category : AuditableEntity, IEntity<CategoryId>
+public class Category : AuditableEntity, IEntity<CategoryId>
 {
     public CategoryId Id { get; private set; }
 

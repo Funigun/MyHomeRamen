@@ -7,4 +7,6 @@ public interface ICategorySpecification
     Task<List<Category>> GetRemainingForResequencing(CategoryType categoryType, CategoryId excludeId, CancellationToken cancellationToken = default);
 
     Task<Category> ById(CategoryId categoryId, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<Category>> ByIds(IEnumerable<CategoryId> categoryIds, CancellationToken cancellationToken = default);
 }

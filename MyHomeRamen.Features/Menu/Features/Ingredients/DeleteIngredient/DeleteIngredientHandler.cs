@@ -1,7 +1,6 @@
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
-using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.DeleteIngredient;
 
@@ -9,9 +8,9 @@ public sealed class DeleteIngredientHandler(IMenuDbContext dbContext) : ICommand
 {
     public async Task Handle(DeleteIngredientCommand id, CancellationToken cancellationToken)
     {
-        Ingredient ingredient = await dbContext.Ingredients.GetById((IngredientId)id.Id, cancellationToken);
+        Ingredient ingredient = await dbContext.Ingredient.Specification().ById((IngredientId)id.Id, cancellationToken);
 
-        dbContext.Ingredients.Remove(ingredient);
+        dbContext.Ingredient.Delete(ingredient);
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }

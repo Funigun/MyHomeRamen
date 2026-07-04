@@ -3,7 +3,7 @@ using MyHomeRamen.Features.Common.Repository;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.Common;
 
-public interface ICategoryRepository : IRepository<Category, CategoryId>, ICategoryQuery, ICategorySpecification
+public interface ICategoryRepository : IRepository<Category, CategoryId>
 {
     ICategoryQuery Query();
 

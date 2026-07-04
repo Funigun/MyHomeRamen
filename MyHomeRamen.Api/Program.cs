@@ -14,7 +14,6 @@ using MyHomeRamen.Api.Authorization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-Assembly apiAssembly = Assembly.GetExecutingAssembly();
 Assembly featuresAssembly = typeof(MyHomeRamen.Features.DependencyInjection).Assembly;
 
 Log.Logger = new LoggerConfiguration().ReadFrom
@@ -62,15 +61,11 @@ try
                     .AddProblemDetails();
 
     builder.Services.AddSharedServices()
-                    .AddEndpoints(apiAssembly)
                     .AddEndpoints(featuresAssembly)
-                    .AddCommandHandlers(apiAssembly)
                     .AddCommandHandlers(featuresAssembly)
-                    .AddQueryHandlers(apiAssembly)
                     .AddQueryHandlers(featuresAssembly)
-                    .AddAuthorizationPolicies(apiAssembly)
                     .AddAuthorizationPolicies(featuresAssembly);
-    builder.Services.AddValidatorsFromAssemblies([apiAssembly, featuresAssembly]);
+    builder.Services.AddValidatorsFromAssemblies([featuresAssembly]);
 
     builder.Services.AddMenuModule(databaseConfigurationProvider)
                     .AddShoppingCartModule(databaseConfigurationProvider)

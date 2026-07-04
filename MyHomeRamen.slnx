@@ -69,6 +69,7 @@
     <File Path=".github/agents/drax-reviewer.agent.md" />
   </Folder>
   <Folder Name="/_github/agents/tasks/">
+    <File Path=".github/db-access-plan-menu.md" />
     <File Path=".github/ideas.md" />
   </Folder>
   <Folder Name="/_github/instructions/">

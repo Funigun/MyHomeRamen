@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Messaging;
-using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Users;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler.Common;
 
@@ -12,7 +11,7 @@ public class MenuUserRegisteredHandler(IMenuDbContext dbContext) : IIntegrationE
     public async Task HandleAsync(UserRegisteredIntegrationEvent integrationEvent, CancellationToken cancellationToken)
     {
         UserId userId = new(integrationEvent.Id);
-        bool userExists = await dbContext.Users.AnyAsync(u => u.Id == userId, cancellationToken);
+        bool userExists = await dbContext.User.Exists(u => u.Id == userId, cancellationToken);
 
         if (userExists)
         {
@@ -21,15 +20,14 @@ public class MenuUserRegisteredHandler(IMenuDbContext dbContext) : IIntegrationE
 
         string menuRoleName = MapIdentityProviderRoleToMenuRole(integrationEvent.Role);
 
-        Role? customerRole = await dbContext.Roles.Include(r => r.Permissions)
-                                                  .FirstOrDefaultAsync(r => r.Name == menuRoleName, cancellationToken);
+        Role? customerRole = await dbContext.Role.Specification().ByName(menuRoleName, cancellationToken);
 
         List<Role> roles = customerRole != null ? [customerRole] : [];
         List<Permission> permissions = customerRole != null ? customerRole.Permissions.ToList() : [];
 
         User user = User.Create(userId, roles, permissions);
 
-        dbContext.Users.Add(user);
+        dbContext.User.Add(user);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 

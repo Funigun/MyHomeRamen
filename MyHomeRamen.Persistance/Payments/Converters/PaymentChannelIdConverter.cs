@@ -1,8 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyHomeRamen.Domain.Payments.PaymentChannels;
-using MyHomeRamen.Domain.Payments.PaymentGateways;
-using MyHomeRamen.Domain.Payments.PaymentMethods;
-using MyHomeRamen.Domain.Payments.Users;
 
 namespace MyHomeRamen.Persistance.Payments.Converters;
 

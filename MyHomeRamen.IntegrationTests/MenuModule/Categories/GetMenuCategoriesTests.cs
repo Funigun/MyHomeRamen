@@ -17,7 +17,7 @@ public sealed class GetMenuCategoriesTests(WebApiFactory apiFactory)
     {
         // Arrange
         Category ingredientCategory = DataGenerator.GenerateValidCategory(CategoryType.Ingredient);
-        apiFactory.MenuDbContext.Categories.Add(ingredientCategory);
+        apiFactory.MenuDbContext.Category.Add(ingredientCategory);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);

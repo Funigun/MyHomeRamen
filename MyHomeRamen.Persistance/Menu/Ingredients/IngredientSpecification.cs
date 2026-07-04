@@ -1,0 +1,16 @@
+﻿using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+
+namespace MyHomeRamen.Persistance.Menu;
+
+public partial class MenuDbContext : IIngredientSpecification
+{
+    public async Task<Ingredient> ById(IngredientId ingredientId, CancellationToken cancellationToken = default)
+        => await Ingredients.Include(i => i.Categories)
+                            .AsSplitQuery()
+                            .FirstAsync(i => i.Id == ingredientId, cancellationToken);
+
+    public async Task<IEnumerable<Ingredient>> ByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken = default)
+        => await Ingredients.Where(ingredient => ingredientIds.Contains(ingredient.Id)).ToListAsync(cancellationToken);
+}
