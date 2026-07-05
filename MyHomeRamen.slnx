@@ -27,7 +27,11 @@
   <Folder Name="/Scripts/PlanReview/">
     <File Path="Scripts/PlanReview/PlanReviewScript.cs" />
   </Folder>
+  <Folder Name="/Scripts/RepositoryScaffold/">
+    <File Path="Scripts/RepositoryScaffold/RepositoryScaffoldScript.cs" />
+  </Folder>
   <Folder Name="/Scripts/ScliceScaffold/">
+    <File Path="RepositoryScaffold.cs" />
     <File Path="Scripts/SliceScaffold/FileDetails.cs" />
     <File Path="Scripts/SliceScaffold/FileScaffoldFactory.cs" />
     <File Path="Scripts/SliceScaffold/SliceScaffoldScript.cs" />
