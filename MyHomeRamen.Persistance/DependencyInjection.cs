@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Orders.Database;
-using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Configurations;
@@ -14,6 +13,12 @@ using MyHomeRamen.Features.Payments.Features.Abstractions;
 using MyHomeRamen.Features.Payments.Features.PaymentChannels.Common;
 using MyHomeRamen.Features.Payments.Features.PaymentGateways.Common;
 using MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
+using MyHomeRamen.Features.Reservations.Features.Abstractions;
+using MyHomeRamen.Features.Reservations.Features.Bookings.Common;
+using MyHomeRamen.Features.Reservations.Features.Permissions.Common;
+using MyHomeRamen.Features.Reservations.Features.Roles.Common;
+using MyHomeRamen.Features.Reservations.Features.Tables.Common;
+using MyHomeRamen.Features.Reservations.Features.Users.Common;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
@@ -102,6 +107,12 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
+        services.AddScoped<IReservationsUnitOfWork>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<IBookingRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<ITableRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<IUserRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<IRoleRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<IPermissionRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
 
         return services;
     }

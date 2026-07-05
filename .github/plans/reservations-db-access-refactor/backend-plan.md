@@ -23,7 +23,7 @@ Reservations module still uses legacy `IReservationsDbContext` in Domain exposin
 | MyHomeRamen.Features\Reservations\Features\Permissions\Common\IPermissionRepository.cs | Create | | Extends IRepository<Permission, PermissionId> |
 | MyHomeRamen.Features\Reservations\Features\Permissions\Common\IPermissionQuery.cs | Create | | ByIdAsync |
 | MyHomeRamen.Features\Reservations\Features\Permissions\Common\IPermissionSpecification.cs | Create | | ByIdAsync |
-| MyHomeRamen.Persistance\Reservations\ReservationsDbContext.cs | Modify | | Make partial, remove Begin/Commit/RollbackTransaction, implement IReservationsDbContext, add repository properties |
+| MyHomeRamen.Persistance\Reservations\ReservationsDbContext.cs | Modify | | remove Begin/Commit/RollbackTransaction, implement IReservationsDbContext, add repository properties |
 | MyHomeRamen.Persistance\Reservations\Bookings\BookingRepository.cs | Create | | Implements IBookingRepository |
 | MyHomeRamen.Persistance\Reservations\Bookings\BookingQuery.cs | Create | | Implements IBookingQuery |
 | MyHomeRamen.Persistance\Reservations\Bookings\BookingSpecification.cs | Create | | Implements IBookingSpecification |
@@ -43,6 +43,13 @@ Reservations module still uses legacy `IReservationsDbContext` in Domain exposin
 | MyHomeRamen.Worker.DatabaseInitializer\DbInitializerJob.cs | Modify | | Move reservationsDbContext from IBaseDbContext dictionary to IUnitOfWork dictionary |
 | MyHomeRamen.Worker.MessagesHandler\Reservations\ReservationsUserRegisteredHandler.cs | Modify | | Use dbContext.User.Exists and dbContext.Role.Query().GetByNameWithPermissions |
 | MyHomeRamen.Domain\Reservations\Database\IReservationsDbContext.cs | Delete | | Replaced by Features abstraction |
+
+For each of repositories run `RepositoryScaffoldScript.cs`:
+> ```
+> cd "C:\Users\stepn\source\repos\MyHomeRamen" && dotnet run ./Scripts/RepositoryScaffold/RepoisitoryScaffoldScript.cs -- C:\Users\stepn\source\repos\MyHomeRamen {ModuleName} {AggregatePath} {AggretageName}
+> ```
+
+Example: dotnet run ./Scripts/RepositoryScaffold/RepoisitoryScaffoldScript.cs -- C:\Users\stepn\source\repos\MyHomeRamen Reservations Tables Table
 
 ## 3. Domain changes
 - Delete `MyHomeRamen.Domain.Reservations.Database.IReservationsDbContext`.

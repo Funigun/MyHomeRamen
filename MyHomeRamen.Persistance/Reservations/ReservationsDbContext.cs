@@ -1,20 +1,26 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Reservations.Bookings;
-using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.Reservations.Tables;
 using MyHomeRamen.Domain.Reservations.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Reservations.Features.Abstractions;
+using MyHomeRamen.Features.Reservations.Features.Bookings.Common;
+using MyHomeRamen.Features.Reservations.Features.Permissions.Common;
+using MyHomeRamen.Features.Reservations.Features.Roles.Common;
+using MyHomeRamen.Features.Reservations.Features.Tables.Common;
+using MyHomeRamen.Features.Reservations.Features.Users.Common;
 using MyHomeRamen.Persistance.Reservations.Converters;
 
 namespace MyHomeRamen.Persistance.Reservations;
 
 public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContext> options) : DbContext(options), IReservationsDbContext
 {
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentUser _currentUser = default!;
 
     public ReservationsDbContext(DbContextOptions<ReservationsDbContext> options, ICurrentUser currentUser) : this(options)
     {
@@ -30,6 +36,16 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
     public DbSet<Role> Roles { get; set; }
 
     public DbSet<Permission> Permissions { get; set; }
+
+    public IBookingRepository Booking => this;
+
+    public ITableRepository Table => this;
+
+    public IUserRepository User => this;
+
+    public IRoleRepository Role => this;
+
+    public IPermissionRepository Permission => this;
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -59,24 +75,9 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
         }
     }
 
-    public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
-    {
-        return Database.BeginTransactionAsync(cancellationToken);
-    }
-
-    public Task CommitTransaction(CancellationToken cancellationToken)
-    {
-        return Database.CommitTransactionAsync(cancellationToken);
-    }
-
-    public Task RollbackTransaction(CancellationToken cancellationToken)
-    {
-        return Database.RollbackTransactionAsync(cancellationToken);
-    }
-
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
     {
-        IRelationalDatabaseCreator? dbCreator = Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
+        IRelationalDatabaseCreator? dbCreator = AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
 
         bool dbExists = dbCreator != null && await dbCreator.ExistsAsync(cancellationToken);
 
@@ -104,7 +105,7 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.Reservations.Users.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -116,7 +117,7 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed
+                                            .Select(role => Domain.Reservations.Users.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,
@@ -154,7 +155,7 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
 
     private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
     {
-        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
+        UpdateSettersBuilder<TEntity> settersBuilder = new();
 
         foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
         {

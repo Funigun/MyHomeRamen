@@ -1,12 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Orders.Database;
-using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
+using MyHomeRamen.Features.Reservations.Features.Abstractions;
 using MyHomeRamen.Worker.DatabaseInitializer.Config;
 using Quartz;
 
@@ -28,8 +28,7 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
         {
             { userContext, DatabaseUserConfig.Create("Identity", configuration) },
             { shoppingCartDbContext, DatabaseUserConfig.Create("ShoppingCart", configuration) },
-            { ordersDbContext, DatabaseUserConfig.Create("Order", configuration) },
-            { reservationsDbContext, DatabaseUserConfig.Create("Reservation", configuration) }
+            { ordersDbContext, DatabaseUserConfig.Create("Order", configuration) }
         };
 
         foreach (IBaseDbContext dbContext in dbContexts.Keys)
@@ -71,7 +70,8 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
         Dictionary<IUnitOfWork, DatabaseUserConfig> unitOfWorkContexts = new()
         {
             { menuDbContext, DatabaseUserConfig.Create("Menu", configuration) },
-            { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) }
+            { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) },
+            { reservationsDbContext, DatabaseUserConfig.Create("Reservation", configuration) }
         };
 
         foreach (IUnitOfWork dbContext in unitOfWorkContexts.Keys)
