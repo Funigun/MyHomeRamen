@@ -1,7 +1,5 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Domain.ShoppingCart.Database;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateShippingDetails;
 
@@ -37,7 +35,7 @@ public sealed class UpdateShippingDetailsValidationPolicy : AbstractValidator<Up
         });
 
         RuleFor(x => x)
-            .MustAsync(async (cmd, ct) => await dbContext.ShoppingCarts.GetByIdForUserTracked(cmd.BasketId, cmd.UserId).AnyAsync(ct))
+            .MustAsync(async (cmd, ct) => await dbContext.Basket.Specification().GetByIdForUserTrackedAsync(cmd.BasketId, cmd.UserId, ct) != null)
             .WithMessage("Basket not found or not active.");
     }
 }

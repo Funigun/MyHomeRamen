@@ -58,7 +58,7 @@ public sealed partial class PaymentsDbContext(DbContextOptions<PaymentsDbContext
 
     public IPermissionRepository Permission => this;
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);

@@ -7,7 +7,7 @@ public static partial class DbExtensions
 {
     extension(IQueryable<User> users)
     {
-        public async Task<User?> FindByIdAsync(UserId userId, CancellationToken cancellationToken = default)
+        public async Task<User?> FindByIdAsync(UserId userId, CancellationToken cancellationToken)
             => await users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 }

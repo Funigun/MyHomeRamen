@@ -12,7 +12,7 @@ public static partial class DbExtensions
         public IQueryable<TEntity> Paged(int pageNumber, int pageSize)
             => query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
 
-        public async Task<bool> Exists(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken = default)
+        public async Task<bool> Exists(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken)
             => await query.AsNoTracking().AnyAsync(filter, cancellationToken);
 
         public IQueryable<TEntity> GetList(Expression<Func<TEntity, bool>>? filter = null)
@@ -74,7 +74,7 @@ public static partial class DbExtensions
         (
             TId id,
             Expression<Func<TEntity, TProjected>> selector,
-            CancellationToken cancellationToken = default
+            CancellationToken cancellationToken
         )
         => await query.Where(BuildIdPredicate<TEntity, TId>(id))
                       .Select(selector)
@@ -91,7 +91,7 @@ public static partial class DbExtensions
         (
             TId id,
             Expression<Func<TEntity, TProjected>> selector,
-            CancellationToken cancellationToken = default
+            CancellationToken cancellationToken
         )
         => await query.AsNoTracking()
                       .Where(BuildIdPredicate<TEntity, TId>(id))

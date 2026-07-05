@@ -10,7 +10,7 @@ public partial class PaymentsDbContext : IPaymentMethodQuery
 {
     private IQueryable<PaymentMethod> PaymentMethodsQuery => PaymentMethods.AsNoTracking();
 
-    public async Task<List<GetAvailableMethodsResponse>> GetAvailableMethodsAsync(CancellationToken cancellationToken = default)
+    public async Task<List<GetAvailableMethodsResponse>> GetAvailableMethodsAsync(CancellationToken cancellationToken)
         => await PaymentMethodsQuery
             .Include(method => method.PaymentChannels.OrderBy(channel => channel.DisplayOrder))
             .Where(method => method.IsActive)
@@ -22,7 +22,7 @@ public partial class PaymentsDbContext : IPaymentMethodQuery
                 method.PaymentChannels.Select(channel => new AvailableChannelDto(channel.Id, channel.Name, channel.ImageUrl))))
             .ToListAsync(cancellationToken);
 
-    public async Task<PaymentMethod?> GetByIdAsync(PaymentMethodId id, CancellationToken cancellationToken = default)
+    public async Task<PaymentMethod?> GetByIdAsync(PaymentMethodId id, CancellationToken cancellationToken)
         => await PaymentMethodsQuery
             .Include(method => method.PaymentChannels)
             .Where(method => method.Id == id && method.IsActive)

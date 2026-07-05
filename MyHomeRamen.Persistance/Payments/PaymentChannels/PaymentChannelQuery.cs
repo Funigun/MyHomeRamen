@@ -6,6 +6,6 @@ namespace MyHomeRamen.Persistance.Payments;
 
 public partial class PaymentsDbContext : IPaymentChannelQuery
 {
-    public async Task<PaymentChannel?> ByIdAsync(PaymentChannelId id, CancellationToken cancellationToken = default)
+    public async Task<PaymentChannel?> ByIdAsync(PaymentChannelId id, CancellationToken cancellationToken)
         => await PaymentChannels.AsNoTracking().FirstOrDefaultAsync(channel => channel.Id == id, cancellationToken);
 }

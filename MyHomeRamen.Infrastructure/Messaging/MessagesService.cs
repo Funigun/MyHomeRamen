@@ -9,7 +9,7 @@ namespace MyHomeRamen.Infrastructure.Messaging;
 
 public class MessagesService(ILogger<MessagesService> logger, IConnection connection, QueueConfigurationFactory queueConfigurationFactory) : IMessagesService
 {
-    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken = default)
+    public async Task PublishAsync<T>(T message, CancellationToken cancellationToken)
            where T : class
     {
         logger.LogInformation("Publishing message of type {MessageType} to message broker", typeof(T).Name);
@@ -35,7 +35,7 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
             cancellationToken: cancellationToken);
     }
 
-    public async Task ConsumeAsync<T>(Func<T, CancellationToken, Task> onMessageReceived, CancellationToken cancellationToken = default) 
+    public async Task ConsumeAsync<T>(Func<T, CancellationToken, Task> onMessageReceived, CancellationToken cancellationToken) 
            where T : class
     {
         logger.LogInformation("Consuming message of type {MessageType} from message broker", typeof(T).Name);

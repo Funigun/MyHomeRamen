@@ -1,10 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.DeleteBasketItem;
 
@@ -15,9 +13,9 @@ public sealed class DeleteBasketItemHandler(IShoppingCartDbContext dbContext, IC
     {
         UserId userId = new(currentUser.UserId);
 
-        Basket basket = await dbContext.ShoppingCarts
-            .GetByIdForUserTracked(command.BasketId, userId)
-            .FirstAsync(cancellationToken);
+        Basket basket = await dbContext.Basket.Specification()
+            .GetByIdForUserTrackedAsync(command.BasketId, userId, cancellationToken)
+            ?? throw new InvalidOperationException("Basket was not found.");
 
         basket.RemoveItem(command.BasketItemId);
 

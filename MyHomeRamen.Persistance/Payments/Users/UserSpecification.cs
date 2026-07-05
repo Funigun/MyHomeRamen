@@ -6,7 +6,7 @@ namespace MyHomeRamen.Persistance.Payments;
 
 public partial class PaymentsDbContext : IUserSpecification
 {
-    public async Task<User> ByIdAsync(UserId userId, CancellationToken cancellationToken = default)
+    public async Task<User> ByIdAsync(UserId userId, CancellationToken cancellationToken)
         => await Users.Include(user => user.Roles)
                       .Include(user => user.Permissions)
                       .AsSplitQuery()

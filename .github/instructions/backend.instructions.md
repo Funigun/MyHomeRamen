@@ -43,6 +43,7 @@ Instructions are applicable for all modules.
 	- `MyHomeRamen.Persistance\{Module}\{Aggregate}\{Aggregate}Specification.cs` implements `I{Aggregate}Specification`
 	- `MyHomeRamen.Persistance\{Module}\{Aggregate}\{Aggregate}Repository.cs` implements `I{Aggregate}Repository`
 - Never expose `DbSet<TEtity` or `IQueryable<TEntity>` outside of the DbContext implementation
+- Never create repositories etc. for non-aggregate entities / value objects e.g. `PaymentDetails` in ShoppingCart module, use aggregate repository/specification/query instead.
 
 ### 2.3) Common patterns
 - Entity configurations in `MyHomeRamen.Persistance/{Module}/Configurations`

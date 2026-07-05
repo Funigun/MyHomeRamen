@@ -1,10 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Orders.Database;
-using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
 using MyHomeRamen.Features.Reservations.Features.Abstractions;
 using MyHomeRamen.Worker.DatabaseInitializer.Config;
@@ -27,7 +27,6 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
         Dictionary<IBaseDbContext, DatabaseUserConfig> dbContexts = new()
         {
             { userContext, DatabaseUserConfig.Create("Identity", configuration) },
-            { shoppingCartDbContext, DatabaseUserConfig.Create("ShoppingCart", configuration) },
             { ordersDbContext, DatabaseUserConfig.Create("Order", configuration) }
         };
 
@@ -70,6 +69,7 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
         Dictionary<IUnitOfWork, DatabaseUserConfig> unitOfWorkContexts = new()
         {
             { menuDbContext, DatabaseUserConfig.Create("Menu", configuration) },
+            { shoppingCartDbContext, DatabaseUserConfig.Create("ShoppingCart", configuration) },
             { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) },
             { reservationsDbContext, DatabaseUserConfig.Create("Reservation", configuration) }
         };

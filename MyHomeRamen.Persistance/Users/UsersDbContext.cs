@@ -23,7 +23,7 @@ public class UsersDbContext : IdentityDbContext<User, Role, Guid>, IUsersDbConte
         _currentUser = currentUser;
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);

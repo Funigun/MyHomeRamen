@@ -6,6 +6,6 @@ namespace MyHomeRamen.Persistance.Payments;
 
 public partial class PaymentsDbContext : IPermissionSpecification
 {
-    async Task<Permission?> IPermissionSpecification.ByIdAsync(PermissionId id, CancellationToken cancellationToken = default)
+    async Task<Permission?> IPermissionSpecification.ByIdAsync(PermissionId id, CancellationToken cancellationToken)
         => await Permissions.AsNoTracking().FirstOrDefaultAsync(permission => permission.Id == id, cancellationToken);
 }

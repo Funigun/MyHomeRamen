@@ -1,7 +1,7 @@
 ﻿using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Worker.Common;
 
 namespace MyHomeRamen.Worker.MessagesHandler.ShoppingCart;
@@ -13,8 +13,8 @@ internal sealed class ShoppingCartGuestRegisteredHandler(IShoppingCartDbContext 
         User user = User.CreateGuest(integrationEvent.GuestId);
         Basket basket = Basket.Create(new BasketId(Guid.CreateVersion7()), user);
 
-        dbContext.Users.Add(user);
-        dbContext.ShoppingCarts.Add(basket);
+        dbContext.User.Add(user);
+        dbContext.Basket.Add(basket);
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }

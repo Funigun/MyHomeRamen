@@ -8,5 +8,5 @@ public interface IRoleSpecification
 
     Task<Role?> ByName(string menuRoleName, CancellationToken cancellationToken);
 
-    Task<List<Role>> GetAllWithPermissions(CancellationToken cancellationToken = default);
+    Task<List<Role>> GetAllWithPermissions(CancellationToken cancellationToken);
 }

@@ -6,6 +6,6 @@ namespace MyHomeRamen.Persistance.Payments;
 
 public partial class PaymentsDbContext : IUserQuery
 {
-    public async Task<bool> ExistsAsync(UserId userId, CancellationToken cancellationToken = default)
+    public async Task<bool> ExistsAsync(UserId userId, CancellationToken cancellationToken)
         => await Users.AsNoTracking().AnyAsync(user => user.Id == userId, cancellationToken);
 }

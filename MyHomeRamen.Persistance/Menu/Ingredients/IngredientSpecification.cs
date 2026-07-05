@@ -6,11 +6,11 @@ namespace MyHomeRamen.Persistance.Menu;
 
 public partial class MenuDbContext : IIngredientSpecification
 {
-    public async Task<Ingredient> ById(IngredientId ingredientId, CancellationToken cancellationToken = default)
+    public async Task<Ingredient> ById(IngredientId ingredientId, CancellationToken cancellationToken)
         => await Ingredients.Include(i => i.Categories)
                             .AsSplitQuery()
                             .FirstAsync(i => i.Id == ingredientId, cancellationToken);
 
-    public async Task<IEnumerable<Ingredient>> ByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Ingredient>> ByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken)
         => await Ingredients.Where(ingredient => ingredientIds.Contains(ingredient.Id)).ToListAsync(cancellationToken);
 }

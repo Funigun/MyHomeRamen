@@ -37,7 +37,7 @@ public partial class OrdersDbContext(DbContextOptions<OrdersDbContext> options) 
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);

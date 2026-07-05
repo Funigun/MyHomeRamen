@@ -4,5 +4,5 @@ namespace MyHomeRamen.Features.Reservations.Features.Users.Common;
 
 public interface IUserQuery
 {
-    Task<bool> ExistsAsync(UserId userId, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(UserId userId, CancellationToken cancellationToken);
 }

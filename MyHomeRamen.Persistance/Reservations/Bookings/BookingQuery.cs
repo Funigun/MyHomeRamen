@@ -6,6 +6,6 @@ namespace MyHomeRamen.Persistance.Reservations;
 
 public partial class ReservationsDbContext : IBookingQuery
 {
-    public async Task<Booking?> ByIdAsync(BookingId bookingId, CancellationToken cancellationToken = default)
+    public async Task<Booking?> ByIdAsync(BookingId bookingId, CancellationToken cancellationToken)
         => await Set<Booking>().AsNoTracking().FirstOrDefaultAsync(booking => booking.Id == bookingId, cancellationToken);
 }

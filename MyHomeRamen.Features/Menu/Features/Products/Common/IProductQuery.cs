@@ -12,9 +12,9 @@ public interface IProductQuery
 {
     Task<Product> ById(ProductId productId, CancellationToken cancellationToken);
 
-    Task<List<Product>> GetByCategory(CategoryId categoryId, CancellationToken cancellationToken = default);
+    Task<List<Product>> GetByCategory(CategoryId categoryId, CancellationToken cancellationToken);
 
-    Task<List<Product>> GetWithAllIngredients(CancellationToken cancellationToken = default);
+    Task<List<Product>> GetWithAllIngredients(CancellationToken cancellationToken);
 
     Task<PagedResult<ProductForManageDto>> ForManage(
         ProductForManageFilter filter,

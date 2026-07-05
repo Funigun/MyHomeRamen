@@ -15,6 +15,7 @@
   
   <ItemGroup>
     <Folder Include="Menu\Database\" />
+    <Folder Include="ShoppingCart\Database\" />
   </ItemGroup>
 
 </Project>

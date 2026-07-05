@@ -16,12 +16,12 @@ public partial class MenuDbContext : IProductQuery
     private IQueryable<Product> ProductsQuery 
         => Products.AsNoTracking();
 
-    public async Task<List<Product>> GetByCategory(CategoryId categoryId, CancellationToken cancellationToken = default)
+    public async Task<List<Product>> GetByCategory(CategoryId categoryId, CancellationToken cancellationToken)
         => await ProductsQuery.Include(p => p.BaseIngredients)
                               .Where(p => p.Categories.Any(c => c.Id == categoryId))
                               .ToListAsync(cancellationToken);
 
-    public async Task<List<Product>> GetWithAllIngredients(CancellationToken cancellationToken = default)
+    public async Task<List<Product>> GetWithAllIngredients(CancellationToken cancellationToken)
         => await ProductsQuery.Include(p => p.BaseIngredients)
                               .Include(p => p.CustomIngredients)
                               .ToListAsync(cancellationToken);

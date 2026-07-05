@@ -4,5 +4,5 @@ namespace MyHomeRamen.Features.Reservations.Features.Roles.Common;
 
 public interface IRoleSpecification
 {
-    Task<Role> ByIdAsync(RoleId roleId, CancellationToken cancellationToken = default);
+    Task<Role> ByIdAsync(RoleId roleId, CancellationToken cancellationToken);
 }

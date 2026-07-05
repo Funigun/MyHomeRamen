@@ -9,11 +9,11 @@ public partial class MenuDbContext : IIngredientQuery
 {
     private IQueryable<Ingredient> IngredientsQuery => Ingredients.AsNoTracking();
 
-    public async Task<List<Ingredient>> GetForDropdown(CancellationToken cancellationToken = default)
+    public async Task<List<Ingredient>> GetForDropdown(CancellationToken cancellationToken)
         => await IngredientsQuery.OrderBy(i => i.Name)
                                  .ToListAsync(cancellationToken);
 
-    public async Task<List<Ingredient>> GetForManage(string? name, IEnumerable<Guid>? categoryIds, CancellationToken cancellationToken = default)
+    public async Task<List<Ingredient>> GetForManage(string? name, IEnumerable<Guid>? categoryIds, CancellationToken cancellationToken)
     {
         IQueryable<Ingredient> query = IngredientsQuery;
 
@@ -32,15 +32,15 @@ public partial class MenuDbContext : IIngredientQuery
                           .ToListAsync(cancellationToken);
     }
 
-    public async Task<List<Ingredient>> GetByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken = default)
+    public async Task<List<Ingredient>> GetByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken)
         => await Ingredients.Where(e => ingredientIds.Contains(e.Id)).ToListAsync(cancellationToken);
 
-    public async Task<bool> IsIngredientNameUnique(string name, CancellationToken cancellationToken = default)
+    public async Task<bool> IsIngredientNameUnique(string name, CancellationToken cancellationToken)
         => await IngredientsQuery.AnyAsync(i => i.Name.ToLower() != name.ToLower(), cancellationToken);
 
-    public async Task<bool> IsIngredientNameUniqueExcluding(string name, IngredientId excludeId, CancellationToken cancellationToken = default)
+    public async Task<bool> IsIngredientNameUniqueExcluding(string name, IngredientId excludeId, CancellationToken cancellationToken)
         => !await IngredientsQuery.AnyAsync(i => i.Id != excludeId && i.Name.ToLower() == name.ToLower(), cancellationToken);
 
-    public async Task<bool> IsCategoryUsedByIngredient(CategoryId categoryId, CancellationToken cancellationToken = default)
+    public async Task<bool> IsCategoryUsedByIngredient(CategoryId categoryId, CancellationToken cancellationToken)
         => await IngredientsQuery.AnyAsync(i => i.Categories.Any(c => c.Id == categoryId), cancellationToken);
 }

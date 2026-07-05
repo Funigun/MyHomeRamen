@@ -4,5 +4,5 @@ namespace MyHomeRamen.Features.Reservations.Features.Bookings.Common;
 
 public interface IBookingQuery
 {
-    Task<Booking?> ByIdAsync(BookingId bookingId, CancellationToken cancellationToken = default);
+    Task<Booking?> ByIdAsync(BookingId bookingId, CancellationToken cancellationToken);
 }

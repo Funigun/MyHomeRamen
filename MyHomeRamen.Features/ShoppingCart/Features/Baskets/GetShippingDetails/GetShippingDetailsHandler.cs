@@ -1,11 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetShippingDetails;
 
@@ -13,9 +11,9 @@ public sealed class GetShippingDetailsHandler(IShoppingCartDbContext dbContext) 
 {
     public async Task<ShippingDetailsResponse> Handle(GetShippingDetailsQuery query, CancellationToken cancellationToken)
     {
-        Basket basket = await dbContext.ShoppingCarts
-            .GetByIdForUserWithShipping(query.BasketId, query.UserId)
-            .FirstAsync(cancellationToken);
+        Basket basket = await dbContext.Basket.Query()
+            .GetByIdForUserWithShippingAsync(query.BasketId, query.UserId, cancellationToken)
+            ?? throw new InvalidOperationException("Basket was not found.");
 
         ShippingAddressDto? addressDto = null;
 

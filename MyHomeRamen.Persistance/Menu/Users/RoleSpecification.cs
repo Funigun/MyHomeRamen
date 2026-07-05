@@ -16,7 +16,7 @@ public partial class MenuDbContext : IRoleSpecification
                       .AsSplitQuery()
                       .FirstOrDefaultAsync(role => role.Name == name, cancellationToken);
 
-    public async Task<List<Role>> GetAllWithPermissions(CancellationToken cancellationToken = default)
+    public async Task<List<Role>> GetAllWithPermissions(CancellationToken cancellationToken)
         => await Roles.Include(role => role.Permissions)
                       .ToListAsync(cancellationToken);
 }

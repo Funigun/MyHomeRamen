@@ -6,7 +6,7 @@ namespace MyHomeRamen.Persistance.Menu;
 
 public partial class MenuDbContext : IUserSpecification
 {
-    public async Task<User> ById(UserId userId, CancellationToken cancellationToken = default)
+    public async Task<User> ById(UserId userId, CancellationToken cancellationToken)
         => await Users.Include(user => user.FavoriteProducts)
                       .Include(user => user.Roles)
                       .Include(user => user.Permissions)

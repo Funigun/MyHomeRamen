@@ -1,8 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Database;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.ClearBasket;
 
@@ -10,9 +8,8 @@ public sealed class ClearBasketHandler(IShoppingCartDbContext dbContext) : IComm
 {
     public async Task Handle(ClearBasketCommand command, CancellationToken cancellationToken)
     {
-        Basket? basket = await dbContext.ShoppingCarts
-            .GetByIdForUserTracked(command.BasketId, command.UserId)
-            .SingleAsync(cancellationToken);
+        Basket basket = await dbContext.Basket.Specification()
+            .GetByIdForUserTrackedAsync(command.BasketId, command.UserId, cancellationToken);
 
         basket.Clear();
         await dbContext.SaveChangesAsync(cancellationToken);

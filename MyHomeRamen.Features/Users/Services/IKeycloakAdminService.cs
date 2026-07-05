@@ -4,9 +4,9 @@ namespace MyHomeRamen.Features.Users.Services;
 
 public interface IKeycloakAdminService
 {
-    Task<string> CreateUserAsync(KeycloakUserDto user, string roleName, CancellationToken cancellationToken = default);
+    Task<string> CreateUserAsync(KeycloakUserDto user, string roleName, CancellationToken cancellationToken);
 
-    Task<IEnumerable<KeycloakRoleDto>> GetAvailableRoles(CancellationToken cancellationToken = default);
+    Task<IEnumerable<KeycloakRoleDto>> GetAvailableRoles(CancellationToken cancellationToken);
 
-    Task<IEnumerable<KeycloakUserDto>> GetEmployees(CancellationToken cancellationToken = default);
+    Task<IEnumerable<KeycloakUserDto>> GetEmployees(CancellationToken cancellationToken);
 }

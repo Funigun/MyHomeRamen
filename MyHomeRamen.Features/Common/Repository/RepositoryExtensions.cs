@@ -15,7 +15,7 @@ public static partial class DbExtensions
         public IQueryable<TEntity> Sorted<TKey>(Expression<Func<TEntity, TKey>> keySelector, string sortOrder)
             => sortOrder.ToLower() == "asc" ? query.OrderBy(keySelector) : query.OrderByDescending(keySelector);
 
-        public async Task<bool> Exists(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken = default)
+        public async Task<bool> Exists(Expression<Func<TEntity, bool>> filter, CancellationToken cancellationToken)
             => await query.AsNoTracking().AnyAsync(filter, cancellationToken);
     }
 

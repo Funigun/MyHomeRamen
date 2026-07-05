@@ -1,7 +1,5 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Domain.ShoppingCart.Database;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.ClearBasket;
 
@@ -12,9 +10,8 @@ public sealed class ClearBasketValidationPolicy : AbstractValidator<ClearBasketC
         RuleFor(x => x)
             .MustAsync(async (command, ct) =>
             {
-                bool basketExists = await dbContext.ShoppingCarts
-                    .GetByIdForUser(command.BasketId, command.UserId)
-                    .AnyAsync(ct);
+                bool basketExists = await dbContext.Basket.Query()
+                    .GetByIdForUserAsync(command.BasketId, command.UserId, ct) != null;
                 return basketExists;
             })
             .WithMessage("Basket not found or not accessible");

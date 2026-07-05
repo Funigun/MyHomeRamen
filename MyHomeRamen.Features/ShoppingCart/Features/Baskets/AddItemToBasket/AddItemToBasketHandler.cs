@@ -1,14 +1,12 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 
@@ -19,14 +17,19 @@ public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICu
     {
         UserId userId = new(currentUser.UserId);
 
-        User user = await dbContext.Users.FirstAsync(user => user.Id == userId, cancellationToken);
+        User? user = await dbContext.User.Query().FindByIdAsync(userId, cancellationToken);
 
-        Basket basket = await dbContext.ShoppingCarts.ForUserTracked(userId).FirstAsync(cancellationToken);
+        if (user is null)
+        {
+            throw new InvalidOperationException($"User {userId.Value} was not found.");
+        }
+
+        Basket? basket = await dbContext.Basket.Specification().GetForUserTrackedAsync(userId, cancellationToken);
 
         if (basket is null)
         {
             basket = Basket.Create(new BasketId(Guid.CreateVersion7()), user);
-            dbContext.ShoppingCarts.Add(basket);
+            dbContext.Basket.Add(basket);
         }
 
         MenuProductResult menuProduct = (await menuService.GetProductWithSelectedIngredientsAsync(
@@ -37,14 +40,14 @@ public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICu
 
         Product product = menuProduct.ToShoppingCartProduct(command.AddItemToBasketRequest.BaseIngredients, command.AddItemToBasketRequest.CustomIngredients);
 
-        dbContext.Products.Add(product);
-        dbContext.Ingredients.AddRange(product.BaseIngredients);
-        dbContext.Ingredients.AddRange(product.CustomIngredients);
+        dbContext.Product.Add(product);
+        dbContext.Ingredient.AddRange(product.BaseIngredients);
+        dbContext.Ingredient.AddRange(product.CustomIngredients);
 
         BasketItem basketItem = product.ToBasketItem(command.AddItemToBasketRequest.Quantity, command.AddItemToBasketRequest.Comments);
 
         basket.AddItem(basketItem);
-        dbContext.BasketItems.Add(basketItem);
+        dbContext.BasketItem.Add(basketItem);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

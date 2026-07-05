@@ -4,5 +4,5 @@ namespace MyHomeRamen.Features.Payments.Features.Permissions.Common;
 
 public interface IPermissionQuery
 {
-    Task<Permission?> ByIdAsync(PermissionId id, CancellationToken cancellationToken = default);
+    Task<Permission?> ByIdAsync(PermissionId id, CancellationToken cancellationToken);
 }

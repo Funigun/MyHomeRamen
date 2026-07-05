@@ -4,5 +4,5 @@ namespace MyHomeRamen.Features.Menu.Features.Users.Common;
 
 public interface IUserSpecification
 {
-    Task<User> ById(UserId userId, CancellationToken cancellationToken = default);
+    Task<User> ById(UserId userId, CancellationToken cancellationToken);
 }

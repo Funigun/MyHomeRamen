@@ -6,7 +6,7 @@ namespace MyHomeRamen.Persistance.Payments;
 
 public partial class PaymentsDbContext : IPaymentMethodSpecification
 {
-    public async Task<PaymentMethod?> ByIdAsync(PaymentMethodId id, CancellationToken cancellationToken = default)
+    public async Task<PaymentMethod?> ByIdAsync(PaymentMethodId id, CancellationToken cancellationToken)
         => await PaymentMethodsQuery
             .Include(method => method.PaymentChannels)
             .Where(method => method.Id == id && method.IsActive)
