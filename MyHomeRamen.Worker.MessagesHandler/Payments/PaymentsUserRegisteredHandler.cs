@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Messaging;
-using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Payments.Users;
+using MyHomeRamen.Features.Payments.Features.Abstractions;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler.Common;
 
@@ -12,7 +11,7 @@ public class PaymentsUserRegisteredHandler(IPaymentsDbContext dbContext) : IInte
     public async Task HandleAsync(UserRegisteredIntegrationEvent integrationEvent, CancellationToken cancellationToken)
     {
         UserId userId = new(integrationEvent.Id);
-        bool userExists = await dbContext.Users.AnyAsync(u => u.Id == userId, cancellationToken);
+        bool userExists = await dbContext.User.ExistsAsync(userId, cancellationToken);
 
         if (userExists)
         {
@@ -21,8 +20,7 @@ public class PaymentsUserRegisteredHandler(IPaymentsDbContext dbContext) : IInte
 
         string paymentsRoleName = MapIdentityProviderRoleToPaymentsRole(integrationEvent.Role);
 
-        Role? customerRole = await dbContext.Roles.Include(r => r.Permissions)
-                                                  .FirstOrDefaultAsync(r => r.Name == paymentsRoleName, cancellationToken);
+        Role? customerRole = await dbContext.Role.Query().GetByNameWithPermissionsAsync(paymentsRoleName, cancellationToken);
 
         List<Role> roles = customerRole != null ? [customerRole] : [];
         List<Permission> permissions = customerRole != null ? customerRole.Permissions.ToList() : [];
@@ -36,7 +34,7 @@ public class PaymentsUserRegisteredHandler(IPaymentsDbContext dbContext) : IInte
             roles,
             permissions);
 
-        dbContext.Users.Add(user);
+        dbContext.User.Add(user);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 

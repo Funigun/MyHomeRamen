@@ -1,8 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Payments;
-using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Payments.PaymentMethods;
-using MyHomeRamen.Features.Payments.Features.Common;
+using MyHomeRamen.Features.Payments.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Payments.Services;
 
@@ -10,8 +8,7 @@ public sealed class PaymentService(IPaymentsDbContext dbContext) : IPaymentServi
 {
     public async Task<bool> ValidatePaymentSelectionAsync(Guid methodId, Guid channelId, CancellationToken ct)
     {
-        PaymentMethod? method = await dbContext.PaymentMethods.GetById(new(methodId))
-                                                              .FirstOrDefaultAsync(ct);
+        PaymentMethod? method = await dbContext.PaymentMethod.Query().GetByIdAsync(new(methodId), ct);
 
         if (method == null) { return false; }
 

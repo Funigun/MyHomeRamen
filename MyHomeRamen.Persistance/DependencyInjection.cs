@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Orders.Database;
-using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Reservations.Database;
 using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.Users.Database;
@@ -11,7 +10,10 @@ using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
-using MyHomeRamen.Features.Menu.Features.Users.Common;
+using MyHomeRamen.Features.Payments.Features.Abstractions;
+using MyHomeRamen.Features.Payments.Features.PaymentChannels.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentGateways.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
@@ -42,7 +44,7 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<IProductRepository>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<IIngredientRepository>(provider => provider.GetRequiredService<MenuDbContext>());
-        services.AddScoped<IUserRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<Features.Menu.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<MenuDbContext>());
 
         return services;
     }
@@ -119,6 +121,14 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IPaymentsDbContext, PaymentsDbContext>();
+        services.AddScoped<IPaymentsUnitOfWork>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<IPaymentMethodRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<IPaymentChannelRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<IPaymentGatewayRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<Features.Payments.Features.Orders.Common.IOrderRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<Features.Payments.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<Features.Payments.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<Features.Payments.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
 
         return services;
     }

@@ -1,85 +1,26 @@
+Prepare module db access refactor plan according to guidance:
 
-Database access refactoring:
+1) Move `I{Module}DbContext}` from domain to features project including updates:
+   - implement `IUnitOfWork` instead `BaseDbContext`
+   - update `DbInitializerJob` in `MyHomeRamen.Worker.DatabaseInitializer` project to use `IUnitOfWork`
+   - remove unused `BeginTransaction, RollbackTransaction, CommitTransaction` methods form `{Module}DbContext` implementation
+   - make `{Module}DbContext` partial class
 
+2) Analyze `{Aggregate}DbExtensions` and usage of current `{Module}DbContext.DbSet<Aggregate>` in features and integration tests project and prepare plan to split
+   into `I{Aggregate}Repository`, `I{Aggregate}Query`, and `I{Aggregate}Specification` per guidance:
 
-# Current State:
+   - Exists / AnyAsync etc - `I{Aggregate}Repository.Exists` - using AsNoTracking()
+   - extension / direct query call AsNoTracting -> move to `I{Aggregate}Query`
+   - extension / direct query call with tracking -> move to `I{Aggregate}Specification`
 
-IBaseDbContext in domain: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Domain\Abstractions\IBaseDbContext.cs
+   If any method exposes `DbSet<Aggregate>` or `IQueryable<Aggregate>` plan to refactor to return expected state like boolean, int, entity, entities or projected DTOs.
 
-## Concrete variations in Domain:
-
-IMenuDbContext in domain: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Domain\Menu\Database\IMenuDbContext.cs
-IOrderDbContext in domain: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Domain\Order\Database\IOrderDbContext.cs
-IPaymentsDbContext in domain: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Domain\Payments\Database\IPaymentDbContext.cs
-IShoppingCartDbContext in domain: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Domain\ShoppingCart\Database\IShoppingCartDbContext.cs
-IUsersDbContext in domain: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Domain\Users\Database\IUsersDbContext.cs
-IReservationsDbContext in domain: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Domain\Reservations\Database\IReservationsDbContext.cs
-
-
-## Implementation (based on Menu module):
-
-MenuDbContext in persistance: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Domain\Menu\Database\IMenuDbContext.cs
-
-## Concrete queries in Features layer (based on Menu module):
-
-Generic repository extensions: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Features\Common\Repository\RepositoryExtensions.cs
-Aggregate queries: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Features\Menu\Features\Categories\Common\CategoryDbExtensions.cs
+3) Create `I{Aggregate}Repository`, `I{Aggregate}Query`, and `I{Aggregate}Specification` interfaces in the features project
+   and create implementations in the persistence project as partial classes of `{Module}DbContext` including methods planned in step 2.
 
 
-# Issues: 
-- Domain and Feature layers are coupled to EF Core and DbContext
-- It is hard to add caching, as extension methods would need additional parameters that could be handled via DI
+4) Replace DbSets in `I{Module}DbContext` with repositories
 
+5) List validators, handlers and integration tests that require updates
 
-# Solution - example based on Menu module:
-
-IUnitOfWork in features: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Features\Common\Repository\IUnitOfWork.cs
-IRepository in features: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Features\Common\Repository\IRepository.cs
-
-IMenuUnitOfWork in features: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Features\Menu\Features\Abstractions\IMenuUnitOfWork.cs
-IMenuUnitOfWork implements IUnitOfWork
-
-ICategoryQuery in features: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Features\Menu\Features\Categories\Common\ICategoryQuery.cs
-ICategoryQuery contains query methods that use AsNoTracking - each method here must
-
-ICategorySpecification in features: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Features\Menu\Features\Categories\Common\ICategorySpecification.cs
-ICategorySpecification contains methods for persistance operations without using AsNoTracking
-
-ICategoryRepository in features: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Features\Menu\Features\Categories\Common\ICategoryRepository.cs
-
-ICategoryRepository implements both ICategoryQuery and ICategorySpecification and exposes methods to return ICategoryQuery and ICategorySpecification
-
-
-Concrete implementation:
-
-MenuDbContext becomes partial class that implements IMenuUnitOfWork, ICategoryRepository, ICategoryQuery and ICategorySpecification with following split:
-
-IMenuUnitOfWork: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Persistance\Menu\MenuDbContext.cs
-ICategoryRepository: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Persistance\Menu\Categories\CategoryRepository.cs
-ICategoryQuery: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Persistance\Menu\Categories\CategoryQuery.cs
-ICategorySpecification: C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Persistance\Menu\Categories\CategorySpecification.cs
-
-Dependency injection (C:\Users\stepn\source\repos\MyHomeRamen\MyHomeRamen.Persistance\DependencyInjection.cs):
-
-- services.AddScoped<IMenuUnitOfWork>(provider => provider.GetRequiredService<MenuDbContext>());
-- services.AddScoped<ICategoryRepository>(provider => provider.GetRequiredService<MenuDbContext>());
-
-
-Task: Prepare refactoring plan for each module (Menu (missing aggregates), Order, Payments, ShoppingCart, Users, Reservations) based on the Menu module example.
-
-Each module should have its own file with plan.
-Cleanupt stage should be in separate plan file.
-
-Steps to take:
-- define unit of work: I{Module}UnitOfWork
-- define for each aggregate:I{Aggregate}Repository, I{Aggregate}Query, I{Aggregate}Specification)
-- define implementations following partial class pattern
-- move extension methods to I{Aggregate}Query and I{Aggregate}Specification
-- update features in Features project
-- update integration tests to use new interfaces and implementations
-- update workers to use new interfaces and implementations
-
-
-Once all modules migrated:
-- remove old abstractions
-- remove references to EF Core from Domain and Features layers
+6) List files to cleanup: old interfaces, db exensions and other legacy code that is no longer used

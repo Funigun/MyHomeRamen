@@ -1,8 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses;
-using MyHomeRamen.Domain.Payments.Database;
-using MyHomeRamen.Features.Payments.Features.Common;
+using MyHomeRamen.Features.Payments.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Payments.Features.PaymentMethods.GetAvailableMethods;
 
@@ -10,8 +8,6 @@ public sealed class GetAvailableMethodsHandler(IPaymentsDbContext paymentsDbCont
 {
     public async Task<IEnumerable<GetAvailableMethodsResponse>> Handle(GetAvailableMethodsQuery query, CancellationToken cancellationToken)
     {
-        return await paymentsDbContext.PaymentMethods.GetAvailableMethods()
-                                                     .Select(method => method.ToResponse())
-                                                     .ToListAsync(cancellationToken);
+        return await paymentsDbContext.PaymentMethod.Query().GetAvailableMethodsAsync(cancellationToken);
     }
 }
