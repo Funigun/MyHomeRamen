@@ -11,7 +11,7 @@ public class PaymentsUserRegisteredHandler(IPaymentsDbContext dbContext) : IInte
     public async Task HandleAsync(UserRegisteredIntegrationEvent integrationEvent, CancellationToken cancellationToken)
     {
         UserId userId = new(integrationEvent.Id);
-        bool userExists = await dbContext.User.ExistsAsync(userId, cancellationToken);
+        bool userExists = await dbContext.User.Exists(u => u.Id == userId, cancellationToken);
 
         if (userExists)
         {

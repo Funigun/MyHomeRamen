@@ -3,7 +3,7 @@ using MyHomeRamen.Features.Common.Repository;
 
 namespace MyHomeRamen.Features.Payments.Features.PaymentChannels.Common;
 
-public interface IPaymentChannelRepository : IRepository<PaymentChannel, PaymentChannelId>, IPaymentChannelQuery, IPaymentChannelSpecification
+public interface IPaymentChannelRepository : IRepository<PaymentChannel, PaymentChannelId>
 {
     IPaymentChannelQuery Query();
 

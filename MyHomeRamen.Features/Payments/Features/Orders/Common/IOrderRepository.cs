@@ -3,7 +3,7 @@ using MyHomeRamen.Features.Common.Repository;
 
 namespace MyHomeRamen.Features.Payments.Features.Orders.Common;
 
-public interface IOrderRepository : IRepository<Order, OrderId>, IOrderQuery, IOrderSpecification
+public interface IOrderRepository : IRepository<Order, OrderId>
 {
     IOrderQuery Query();
 
