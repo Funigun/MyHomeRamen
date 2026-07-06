@@ -1,4 +1,4 @@
-using MyHomeRamen.Domain.Payments.Users;
+using MyHomeRamen.Domain.Payments.Permissions;
 
 namespace MyHomeRamen.Features.Payments.Features.Permissions.Common;
 

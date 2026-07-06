@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Domain.ShoppingCart.Roles;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Roles.Common;
 

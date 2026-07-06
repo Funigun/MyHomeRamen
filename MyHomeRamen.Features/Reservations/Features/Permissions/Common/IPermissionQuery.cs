@@ -1,4 +1,4 @@
-using MyHomeRamen.Domain.Reservations.Users;
+using MyHomeRamen.Domain.Reservations.Permissions;
 
 namespace MyHomeRamen.Features.Reservations.Features.Permissions.Common;
 

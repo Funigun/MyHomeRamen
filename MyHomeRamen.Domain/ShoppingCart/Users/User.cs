@@ -1,4 +1,6 @@
 using MyHomeRamen.Domain.Abstractions;
+using MyHomeRamen.Domain.ShoppingCart.Permissions;
+using MyHomeRamen.Domain.ShoppingCart.Roles;
 
 namespace MyHomeRamen.Domain.ShoppingCart.Users;
 

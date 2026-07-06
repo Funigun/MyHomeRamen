@@ -1,5 +1,7 @@
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.Permissions;
+using MyHomeRamen.Domain.ShoppingCart.Roles;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Worker.Common;

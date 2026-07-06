@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Domain.Reservations.Users;
+using MyHomeRamen.Domain.Reservations.Permissions;
 using MyHomeRamen.Features.Reservations.Features.Permissions.Common;
 
 namespace MyHomeRamen.Persistance.Reservations;

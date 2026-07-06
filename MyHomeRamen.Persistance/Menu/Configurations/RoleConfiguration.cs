@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MyHomeRamen.Domain.Common.User;
-using MyHomeRamen.Domain.Menu.Users;
+using MyHomeRamen.Domain.Menu.Roles;
 
 namespace MyHomeRamen.Persistance.Menu.Configurations;
 

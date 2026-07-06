@@ -1,5 +1,5 @@
 ﻿using IdentityDomain = MyHomeRamen.Domain.Users.RoleConstants;
-using MenuDomain = MyHomeRamen.Domain.Menu.Users.RoleConstants;
+using MenuDomain = MyHomeRamen.Domain.Menu.Roles.RoleConstants;
 
 namespace MyHomeRamen.Infrastructure.Keycloak.Constants;
 

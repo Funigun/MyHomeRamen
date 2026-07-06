@@ -1,4 +1,6 @@
 using MyHomeRamen.Domain.Common.User;
+using MyHomeRamen.Domain.Payments.Permissions;
+using MyHomeRamen.Domain.Payments.Roles;
 
 namespace MyHomeRamen.Domain.Payments.Users;
 

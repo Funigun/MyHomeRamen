@@ -14,6 +14,7 @@ using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Domain.Menu.Roles;
 using MyHomeRamen.Domain.Menu.Users;
 
 namespace MyHomeRamen.IntegrationTests.MenuModule.Common.Data;

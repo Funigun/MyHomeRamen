@@ -1,4 +1,6 @@
 using MyHomeRamen.Common.Contracts.Messaging;
+using MyHomeRamen.Domain.Payments.Permissions;
+using MyHomeRamen.Domain.Payments.Roles;
 using MyHomeRamen.Domain.Payments.Users;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
 using MyHomeRamen.Worker.Common;

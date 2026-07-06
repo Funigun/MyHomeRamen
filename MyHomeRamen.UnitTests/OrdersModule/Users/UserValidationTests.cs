@@ -1,5 +1,7 @@
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.User;
+using MyHomeRamen.Domain.Orders.Permissions;
+using MyHomeRamen.Domain.Orders.Roles;
 using MyHomeRamen.Domain.Orders.Users;
 
 namespace MyHomeRamen.UnitTests.OrdersModule.Users;

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MyHomeRamen.Domain.Common.User;
-using MyHomeRamen.Domain.Payments.Users;
+using MyHomeRamen.Domain.Payments.Roles;
 
 namespace MyHomeRamen.Persistance.Payments.Configurations;
 

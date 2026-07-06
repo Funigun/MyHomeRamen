@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using MyHomeRamen.Domain.Reservations.Users;
+using MyHomeRamen.Domain.Reservations.Roles;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Reservations.Features.Roles.Common;
 

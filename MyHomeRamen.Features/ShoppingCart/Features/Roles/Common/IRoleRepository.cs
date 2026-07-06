@@ -1,4 +1,4 @@
-using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Domain.ShoppingCart.Roles;
 using MyHomeRamen.Features.Common.Repository;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Roles.Common;

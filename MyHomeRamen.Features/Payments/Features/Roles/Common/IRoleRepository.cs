@@ -1,4 +1,4 @@
-using MyHomeRamen.Domain.Payments.Users;
+using MyHomeRamen.Domain.Payments.Roles;
 using MyHomeRamen.Features.Common.Repository;
 
 namespace MyHomeRamen.Features.Payments.Features.Roles.Common;

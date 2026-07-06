@@ -1,5 +1,7 @@
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.User;
+using MyHomeRamen.Domain.Payments.Permissions;
+using MyHomeRamen.Domain.Payments.Roles;
 using MyHomeRamen.Domain.Payments.Users;
 
 namespace MyHomeRamen.UnitTests.PaymentsModule.Users;

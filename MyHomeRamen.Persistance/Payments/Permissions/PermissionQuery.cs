@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Domain.Payments.Users;
+using MyHomeRamen.Domain.Payments.Permissions;
 using MyHomeRamen.Features.Payments.Features.Permissions.Common;
 
 namespace MyHomeRamen.Persistance.Payments;

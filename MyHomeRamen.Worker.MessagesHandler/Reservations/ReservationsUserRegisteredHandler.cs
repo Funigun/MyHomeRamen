@@ -1,4 +1,6 @@
 using MyHomeRamen.Common.Contracts.Messaging;
+using MyHomeRamen.Domain.Reservations.Permissions;
+using MyHomeRamen.Domain.Reservations.Roles;
 using MyHomeRamen.Domain.Reservations.Users;
 using MyHomeRamen.Features.Reservations.Features.Abstractions;
 using MyHomeRamen.Worker.Common;

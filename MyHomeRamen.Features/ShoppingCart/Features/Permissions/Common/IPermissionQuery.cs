@@ -1,4 +1,4 @@
-using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Domain.ShoppingCart.Permissions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Permissions.Common;
 

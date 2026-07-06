@@ -1,4 +1,4 @@
-using MyHomeRamen.Domain.Reservations.Users;
+using MyHomeRamen.Domain.Reservations.Roles;
 
 namespace MyHomeRamen.Features.Reservations.Features.Roles.Common;
 

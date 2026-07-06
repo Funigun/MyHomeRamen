@@ -1,7 +1,7 @@
 using MyHomeRamen.Domain.Common.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyHomeRamen.Domain.Reservations.Users;
+using MyHomeRamen.Domain.Reservations.Permissions;
 
 namespace MyHomeRamen.Persistance.Reservations.Configurations;
 

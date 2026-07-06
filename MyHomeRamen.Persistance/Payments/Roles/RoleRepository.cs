@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
-using MyHomeRamen.Domain.Payments.Users;
+using MyHomeRamen.Domain.Payments.Roles;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Payments.Features.Roles.Common;
 

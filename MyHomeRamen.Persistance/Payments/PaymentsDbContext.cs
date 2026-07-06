@@ -7,6 +7,8 @@ using MyHomeRamen.Domain.Payments.Orders;
 using MyHomeRamen.Domain.Payments.PaymentChannels;
 using MyHomeRamen.Domain.Payments.PaymentGateways;
 using MyHomeRamen.Domain.Payments.PaymentMethods;
+using MyHomeRamen.Domain.Payments.Permissions;
+using MyHomeRamen.Domain.Payments.Roles;
 using MyHomeRamen.Domain.Payments.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
@@ -116,7 +118,7 @@ public sealed partial class PaymentsDbContext(DbContextOptions<PaymentsDbContext
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Domain.Payments.Users.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.Payments.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -128,7 +130,7 @@ public sealed partial class PaymentsDbContext(DbContextOptions<PaymentsDbContext
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Domain.Payments.Users.Role.CreateForSeed
+                                            .Select(role => Domain.Payments.Roles.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,

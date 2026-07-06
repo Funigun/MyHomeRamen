@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Reservations.Bookings;
+using MyHomeRamen.Domain.Reservations.Permissions;
+using MyHomeRamen.Domain.Reservations.Roles;
 using MyHomeRamen.Domain.Reservations.Tables;
 using MyHomeRamen.Domain.Reservations.Users;
 using MyHomeRamen.Features.Common.Authorization;
@@ -105,7 +107,7 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Domain.Reservations.Users.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.Reservations.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -117,7 +119,7 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Domain.Reservations.Users.Role.CreateForSeed
+                                            .Select(role => Domain.Reservations.Roles.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,
