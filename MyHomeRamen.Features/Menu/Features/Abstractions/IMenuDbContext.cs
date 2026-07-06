@@ -1,3 +1,4 @@
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 using MyHomeRamen.Features.Menu.Features.Permissions.Common;
@@ -7,7 +8,7 @@ using MyHomeRamen.Features.Menu.Features.Users.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Abstractions;
 
-public interface IMenuDbContext : IMenuUnitOfWork
+public interface IMenuDbContext : IUnitOfWork
 {
     IProductRepository Product { get; }
 

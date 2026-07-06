@@ -10,7 +10,6 @@
 
 	<ItemGroup>
 		<Folder Include="Restaurants\" />
-		<Folder Include="Orders\" />
 		<Folder Include="Reservations\" />
 	</ItemGroup>
 </Project>

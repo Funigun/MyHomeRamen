@@ -9,18 +9,13 @@ using MyHomeRamen.Features.ShoppingCart.Features.BasketItems.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
-using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
-using MyHomeRamen.Features.Menu.Features.Products.Common;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
 using MyHomeRamen.Features.Payments.Features.PaymentChannels.Common;
 using MyHomeRamen.Features.Payments.Features.PaymentGateways.Common;
 using MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
 using MyHomeRamen.Features.Reservations.Features.Abstractions;
 using MyHomeRamen.Features.Reservations.Features.Bookings.Common;
-using MyHomeRamen.Features.Reservations.Features.Permissions.Common;
-using MyHomeRamen.Features.Reservations.Features.Roles.Common;
 using MyHomeRamen.Features.Reservations.Features.Tables.Common;
-using MyHomeRamen.Features.Reservations.Features.Users.Common;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
@@ -47,7 +42,6 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IMenuDbContext, MenuDbContext>();
-        services.AddScoped<IMenuUnitOfWork>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<ICategoryRepository>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<Features.Menu.Features.Products.Common.IProductRepository>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<Features.Menu.Features.Ingredients.Common.IIngredientRepository>(provider => provider.GetRequiredService<MenuDbContext>());
@@ -71,7 +65,6 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IShoppingCartDbContext, ShoppingCartDbContext>();
-        services.AddScoped<IShoppingCartUnitOfWork>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
         services.AddScoped<IBasketRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
         services.AddScoped<IBasketItemRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
         services.AddScoped<Features.ShoppingCart.Features.Products.Common.IProductRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
@@ -117,7 +110,6 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
-        services.AddScoped<IReservationsUnitOfWork>(provider => provider.GetRequiredService<ReservationsDbContext>());
         services.AddScoped<IBookingRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
         services.AddScoped<ITableRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
         services.AddScoped<Features.Reservations.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
@@ -142,7 +134,6 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IPaymentsDbContext, PaymentsDbContext>();
-        services.AddScoped<IPaymentsUnitOfWork>(provider => provider.GetRequiredService<PaymentsDbContext>());
         services.AddScoped<IPaymentMethodRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
         services.AddScoped<IPaymentChannelRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
         services.AddScoped<IPaymentGatewayRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
