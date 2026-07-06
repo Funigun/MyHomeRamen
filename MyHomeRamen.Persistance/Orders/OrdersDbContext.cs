@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
-using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Orders.Ingredients;
 using MyHomeRamen.Domain.Orders.Orders;
 using MyHomeRamen.Domain.Orders.Payments;
@@ -12,11 +11,20 @@ using MyHomeRamen.Domain.Orders.Products;
 using MyHomeRamen.Domain.Orders.Roles;
 using MyHomeRamen.Domain.Orders.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Orders.Features.Abstractions;
+using MyHomeRamen.Features.Orders.Features.Ingredients.Common;
+using MyHomeRamen.Features.Orders.Features.Orders.Common;
+using MyHomeRamen.Features.Orders.Features.Payments.Common;
+using MyHomeRamen.Features.Orders.Features.Permissions.Common;
+using MyHomeRamen.Features.Orders.Features.Products.Common;
+using MyHomeRamen.Features.Orders.Features.Roles.Common;
+using MyHomeRamen.Features.Orders.Features.Users.Common;
+
 using MyHomeRamen.Persistance.Orders.Converters;
 
 namespace MyHomeRamen.Persistance.Orders;
 
-public partial class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbContext(options), IOrdersDbContext
+public sealed partial class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbContext(options), IOrdersDbContext
 {
     private readonly ICurrentUser _currentUser;
 
@@ -38,6 +46,14 @@ public partial class OrdersDbContext(DbContextOptions<OrdersDbContext> options) 
     public DbSet<Role> Roles { get; set; }
 
     public DbSet<Permission> Permissions { get; set; }
+
+    public IOrderRepository Order => this;
+    public IProductRepository Product => this;
+    public IIngredientRepository Ingredient => this;
+    public IPaymentRepository Payment => this;
+    public IPermissionRepository Permission => this;
+    public IRoleRepository Role => this;
+    public IUserRepository User => this;
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -117,7 +133,7 @@ public partial class OrdersDbContext(DbContextOptions<OrdersDbContext> options) 
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.Orders.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -129,7 +145,7 @@ public partial class OrdersDbContext(DbContextOptions<OrdersDbContext> options) 
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed
+                                            .Select(role => Domain.Orders.Roles.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,

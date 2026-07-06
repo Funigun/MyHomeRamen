@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Domain.Orders.Database;
+
 using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
@@ -22,6 +22,7 @@ using MyHomeRamen.Persistance.Payments;
 using MyHomeRamen.Persistance.Reservations;
 using MyHomeRamen.Persistance.ShoppingCart;
 using MyHomeRamen.Persistance.Users;
+using MyHomeRamen.Features.Orders.Features.Abstractions;
 
 namespace MyHomeRamen.Persistance;
 
