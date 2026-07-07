@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-
-using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.BasketItems.Common;
@@ -21,8 +19,9 @@ using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
 using MyHomeRamen.Persistance.Reservations;
 using MyHomeRamen.Persistance.ShoppingCart;
-using MyHomeRamen.Persistance.Users;
 using MyHomeRamen.Features.Orders.Features.Abstractions;
+using MyHomeRamen.Persistance.Identity;
+using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.Persistance;
 
@@ -148,7 +147,7 @@ public static class DependencyInjection
 
     public static IServiceCollection AddIdentityPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
-        services.AddDbContext<UsersDbContext>(options =>
+        services.AddDbContext<IdentityDbContext>(options =>
         {
             string? connectionString = configurationProvider.IdentityConnectionString;
             options.UseSqlServer(
@@ -161,7 +160,9 @@ public static class DependencyInjection
             );
         });
 
-        services.AddScoped<IUsersDbContext, UsersDbContext>();
+        services.AddScoped<IIdentityDbContext, IdentityDbContext>();
+        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<IdentityDbContext>());
+        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<IdentityDbContext>());
 
         return services;
     }

@@ -1,4 +1,4 @@
-using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Domain.Identity.Users;
 
 namespace MyHomeRamen.UnitTests.UsersModule.Users;
 

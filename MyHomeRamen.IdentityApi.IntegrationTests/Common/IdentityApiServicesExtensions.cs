@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.Infrastructure.Cache;
-using MyHomeRamen.Persistance.Users;
+using MyHomeRamen.Persistance.Identity;
 using NSubstitute;
 using StackExchange.Redis;
 
@@ -21,13 +21,13 @@ internal static class IdentityApiServicesExtensions
 
     internal static IServiceCollection ReconfigureIdentityDatabase(this IServiceCollection services, string connectionString)
     {
-        ServiceDescriptor? descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<UsersDbContext>));
+        ServiceDescriptor? descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<IdentityDbContext>));
         if (descriptor is not null)
         {
             services.Remove(descriptor);
         }
 
-        services.AddDbContext<UsersDbContext>(options =>
+        services.AddDbContext<IdentityDbContext>(options =>
         {
             options.UseSqlServer(connectionString);
             options.EnableDetailedErrors();

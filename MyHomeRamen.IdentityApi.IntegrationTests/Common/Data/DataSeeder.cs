@@ -1,6 +1,5 @@
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Domain.Users;
-using MyHomeRamen.Domain.Users.Database;
+using MyHomeRamen.Domain.Identity.Users;
+using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
@@ -20,7 +19,7 @@ internal static class DataSeeder
 
     internal static Guid AnotherUserAddressId { get; private set; }
 
-    internal static async Task SeedIdentityModule(IUsersDbContext dbContext)
+    internal static async Task SeedIdentityModule(IIdentityDbContext dbContext)
     {
         User user = User.Create(
             keycloakUserId: SeededUserKeycloakId,
@@ -31,7 +30,7 @@ internal static class DataSeeder
             phoneNumber: "123456789",
             role: "customer");
 
-        dbContext.Users.Add(user);
+        dbContext.User.Add(user);
 
         User anotherUser = User.Create(
             keycloakUserId: AnotherUserKeycloakId,
@@ -42,7 +41,7 @@ internal static class DataSeeder
             phoneNumber: "111222333",
             role: "customer");
 
-        dbContext.Users.Add(anotherUser);
+        dbContext.User.Add(anotherUser);
 
         User fullAddressUser = User.Create(
             keycloakUserId: FullAddressesUserKeycloakId,
@@ -53,45 +52,37 @@ internal static class DataSeeder
             phoneNumber: "987654321",
             role: "customer");
 
-        dbContext.Users.Add(fullAddressUser);
+        dbContext.User.Add(fullAddressUser);
 
         await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        User? loadedUser = await dbContext.Users
-            .Include(u => u.Addresses)
-            .FirstOrDefaultAsync(u => u.KeycloakUserId == SeededUserKeycloakId, TestContext.Current.CancellationToken);
+        User? loadedUser = await dbContext.User.Specification().ByExternalId(SeededUserKeycloakId, TestContext.Current.CancellationToken);
 
         if (loadedUser is not null)
         {
             Address seededAddress = Address.Create(Guid.NewGuid(), "Seeded Street", "1A", string.Empty, "Warsaw", "00-001", isDefault: true);
             SeededAddressId = seededAddress.Id;
             loadedUser.AddAddress(seededAddress);
-            dbContext.Addresses.Add(seededAddress);
 
             Address seededSecondAddress = Address.Create(Guid.NewGuid(), "Second Street", "2B", string.Empty, "Warsaw", "00-002", isDefault: false);
             SeededSecondAddressId = seededSecondAddress.Id;
             loadedUser.AddAddress(seededSecondAddress);
-            dbContext.Addresses.Add(seededSecondAddress);
 
             await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
-        User? loadedAnotherUser = await dbContext.Users
-            .Include(u => u.Addresses)
-            .FirstOrDefaultAsync(u => u.KeycloakUserId == AnotherUserKeycloakId, TestContext.Current.CancellationToken);
+        User? loadedAnotherUser = await dbContext.User.Specification().ByExternalId(AnotherUserKeycloakId, TestContext.Current.CancellationToken);
 
         if (loadedAnotherUser is not null)
         {
             Address anotherUserAddress = Address.Create(Guid.NewGuid(), "Another Street", "2B", string.Empty, "Krakow", "31-001", isDefault: true);
             AnotherUserAddressId = anotherUserAddress.Id;
             loadedAnotherUser.AddAddress(anotherUserAddress);
-            dbContext.Addresses.Add(anotherUserAddress);
+
             await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
         }
 
-        User? loadedFullUser = await dbContext.Users
-            .Include(u => u.Addresses)
-            .FirstOrDefaultAsync(u => u.KeycloakUserId == FullAddressesUserKeycloakId, TestContext.Current.CancellationToken);
+        User? loadedFullUser = await dbContext.User.Specification().ByExternalId(FullAddressesUserKeycloakId, TestContext.Current.CancellationToken);
 
         if (loadedFullUser is not null)
         {
@@ -107,7 +98,6 @@ internal static class DataSeeder
                     isDefault: i == 0);
 
                 loadedFullUser.AddAddress(address);
-                dbContext.Addresses.Add(address);
             }
 
             await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

@@ -4,11 +4,7 @@
     <EmbeddedResource Remove="Reservations\Authorization\**" />
     <None Remove="Reservations\Authorization\**" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" />
-  </ItemGroup>
-  
+ 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
