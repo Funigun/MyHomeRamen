@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
@@ -48,6 +49,8 @@ public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory)
     public async Task GetAddresses_ShouldReturnEmptyList_WhenUserHasNoAddresses()
     {
         // Arrange
+        Role role = await apiFactory.UsersDbContext.Role.Specification().ByName("Customer", TestContext.Current.CancellationToken);
+
         User newUser = User.Create(
             keycloakUserId: "test-no-addresses-user",
             userName: "noaddressesuser",
@@ -55,7 +58,7 @@ public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory)
             lastName: "Addresses",
             email: "noaddresses@example.com",
             phoneNumber: "000000000",
-            role: "customer");
+            role: role);
 
         apiFactory.UsersDbContext.Users.Add(newUser);
         await apiFactory.UsersDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

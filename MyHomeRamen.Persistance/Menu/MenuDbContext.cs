@@ -97,7 +97,7 @@ public sealed partial class MenuDbContext(DbContextOptions<MenuDbContext> option
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    public async Task Seed(CancellationToken cancellationToken)
     {
         IEnumerable<string> roles = RoleConstants.AvailableRoles;
         IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;

@@ -1,4 +1,5 @@
 using MyHomeRamen.Common.Contracts.Users.Account.Requests;
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Services.Dto;
 
@@ -32,7 +33,7 @@ internal static class Mappings
 
     extension(RegisterRequest request)
     {
-        internal User ToUserDto(string keycloakUserId, string role)
+        internal User ToUserDto(string keycloakUserId, Role role)
         {
             return User.Create(
                 keycloakUserId,

@@ -39,7 +39,7 @@ public class User : AuditableEntity, IEntity<UserId>
     {
     }
 
-    public static User Create(string keycloakUserId, string userName, string firstName, string lastName, string email, string phoneNumber, string role)
+    public static User Create(string keycloakUserId, string userName, string firstName, string lastName, string email, string phoneNumber, Role role)
     {
         User user = new User
         {
@@ -49,9 +49,9 @@ public class User : AuditableEntity, IEntity<UserId>
             LastName = lastName,
             Email = email,
             PhoneNumber = phoneNumber,
-            UserName = userName,
-            Role = role
         };
+
+        user.AddRole(role);
 
         UserValidator.ValidateUser(user);
         return user;
@@ -75,6 +75,11 @@ public class User : AuditableEntity, IEntity<UserId>
     public void SetRestaurantId(Guid restaurantId)
     {
         RestaurantId = restaurantId;
+    }
+
+    public void AddRole(Role role)
+    {
+        _roles.Add(role);
     }
 
     public void AddAddress(Address address)

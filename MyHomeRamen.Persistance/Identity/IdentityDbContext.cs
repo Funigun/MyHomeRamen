@@ -7,9 +7,9 @@ using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
-using MyHomeRamen.Persistance.Common.GuidConvention;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Features.Identity.Features.Roles.Common;
+using MyHomeRamen.Persistance.Identity.Converters;
 
 namespace MyHomeRamen.Persistance.Identity;
 
@@ -46,6 +46,7 @@ public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext
             switch (entry.State)
             {
                 case EntityState.Added:
+                    entry.Entity.CreatedBy = _currentUser.Id;
                     entry.Entity.SetRestaurantId(_restaurantConfiguration.RestaurantId);
                     break;
             }
@@ -56,6 +57,7 @@ public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext
             switch (entry.State)
             {
                 case EntityState.Added:
+                    entry.Entity.CreatedBy = _currentUser.Id;
                     entry.Entity.SetRestaurantId(_restaurantConfiguration.RestaurantId);
                     break;
             }
@@ -71,6 +73,8 @@ public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext
         modelBuilder.Entity<User>(b =>
         {
             b.ToTable("Users");
+            b.HasKey(u => u.Id);
+            b.Property(u => u.Id).ValueGeneratedNever();
 
             b.HasQueryFilter(u => u.RestaurantId == _restaurantConfiguration.RestaurantId);
 
@@ -84,31 +88,24 @@ public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext
             b.HasMany<Address>()
              .WithMany()
              .UsingEntity("UserAddresses");
+
+            b.HasMany(u => u.Roles)
+             .WithMany()
+             .UsingEntity("UserRoles");
         });
 
-        modelBuilder.Entity<Role>().ToTable("Roles");
+        modelBuilder.Entity<Role>(b =>
+        {
+            b.ToTable("Roles");
+            b.HasKey(u => u.Id);
+            b.Property(u => u.Id).ValueGeneratedNever();
+        });
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-    {
-        base.ConfigureConventions(configurationBuilder);
-
-        configurationBuilder.Conventions.Add(_ => new GuidFinalizingConvention());
-    }
-
-    public async Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
-    {
-        return await Database.BeginTransactionAsync(cancellationToken);
-    }
-
-    public async Task CommitTransaction(CancellationToken cancellationToken)
-    {
-        await Database.CommitTransactionAsync(cancellationToken);
-    }
-
-    public async Task RollbackTransaction(CancellationToken cancellationToken)
-    {
-        await Database.RollbackTransactionAsync(cancellationToken);
+    { 
+        configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
+        configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
     }
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
@@ -133,9 +130,15 @@ public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext
         }
     }
 
-    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    public async Task Seed(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask;
+        if (!await Roles.AnyAsync(cancellationToken))
+        {
+            IEnumerable<Role> roles = RoleConstants.AvailableRoles.Select(roleName => Domain.Identity.Roles.Role.CreateForSeed(roleName, $"{roleName} role"));
+
+            await Roles.AddRangeAsync(roles, cancellationToken);
+            await SaveChangesAsync(cancellationToken);
+        }
     }
 
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)

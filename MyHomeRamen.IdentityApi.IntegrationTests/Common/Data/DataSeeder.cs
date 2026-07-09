@@ -1,3 +1,4 @@
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
 
@@ -21,6 +22,9 @@ internal static class DataSeeder
 
     internal static async Task SeedIdentityModule(IIdentityDbContext dbContext)
     {
+        Role role = Role.CreateForSeed("customer", "Customer role for testing purposes");
+
+
         User user = User.Create(
             keycloakUserId: SeededUserKeycloakId,
             userName: "testcustomer",
@@ -28,7 +32,7 @@ internal static class DataSeeder
             lastName: "Customer",
             email: "testcustomer@example.com",
             phoneNumber: "123456789",
-            role: "customer");
+            role: role);
 
         dbContext.User.Add(user);
 
@@ -39,7 +43,7 @@ internal static class DataSeeder
             lastName: "User",
             email: "anotheruser@example.com",
             phoneNumber: "111222333",
-            role: "customer");
+            role: role);
 
         dbContext.User.Add(anotherUser);
 
@@ -50,7 +54,7 @@ internal static class DataSeeder
             lastName: "Addresses",
             email: "fulladdresses@example.com",
             phoneNumber: "987654321",
-            role: "customer");
+            role: role);
 
         dbContext.User.Add(fullAddressUser);
 

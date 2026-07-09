@@ -5,9 +5,9 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Endpoints.Models;
-using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
 using MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
+using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
@@ -74,7 +74,7 @@ public partial class MenuDbContext : IProductQuery
         };
 
         query = query.Paged(pageParameters.PageNumber, pageParameters.PageSize)
-                     .Sorted(keySelector, orderParameters.SortOrder);
+                     .OrderedBy(keySelector, orderParameters.SortOrder);
 
         List<ProductForManageDto> products = await query.Select(projection).ToListAsync(cancellationToken);
 

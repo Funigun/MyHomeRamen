@@ -1,7 +1,6 @@
 ﻿using MyHomeRamen.Domain.Menu.Roles;
 using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
-using MyHomeRamen.IntegrationTests.Common.Configuration;
 
 namespace MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
 
@@ -10,7 +9,7 @@ internal static class DataSeeder
     internal static async Task SeedMenuModule(IMenuDbContext dbContext)
     {
         await dbContext.Migrate(TestContext.Current.CancellationToken);
-        await dbContext.Seed(ApiConfig.RestaurantId, TestContext.Current.CancellationToken);
+        await dbContext.Seed(TestContext.Current.CancellationToken);
 
         IEnumerable<Role> roles = await dbContext.Role.Specification().GetAllWithPermissions(TestContext.Current.CancellationToken);
 

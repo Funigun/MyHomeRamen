@@ -1,5 +1,4 @@
 using FluentValidation;
-using MyHomeRamen.Features.Identity.Extensions;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Identity.Abstractions;
 

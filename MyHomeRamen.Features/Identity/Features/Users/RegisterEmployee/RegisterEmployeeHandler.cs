@@ -13,6 +13,7 @@ public sealed class RegisterEmployeeHandler(IKeycloakAdminService keycloakAdminS
     {
         KeycloakUserDto keycloakUser = command.Request.ToUserDto();
 
+        Role role = await usersDbContext.Role.Specification().ByName(RoleConstants.Employee, cancellationToken);
         string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Employee, cancellationToken);
 
         User user = User.Create(
@@ -22,7 +23,7 @@ public sealed class RegisterEmployeeHandler(IKeycloakAdminService keycloakAdminS
             command.Request.LastName,
             command.Request.Email,
             command.Request.PhoneNumber,
-            RoleConstants.Employee);
+            role);
 
         usersDbContext.User.Add(user);
         await usersDbContext.SaveChangesAsync(cancellationToken);

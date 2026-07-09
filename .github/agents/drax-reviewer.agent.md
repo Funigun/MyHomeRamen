@@ -70,7 +70,7 @@ Read following files before starting the review:
 | Endpoint has `RequireAuthorization` or explicit `AllowAnonymous` | **blocking** |
 | Plan called for a test (unit/integration), code is missing it | **blocking** |
 | Calling other module via dedicated service or by consuming integration event | **blocking** |
-| Used DbContext / DbSet<T> extension method | **suggestion** |
+| Used IRepository / IQuery / ISpecification method | **blocking** |
 | Proper unit tests implemented (if in scope) | **suggestion** |
 | Proper integration tests implemented (if in scope) | **suggestion** |
 

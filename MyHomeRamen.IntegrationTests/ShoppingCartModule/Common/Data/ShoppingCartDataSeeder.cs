@@ -1,7 +1,6 @@
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.IntegrationTests.Common.Configuration;
 using MyHomeRamen.Persistance.ShoppingCart;
 
 namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
@@ -11,7 +10,7 @@ internal static class ShoppingCartDataSeeder
     internal static async Task SeedShoppingCartModule(ShoppingCartDbContext dbContext)
     {
         await dbContext.Migrate(TestContext.Current.CancellationToken);
-        await dbContext.Seed(ApiConfig.RestaurantId, TestContext.Current.CancellationToken);
+        await dbContext.Seed(TestContext.Current.CancellationToken);
 
         List<Product> products = DataGenerator.GenerateValidProducts(5).ToList();
         dbContext.Product.AddRange(products);

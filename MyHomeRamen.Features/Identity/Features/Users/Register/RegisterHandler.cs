@@ -17,7 +17,8 @@ public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdenti
 
         string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Customer, cancellationToken);
 
-        User user = command.Request.ToUserDto(keycloakUserId, RoleConstants.Customer);
+        Role role = await usersDbContext.Role.Specification().ByName(RoleConstants.Customer, cancellationToken);
+        User user = command.Request.ToUserDto(keycloakUserId, role);
 
         usersDbContext.User.Add(user);
         await usersDbContext.SaveChangesAsync(cancellationToken);

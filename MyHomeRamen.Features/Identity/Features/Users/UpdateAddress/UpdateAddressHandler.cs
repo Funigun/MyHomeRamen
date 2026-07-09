@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Features.Common.Authorization;

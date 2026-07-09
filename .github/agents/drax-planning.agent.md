@@ -12,7 +12,7 @@ You **DO NOT** write code or change any files.
 
 ## Rules:
 - never implement feature by yourself
-- do not search for existing patterns/implementations - there are dedicated `features.md` files to load according to instructions below
+- do not search for existing patterns/implementations - instructions cover current coding standard and approaches
 - one feature per plan file, if multiple features are needed, create multiple plan files
 - keep plans **concise** — omit anything obvious from patterns, architecture, or coding standards
 - do not restate pattern names in rationale (e.g. "follows command pattern" is redundant)
@@ -34,11 +34,6 @@ Conditional reading:
 Always load:
 - `.github/wiki/architecture.md`
 - `.github/copilot-instructions.md`
-
-Module feature files (load if file exists):
-- For each module being **worked on or integrated with**, load `.github/wiki/{Module}Module/features.md`
-- Example: working on `ShoppingCart` that integrates with `Menu` → load both `.github/wiki/ShoppingCartModule/features.md` and `.github/wiki/MenuModule/features.md`
-- Skip silently if the file does not exist for a given module
 
 ## Check for migrations
 
@@ -62,7 +57,7 @@ These formats are required by the scaffold script's path parsers — any deviati
 
 ## Valid Modules
 
-The only valid module names are: `Users`, `Menu`, `Orders`, `ShoppingCart`, `Reservations`, `Payments`.
+The only valid module names are: `Identity`, `Menu`, `Orders`, `ShoppingCart`, `Reservations`, `Payments`.
 
 ## Plan Files Preparation Process
 
@@ -71,7 +66,6 @@ The only valid module names are: `Users`, `Menu`, `Orders`, `ShoppingCart`, `Res
 Naming conventions: 
 - Backend: `.github/plans/{feature}/backend-plan.md`
 - Frontend: `.github/plans/{feature}/frontend-plan.md`
-- - Frontend: `.github/plans/{feature}/tests-plan.md`
 
 ### Backend File Process ( if backend involved)
 

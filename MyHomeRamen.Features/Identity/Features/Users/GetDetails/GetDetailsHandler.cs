@@ -1,6 +1,5 @@
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
-using MyHomeRamen.Features.Identity.Extensions;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
