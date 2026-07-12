@@ -12,7 +12,8 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
         // Arrange
         IEnumerable<string> menuPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Menu");
         IEnumerable<string> otherDomains = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain")
-            .Where(name => !name.StartsWith("MyHomeRamen.Domain.Menu", StringComparison.Ordinal));
+            .Where(name => !name.StartsWith("MyHomeRamen.Domain.Menu", StringComparison.Ordinal) &&
+                             !name.StartsWith("MyHomeRamen.Domain.Abstractions", StringComparison.Ordinal));
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuPersistence, otherDomains, "Menu persistence type '{0}' should not depend on domain type '{1}'");
 
@@ -89,13 +90,13 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
     }
 
     [Fact]
-    public void MenuPersistance_ShouldNot_DependOn_UsersPersistance()
+    public void MenuPersistance_ShouldNot_DependOn_IdentityPersistance()
     {
         // Arrange
         IEnumerable<string> menuPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Menu");
-        IEnumerable<string> usersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Users");
+        IEnumerable<string> usersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Identity");
 
-        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuPersistence, usersPersistence, "Menu persistence type '{0}' should not depend on Users persistence type '{1}'");
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuPersistence, usersPersistence, "Menu persistence type '{0}' should not depend on Identity persistence type '{1}'");
 
         // Act & Assert
         foreach (IArchRule rule in rules)
@@ -111,7 +112,7 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
         IEnumerable<string> commonPersistence = ArchitectureBuilder.PersistanceAssembly
             .TypesInNamespace("MyHomeRamen.Persistance.Common");
 
-        IEnumerable<string> apiTypes = ArchitectureBuilder.ApiAssembly
+        IEnumerable<string> apiTypes = ArchitectureBuilder.ApiFeaturesAssembly
             .TypesInNamespace("MyHomeRamen.Api");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(

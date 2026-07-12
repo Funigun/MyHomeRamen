@@ -19,7 +19,7 @@ public sealed class EndpointConventionsTests(ArchitectureBuilder architectureBui
                     .That()
                     .ImplementInterface(typeof(IEndpoint))
                     .And()
-                    .ResideInAssembly(ArchitectureBuilder.ApiAssembly)
+                    .ResideInAssembly(ArchitectureBuilder.ApiFeaturesAssembly)
                     .Should()
                     .HaveNameEndingWith("Endpoint");
 
@@ -30,7 +30,7 @@ public sealed class EndpointConventionsTests(ArchitectureBuilder architectureBui
     public void EndpointImplementations_ShouldNot_UseCommandsDirectlyInParameters()
     {
         // Arrange
-        IEnumerable<Type> endpointTypes = ArchitectureBuilder.ApiAssembly
+        IEnumerable<Type> endpointTypes = ArchitectureBuilder.ApiFeaturesAssembly
                                                              .GetTypes()
                                                              .Where(t => t.Implements(typeof(IEndpoint)) && t.IsPublic && !t.IsInterface && !t.IsAbstract);
 

@@ -12,9 +12,7 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
 
     public System.Reflection.Assembly ApiContractsAssembly { get; private set; } = typeof(MyHomeRamen.Common.Contracts.ICommonContractsAssemblyMarker).Assembly;
 
-    public System.Reflection.Assembly ApiAssembly { get; private set; } = typeof(Api.IApiAssemblyMarker).Assembly;
-
-    public System.Reflection.Assembly ApiFeaturesAssembly { get; private set; } = typeof(Features.DependencyInjection).Assembly;
+    public System.Reflection.Assembly ApiFeaturesAssembly { get; private set; } = typeof(Features.IFeaturesAssemblyMarker).Assembly;
 
     public System.Reflection.Assembly AppHostAssembly { get; private set; } = typeof(AppHost.IAppHostAssemblyMarker).Assembly;
 
@@ -58,7 +56,6 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
     {
         AllAssemblies =
         [
-            ApiAssembly,
             ApiContractsAssembly,
             ApiFeaturesAssembly,
             AppHostAssembly,

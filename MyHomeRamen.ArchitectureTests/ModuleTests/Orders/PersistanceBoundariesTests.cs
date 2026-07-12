@@ -12,7 +12,8 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
         // Arrange
         IEnumerable<string> ordersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Orders");
         IEnumerable<string> otherDomains = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain")
-            .Where(name => !name.StartsWith("MyHomeRamen.Domain.Orders", StringComparison.Ordinal));
+            .Where(name => !name.StartsWith("MyHomeRamen.Domain.Orders", StringComparison.Ordinal) &&
+                             !name.StartsWith("MyHomeRamen.Domain.Abstractions", StringComparison.Ordinal));
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(ordersPersistence, otherDomains, "Orders persistence type '{0}' should not depend on domain type '{1}'");
 
@@ -92,9 +93,9 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
     {
         // Arrange
         IEnumerable<string> ordersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Orders");
-        IEnumerable<string> usersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Users");
+        IEnumerable<string> usersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Identity");
 
-        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(ordersPersistence, usersPersistence, "Orders persistence type '{0}' should not depend on Users persistence type '{1}'");
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(ordersPersistence, usersPersistence, "Orders persistence type '{0}' should not depend on Identity persistence type '{1}'");
 
         // Act & Assert
         foreach (IArchRule rule in rules)

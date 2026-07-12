@@ -8,7 +8,7 @@ public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuild
 {
     protected ArchitectureBuilder ArchitectureBuilder { get; } = architectureBuilder;
 
-    protected IObjectProvider<IType> ApiLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiAssembly).As("API Layer");
+    protected IObjectProvider<IType> ApiLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiFeaturesAssembly).As("API Layer");
 
     protected IObjectProvider<IType> ApiContractsLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiContractsAssembly).As("API Contracts Layer");
 

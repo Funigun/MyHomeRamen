@@ -10,8 +10,8 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     public void UsersApi_ShouldNot_DependOn_MenuApi()
     {
         // Arrange
-        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
-        IEnumerable<string> menuApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Menu");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Identity");
+        IEnumerable<string> menuApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Menu");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(usersApi, menuApi, "Users API type '{0}' should not depend on Menu API type '{1}'");
 
@@ -26,8 +26,8 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     public void UsersApi_ShouldNot_DependOn_OrdersApi()
     {
         // Arrange
-        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
-        IEnumerable<string> ordersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Orders");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Identity");
+        IEnumerable<string> ordersApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Orders");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(usersApi, ordersApi, "Users API type '{0}' should not depend on Orders API type '{1}'");
 
@@ -42,8 +42,8 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     public void UsersApi_ShouldNot_DependOn_PaymentsApi()
     {
         // Arrange
-        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
-        IEnumerable<string> paymentsApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Payments");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Identity");
+        IEnumerable<string> paymentsApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Payments");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(usersApi, paymentsApi, "Users API type '{0}' should not depend on Payments API type '{1}'");
 
@@ -58,8 +58,8 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     public void UsersApi_ShouldNot_DependOn_ReservationsApi()
     {
         // Arrange
-        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
-        IEnumerable<string> reservationsApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Reservations");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Identity");
+        IEnumerable<string> reservationsApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Reservations");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(usersApi, reservationsApi, "Users API type '{0}' should not depend on Reservations API type '{1}'");
 
@@ -74,8 +74,8 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     public void UsersApi_ShouldNot_DependOn_ShoppingCartApi()
     {
         // Arrange
-        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
-        IEnumerable<string> shoppingCartApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.ShoppingCart");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Identity");
+        IEnumerable<string> shoppingCartApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.ShoppingCart");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(usersApi, shoppingCartApi, "Users API type '{0}' should not depend on ShoppingCart API type '{1}'");
 

@@ -75,9 +75,9 @@ public sealed class DomainBoundariesTests(ArchitectureBuilder architectureBuilde
     {
         // Arrange
         IEnumerable<string> ordersDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Orders");
-        IEnumerable<string> usersDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
+        IEnumerable<string> usersDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Identity");
 
-        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(ordersDomain, usersDomain, "Orders type '{0}' should not depend on Users type '{1}'");
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(ordersDomain, usersDomain, "Orders type '{0}' should not depend on Identity type '{1}'");
 
         // Act & Assert
         foreach (IArchRule rule in rules)

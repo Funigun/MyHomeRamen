@@ -1,4 +1,4 @@
-﻿using ArchUnitNET.Fluent;
+﻿    using ArchUnitNET.Fluent;
 using ArchUnitNET.xUnitV3;
 using MyHomeRamen.ArchitectureTests.Common;
 
@@ -75,9 +75,9 @@ public sealed class DomainBoundariesTests(ArchitectureBuilder architectureBuilde
     {
         // Arrange
         IEnumerable<string> menuDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Menu");
-        IEnumerable<string> usersDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
+        IEnumerable<string> identityDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Identity");
 
-        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuDomain, usersDomain, "Menu type '{0}' should not depend on Users type '{1}'");
+        IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuDomain, identityDomain, "Menu type '{0}' should not depend on Identityq     type '{1}'");
 
         // Act & Assert
         foreach (IArchRule rule in rules)

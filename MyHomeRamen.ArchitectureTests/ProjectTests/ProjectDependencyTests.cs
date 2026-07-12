@@ -15,7 +15,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.ApiAssembly,
+            architectureBuilder.ApiFeaturesAssembly,
             architectureBuilder.BlazorServerAssembly,
             architectureBuilder.ServiceDefaultsAssembly
         ];
@@ -59,7 +59,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
             architectureBuilder.ApiContractsAssembly
         ];
 
-        IEnumerable<IArchRule> apiRules = PrepareProjectRules(architectureBuilder.ApiAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> apiRules = PrepareProjectRules(architectureBuilder.ApiFeaturesAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in apiRules)
         {
@@ -90,7 +90,8 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
         IEnumerable<Assembly> allowedAssemblies =
         [
             architectureBuilder.DomainAssembly,
-            architectureBuilder.ApiFeaturesAssembly
+            architectureBuilder.ApiFeaturesAssembly,
+            architectureBuilder.ApiContractsAssembly
         ];
 
         IEnumerable<IArchRule> persistanceRules = PrepareProjectRules(architectureBuilder.PersistanceAssembly, allowedAssemblies);
@@ -182,7 +183,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     public void CommonProjects_ShouldNotHave_AnyProjectDependencies()
     {
         // Arrange
-        Assembly[] commonAssemblies = [architectureBuilder.WorkerCommonAssembly, architectureBuilder.ServiceDefaultsAssembly, architectureBuilder.ApiFeaturesAssembly];
+        Assembly[] commonAssemblies = [architectureBuilder.WorkerCommonAssembly, architectureBuilder.ServiceDefaultsAssembly];
 
         IEnumerable<Assembly> otherProjectAssemblies = architectureBuilder.AllAssemblies
             .Where(a => !commonAssemblies.Any(c => c.FullName == a.FullName));
@@ -211,11 +212,11 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
         // Arrange
         // Forbidden = all Api.Common types that are NOT in the allowed sub-namespaces (Domain, Exceptions)
         IObjectProvider<IType> forbiddenApiCommonTypes = Types().That()
-            .ResideInNamespace("MyHomeRamen.Api.Common")
+            .ResideInNamespace("MyHomeRamen.Features.Common")
             .And()
-            .DoNotResideInNamespace("MyHomeRamen.Api.Common.Domain")
+            .DoNotResideInNamespace("MyHomeRamen.Features.Common.Domain")
             .And()
-            .DoNotResideInNamespace("MyHomeRamen.Api.Common.Exceptions")
+            .DoNotResideInNamespace("MyHomeRamen.Features.Common.Exceptions")
             .As("Forbidden Api.Common types");
 
         // Act
