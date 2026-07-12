@@ -1,18 +1,28 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Reservations.Bookings;
-using MyHomeRamen.Domain.Reservations.Database;
+using MyHomeRamen.Domain.Reservations.Permissions;
+using MyHomeRamen.Domain.Reservations.Roles;
 using MyHomeRamen.Domain.Reservations.Tables;
 using MyHomeRamen.Domain.Reservations.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Reservations.Features.Abstractions;
+using MyHomeRamen.Features.Reservations.Features.Bookings.Common;
+using MyHomeRamen.Features.Reservations.Features.Permissions.Common;
+using MyHomeRamen.Features.Reservations.Features.Roles.Common;
+using MyHomeRamen.Features.Reservations.Features.Tables.Common;
+using MyHomeRamen.Features.Reservations.Features.Users.Common;
 using MyHomeRamen.Persistance.Reservations.Converters;
 
 namespace MyHomeRamen.Persistance.Reservations;
 
-public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> options) : DbContext(options), IReservationsDbContext
+public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContext> options) : DbContext(options), IReservationsDbContext
 {
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentUser _currentUser = default!;
 
     public ReservationsDbContext(DbContextOptions<ReservationsDbContext> options, ICurrentUser currentUser) : this(options)
     {
@@ -29,7 +39,17 @@ public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> optio
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public IBookingRepository Booking => this;
+
+    public ITableRepository Table => this;
+
+    public IUserRepository User => this;
+
+    public IRoleRepository Role => this;
+
+    public IPermissionRepository Permission => this;
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);
@@ -57,24 +77,9 @@ public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> optio
         }
     }
 
-    public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
-    {
-        return Database.BeginTransactionAsync(cancellationToken);
-    }
-
-    public Task CommitTransaction(CancellationToken cancellationToken)
-    {
-        return Database.CommitTransactionAsync(cancellationToken);
-    }
-
-    public Task RollbackTransaction(CancellationToken cancellationToken)
-    {
-        return Database.RollbackTransactionAsync(cancellationToken);
-    }
-
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
     {
-        IRelationalDatabaseCreator? dbCreator = Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
+        IRelationalDatabaseCreator? dbCreator = AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
 
         bool dbExists = dbCreator != null && await dbCreator.ExistsAsync(cancellationToken);
 
@@ -94,7 +99,7 @@ public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> optio
         }
     }
 
-    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    public async Task Seed(CancellationToken cancellationToken)
     {
         IEnumerable<string> roles = RoleConstants.AvailableRoles;
         IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
@@ -102,7 +107,7 @@ public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> optio
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.Reservations.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -114,7 +119,7 @@ public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> optio
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed
+                                            .Select(role => Domain.Reservations.Roles.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,
@@ -148,5 +153,17 @@ public class ReservationsDbContext(DbContextOptions<ReservationsDbContext> optio
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
+    }
+
+    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
+    {
+        UpdateSettersBuilder<TEntity> settersBuilder = new();
+
+        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
+        {
+            settersBuilder.SetProperty(kvp.Key, kvp.Value);
+        }
+
+        return settersBuilder;
     }
 }

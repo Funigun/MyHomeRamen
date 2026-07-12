@@ -22,8 +22,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory)
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetProductsForManageResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
+        GetProductsForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);

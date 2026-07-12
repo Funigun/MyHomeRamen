@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -129,10 +128,8 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory)
         CreateCategoryResponse firstResult = await firstResponse.ResponseToDto<CreateCategoryResponse>();
         CreateCategoryResponse secondResult = await secondResponse.ResponseToDto<CreateCategoryResponse>();
 
-        Category? firstCategory = await apiFactory.MenuDbContext.Categories.AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == (CategoryId)firstResult.Id, TestContext.Current.CancellationToken);
-        Category? secondCategory = await apiFactory.MenuDbContext.Categories.AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == (CategoryId)secondResult.Id, TestContext.Current.CancellationToken);
+        Category? firstCategory = await apiFactory.MenuDbContext.Category.Query().ById((CategoryId)firstResult.Id, TestContext.Current.CancellationToken);
+        Category? secondCategory = await apiFactory.MenuDbContext.Category.Query().ById((CategoryId)secondResult.Id, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.NotNull(firstCategory);

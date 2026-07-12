@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
 using Microsoft.Extensions.Options;
-using MyHomeRamen.Features.Users.Services;
-using MyHomeRamen.Features.Users.Services.Dto;
+using MyHomeRamen.Features.Identity.Services;
+using MyHomeRamen.Features.Identity.Services.Dto;
 using MyHomeRamen.Infrastructure.Keycloak.Constants;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
@@ -10,7 +10,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
 {
     private readonly KeycloakAdminOptions _adminOptions = adminOptions.Value;
 
-    public async Task<string> CreateUserAsync(KeycloakUserDto user, string roleName, CancellationToken cancellationToken = default)
+    public async Task<string> CreateUserAsync(KeycloakUserDto user, string roleName, CancellationToken cancellationToken)
     {
         IEnumerable<string> rolesToAdd = KeycloakRoleConstants.RoleMappings[roleName];
 
@@ -28,7 +28,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
         return userId;
     }
 
-    public async Task AssignRolesToUser(string userId, IEnumerable<KeycloakRoleDto> roles, CancellationToken cancellationToken = default)
+    public async Task AssignRolesToUser(string userId, IEnumerable<KeycloakRoleDto> roles, CancellationToken cancellationToken)
     {
         string clientId = await GetClientId(cancellationToken);
 
@@ -37,7 +37,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
         using HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, roles, cancellationToken);
     }
 
-    public async Task<IEnumerable<KeycloakRoleDto>> GetAvailableRoles(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<KeycloakRoleDto>> GetAvailableRoles(CancellationToken cancellationToken)
     {
         string clientId = await GetClientId(cancellationToken);
 
@@ -50,7 +50,7 @@ internal sealed class KeycloakAdminService(HttpClient httpClient, IOptions<Keycl
         return roles.Where(role => KeycloakRoleConstants.AllRoles.Contains(role.Name));
     }
 
-    public async Task<IEnumerable<KeycloakUserDto>> GetEmployees(CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<KeycloakUserDto>> GetEmployees(CancellationToken cancellationToken)
     {
         const string employeeRoleName = "employee";
 

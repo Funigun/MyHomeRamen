@@ -1,11 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
@@ -16,9 +14,7 @@ public sealed class GetCurrentBasketDetailsHandler(IShoppingCartDbContext dbCont
     {
         UserId userId = new(currentUser.UserId);
 
-        Basket? basket = await dbContext.ShoppingCarts
-            .ForUser(userId)
-            .FirstOrDefaultAsync(cancellationToken);
+        Basket? basket = await dbContext.Basket.Query().GetForUserAsync(userId, cancellationToken);
 
         return basket?.ToResponse();
     }

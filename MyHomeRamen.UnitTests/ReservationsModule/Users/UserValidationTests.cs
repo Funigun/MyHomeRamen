@@ -1,6 +1,8 @@
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.User;
 using MyHomeRamen.Domain.Reservations.Bookings;
+using MyHomeRamen.Domain.Reservations.Permissions;
+using MyHomeRamen.Domain.Reservations.Roles;
 using MyHomeRamen.Domain.Reservations.Users;
 
 namespace MyHomeRamen.UnitTests.ReservationsModule.Users;

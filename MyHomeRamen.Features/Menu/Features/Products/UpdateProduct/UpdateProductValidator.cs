@@ -1,11 +1,8 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Menu.Products.Validators;
 using MyHomeRamen.Domain.Menu.Categories;
-using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
-using MyHomeRamen.Features.Common.Repository;
-using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
 
@@ -25,21 +22,21 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
         RuleFor(x => x)
             .MustAsync(async (command, ct) =>
             {
-                return await dbContext.Products.Exists(p => p.Id == command.Id, ct);
+                return await dbContext.Product.Exists(p => p.Id == command.Id, ct);
             })
             .WithMessage("Product with the specified ID does not exist.");
 
         RuleFor(x => x)
             .MustAsync(async (command, ct) =>
             {
-                return await dbContext.Products.IsProductNameUniqueExcludingAsync(command.UpdateProductRequest.Name, command.Id, ct);
+                return await dbContext.Product.Query().IsProductNameUniqueExcluding(command.UpdateProductRequest.Name, command.Id, ct);
             })
             .WithMessage("Product with this name already exists.");
 
         RuleFor(x => x.UpdateProductRequest.CategoryId)
             .NotEmpty()
             .MustAsync(async (id, cancellation) =>
-                await dbContext.Categories.AnyAsync(c => c.Id == new CategoryId(id), cancellation))
+                await dbContext.Category.Exists(c => c.Id == new CategoryId(id), cancellation))
             .WithMessage("Category does not exist.");
 
         RuleFor(x => x.UpdateProductRequest.IngredientIds)
@@ -54,7 +51,7 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
                 }
 
                 IEnumerable<IngredientId> customIngredientIds = ids.Distinct().Select(id => (IngredientId)id);
-                IEnumerable<Ingredient> found = await dbContext.Ingredients.GetByIds(customIngredientIds, ct);
+                IEnumerable<Ingredient> found = await dbContext.Ingredient.Specification().ByIds(customIngredientIds, ct);
                 return found.Count() == ids.Distinct().Count();
             })
             .WithMessage("One or more custom ingredient IDs do not exist.");

@@ -14,6 +14,6 @@ public class MenuDbContextFactory : Microsoft.EntityFrameworkCore.Design.IDesign
         DbContextOptionsBuilder<MenuDbContext>? optionsBuilder = new();
         optionsBuilder.UseSqlServer(configuration["MenuServiceDb"]);
 
-        return new MenuDbContext(optionsBuilder.Options, null!);
+        return new MenuDbContext(optionsBuilder.Options);
     }
 }

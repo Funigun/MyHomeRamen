@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Domain.ShoppingCart.Permissions;
 
 namespace MyHomeRamen.Persistance.ShoppingCart.Converters;
 

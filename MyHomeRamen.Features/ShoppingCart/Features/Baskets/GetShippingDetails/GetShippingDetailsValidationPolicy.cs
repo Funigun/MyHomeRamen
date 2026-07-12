@@ -1,7 +1,5 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Domain.ShoppingCart.Database;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetShippingDetails;
 
@@ -12,9 +10,8 @@ public sealed class GetShippingDetailsValidationPolicy : AbstractValidator<GetSh
         RuleFor(x => x)
             .MustAsync(async (query, cancellationToken) =>
             {
-                return await dbContext.ShoppingCarts
-                    .GetByIdForUser(query.BasketId, query.UserId)
-                    .AnyAsync(cancellationToken);
+                return await dbContext.Basket.Query()
+                    .GetByIdForUserAsync(query.BasketId, query.UserId, cancellationToken) != null;
             })
             .WithMessage("Basket does not exist or you do not have access to it.");
     }

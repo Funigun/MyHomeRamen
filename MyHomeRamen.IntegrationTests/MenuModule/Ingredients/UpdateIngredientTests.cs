@@ -1,7 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -28,7 +26,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
             1.50m,
             [ingredientCategory]);
 
-        apiFactory.MenuDbContext.Ingredients.Add(ingredient);
+        apiFactory.MenuDbContext.Ingredient.Add(ingredient);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         UpdateIngredientRequest request = new(
@@ -53,9 +51,8 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
         Assert.Equal(ingredient.Id.Value, result.Id);
 
         // Assert — updated fields persisted
-        Ingredient? updated = await apiFactory.MenuDbContext.Ingredients
-            .AsNoTracking()
-            .FirstOrDefaultAsync(i => i.Id == ingredient.Id, TestContext.Current.CancellationToken);
+        Ingredient? updated = await apiFactory.MenuDbContext.Ingredient.Specification()
+            .ById(ingredient.Id, TestContext.Current.CancellationToken);
 
         Assert.NotNull(updated);
         Assert.Equal(request.Name, updated.Name);
@@ -159,7 +156,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
             2.00m,
             [ingredientCategory]);
 
-        apiFactory.MenuDbContext.Ingredients.AddRange(ingredientA, ingredientB);
+        apiFactory.MenuDbContext.Ingredient.AddRange([ingredientA, ingredientB]);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         UpdateIngredientRequest request = ingredientA.ToUpdateIngredientRequest() with { Name = ingredientB.Name };
@@ -190,7 +187,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory)
             2.50m,
             [ingredientCategory]);
 
-        apiFactory.MenuDbContext.Ingredients.Add(ingredient);
+        apiFactory.MenuDbContext.Ingredient.Add(ingredient);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         UpdateIngredientRequest request = ingredient.ToUpdateIngredientRequest();

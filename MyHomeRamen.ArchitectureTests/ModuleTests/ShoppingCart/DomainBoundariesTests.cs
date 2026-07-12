@@ -75,7 +75,7 @@ public sealed class DomainBoundariesTests(ArchitectureBuilder architectureBuilde
     {
         // Arrange
         IEnumerable<string> shoppingCartDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.ShoppingCart");
-        IEnumerable<string> usersDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Users");
+        IEnumerable<string> usersDomain = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain.Identity");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(shoppingCartDomain, usersDomain, "ShoppingCart type '{0}' should not depend on Users type '{1}'");
 

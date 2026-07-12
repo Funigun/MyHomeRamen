@@ -1,7 +1,7 @@
 using MyHomeRamen.Domain.Common.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Domain.ShoppingCart.Roles;
 
 namespace MyHomeRamen.Persistance.ShoppingCart.Configurations;
 

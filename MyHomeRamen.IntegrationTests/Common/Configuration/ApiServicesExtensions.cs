@@ -7,11 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 using MyHomeRamen.Infrastructure.Cache;
-using MyHomeRamen.Persistance.Menu;
-using MyHomeRamen.Persistance.Orders;
-using MyHomeRamen.Persistance.Payments;
-using MyHomeRamen.Persistance.Reservations;
-using MyHomeRamen.Persistance.ShoppingCart;
 using StackExchange.Redis;
 using System.Security.Claims;
 

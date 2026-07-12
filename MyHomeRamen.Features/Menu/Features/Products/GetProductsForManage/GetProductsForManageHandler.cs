@@ -1,11 +1,8 @@
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Menu.Products.DTOs;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Domain.Menu.Products;
-using MyHomeRamen.Features.Menu.Features.Products.Common;
-using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Common.Endpoints.Models;
+using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
 
@@ -16,27 +13,23 @@ public sealed class GetProductsForManageHandler(IMenuDbContext dbContext)
         GetProductsForManageQuery query,
         CancellationToken cancellationToken)
     {
-        IQueryable<Product> productsQuery = dbContext.Products.ForManage(
+        ProductForManageFilter filter = new
+        (
             query.Request.Name,
             query.Request.CategoryIds,
             query.Request.IngredientIds,
             query.Request.PriceFrom,
-            query.Request.PriceTo);
+            query.Request.PriceTo
+        );
 
-        int totalCount = await productsQuery.CountAsync(cancellationToken);
+        OrderParameters orderParameters = new(query.Request.OrderBy ?? "Name");
 
-        productsQuery = string.Equals(query.Request.OrderBy, "Price", StringComparison.OrdinalIgnoreCase)
-            ? productsQuery.OrderBy(p => p.Price)
-            : productsQuery.OrderBy(p => p.Name);
-
-        productsQuery = productsQuery.Paged(query.PageParameters.PageNumber, query.PageParameters.PageSize);
-
-        List<ProductForManageDto> products = await productsQuery.Select(p => p.ToResponse()).ToListAsync(cancellationToken);
+        PagedResult<ProductForManageDto> pagedResult = await dbContext.Product.Query().ForManage(filter, query.PageParameters, orderParameters, p => p.ToResponse(), cancellationToken);
 
         return new GetProductsForManageResponse(
             Page: query.PageParameters.PageNumber,
             PageSize: query.PageParameters.PageSize,
-            TotalCount: totalCount,
-            Products: products);
+            TotalCount: pagedResult.TotalItems,
+            Products: pagedResult.Items);
     }
 }

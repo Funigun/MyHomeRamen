@@ -1,17 +1,17 @@
 ﻿using System.Runtime.CompilerServices;
-using MyHomeRamen.Domain.Abstractions;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Domain.Orders.Database;
-using MyHomeRamen.Domain.Payments.Database;
-using MyHomeRamen.Domain.Reservations.Database;
-using MyHomeRamen.Domain.ShoppingCart.Database;
-using MyHomeRamen.Domain.Users.Database;
+using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.Payments.Features.Abstractions;
+using MyHomeRamen.Features.Reservations.Features.Abstractions;
 using MyHomeRamen.Worker.DatabaseInitializer.Config;
 using Quartz;
+using MyHomeRamen.Features.Orders.Features.Abstractions;
+using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.Worker.DatabaseInitializer;
 
-internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
+internal class DbInitializerJob(IIdentityDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
                                 IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext,
                                 IPaymentsDbContext paymentsDbContext, IConfiguration configuration,
                                 ILogger<DbInitializerJob> logger)
@@ -22,21 +22,22 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
     public async Task Execute(IJobExecutionContext context)
     {
         CancellationToken cancellationToken = context.CancellationToken;
-        Dictionary<IBaseDbContext, DatabaseUserConfig> dbContexts = new()
+
+        Dictionary<IUnitOfWork, DatabaseUserConfig> unitOfWorkContexts = new()
         {
             { userContext, DatabaseUserConfig.Create("Identity", configuration) },
             { menuDbContext, DatabaseUserConfig.Create("Menu", configuration) },
             { shoppingCartDbContext, DatabaseUserConfig.Create("ShoppingCart", configuration) },
-            { ordersDbContext, DatabaseUserConfig.Create("Order", configuration) },
+            { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) },
             { reservationsDbContext, DatabaseUserConfig.Create("Reservation", configuration) },
-            { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) }
+            { ordersDbContext, DatabaseUserConfig.Create("Order", configuration) }
         };
 
-        foreach (IBaseDbContext dbContext in dbContexts.Keys)
+        foreach (IUnitOfWork dbContext in unitOfWorkContexts.Keys)
         {
             bool dbExists = await dbContext.EnsureCreated(cancellationToken);
 
-            DatabaseUserConfig userConfig = dbContexts[dbContext];
+            DatabaseUserConfig userConfig = unitOfWorkContexts[dbContext];
 
             await dbContext.ExecuteSql(
                                        CreateRawSql(
@@ -47,7 +48,7 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
                                        cancellationToken);
 
             await dbContext.Migrate(cancellationToken);
-            await dbContext.Seed(Guid.Empty, cancellationToken);
+            await dbContext.Seed(cancellationToken);
 
             if (!dbExists)
             {
@@ -56,8 +57,6 @@ internal class DbInitializerJob(IUsersDbContext userContext, IMenuDbContext menu
 
                 await dbContext.ExecuteSql(CreateRawSql($"CREATE ROLE {userConfig.Role};"), cancellationToken);
                 await dbContext.ExecuteSql(CreateRawSql($"ALTER ROLE {userConfig.Role} ADD MEMBER {userConfig.User};"), cancellationToken);
-
-                //await dbContext.ExecuteSql($"REVOKE SELECT, INSERT, UPDATE, DELETE, EXECUTE ON SCHEMA::{userConfig.Schema} FROM public", CancellationToken.None);
 
                 await dbContext.ExecuteSql(CreateRawSql($"GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::[{userConfig.Schema}] TO {userConfig.Role};"), cancellationToken);
 

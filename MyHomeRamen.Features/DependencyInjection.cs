@@ -53,14 +53,23 @@ public static class DependencyInjection
         return services;
     }
 
+    private static bool IsConcreteHandlerImplementation(Type type, Type handlerOpenType)
+    {
+        return type.IsClass
+            && !type.IsAbstract
+            && !type.IsInterface
+            && !type.IsGenericTypeDefinition
+            && type.GetInterfaces().Any(i =>
+                i.IsGenericType && i.GetGenericTypeDefinition() == handlerOpenType);
+    }
+
     public static IServiceCollection AddCommandHandlers(this IServiceCollection services, Assembly assembly)
     {
         Type noResponseHandlerOpenType = typeof(ICommandHandler<>);
         Type withResponseHandlerOpenType = typeof(ICommandHandler<,>);
 
         List<Type> noResponseHandlers = assembly.GetExportedTypes()
-                                                .Where(t => t.GetInterfaces()
-                                                             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == noResponseHandlerOpenType))
+                                                .Where(t => IsConcreteHandlerImplementation(t, noResponseHandlerOpenType))
                                                 .ToList();
 
         foreach (Type type in noResponseHandlers)
@@ -71,8 +80,7 @@ public static class DependencyInjection
         }
 
         List<Type> withResponseHandlers = assembly.GetExportedTypes()
-                                                   .Where(t => t.GetInterfaces()
-                                                                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == withResponseHandlerOpenType))
+                                                   .Where(t => IsConcreteHandlerImplementation(t, withResponseHandlerOpenType))
                                                    .ToList();
 
         foreach (Type type in withResponseHandlers)
@@ -99,8 +107,7 @@ public static class DependencyInjection
                                                     .ToHashSet();
 
         List<Type> queryHandlers = assembly.GetExportedTypes()
-                                           .Where(t => t.GetInterfaces()
-                                                        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == queryHandlerOpenType))
+                                           .Where(t => IsConcreteHandlerImplementation(t, queryHandlerOpenType))
                                            .ToList();
 
         foreach (Type type in queryHandlers)

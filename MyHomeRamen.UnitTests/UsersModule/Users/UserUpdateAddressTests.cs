@@ -1,6 +1,7 @@
 using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Address;
-using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Domain.Identity.Roles;
+using MyHomeRamen.Domain.Identity.Users;
 
 namespace MyHomeRamen.UnitTests.UsersModule.Users;
 
@@ -98,7 +99,7 @@ public sealed class UserUpdateAddressTests
             lastName: "User",
             email: "test@example.com",
             phoneNumber: "123456789",
-            role: "customer");
+            role: Role.CreateForTest("customer"));
     }
 
     private static Address CreateAddress(bool isDefault = false)

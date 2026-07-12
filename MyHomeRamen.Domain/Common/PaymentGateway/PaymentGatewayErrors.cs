@@ -1,5 +1,3 @@
-using MyHomeRamen.Domain.Common;
-
 namespace MyHomeRamen.Domain.Common.PaymentGateway;
 
 public static class PaymentGatewayErrors

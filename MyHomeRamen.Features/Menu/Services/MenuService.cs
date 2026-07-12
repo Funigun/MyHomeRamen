@@ -1,9 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Menu;
-using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
-using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Services;
 
@@ -15,15 +13,13 @@ public class MenuService(IMenuDbContext dbContext) : IMenuService
         List<Guid> selectedCustomIngredientIds,
         CancellationToken cancellationToken)
     {
-        bool exists = await dbContext.Products.AnyAsync(p => p.Id == (ProductId)productId, cancellationToken);
+        bool exists = await dbContext.Product.Exists(p => p.Id == (ProductId)productId, cancellationToken);
         if (!exists)
         {
             return false;
         }
 
-        Product? product = await dbContext.Products
-            .WithAllIngredients()
-            .FirstOrDefaultAsync(p => p.Id == (ProductId)productId, cancellationToken);
+        Product? product = await dbContext.Product.Specification().ById((ProductId)productId, cancellationToken);
 
         if (product is null)
         {
@@ -42,9 +38,7 @@ public class MenuService(IMenuDbContext dbContext) : IMenuService
         List<Guid> selectedCustomIngredientIds,
         CancellationToken cancellationToken)
     {
-        Product? product = await dbContext.Products
-            .WithAllIngredients()
-            .FirstOrDefaultAsync(p => p.Id == (ProductId)productId, cancellationToken);
+        Product? product = await dbContext.Product.Specification().ById(productId, cancellationToken);
 
         if (product is null)
         {

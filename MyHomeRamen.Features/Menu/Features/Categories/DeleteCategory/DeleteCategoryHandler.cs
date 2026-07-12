@@ -1,8 +1,6 @@
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.Menu.Categories;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Features.Menu.Features.Categories.Common;
-using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.DeleteCategory;
 
@@ -10,21 +8,17 @@ public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : ICommandHa
 {
     public async Task Handle(DeleteCategoryCommand id, CancellationToken cancellationToken)
     {
-        Category category = await dbContext.Categories.GetById((CategoryId)id.Id, cancellationToken);
+        Category category = await dbContext.Category.Specification().ById((CategoryId)id.Id, cancellationToken);
 
-        dbContext.Categories.Remove(category);
-        await ReorderCategories(category.Id, category.CategoryType, cancellationToken);
+        dbContext.Category.Delete(category);
 
-        await dbContext.SaveChangesAsync(cancellationToken);
-    }
-
-    private async Task ReorderCategories(CategoryId idToSkip, CategoryType categoryType, CancellationToken cancellationToken)
-    {
-        List<Category> remaining = await dbContext.Categories.GetRemainingForResequencingAsync(categoryType, idToSkip, cancellationToken);
+        List<Category> remaining = await dbContext.Category.Specification().GetRemainingForResequencing(category.CategoryType, category.Id, cancellationToken);
 
         for (int i = 0; i < remaining.Count; i++)
         {
             remaining[i].UpdateSortOrder(i + 1);
         }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

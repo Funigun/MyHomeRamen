@@ -1,5 +1,4 @@
 using System.Net;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.IntegrationTests.Common;
@@ -24,7 +23,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory)
             0.50m,
             [ingredientCategory]);
 
-        apiFactory.MenuDbContext.Ingredients.Add(standalone);
+        apiFactory.MenuDbContext.Ingredient.Add(standalone);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions
@@ -38,9 +37,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory)
         await response.AssertStatusCode(HttpStatusCode.NoContent);
 
         // Assert — deleted record no longer exists in DB
-        bool stillExists = await apiFactory.MenuDbContext.Ingredients
-            .AsNoTracking()
-            .AnyAsync(i => i.Id == standalone.Id, TestContext.Current.CancellationToken);
+        bool stillExists = await apiFactory.MenuDbContext.Ingredient.Exists(i => i.Id == standalone.Id, TestContext.Current.CancellationToken);
         Assert.False(stillExists, "Deleted ingredient should no longer exist in DB.");
     }
 

@@ -1,9 +1,8 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Domain.ShoppingCart.Database;
+using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.ShoppingCart.Features.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.DeleteBasketItem;
 
@@ -16,14 +15,18 @@ public sealed class DeleteBasketItemValidationPolicy : AbstractValidator<DeleteB
             .MustAsync(async (basketId, ct) =>
             {
                 UserId userId = new(currentUser.UserId);
-                return await dbContext.ShoppingCarts.GetByIdForUser(basketId, userId).AnyAsync(ct);
+                return await dbContext.Basket.Query().GetByIdForUserAsync(basketId, userId, ct) != null;
             })
             .WithMessage("Basket was not found or does not belong to the current user.");
 
         RuleFor(x => x.BasketItemId)
             .NotEmpty()
             .MustAsync(async (command, basketItemId, ct) =>
-                await dbContext.ShoppingCarts.ItemExistsQuery(new(currentUser.UserId), basketItemId, command.BasketId, ct))
+            {
+                UserId userId = new(currentUser.UserId);
+                Basket? basket = await dbContext.Basket.Specification().GetByIdForUserTrackedAsync(command.BasketId, userId, ct);
+                return basket?.Items.Any(item => item.Id == basketItemId) ?? false;
+            })
             .WithMessage("Basket item was not found in the specified basket.");
     }
 }

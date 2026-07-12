@@ -1,4 +1,5 @@
-using MyHomeRamen.Domain.Users;
+using MyHomeRamen.Domain.Identity.Roles;
+using MyHomeRamen.Domain.Identity.Users;
 
 namespace MyHomeRamen.UnitTests.UsersModule.Users;
 
@@ -10,7 +11,7 @@ public class UserValidationTests
     private const string ValidLastName = "User";
     private const string ValidEmail = "test@example.com";
     private const string ValidPhoneNumber = "123456789";
-    private const string ValidRole = "customer";
+    private static readonly Role ValidRole = Role.CreateForTest("customer");
 
     [Fact]
     public void Create_Should_SetEmail_When_DataIsValid()
@@ -59,6 +60,6 @@ public class UserValidationTests
         User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber, ValidRole);
 
         // Assert
-        Assert.Equal(ValidRole, user.Role);
+        Assert.Contains(user.Roles, r => r.Name == ValidRole.Name);
     }
 }

@@ -51,28 +51,23 @@
 	<!-- Web API Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Api`))'">
 		<PackageReference Include="Scalar.AspNetCore" />
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
+		<PackageReference Include="Microsoft.OpenApi"/>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
-		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools"/>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
 		<PackageReference Include="Serilog"/>
-		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Serilog.AspNetCore"/>
 		<PackageReference Include="Serilog.Sinks.OpenTelemetry"/>
-		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
-		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" />
-		<PackageReference Include="Aspire.RabbitMQ.Client.v7" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid"/>
+		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching"/>
+		<PackageReference Include="Aspire.RabbitMQ.Client.v7"/>
 	</ItemGroup>
 
 	<!-- Features Exclusive -->
 	<ItemGroup Condition="'$(MSBuildProjectName.EndsWith(`Features`))'">
-		<PackageReference Include="Scalar.AspNetCore" />
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
 		<PackageReference Include="Serilog"/>
 		<PackageReference Include="Serilog.AspNetCore" />
@@ -156,7 +151,6 @@
 		<PackageReference Include="Respawn" />
 		<PackageReference Include="Bogus" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-		<PackageReference Include="WireMock.Net" />
 	</ItemGroup>
 	
 	<!-- Architecture Tests exclusive-->

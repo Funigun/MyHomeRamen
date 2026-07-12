@@ -1,18 +1,30 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
-using MyHomeRamen.Domain.Orders.Database;
 using MyHomeRamen.Domain.Orders.Ingredients;
 using MyHomeRamen.Domain.Orders.Orders;
 using MyHomeRamen.Domain.Orders.Payments;
+using MyHomeRamen.Domain.Orders.Permissions;
 using MyHomeRamen.Domain.Orders.Products;
+using MyHomeRamen.Domain.Orders.Roles;
 using MyHomeRamen.Domain.Orders.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Orders.Features.Abstractions;
+using MyHomeRamen.Features.Orders.Features.Ingredients.Common;
+using MyHomeRamen.Features.Orders.Features.Orders.Common;
+using MyHomeRamen.Features.Orders.Features.Payments.Common;
+using MyHomeRamen.Features.Orders.Features.Permissions.Common;
+using MyHomeRamen.Features.Orders.Features.Products.Common;
+using MyHomeRamen.Features.Orders.Features.Roles.Common;
+using MyHomeRamen.Features.Orders.Features.Users.Common;
+
 using MyHomeRamen.Persistance.Orders.Converters;
 
 namespace MyHomeRamen.Persistance.Orders;
 
-public class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbContext(options), IOrdersDbContext
+public sealed partial class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbContext(options), IOrdersDbContext
 {
     private readonly ICurrentUser _currentUser;
 
@@ -35,7 +47,15 @@ public class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbCont
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public IOrderRepository Order => this;
+    public IProductRepository Product => this;
+    public IIngredientRepository Ingredient => this;
+    public IPaymentRepository Payment => this;
+    public IPermissionRepository Permission => this;
+    public IRoleRepository Role => this;
+    public IUserRepository User => this;
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);
@@ -61,21 +81,6 @@ public class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbCont
                     break;
             }
         }
-    }
-
-    public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
-    {
-        return Database.BeginTransactionAsync(cancellationToken);
-    }
-
-    public Task CommitTransaction(CancellationToken cancellationToken)
-    {
-        return Database.CommitTransactionAsync(cancellationToken);
-    }
-
-    public Task RollbackTransaction(CancellationToken cancellationToken)
-    {
-        return Database.RollbackTransactionAsync(cancellationToken);
     }
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
@@ -105,7 +110,7 @@ public class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbCont
         }
     }
 
-    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    public async Task Seed(CancellationToken cancellationToken)
     {
         IEnumerable<string> roles = RoleConstants.AvailableRoles;
         IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
@@ -113,7 +118,7 @@ public class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbCont
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.Orders.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -125,7 +130,7 @@ public class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbCont
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed
+                                            .Select(role => Domain.Orders.Roles.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,
@@ -156,5 +161,17 @@ public class OrdersDbContext(DbContextOptions<OrdersDbContext> options) : DbCont
         configurationBuilder.Properties<PaymentId>().HaveConversion<PaymentIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
+    }
+
+    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
+    {
+        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
+
+        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
+        {
+            settersBuilder.SetProperty(kvp.Key, kvp.Value);
+        }
+
+        return settersBuilder;
     }
 }

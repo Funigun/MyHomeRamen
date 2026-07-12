@@ -1,26 +1,46 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Menu.Categories;
-using MyHomeRamen.Domain.Menu.Database;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Domain.Menu.Permssions;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Domain.Menu.Roles;
 using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Cache;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Categories.Common;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Menu.Features.Permissions.Common;
+using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Menu.Features.Roles;
+using MyHomeRamen.Features.Menu.Features.Users.Common;
 using MyHomeRamen.Persistance.Menu.Converters;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
+public sealed partial class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
 {
     private readonly ICurrentUser _currentUser = default!;
+    private readonly ICacheService _cacheService = default!;
+
 
     public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser) : this(options)
     {
         _currentUser = currentUser;
     }
 
+    public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser, ICacheService cacheService) : this(options)
+    {
+        _currentUser = currentUser;
+        _cacheService = cacheService;
+    }
+
     public DbSet<Product> Products { get; set; }
+
 
     public DbSet<Category> Categories { get; set; }
 
@@ -32,20 +52,17 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
-    {
-        return Database.BeginTransactionAsync(cancellationToken);
-    }
+    public IProductRepository Product => this;
 
-    public Task CommitTransaction(CancellationToken cancellationToken)
-    {
-        return Database.CommitTransactionAsync(cancellationToken);
-    }
+    public ICategoryRepository Category => this;
 
-    public Task RollbackTransaction(CancellationToken cancellationToken)
-    {
-        return Database.RollbackTransactionAsync(cancellationToken);
-    }
+    public IIngredientRepository Ingredient => this;
+
+    public IUserRepository User => this;
+
+    public IRoleRepository Role => this;
+
+    public IPermissionRepository Permission => this;
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
     {
@@ -74,13 +91,13 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
         }
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    public async Task Seed(CancellationToken cancellationToken)
     {
         IEnumerable<string> roles = RoleConstants.AvailableRoles;
         IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
@@ -88,7 +105,7 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.Menu.Permssions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -100,7 +117,7 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed
+                                            .Select(role => Domain.Menu.Roles.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,
@@ -152,5 +169,17 @@ public class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(
                     break;
             }
         }
+    }
+
+    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
+    {
+        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
+
+        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
+        {
+            settersBuilder.SetProperty(kvp.Key, kvp.Value);
+        }
+
+        return settersBuilder;
     }
 }

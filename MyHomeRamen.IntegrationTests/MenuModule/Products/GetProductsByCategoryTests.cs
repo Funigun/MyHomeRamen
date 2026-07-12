@@ -16,13 +16,11 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
         // Arrange
         Category category = DataGenerator.GeneratedProducts.First().Categories.First(c => c.CategoryType == CategoryType.Product);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"/api/menu/products?categoryId={category.Id.Value}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={category.Id.Value}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetProductsByCategoryResponse>? result = await responseMessage.Content
-            .ReadFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>(TestContext.Current.CancellationToken);
+        IEnumerable<GetProductsByCategoryResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
@@ -41,16 +39,15 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
     {
         // Arrange
         Category emptyCategory = DataGenerator.GenerateValidCategory(CategoryType.Product);
-        apiFactory.MenuDbContext.Categories.Add(emptyCategory);
+        
+        apiFactory.MenuDbContext.Category.Add(emptyCategory);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"/api/menu/products?categoryId={emptyCategory.Id.Value}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={emptyCategory.Id.Value}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetProductsByCategoryResponse>? result = await responseMessage.Content
-            .ReadFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>(TestContext.Current.CancellationToken);
+        IEnumerable<GetProductsByCategoryResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
@@ -62,8 +59,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
     public async Task GetProductsByCategory_ShouldReturnBadRequest_ForEmptyCategoryId()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"/api/menu/products?categoryId={Guid.Empty}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={Guid.Empty}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -76,8 +72,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
     public async Task GetProductsByCategory_ShouldReturnBadRequest_ForNonExistentCategoryId()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"/api/menu/products?categoryId={Guid.NewGuid()}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={Guid.NewGuid()}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -92,8 +87,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory)
         // Arrange
         Category ingredientCategory = DataGenerator.GeneratedCategories.First(c => c.CategoryType == CategoryType.Ingredient);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"/api/menu/products?categoryId={ingredientCategory.Id.Value}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={ingredientCategory.Id.Value}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

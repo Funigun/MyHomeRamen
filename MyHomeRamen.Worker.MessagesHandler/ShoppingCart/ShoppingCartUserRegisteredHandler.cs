@@ -1,8 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Database;
+using MyHomeRamen.Domain.ShoppingCart.Permissions;
+using MyHomeRamen.Domain.ShoppingCart.Roles;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler.Common;
 
@@ -13,7 +14,7 @@ public class ShoppingCartUserRegisteredHandler(IShoppingCartDbContext dbContext)
     public async Task HandleAsync(UserRegisteredIntegrationEvent integrationEvent, CancellationToken cancellationToken)
     {
         UserId userId = new(integrationEvent.Id);
-        bool userExists = await dbContext.Users.AnyAsync(u => u.Id == userId, cancellationToken);
+        bool userExists = await dbContext.User.Query().FindByIdAsync(userId, cancellationToken) != null;
 
         if (userExists)
         {
@@ -22,8 +23,7 @@ public class ShoppingCartUserRegisteredHandler(IShoppingCartDbContext dbContext)
 
         string shoppingCartRoleName = MapIdentityProviderRoleToShoppingCartRole(integrationEvent.Role);
 
-        Role? customerRole = await dbContext.Roles.Include(r => r.Permissions)
-                                                  .FirstOrDefaultAsync(r => r.Name == shoppingCartRoleName, cancellationToken);
+        Role? customerRole = await dbContext.Role.Query().GetByNameWithPermissionsAsync(shoppingCartRoleName, cancellationToken);
 
         List<Role> roles = customerRole != null ? [customerRole] : [];
         List<Permission> permissions = customerRole != null ? customerRole.Permissions.ToList() : [];
@@ -32,8 +32,8 @@ public class ShoppingCartUserRegisteredHandler(IShoppingCartDbContext dbContext)
 
         Basket basket = Basket.Create(new BasketId(Guid.CreateVersion7()), user);
 
-        dbContext.Users.Add(user);
-        dbContext.ShoppingCarts.Add(basket);
+        dbContext.User.Add(user);
+        dbContext.Basket.Add(basket);
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }

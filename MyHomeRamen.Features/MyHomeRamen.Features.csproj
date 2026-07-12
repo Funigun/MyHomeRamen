@@ -9,9 +9,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Common\Database\" />
+		<Folder Include="Identity\Extensions\" />
+		<Folder Include="Orders\Features\Users\Common\" />
 		<Folder Include="Restaurants\" />
-		<Folder Include="Orders\" />
 		<Folder Include="Reservations\" />
 	</ItemGroup>
 </Project>

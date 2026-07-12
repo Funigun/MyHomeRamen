@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Api;
-using MyHomeRamen.Features.Users.Services;
+using MyHomeRamen.Features.Identity.Services;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
-using MyHomeRamen.Persistance.Users;
+using MyHomeRamen.Persistance.Identity;
 using Testcontainers.MsSql;
 
 [assembly: AssemblyFixture(typeof(IdentityWebApiFactory))]
@@ -23,7 +23,7 @@ public sealed class IdentityWebApiFactory : WebApplicationFactory<IApiAssemblyMa
                                                                       .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1433))
                                                                       .Build();
 
-    public UsersDbContext UsersDbContext { get; private set; } = default!;
+    public IdentityDbContext UsersDbContext { get; private set; } = default!;
 
     public HttpClient HttpClient { get; private set; } = default!;
 
@@ -32,11 +32,11 @@ public sealed class IdentityWebApiFactory : WebApplicationFactory<IApiAssemblyMa
         await _sqlContainer.StartAsync();
 
         IdentityFakeUser user = new();
-        DbContextOptions<UsersDbContext> options = new DbContextOptionsBuilder<UsersDbContext>()
+        DbContextOptions<IdentityDbContext> options = new DbContextOptionsBuilder<IdentityDbContext>()
             .UseSqlServer(_sqlContainer.GetConnectionString())
             .Options;
 
-        UsersDbContext = new UsersDbContext(options, IdentityFakeRestaurantConfig.Create(), user);
+        UsersDbContext = new IdentityDbContext(options, IdentityFakeRestaurantConfig.Create(), user);
         await UsersDbContext.Database.MigrateAsync();
         await DataSeeder.SeedIdentityModule(UsersDbContext);
 

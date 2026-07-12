@@ -1,21 +1,26 @@
-# Ideas
+Prepare module db access refactor plan according to guidance:
 
-List of "To do" items that are on conceptual stage / refactor ideas etc that do not have high priority.
+1) Move `I{Module}DbContext}` from domain to features project including updates:
+   - implement `IUnitOfWork` instead `BaseDbContext`
+   - update `DbInitializerJob` in `MyHomeRamen.Worker.DatabaseInitializer` project to use `IUnitOfWork`
+   - remove unused `BeginTransaction, RollbackTransaction, CommitTransaction` methods form `{Module}DbContext` implementation
+   - make `{Module}DbContext` partial class
 
-## Scaffolding scripts
+2) Analyze `{Aggregate}DbExtensions` and usage of current `{Module}DbContext.DbSet<Aggregate>` in features and integration tests project and prepare plan to split
+   into `I{Aggregate}Repository`, `I{Aggregate}Query`, and `I{Aggregate}Specification` per guidance:
 
-- `domain-scaffold.ps1` - script to create initial layout of domain model including:
-	- strongly typed ID
-	- class that inherits from `AuditableEntity`
-	- Domain Validator skeleton
-	- BaseDbContext configuration skeleton (if new module), update to existing module not covered by scaffold
-	- EF Core strongly-typed ID converter skeleton
-	- Unit Test for domain validation skeleton
+   - Exists / AnyAsync etc - `I{Aggregate}Repository.Exists` - using AsNoTracking()
+   - extension / direct query call AsNoTracting -> move to `I{Aggregate}Query`
+   - extension / direct query call with tracking -> move to `I{Aggregate}Specification`
 
-- `blazor-slice-scaffold.ps1` - script to scaffold a new Blazor slice
-	- figure out what can be standarized in terms of scaffolding
+   If any method exposes `DbSet<Aggregate>` or `IQueryable<Aggregate>` plan to refactor to return expected state like boolean, int, entity, entities or projected DTOs.
 
-- blazor - refactor MenuApiClient etc. to make them more readable e.g. partial class with split by concern e.g.
-	- `MenuApiClient.Products.cs` for all product related API calls, 
-	- `MenuApiClient.Categories.cs` for all category related API calls, etc.
+3) Create `I{Aggregate}Repository`, `I{Aggregate}Query`, and `I{Aggregate}Specification` interfaces in the features project
+   and create implementations in the persistence project as partial classes of `{Module}DbContext` including methods planned in step 2.
 
+
+4) Replace DbSets in `I{Module}DbContext` with repositories
+
+5) List validators, handlers and integration tests that require updates
+
+6) List files to cleanup: old interfaces, db exensions and other legacy code that is no longer used

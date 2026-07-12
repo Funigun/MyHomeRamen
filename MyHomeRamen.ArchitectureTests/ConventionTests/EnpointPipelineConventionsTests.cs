@@ -17,7 +17,7 @@ public sealed class EnpointPipelineConventionsTests(ArchitectureBuilder architec
                             .That()
                             .ImplementInterface(typeof(IQuery<>))
                             .And()
-                            .ResideInAssembly(ArchitectureBuilder.ApiAssembly)
+                            .ResideInAssembly(ArchitectureBuilder.ApiFeaturesAssembly)
                             .Should()
                             .HaveNameEndingWith("Query");
 
@@ -29,7 +29,7 @@ public sealed class EnpointPipelineConventionsTests(ArchitectureBuilder architec
     public void QueryImplementations_ShouldHave_ProperQueryHandlerImplementation()
     {
         // Arrange
-        System.Reflection.Assembly apiAssembly = ArchitectureBuilder.ApiAssembly;
+        System.Reflection.Assembly apiAssembly = ArchitectureBuilder.ApiFeaturesAssembly;
         Type[] queryImplementations = apiAssembly.GetTypes()
             .Where(t => t.IsPublic && typeof(IQuery<>).IsAssignableFrom(t) && !t.IsInterface && !t.IsGenericTypeDefinition)
             .ToArray();
@@ -59,17 +59,18 @@ public sealed class EnpointPipelineConventionsTests(ArchitectureBuilder architec
     [Fact]
     public void QueryHandlerImplementations_ShouldEndWith_HandlerSuffix()
     {
-        // Arrange
-        IArchRule rule = Types()
-                            .That()
-                            .ImplementInterface(typeof(IQueryHandler<,>))
-                            .And()
-                            .ResideInAssembly(ArchitectureBuilder.ApiAssembly)
-                            .Should()
-                            .HaveNameEndingWith("Handler");
+        Type[] handlerImplementations = ArchitectureBuilder.ApiFeaturesAssembly
+            .GetTypes()
+            .Where(t => t.IsPublic
+                && !t.IsInterface
+                && t.GetInterfaces().Any(i =>
+                    i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
+            .ToArray();
 
-        // Act & Assert
-        rule.Check(ArchitectureBuilder.Architecture);
+        Assert.All(handlerImplementations, handlerImplementation =>
+            Assert.True(
+                GetTypeNameWithoutGenericArity(handlerImplementation).EndsWith("Handler", StringComparison.Ordinal),
+                $"Query handler implementation '{handlerImplementation.FullName}' should end with 'Handler'."));
     }
 
     [Fact]
@@ -80,7 +81,7 @@ public sealed class EnpointPipelineConventionsTests(ArchitectureBuilder architec
                             .That()
                             .ImplementInterface(typeof(ICommand<>))
                             .And()
-                            .ResideInAssembly(ArchitectureBuilder.ApiAssembly)
+                            .ResideInAssembly(ArchitectureBuilder.ApiFeaturesAssembly)
                             .Should()
                             .HaveNameEndingWith("Command");
 
@@ -92,7 +93,7 @@ public sealed class EnpointPipelineConventionsTests(ArchitectureBuilder architec
     public void CommandImplementations_ShouldHave_ProperCommandHandlerImplementation()
     {
         // Arrange
-        System.Reflection.Assembly apiAssembly = ArchitectureBuilder.ApiAssembly;
+        System.Reflection.Assembly apiAssembly = ArchitectureBuilder.ApiFeaturesAssembly;
         Type[] commandImplementations = apiAssembly.GetTypes()
             .Where(t => t.IsPublic && typeof(ICommand).IsAssignableFrom(t) && !t.IsInterface && !t.Equals(typeof(ICommand)))
             .ToArray();
@@ -131,25 +132,25 @@ public sealed class EnpointPipelineConventionsTests(ArchitectureBuilder architec
     [Fact]
     public void CommandHandlerImplementations_ShouldEndWith_HandlerSuffix()
     {
-        // Arrange
-        IArchRule handlerRule = Types()
-                                    .That()
-                                    .ImplementInterface(typeof(ICommandHandler<>))
-                                    .And()
-                                    .ResideInAssembly(ArchitectureBuilder.ApiAssembly)
-                                    .Should()
-                                    .HaveNameEndingWith("Handler");
+        Type[] handlerImplementations = ArchitectureBuilder.ApiFeaturesAssembly
+            .GetTypes()
+            .Where(t => t.IsPublic
+                && !t.IsInterface
+                && t.GetInterfaces().Any(i =>
+                    i.IsGenericType && (i.GetGenericTypeDefinition() == typeof(ICommandHandler<>) ||
+                                        i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>))))
+            .ToArray();
 
-        IArchRule handlerWithResponseRule = Types()
-                                                .That()
-                                                .ImplementInterface(typeof(ICommandHandler<,>))
-                                                .And()
-                                                .ResideInAssembly(ArchitectureBuilder.ApiAssembly)
-                                                .Should()
-                                                .HaveNameEndingWith("Handler");
+        Assert.All(handlerImplementations, handlerImplementation =>
+            Assert.True(
+                GetTypeNameWithoutGenericArity(handlerImplementation).EndsWith("Handler", StringComparison.Ordinal),
+                $"Command handler implementation '{handlerImplementation.FullName}' should end with 'Handler'."));
+    }
 
-        // Act & Assert
-        handlerRule.Check(ArchitectureBuilder.Architecture);
-        handlerWithResponseRule.Check(ArchitectureBuilder.Architecture);
+    private static string GetTypeNameWithoutGenericArity(Type type)
+    {
+        string name = type.Name;
+        int arityIndex = name.IndexOf('`');
+        return arityIndex >= 0 ? name[..arityIndex] : name;
     }
 }

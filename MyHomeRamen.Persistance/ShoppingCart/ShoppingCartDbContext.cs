@@ -1,22 +1,34 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Database;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
+using MyHomeRamen.Domain.ShoppingCart.Permissions;
 using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.Roles;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.BasketItems.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Ingredients.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Permissions.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Products.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Roles.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Users.Common;
 using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
 
-public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : DbContext(options), IShoppingCartDbContext
+public sealed partial class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : DbContext(options), IShoppingCartDbContext
 {
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentUser _currentUser = default!;
 
     public ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options, ICurrentUser currentUser) : this(options)
     {
@@ -37,11 +49,25 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public DbSet<PaymentDetails> PaymentDetails { get; set; }
+    public DbSet<PaymentDetails> PaymentDetailEntries { get; set; }
 
-    public DbSet<ShippingDetails> ShippingDetails { get; set; }
+    public DbSet<ShippingDetails> ShippingDetailEntries { get; set; }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public IBasketRepository Basket => this;
+
+    public IBasketItemRepository BasketItem => this;
+
+    public IProductRepository Product => this;
+
+    public IIngredientRepository Ingredient => this;
+
+    public IUserRepository User => this;
+
+    public IRoleRepository Role => this;
+
+    public IPermissionRepository Permission => this;
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);
@@ -69,24 +95,9 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
         }
     }
 
-    public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
-    {
-        return Database.BeginTransactionAsync(cancellationToken);
-    }
-
-    public Task CommitTransaction(CancellationToken cancellationToken)
-    {
-        return Database.CommitTransactionAsync(cancellationToken);
-    }
-
-    public Task RollbackTransaction(CancellationToken cancellationToken)
-    {
-        return Database.RollbackTransactionAsync(cancellationToken);
-    }
-
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
     {
-        IRelationalDatabaseCreator? dbCreator = Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
+        IRelationalDatabaseCreator? dbCreator = AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
 
         bool dbExists = dbCreator != null && await dbCreator.ExistsAsync(cancellationToken);
 
@@ -106,7 +117,7 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
         }
     }
 
-    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    public async Task Seed(CancellationToken cancellationToken)
     {
         IEnumerable<string> roles = RoleConstants.AvailableRoles;
         IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
@@ -114,7 +125,7 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.ShoppingCart.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -126,7 +137,7 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed
+                                            .Select(role => Domain.ShoppingCart.Roles.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,
@@ -162,5 +173,17 @@ public class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> optio
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
+    }
+
+    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
+    {
+        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
+
+        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
+        {
+            settersBuilder.SetProperty(kvp.Key, kvp.Value);
+        }
+
+        return settersBuilder;
     }
 }

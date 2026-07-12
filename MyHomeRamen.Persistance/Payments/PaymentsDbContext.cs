@@ -1,20 +1,31 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Abstractions;
-using MyHomeRamen.Domain.Payments.Database;
 using MyHomeRamen.Domain.Payments.Orders;
 using MyHomeRamen.Domain.Payments.PaymentChannels;
 using MyHomeRamen.Domain.Payments.PaymentGateways;
 using MyHomeRamen.Domain.Payments.PaymentMethods;
+using MyHomeRamen.Domain.Payments.Permissions;
+using MyHomeRamen.Domain.Payments.Roles;
 using MyHomeRamen.Domain.Payments.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Payments.Features.Abstractions;
+using MyHomeRamen.Features.Payments.Features.Orders.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentChannels.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentGateways.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
+using MyHomeRamen.Features.Payments.Features.Permissions.Common;
+using MyHomeRamen.Features.Payments.Features.Roles.Common;
+using MyHomeRamen.Features.Payments.Features.Users.Common;
 using MyHomeRamen.Persistance.Payments.Converters;
 
 namespace MyHomeRamen.Persistance.Payments;
 
-public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : DbContext(options), IPaymentsDbContext
+public sealed partial class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : DbContext(options), IPaymentsDbContext
 {
-    private readonly ICurrentUser _currentUser;
+    private readonly ICurrentUser _currentUser = default!;
 
     public PaymentsDbContext(DbContextOptions<PaymentsDbContext> options, ICurrentUser currentUser) : this(options)
     {
@@ -35,9 +46,21 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
 
     public DbSet<Permission> Permissions { get; set; }
 
+    public IPaymentMethodRepository PaymentMethod => this;
 
+    public IPaymentChannelRepository PaymentChannel => this;
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    public IPaymentGatewayRepository PaymentGateway => this;
+
+    public IOrderRepository Order => this;
+
+    public IUserRepository User => this;
+
+    public IRoleRepository Role => this;
+
+    public IPermissionRepository Permission => this;
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);
@@ -65,21 +88,6 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
         }
     }
 
-    public Task<IDbContextTransaction> BeginTransaction(CancellationToken cancellationToken)
-    {
-        return Database.BeginTransactionAsync(cancellationToken);
-    }
-
-    public Task CommitTransaction(CancellationToken cancellationToken)
-    {
-        return Database.CommitTransactionAsync(cancellationToken);
-    }
-
-    public Task RollbackTransaction(CancellationToken cancellationToken)
-    {
-        return Database.RollbackTransactionAsync(cancellationToken);
-    }
-
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
     {
         IRelationalDatabaseCreator? dbCreator = Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions.GetService<IRelationalDatabaseCreator>(Database);
@@ -102,7 +110,7 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
         }
     }
 
-    public async Task Seed(Guid restaurantId, CancellationToken cancellationToken)
+    public async Task Seed(CancellationToken cancellationToken)
     {
         IEnumerable<string> roles = RoleConstants.AvailableRoles;
         IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
@@ -110,7 +118,7 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
         HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
 
         IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
+                                                              .Select(permission => Domain.Payments.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
                                                               .ToList();
 
         if (permissionsToAdd.Any())
@@ -122,7 +130,7 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
         existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
         HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
         IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Role.CreateForSeed
+                                            .Select(role => Domain.Payments.Roles.Role.CreateForSeed
                                                         (
                                                             new RoleId(Guid.NewGuid()),
                                                             role,
@@ -158,5 +166,17 @@ public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : Db
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
+    }
+
+    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
+    {
+        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
+
+        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
+        {
+            settersBuilder.SetProperty(kvp.Key, kvp.Value);
+        }
+
+        return settersBuilder;
     }
 }

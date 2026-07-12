@@ -1,19 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Domain.Orders.Database;
-using MyHomeRamen.Domain.Payments.Database;
-using MyHomeRamen.Domain.Reservations.Database;
-using MyHomeRamen.Domain.ShoppingCart.Database;
-using MyHomeRamen.Domain.Users.Database;
 using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.BasketItems.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Categories.Common;
+using MyHomeRamen.Features.Payments.Features.Abstractions;
+using MyHomeRamen.Features.Payments.Features.PaymentChannels.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentGateways.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
+using MyHomeRamen.Features.Reservations.Features.Abstractions;
+using MyHomeRamen.Features.Reservations.Features.Bookings.Common;
+using MyHomeRamen.Features.Reservations.Features.Tables.Common;
 using MyHomeRamen.Persistance.Menu;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
 using MyHomeRamen.Persistance.Reservations;
 using MyHomeRamen.Persistance.ShoppingCart;
-using MyHomeRamen.Persistance.Users;
+using MyHomeRamen.Features.Orders.Features.Abstractions;
+using MyHomeRamen.Persistance.Identity;
+using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.Persistance;
 
@@ -34,6 +42,10 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IMenuDbContext, MenuDbContext>();
+        services.AddScoped<ICategoryRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<Features.Menu.Features.Products.Common.IProductRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<Features.Menu.Features.Ingredients.Common.IIngredientRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<Features.Menu.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<MenuDbContext>());
 
         return services;
     }
@@ -53,6 +65,13 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IShoppingCartDbContext, ShoppingCartDbContext>();
+        services.AddScoped<IBasketRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<IBasketItemRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<Features.ShoppingCart.Features.Products.Common.IProductRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<Features.ShoppingCart.Features.Ingredients.Common.IIngredientRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<Features.ShoppingCart.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<Features.ShoppingCart.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<Features.ShoppingCart.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
 
         return services;
     }
@@ -91,6 +110,11 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
+        services.AddScoped<IBookingRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<ITableRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<Features.Reservations.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<Features.Reservations.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<Features.Reservations.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
 
         return services;
     }
@@ -110,13 +134,20 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IPaymentsDbContext, PaymentsDbContext>();
+        services.AddScoped<IPaymentMethodRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<IPaymentChannelRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<IPaymentGatewayRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<Features.Payments.Features.Orders.Common.IOrderRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<Features.Payments.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<Features.Payments.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<Features.Payments.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
 
         return services;
     }
 
     public static IServiceCollection AddIdentityPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
     {
-        services.AddDbContext<UsersDbContext>(options =>
+        services.AddDbContext<IdentityDbContext>(options =>
         {
             string? connectionString = configurationProvider.IdentityConnectionString;
             options.UseSqlServer(
@@ -129,7 +160,9 @@ public static class DependencyInjection
             );
         });
 
-        services.AddScoped<IUsersDbContext, UsersDbContext>();
+        services.AddScoped<IIdentityDbContext, IdentityDbContext>();
+        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<IdentityDbContext>());
+        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<IdentityDbContext>());
 
         return services;
     }

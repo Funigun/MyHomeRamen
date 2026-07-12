@@ -1,7 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Messaging;
-using MyHomeRamen.Domain.Orders.Database;
+using MyHomeRamen.Domain.Orders.Permissions;
+using MyHomeRamen.Domain.Orders.Roles;
 using MyHomeRamen.Domain.Orders.Users;
+using MyHomeRamen.Features.Orders.Features.Abstractions;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler.Common;
 
@@ -12,7 +13,7 @@ public class OrdersUserRegisteredHandler(IOrdersDbContext dbContext) : IIntegrat
     public async Task HandleAsync(UserRegisteredIntegrationEvent integrationEvent, CancellationToken cancellationToken)
     {
         UserId userId = new(integrationEvent.Id);
-        bool userExists = await dbContext.Users.AnyAsync(u => u.Id == userId, cancellationToken);
+        bool userExists = await dbContext.User.Exists(u => u.Id == userId, cancellationToken);
 
         if (userExists)
         {
@@ -21,8 +22,7 @@ public class OrdersUserRegisteredHandler(IOrdersDbContext dbContext) : IIntegrat
 
         string orderRoleName = MapIdentityProviderRoleToOrderRole(integrationEvent.Role);
 
-        Role? customerRole = await dbContext.Roles.Include(r => r.Permissions)
-                                                  .FirstOrDefaultAsync(r => r.Name == orderRoleName, cancellationToken);
+        Role? customerRole = await dbContext.Role.Specification().ByName(orderRoleName, cancellationToken);
 
         List<Role> roles = customerRole != null ? [customerRole] : [];
         List<Permission> permissions = customerRole != null ? customerRole.Permissions.ToList() : [];
@@ -36,7 +36,7 @@ public class OrdersUserRegisteredHandler(IOrdersDbContext dbContext) : IIntegrat
             roles,
             permissions);
 
-        dbContext.Users.Add(user);
+        dbContext.User.Add(user);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 

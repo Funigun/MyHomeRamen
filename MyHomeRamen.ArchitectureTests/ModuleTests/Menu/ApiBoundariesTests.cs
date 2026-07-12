@@ -11,7 +11,7 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     {
         // Arrange
         IEnumerable<string> menuApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Menu");
-        IEnumerable<string> ordersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Orders");
+        IEnumerable<string> ordersApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Orders");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuApi, ordersApi, "Menu API type '{0}' should not depend on Orders API type '{1}'");
 
@@ -27,7 +27,7 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     {
         // Arrange
         IEnumerable<string> menuApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Menu");
-        IEnumerable<string> paymentsApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Payments");
+        IEnumerable<string> paymentsApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Payments");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuApi, paymentsApi, "Menu API type '{0}' should not depend on Payments API type '{1}'");
 
@@ -43,7 +43,7 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     {
         // Arrange
         IEnumerable<string> menuApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Menu");
-        IEnumerable<string> reservationsApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Reservations");
+        IEnumerable<string> reservationsApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Reservations");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuApi, reservationsApi, "Menu API type '{0}' should not depend on Reservations API type '{1}'");
 
@@ -59,7 +59,7 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     {
         // Arrange
         IEnumerable<string> menuApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Menu");
-        IEnumerable<string> shoppingCartApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.ShoppingCart");
+        IEnumerable<string> shoppingCartApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.ShoppingCart");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuApi, shoppingCartApi, "Menu API type '{0}' should not depend on ShoppingCart API type '{1}'");
 
@@ -75,7 +75,7 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
     {
         // Arrange
         IEnumerable<string> menuApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Menu");
-        IEnumerable<string> usersApi = ArchitectureBuilder.ApiAssembly.TypesInNamespace("MyHomeRamen.Api.Users");
+        IEnumerable<string> usersApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Identity");
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(menuApi, usersApi, "Menu API type '{0}' should not depend on Users API type '{1}'");
 
         // Act & Assert
@@ -133,8 +133,8 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
         IEnumerable<string> endpointTypes = ArchitectureBuilder.ApiFeaturesAssembly
             .TypesInNamespace("MyHomeRamen.Features.Menu.Features.Products.GetProductsByCategory");
 
-        IEnumerable<string> authPolicyTypes = ArchitectureBuilder.ApiAssembly
-            .TypesInNamespace("MyHomeRamen.Api.WebPresentation");
+        IEnumerable<string> authPolicyTypes = ArchitectureBuilder.ApiFeaturesAssembly
+            .TypesInNamespace("MyHomeRamen.Features.WebPresentation");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(
             endpointTypes,

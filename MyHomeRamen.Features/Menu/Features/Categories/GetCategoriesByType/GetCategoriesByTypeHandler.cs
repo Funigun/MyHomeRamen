@@ -1,9 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Features.Menu.Features.Categories.Common;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 
@@ -14,9 +12,9 @@ public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext)
     {
         CategoryType categoryType = (CategoryType)request.CategoryType;
 
-        return await dbContext.Categories
-                              .ForCategoryType(categoryType)
-                              .Select(c => c.ToResponse())
-                              .ToListAsync(cancellationToken);
+        List<Category> categories = await dbContext.Category.Query()
+                                                            .GetByType(categoryType, cancellationToken);
+
+        return categories.Select(c => c.ToResponse());
     }
 }

@@ -1,9 +1,11 @@
 using MyHomeRamen.Domain.Abstractions;
+using MyHomeRamen.Domain.Menu.Permssions;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Domain.Menu.Roles;
 
 namespace MyHomeRamen.Domain.Menu.Users;
 
-public sealed class User : AuditableEntity, IEntity<UserId>
+public class User : AuditableEntity, IEntity<UserId>
 {
     private readonly List<Product> _favoriteProducts = [];
     private readonly List<Role> _roles = [];

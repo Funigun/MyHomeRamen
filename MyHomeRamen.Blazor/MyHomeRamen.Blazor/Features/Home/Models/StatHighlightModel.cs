@@ -1,5 +1,3 @@
-using MyHomeRamen.Blazor.Common.Models;
-
 namespace MyHomeRamen.Blazor.Features.Home.Models;
 
 public sealed class StatHighlightModel

@@ -1,9 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
-using MyHomeRamen.Domain.Menu.Database;
-using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsByCategory;
 
@@ -12,9 +11,9 @@ public sealed class GetProductsByCategoryHandler(IMenuDbContext dbContext)
 {
     public async Task<IEnumerable<GetProductsByCategoryResponse>> Handle(GetProductsByCategoryQuery query, CancellationToken cancellationToken)
     {
-        return await dbContext.Products
-                              .ForCategory(new CategoryId(query.Request.CategoryId))
-                              .Select(p => p.ToResponse())
-                              .ToListAsync(cancellationToken);
+        List<Product> products = await dbContext.Product.Query()
+                                                        .GetByCategory(new CategoryId(query.Request.CategoryId), cancellationToken);
+
+        return products.Select(p => p.ToResponse());
     }
 }

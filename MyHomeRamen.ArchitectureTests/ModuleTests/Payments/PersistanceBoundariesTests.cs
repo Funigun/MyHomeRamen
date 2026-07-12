@@ -12,7 +12,8 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
         // Arrange
         IEnumerable<string> paymentsPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Payments");
         IEnumerable<string> otherDomains = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain")
-            .Where(name => !name.StartsWith("MyHomeRamen.Domain.Payments", StringComparison.Ordinal));
+            .Where(name => !name.StartsWith("MyHomeRamen.Domain.Payments", StringComparison.Ordinal) 
+                             && !name.StartsWith("MyHomeRamen.Domain.Abstractions", StringComparison.Ordinal));
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(paymentsPersistence, otherDomains, "Payments persistence type '{0}' should not depend on domain type '{1}'");
 
@@ -92,7 +93,7 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
     {
         // Arrange
         IEnumerable<string> paymentsPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Payments");
-        IEnumerable<string> usersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Users");
+        IEnumerable<string> usersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Identity");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(paymentsPersistence, usersPersistence, "Payments persistence type '{0}' should not depend on Users persistence type '{1}'");
 

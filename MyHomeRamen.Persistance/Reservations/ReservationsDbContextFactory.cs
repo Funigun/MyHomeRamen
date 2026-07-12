@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Reservations;
 

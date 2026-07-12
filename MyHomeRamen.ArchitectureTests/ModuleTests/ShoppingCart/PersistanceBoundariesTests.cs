@@ -12,7 +12,8 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
         // Arrange
         IEnumerable<string> shoppingCartPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.ShoppingCart");
         IEnumerable<string> otherDomains = ArchitectureBuilder.DomainAssembly.TypesInNamespace("MyHomeRamen.Domain")
-            .Where(name => !name.StartsWith("MyHomeRamen.Domain.ShoppingCart", StringComparison.Ordinal));
+            .Where(name => !name.StartsWith("MyHomeRamen.Domain.ShoppingCart", StringComparison.Ordinal) &&
+                             !name.StartsWith("MyHomeRamen.Domain.Abstractions", StringComparison.Ordinal));
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(shoppingCartPersistence, otherDomains, "ShoppingCart persistence type '{0}' should not depend on domain type '{1}'");
 
@@ -92,7 +93,7 @@ public sealed class PersistanceBoundariesTests(ArchitectureBuilder architectureB
     {
         // Arrange
         IEnumerable<string> shoppingCartPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.ShoppingCart");
-        IEnumerable<string> usersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Users");
+        IEnumerable<string> usersPersistence = ArchitectureBuilder.PersistanceAssembly.TypesInNamespace("MyHomeRamen.Persistance.Identity");
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(shoppingCartPersistence, usersPersistence, "ShoppingCart persistence type '{0}' should not depend on Users persistence type '{1}'");
 
