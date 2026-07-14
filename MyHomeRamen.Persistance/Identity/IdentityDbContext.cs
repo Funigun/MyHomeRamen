@@ -4,12 +4,13 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
-using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
-using MyHomeRamen.Features.Identity.Features.Users.Common;
+using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.Features.Roles.Common;
+using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Persistance.Identity.Converters;
+using Pipelines.Sockets.Unofficial.Buffers;
 
 namespace MyHomeRamen.Persistance.Identity;
 
@@ -21,8 +22,6 @@ public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext
     public DbSet<User> Users { get; set; }
 
     public DbSet<Role> Roles { get; set; }
-
-    public DbSet<Address> Addresses { get; set; } = default!;
 
     public IUserRepository User => this;
     public IRoleRepository Role => this;
@@ -85,11 +84,14 @@ public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext
             b.Property(u => u.KeycloakUserId).IsRequired(false);
             b.HasIndex(u => u.GuestId).IsUnique().HasFilter("[GuestId] IS NOT NULL");
 
-            b.HasMany<Address>()
-             .WithMany()
-             .UsingEntity("UserAddresses");
+            b.OwnsMany(u => u.Addresses, owned =>
+            {
+                owned.Property<Guid>(nameof(Address.Id))
+                     .HasColumnName(nameof(Address.Id))
+                     .ValueGeneratedNever();
+            });
 
-            b.HasMany(u => u.Roles)
+        b.HasMany(u => u.Roles)
              .WithMany()
              .UsingEntity("UserRoles");
         });

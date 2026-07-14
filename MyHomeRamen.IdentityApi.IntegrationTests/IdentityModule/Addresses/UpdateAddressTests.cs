@@ -7,7 +7,7 @@ using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
 
-public sealed class UpdateAddressTests(IdentityWebApiFactory apiFactory)
+public sealed class UpdateAddressTests(IdentityApiFixture apiFixture) : IClassFixture<IdentityApiFixture>
 {
     [Fact]
     public async Task UpdateAddress_ShouldReturn200_WithUpdatedAddress()
@@ -15,19 +15,19 @@ public sealed class UpdateAddressTests(IdentityWebApiFactory apiFactory)
         // Arrange
         UpdateAddressRequest request = DataGenerator.GenerateValidUpdateAddressRequest(isDefault: false);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{DataSeeder.SeededAddressId}")
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}")
             .WithJsonContent(request)
-            .AddIdentityAuthorizationHeader(DataSeeder.SeededUserKeycloakId);
+            .AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.OK);
 
         UpdateAddressResponse? body = await response.ResponseToDto<UpdateAddressResponse>();
         Assert.NotNull(body);
-        Assert.Equal(DataSeeder.SeededAddressId, body.Id);
+        Assert.Equal(apiFixture.ApiFactory.DataSeeder.SeededAddressId, body.Id);
     }
 
     [Fact]
@@ -38,13 +38,13 @@ public sealed class UpdateAddressTests(IdentityWebApiFactory apiFactory)
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{Guid.NewGuid()}")
             .WithJsonContent(request)
-            .AddIdentityAuthorizationHeader(DataSeeder.SeededUserKeycloakId);
+            .AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -53,14 +53,14 @@ public sealed class UpdateAddressTests(IdentityWebApiFactory apiFactory)
         // Arrange
         UpdateAddressRequest request = DataGenerator.GenerateValidUpdateAddressRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{DataSeeder.SeededAddressId}")
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}")
             .WithJsonContent(request);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.Unauthorized);
     }
 
     [Theory]
@@ -68,14 +68,14 @@ public sealed class UpdateAddressTests(IdentityWebApiFactory apiFactory)
     public async Task UpdateAddress_ShouldReturn400_WhenPayloadInvalid(UpdateAddressRequest request)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{DataSeeder.SeededAddressId}")
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}")
             .WithJsonContent(request)
-            .AddIdentityAuthorizationHeader(DataSeeder.SeededUserKeycloakId);
+            .AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

@@ -7,7 +7,7 @@ using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Account;
 
-public sealed class GetDetailsTests(IdentityWebApiFactory apiFactory)
+public sealed class GetDetailsTests(IdentityApiFixture apiFixture) : IClassFixture<IdentityApiFixture>
 {
     private const string Endpoint = "/api/account/me";
 
@@ -16,10 +16,10 @@ public sealed class GetDetailsTests(IdentityWebApiFactory apiFactory)
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint)
-            .AddIdentityAuthorizationHeader(DataSeeder.SeededUserKeycloakId);
+            .AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -40,7 +40,7 @@ public sealed class GetDetailsTests(IdentityWebApiFactory apiFactory)
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);

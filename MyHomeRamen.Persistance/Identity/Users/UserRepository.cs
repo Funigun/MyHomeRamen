@@ -18,6 +18,10 @@ public partial class IdentityDbContext : IUserRepository
 
     public void Delete(User entity) => Users.Remove(entity);
 
+    public void Update(User entity) => Users.Update(entity);
+
+    public void Update(IEnumerable<User> entities) => Users.UpdateRange(entities);
+
     public async Task<int> ExecuteDelete(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken)
         => await Users.Where(predicate).ExecuteDeleteAsync(cancellationToken);
 

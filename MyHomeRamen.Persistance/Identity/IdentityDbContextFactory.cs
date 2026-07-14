@@ -2,9 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using MyHomeRamen.Features.Common.Configurations;
-using MyHomeRamen.Persistance.Identity;
 
-namespace MyHomeRamen.Persistance.Users;
+namespace MyHomeRamen.Persistance.Identity;
 
 public class IdentityDbContextFactory : IDesignTimeDbContextFactory<IdentityDbContext>
 {
@@ -12,10 +11,11 @@ public class IdentityDbContextFactory : IDesignTimeDbContextFactory<IdentityDbCo
     {
         IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
                                              .AddJsonFile("appsettings.json")
+                                             .AddUserSecrets<IdentityDbContext>(optional: true)
                                              .Build();
 
         DbContextOptionsBuilder<IdentityDbContext> optionsBuilder = new DbContextOptionsBuilder<IdentityDbContext>();
-        optionsBuilder.UseSqlServer(configuration["UserCartServiceDb"]);
+        optionsBuilder.UseSqlServer(configuration["UserServiceDb"]);
 
         return new IdentityDbContext(optionsBuilder.Options, new RestaurantConfigurationProvider(configuration), null!);
     }

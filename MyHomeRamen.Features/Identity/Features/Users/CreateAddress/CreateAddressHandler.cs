@@ -15,7 +15,6 @@ public sealed class CreateAddressHandler(IIdentityDbContext dbContext, ICurrentU
         Address address = command.Request.ToAddress();
 
         user!.AddAddress(address);
-
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return new CreateAddressResponse(address.Id);

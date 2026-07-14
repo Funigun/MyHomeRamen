@@ -13,8 +13,6 @@ public class User : AuditableEntity, IEntity<UserId>
 
     public UserId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public string? KeycloakUserId { get; private set; }
 
     public Guid? GuestId { get; private set; }
@@ -45,10 +43,12 @@ public class User : AuditableEntity, IEntity<UserId>
         {
             Id = Guid.CreateVersion7(),
             KeycloakUserId = keycloakUserId,
+            UserName = userName,
             FirstName = firstName,
             LastName = lastName,
             Email = email,
             PhoneNumber = phoneNumber,
+            Role = role.Name,
         };
 
         user.AddRole(role);

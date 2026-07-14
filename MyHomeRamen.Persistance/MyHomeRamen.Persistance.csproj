@@ -1,9 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <UserSecretsId>f529ae8b-2380-469c-b437-149c75cd3259</UserSecretsId>
-  </PropertyGroup>
-
+	<PropertyGroup>
+		<UserSecretsId>3c1072c7-a303-472c-a0d5-ceed9812d823</UserSecretsId>
+	</PropertyGroup>
+	
   <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Features\MyHomeRamen.Features.csproj" />
