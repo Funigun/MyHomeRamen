@@ -15,8 +15,6 @@ public interface IRepository<TEntity, TId>
 
     void Delete(TEntity entity);
 
-
-
     Task<int> ExecuteDelete(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 
     Task<int> ExecuteUpdate(Expression<Func<TEntity, bool>> filterPredicate, Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate, CancellationToken cancellationToken);
