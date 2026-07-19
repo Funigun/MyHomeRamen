@@ -1,29 +1,27 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
-using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
-using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.IntegrationTests.Common;
-using MyHomeRamen.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
-using MyHomeRamen.Persistance.ShoppingCart;
+using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
+using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.IntegrationTests.Extensions;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 
-namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
+namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
-public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory)
+public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
     private const string EndpointBase = "/api/shopping-cart/{0}/payment-details";
 
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnOk_ForBasketWithPaymentDetails()
     {
-        ShoppingCartDbContext? context = apiFactory.ShoppingCartDbContext;
-        User? user = await context.Users.FirstAsync(u => !u.IsGuest, TestContext.Current.CancellationToken);
+        User? user = await apiFactory.ShoppingCartDbContext.User.Query().FirstAsync(u => !u.IsGuest, TestContext.Current.CancellationToken);
 
-        List<Product>? products = await context.Products.Take(1).ToListAsync(TestContext.Current.CancellationToken);
+        List<Product>? products = await apiFactory.ShoppingCartDbContext.Product.Query().Take(1).ToListAsync(TestContext.Current.CancellationToken);
         Basket? basket = DataGenerator.GenerateValidBasket(user, products);
         PaymentDetails? paymentDetails = PaymentDetails.Create(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
 

@@ -1,12 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using Bogus;
-using Microsoft.Data.SqlClient;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
-using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Products.Validators;
-using MyHomeRamen.Domain.Common.Category;
-using MyHomeRamen.Domain.Common.Ingredient;
 using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
@@ -54,17 +47,31 @@ internal static class DataGenerator
                           );
        }).Generate();
 
+    internal static IEnumerable<Category> CreateIngredientCategories()
+    {
+        List<Category> categories = [];
+
+        Faker faker = new();
+
+        foreach(string name in faker.RamenMenu().IngredientCategoryNames())
+        {
+            categories.Add(CreateIngredientCategory(name));
+        }
+
+        return categories;
+    }
+
     internal static Ingredient CreateIngredient(Category category)
         => new Faker<Ingredient>()
            .CustomInstantiator(f =>
            {
-               string productName = f.RamenMenu().ProductName();
+               string productName = f.RamenMenu().IngredientName();
 
                return Ingredient.Create
                       (
                           Guid.NewGuid(),
                           productName,
-                          f.RamenMenu().ProductDescription(productName),
+                          f.RamenMenu().IngredientDescription(productName),
                           f.Random.Number(),
                           [category]
                       );
@@ -88,53 +95,4 @@ internal static class DataGenerator
                       [category]
                   );
        }).Generate();
-
-    internal static TheoryData<CreateProductRequest> InvalidCreateProductRequests()
-    {
-        Faker faker = new();
-        Guid validCategoryId = CreateProductCategory().Id;
-        Guid[] validIngredientIds = [CreateIngredient(CreateIngredientCategory()).Id];
-        string validName = faker.Random.String2(ProductNameValidator.MinLength, ProductNameValidator.MaxLength);
-        string validDescription = faker.Random.String2(ProductDescriptionValidator.MinLength, ProductDescriptionValidator.MaxLength);
-
-        return
-        [
-            new CreateProductRequest(string.Empty, validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(faker.Random.String2(1, ProductNameValidator.MinLength - 1), validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(faker.Random.String2(ProductNameValidator.MaxLength + 1, ProductNameValidator.MaxLength + 10), validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, string.Empty, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, faker.Random.String2(1, ProductDescriptionValidator.MinLength - 1), ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, faker.Random.String2(ProductDescriptionValidator.MaxLength + 1, ProductDescriptionValidator.MaxLength + 10), ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice - 0.01m, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MaxPrice + 0.01m, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, Guid.Empty, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, validCategoryId, [], []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, [Guid.Empty]),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, validIngredientIds),
-        ];
-    }
-
-    internal static TheoryData<UpdateProductRequest> InvalidUpdateProductRequests()
-    {
-        Faker faker = new();
-        Guid validCategoryId = CreateProductCategory().Id;
-        Guid[] validIngredientIds = [CreateIngredient(CreateIngredientCategory()).Id];
-        string validName = faker.Random.String2(ProductNameValidator.MinLength, ProductNameValidator.MaxLength);
-        string validDescription = faker.Random.String2(ProductDescriptionValidator.MinLength, ProductDescriptionValidator.MaxLength);
-        decimal validPrice = faker.Finance.Amount(ProductPriceValidator.MinPrice, ProductPriceValidator.MaxPrice);
-
-        return
-        [
-            new UpdateProductRequest(string.Empty, validDescription, validPrice, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(faker.Random.String2(1, ProductNameValidator.MinLength - 1), validDescription, validPrice, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(faker.Random.String2(ProductNameValidator.MaxLength + 1, ProductNameValidator.MaxLength + 10), validDescription, validPrice, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(validName, faker.Random.String2(ProductDescriptionValidator.MaxLength + 1, ProductDescriptionValidator.MaxLength + 10), validPrice, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice - 0.01m, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(validName, validDescription, ProductPriceValidator.MaxPrice + 0.01m, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(validName, validDescription, validPrice, Guid.Empty, validIngredientIds, []),
-            new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, [], []),
-            new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, validIngredientIds, [Guid.Empty]),
-            new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, validIngredientIds, validIngredientIds),
-        ];
-    }
 }

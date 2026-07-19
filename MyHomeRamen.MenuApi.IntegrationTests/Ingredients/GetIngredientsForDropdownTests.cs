@@ -1,8 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Configuration;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Ingredients;
 
@@ -16,14 +17,12 @@ public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory) : I
     public async Task GetIngredientsForDropdown_ShouldReturnOkWithList_ForAuthenticatedManager()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage("/api/menu/ingredients/dropdown")
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/dropdown")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetIngredientsForDropdownResponse>? result = await responseMessage.Content
-            .ReadFromJsonAsync<IEnumerable<GetIngredientsForDropdownResponse>>(TestContext.Current.CancellationToken);
+        IEnumerable<GetIngredientsForDropdownResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetIngredientsForDropdownResponse>>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
@@ -35,8 +34,7 @@ public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory) : I
     public async Task GetIngredientsForDropdown_ShouldReturnUnauthorized_ForUnauthenticatedUser()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage("/api/menu/ingredients/dropdown");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/dropdown");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -51,9 +49,8 @@ public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory) : I
     public async Task GetIngredientsForDropdown_ShouldReturnForbidden_ForNonManagerRole(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage("/api/menu/ingredients/dropdown")
-            .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/dropdown")
+                                                                   .AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

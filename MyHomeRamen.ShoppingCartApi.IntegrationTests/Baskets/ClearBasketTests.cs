@@ -1,11 +1,6 @@
 using System.Net;
-using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.IntegrationTests.Common;
-using MyHomeRamen.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
 
-namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
+namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 public sealed class ClearBasketTests(WebApiFactory apiFactory)
 {

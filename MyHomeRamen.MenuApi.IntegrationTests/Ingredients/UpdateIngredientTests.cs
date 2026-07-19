@@ -6,8 +6,9 @@ using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Ingredients;
@@ -21,30 +22,14 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
     public async ValueTask InitializeAsync()
     {
-        _ingredientCategory = DataGenerator.GeneratedCategories.First(c => c.CategoryType == CategoryType.Ingredient);
-        _ingredient = Ingredient.Create(
-            Guid.NewGuid(),
-            $"UpdateIngredient_{Guid.NewGuid():N}",
-            "Original description text",
-            1.50m,
-            [_ingredientCategory]);
+        _ingredientCategory = DataGenerator.CreateIngredientCategory();
+        _ingredient = DataGenerator.CreateIngredient(_ingredientCategory);
 
         apiFactory.MenuDbContext.Ingredient.Add(_ingredient);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        _ingredientA = Ingredient.Create(
-            Guid.NewGuid(),
-            $"IngredientA_{Guid.NewGuid():N}",
-            "Description for ingredient A",
-            1.00m,
-            [_ingredientCategory]);
-
-        _ingredientB = Ingredient.Create(
-            Guid.NewGuid(),
-            $"IngredientB_{Guid.NewGuid():N}",
-            "Description for ingredient B",
-            2.00m,
-            [_ingredientCategory]);
+        _ingredientA = DataGenerator.CreateIngredient(_ingredientCategory);
+        _ingredientB = DataGenerator.CreateIngredient(_ingredientCategory);
 
         apiFactory.MenuDbContext.Ingredient.AddRange([_ingredientA, _ingredientB]);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -62,10 +47,9 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
             3.99m,
             [_ingredientCategory.Id.Value]);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/ingredients/{_ingredient.Id}")
-            .WithJsonContent(request)
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredient.Id}")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -93,9 +77,8 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
         // Arrange
         Guid id = _ingredient.Id;
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/ingredients/{id}")
-            .WithJsonContent(_ingredient.ToUpdateIngredientRequest());
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{id}")
+                                                                   .WithJsonContent(_ingredient.ToUpdateIngredientRequest());
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -110,10 +93,9 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
     public async Task UpdateIngredient_ShouldReturnForbidden_ForNonAdminRole(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/ingredients/{_ingredient.Id}")
-            .WithJsonContent(_ingredient.ToUpdateIngredientRequest())
-            .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredient.Id}")
+                                                                   .WithJsonContent(_ingredient.ToUpdateIngredientRequest())
+                                                                   .AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -127,12 +109,10 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
     {
         // Arrange
         Guid nonExistentId = Guid.NewGuid();
-        Ingredient ingredient = DataGenerator.GeneratedIngredients.First();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/ingredients/{nonExistentId}")
-            .WithJsonContent(ingredient.ToUpdateIngredientRequest())
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{nonExistentId}")
+                                                                   .WithJsonContent(_ingredient.ToUpdateIngredientRequest())
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -148,10 +128,9 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
         // Arrange
         Guid id = _ingredient.Id;
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/ingredients/{id}")
-            .WithJsonContent(request)
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{id}")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -186,10 +165,9 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
         // Arrange
         UpdateIngredientRequest request = _ingredientA.ToUpdateIngredientRequest() with { Name = _ingredientB.Name };
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/ingredients/{_ingredientA.Id}")
-            .WithJsonContent(request)
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredientA.Id}")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -202,25 +180,16 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
     public async Task UpdateIngredient_ShouldReturnOk_WhenNameIsUnchanged()
     {
         // Arrange
-        Category ingredientCategory = DataGenerator.GeneratedCategories
-            .First(c => c.CategoryType == CategoryType.Ingredient);
-
-        Ingredient ingredient = Ingredient.Create(
-            Guid.NewGuid(),
-            $"SameNameTest_{Guid.NewGuid():N}",
-            "Description stays the same here",
-            2.50m,
-            [ingredientCategory]);
+        Ingredient ingredient = DataGenerator.CreateIngredient(_ingredientCategory);
 
         apiFactory.MenuDbContext.Ingredient.Add(ingredient);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         UpdateIngredientRequest request = ingredient.ToUpdateIngredientRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/ingredients/{ingredient.Id}")
-            .WithJsonContent(request)
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{ingredient.Id}")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

@@ -10,11 +10,11 @@ public sealed class DbContainerFixture : IAsyncLifetime
 {
     private readonly MsSqlContainer _sqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
                                                                   .WithPassword("Str0ng_P@ssw0rd4Tests")
-                                                                  .WithPortBinding(1200)
+                                                                  .WithPortBinding(1433)
                                                                   .WithEnvironment("ACCEPT_EULA", "Y")
                                                                   .WithName("MyHomeRamenMenuTestDb")
                                                                   .WithCleanUp(true)
-                                                                  .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1210))
+                                                                  .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1433))
                                                                   .Build();
 
     internal string ConnectionString => _sqlContainer.GetConnectionString();

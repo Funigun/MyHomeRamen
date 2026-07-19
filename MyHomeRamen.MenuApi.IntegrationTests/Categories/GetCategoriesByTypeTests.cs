@@ -2,8 +2,9 @@ using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Configuration;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;
 

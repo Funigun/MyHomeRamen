@@ -8,4 +8,7 @@ public partial class ShoppingCartDbContext : IRoleSpecification
 {
     public async Task<Role?> ByIdAsync(RoleId roleId, CancellationToken cancellationToken)
         => await Roles.Include(role => role.Permissions).FirstOrDefaultAsync(role => role.Id == roleId, cancellationToken);
+
+    public async Task<IEnumerable<Role>> GetAllWithPermissions(CancellationToken cancellationToken)
+        => await Roles.Include(role => role.Permissions).ToListAsync(cancellationToken);
 }

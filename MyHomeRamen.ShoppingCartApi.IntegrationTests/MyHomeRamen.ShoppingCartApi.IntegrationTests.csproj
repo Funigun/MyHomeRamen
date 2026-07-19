@@ -5,6 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MyHomeRamen.Api\MyHomeRamen.Api.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Common.Contracts\MyHomeRamen.Common.Contracts.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Features\MyHomeRamen.Features.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.IntegrationTests\MyHomeRamen.IntegrationTests.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 

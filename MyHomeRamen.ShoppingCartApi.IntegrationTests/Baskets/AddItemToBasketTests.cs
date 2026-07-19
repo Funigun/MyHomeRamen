@@ -1,29 +1,61 @@
 using System.Net;
 using System.Net.Http.Json;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
+using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.Ingredients;
+using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.IntegrationTests.Common;
-using MyHomeRamen.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
+using MyHomeRamen.MenuApi.IntegrationTests.Common;
+using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
-namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
+namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
-public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
+public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private const string EndpointBase = "/api/shoppingcart/basket/items";
+    private Basket _guestBasket = default!;
+    private Basket _customerBasket = default!;
+    private BasketItem _guestBasketItem = default!;
+    private BasketItem _customerBasketItem = default!;
+
+    public async ValueTask InitializeAsync()
+    {
+        Guid guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        Guid customerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        User? guestUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(guestId, TestContext.Current.CancellationToken);
+        User? customerUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(customerId, TestContext.Current.CancellationToken);
+
+        _guestBasket = DataGenerator.CreateBasket([], guestUser!);
+        _customerBasket = DataGenerator.CreateBasket([], customerUser!);
+
+        apiFactory.ShoppingCartDbContext.Basket.Add(_guestBasket);
+        apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
+        await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        Ingredient ingredient = DataGenerator.CreateIngredient();
+        Product product = DataGenerator.CreateProduct([ingredient], []);
+        _guestBasketItem = DataGenerator.CreateBasketItem(product);
+        _customerBasketItem = DataGenerator.CreateBasketItem(product);
+    }
+
+    public async ValueTask DisposeAsync() => await ValueTask.CompletedTask;
 
     [Fact]
     public async Task AddItemToBasket_ShouldReturnCreated_WhenRequestIsValidForAuthenticatedUser()
     {
         // Arrange
-        UserId userId = await apiFactory.ShoppingCartDbContext.GetUserId(false, TestContext.Current.CancellationToken);
-        AddItemToBasketRequest request = DataGenerator.ValidAddItemToBasketRequest();
+        AddItemToBasketRequest request = _customerBasketItem.ToAddBasketItemRequest();
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase)
-                                                                  .AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString())
-                                                                  .WithJsonContent(request);
+                                                                   .AddAuthorizationHeader(UserRoles.Customer, _customerBasket.User.Id.Value.ToString())
+                                                                   .WithJsonContent(request);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -44,12 +76,11 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
     public async Task AddItemToBasket_ShouldReturnCreated_WhenRequestIsValidForGuest()
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.GetUserId(true, TestContext.Current.CancellationToken);
-        AddItemToBasketRequest request = DataGenerator.ValidAddItemToBasketRequest();
+        AddItemToBasketRequest request = _guestBasketItem.ToAddBasketItemRequest();
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase)
-                                                                   .WithGuestCookie(guestId.Value.ToString())
+                                                                   .WithGuestCookie(_guestBasket.User.Id.Value.ToString())
                                                                    .WithJsonContent(request);
 
         // Act
@@ -65,11 +96,11 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
     }
 
     [Theory]
-    [MemberData(nameof(DataGenerator.InvalidAddItemToBasketRequests), MemberType = typeof(DataGenerator))]
+    [MemberData(nameof(InvalidAddItemToBasketRequests), MemberType = typeof(AddItemToBasketTests))]
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenRequestIsInvalid(AddItemToBasketRequest request)
     {
         // Arrange
-        UserId userId = await apiFactory.ShoppingCartDbContext.GetUserId(false, TestContext.Current.CancellationToken);
+        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase)
@@ -85,31 +116,29 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
 
     public static TheoryData<AddItemToBasketRequest> InvalidAddItemToBasketRequests()
     {
-        MenuProduct menuProduct = GetRandomMenuProduct();
+        Guid productId = Guid.NewGuid();
 
-        List<BasketIngredientDto> validBaseIngredients = menuProduct.BaseIngredients
-            .Select(i => new BasketIngredientDto(i.Id, 1))
-            .ToList();
+        BasketIngredientDto baseIngredient = DataGenerator.CreateIngredient().ToBasketIngredientDto();
+        BasketIngredientDto customIngredient = DataGenerator.CreateIngredient().ToBasketIngredientDto();
 
-        List<BasketIngredientDto> validCustomIngredients = menuProduct.CustomIngredients
-            .Select(i => new BasketIngredientDto(i.Id, 1))
-            .ToList();
+        List<BasketIngredientDto> validBaseIngredients = [baseIngredient];
+        List<BasketIngredientDto> validCustomIngredients = [customIngredient];
 
         string tooLongComment = new('a', BasketItemCommentValidator.MaxCommentLength + 1);
 
         return
         [
             // Quantity: below minimum
-            new AddItemToBasketRequest(menuProduct.Id, BasketItemQuantityValidator.MinQuantity - 1, validBaseIngredients, validCustomIngredients, null),
+            new AddItemToBasketRequest(productId, BasketItemQuantityValidator.MinQuantity - 1, validBaseIngredients, validCustomIngredients, null),
 
             // Quantity: above maximum
-            new AddItemToBasketRequest(menuProduct.Id, BasketItemQuantityValidator.MaxQuantity + 1, validBaseIngredients, validCustomIngredients, null),
+            new AddItemToBasketRequest(productId, BasketItemQuantityValidator.MaxQuantity + 1, validBaseIngredients, validCustomIngredients, null),
 
             // ProductId: empty
             new AddItemToBasketRequest(Guid.Empty, 1, validBaseIngredients, validCustomIngredients, null),
 
             // Comment: too long
-            new AddItemToBasketRequest(menuProduct.Id, 1, validBaseIngredients, validCustomIngredients, tooLongComment),
+            new AddItemToBasketRequest(productId, 1, validBaseIngredients, validCustomIngredients, tooLongComment),
         ];
     }
 
@@ -117,7 +146,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory)
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenProductDoesNotExist()
     {
         // Arrange
-        UserId userId = await apiFactory.ShoppingCartDbContext.GetUserId(false, TestContext.Current.CancellationToken);
+        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
 
         AddItemToBasketRequest request = new(
             Guid.NewGuid(),

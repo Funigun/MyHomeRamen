@@ -6,8 +6,10 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
+using NSubstitute;
 using StackExchange.Redis;
 using System.Security.Claims;
 
@@ -60,7 +62,7 @@ public static class ApiConfigExtensions
         services.AddSingleton<IConnectionMultiplexer>(redis);
         services.AddStackExchangeRedisCache(opt => opt.ConnectionMultiplexerFactory = () => Task.FromResult(redis));
 
-        services.AddCacheService();
+        services.AddCacheService();               
 
         return services;
     }

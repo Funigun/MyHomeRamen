@@ -2,8 +2,9 @@ using System.Net;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;

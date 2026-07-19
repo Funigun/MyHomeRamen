@@ -1,20 +1,31 @@
 using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
+using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Configuration;
+using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Ingredients;
 
 public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
-    private Ingredient _ingredient = default!;
+    private IEnumerable<Ingredient> _ingredients = default!;
+    private IEnumerable<Category> _categories = [];
 
     public async ValueTask InitializeAsync()
     {
-        _ingredient = DataGenerator.GeneratedIngredients.First();
-        await Task.CompletedTask;
+        _categories = DataGenerator.CreateIngredientCategories();
+        Ingredient firstIngredient = DataGenerator.CreateIngredient(_categories.First());
+        Ingredient secondIngredient = DataGenerator.CreateIngredient(_categories.Skip(1).First());
+        Ingredient thirdIngredient = DataGenerator.CreateIngredient(_categories.Skip(2).First());
+
+        _ingredients = [firstIngredient, secondIngredient, thirdIngredient];
+
+        apiFactory.MenuDbContext.Ingredient.AddRange(_ingredients);
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     public async ValueTask DisposeAsync() => await Task.CompletedTask;
@@ -23,14 +34,12 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetIngredientsForManage_ShouldReturnOk_ForAuthenticatedAdmin()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage("/api/menu/ingredients/manage")
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/manage")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetIngredientsForManageResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
+        GetIngredientsForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
@@ -42,8 +51,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetIngredientsForManage_ShouldReturnUnauthorized_ForUnauthenticatedUser()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage("/api/menu/ingredients/manage");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/manage");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -58,9 +66,8 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetIngredientsForManage_ShouldReturnForbidden_ForNonAdminRole(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage("/api/menu/ingredients/manage")
-            .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/manage")
+                                                                   .AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -73,16 +80,14 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetIngredientsForManage_ShouldFilterByName_WhenNameProvided()
     {
         // Arrange
-        string partialName = _ingredient.Name[..5];
+        string partialName = _ingredients.First().Name[..5];
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"/api/menu/ingredients/manage?name={Uri.EscapeDataString(partialName)}")
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/manage?name={Uri.EscapeDataString(partialName)}")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetIngredientsForManageResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
+        GetIngredientsForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
@@ -94,20 +99,17 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetIngredientsForManage_ShouldFilterByCategories_WhenCategoryIdsProvided()
     {
         // Arrange
-        Guid categoryId = _ingredient.Categories.First().Id.Value;
+        Guid categoryId = _ingredients.First().Categories[0].Id.Value;
 
-        IEnumerable<Guid> expectedIngredientIds = DataGenerator.GeneratedIngredients
-            .Where(i => i.Categories.Any(c => c.Id.Value == categoryId))
-            .Select(i => i.Id.Value);
+        IEnumerable<Guid> expectedIngredientIds = _ingredients.Where(i => i.Categories.Any(c => c.Id.Value == categoryId))
+                                                              .Select(i => i.Id.Value);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"/api/menu/ingredients/manage?categoryIds={categoryId}")
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/manage?categoryIds={categoryId}")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetIngredientsForManageResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
+        GetIngredientsForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
@@ -120,14 +122,12 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetIngredientsForManage_ShouldReturnEmptyList_WhenNoIngredientsMatchFilters()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"/api/menu/ingredients/manage?name={Guid.NewGuid()}")
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/manage?name={Guid.NewGuid()}")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetIngredientsForManageResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
+        GetIngredientsForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);

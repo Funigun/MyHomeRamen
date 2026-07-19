@@ -45,6 +45,12 @@ public static class HttpClientExtensions
             return httpRequest;
         }
 
+        public HttpRequestMessage WithGuestCookie(string guestId)
+        {
+            httpRequest.Headers.Add("Cookie", $"guest_id={guestId}");
+            return httpRequest;
+        }
+
         public HttpRequestMessage WithJsonContent<T>(T body)
         {
             httpRequest.Content = JsonContent.Create(body);

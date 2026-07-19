@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
+﻿namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 internal class UpdatePaymentDetailsTests
 {

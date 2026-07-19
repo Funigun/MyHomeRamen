@@ -1,16 +1,16 @@
 using System.Net.Http.Json;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
-using MyHomeRamen.Domain.ShoppingCart.BasketItems;
-using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.IntegrationTests.Common;
-using MyHomeRamen.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.IntegrationTests.Extensions;
+using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 
-namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
+namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
-public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
+public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
     private const string EndpointBase = "/api/shoppingcart/basket/summary";
 
@@ -21,7 +21,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
     public async Task GetCurrentBasketSummary_ShouldReturnOk_ForAnyAuthenticatedRole(UserRoles role)
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.GetUserId(false, TestContext.Current.CancellationToken);
+        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
 
         using HttpClient client = apiFactory.CreateClient();
         HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).AddAuthorizationHeader(role, guestId.Value.ToString());
@@ -46,7 +46,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
     public async Task GetCurrentBasketSummary_ShouldReturnBasketWithCorrectItems_ForAnyAuthenticatedRole(UserRoles role)
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.GetUserId(false, TestContext.Current.CancellationToken);
+        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
 
         using HttpClient client = apiFactory.CreateClient();
         HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).AddAuthorizationHeader(role, guestId.Value.ToString());
@@ -74,7 +74,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
     public async Task GetCurrentBasketSummary_ShouldReturnOk_ForGuest()
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.GetUserId(true, TestContext.Current.CancellationToken);
+        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
 
         using HttpClient client = apiFactory.CreateClient();
         HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).WithGuestCookie(guestId.Value.ToString());
@@ -95,7 +95,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory)
     public async Task GetCurrentBasketSummary_ShouldReturnBasketWithCorrectItems_ForGuest()
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.GetUserId(true, TestContext.Current.CancellationToken);
+        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
 
         using HttpClient client = apiFactory.CreateClient();
         HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).WithGuestCookie(guestId.Value.ToString());

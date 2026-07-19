@@ -3,17 +3,14 @@ using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
-using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.IntegrationTests.Common;
-using MyHomeRamen.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IntegrationTests.ShoppingCartModule.Common.Data;
-using MyHomeRamen.Persistance.ShoppingCart;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
+using MyHomeRamen.MenuApi.IntegrationTests.Common;
 
-namespace MyHomeRamen.IntegrationTests.ShoppingCartModule.Baskets;
+namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
-public sealed class GetShippingDetailsTests(WebApiFactory apiFactory)
+public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
     private const string EndpointBase = "/api/shopping-cart/{0}/shipping-details";
 

@@ -1,68 +1,39 @@
 using System.Net;
 using System.Net.Http.Json;
+using Bogus;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
+using MyHomeRamen.Common.Contracts.Menu.Products.Validators;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
-using MyHomeRamen.IntegrationTests.Common;
-using MyHomeRamen.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IntegrationTests.MenuModule.Common.Data;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
+using MyHomeRamen.MenuApi.IntegrationTests.Common;
+using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Products;
 
 public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
-    private Product _product = default!;
-    private Product _productA = default!;
-    private Product _productB = default!;
-    private Category _productCategory = default!;
-    private Ingredient _ingredient = default!;
+    private static Product _product = default!;
+    private static Product _productA = default!;
+    private static Product _productB = default!;
+    private static Category _productCategory = default!;
+    private static Ingredient _ingredient = default!;
 
     public async ValueTask InitializeAsync()
     {
-        _productCategory = DataGenerator.GenerateValidCategory(CategoryType.Product);
-        _ingredient = Ingredient.Create(
-            Guid.NewGuid(),
-            $"UpdateProduct_{Guid.NewGuid():N}",
-            "Ingredient description that is long enough to be valid.",
-            1.50m,
-            [DataGenerator.GeneratedCategories.First(c => c.CategoryType == CategoryType.Ingredient)]);
+        _productCategory = DataGenerator.CreateProductCategory();
+        Category ingredientCategory = DataGenerator.CreateIngredientCategory();
+        _ingredient = DataGenerator.CreateIngredient(ingredientCategory);
+        _product = DataGenerator.CreateProduct([_ingredient], [], _productCategory);
+        _productA = DataGenerator.CreateProduct([_ingredient], [], _productCategory);
+        _productB = DataGenerator.CreateProduct([_ingredient], [], _productCategory);
 
-        _product = Product.Create(
-            Guid.NewGuid(),
-            $"UpdateProduct_{Guid.NewGuid():N}",
-            "Original product description that is long enough to pass validation.",
-            10.0m,
-            string.Empty,
-            [_ingredient],
-            [],
-            [_productCategory]);
-
-        apiFactory.MenuDbContext.Product.Add(_product);
-        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        _productA = Product.Create(
-            Guid.NewGuid(),
-            $"ProductA_{Guid.NewGuid():N}",
-            "Description for product A that is long enough to pass validation.",
-            10.0m,
-            string.Empty,
-            [_ingredient],
-            [],
-            [_productCategory]);
-
-        _productB = Product.Create(
-            Guid.NewGuid(),
-            $"ProductB_{Guid.NewGuid():N}"[..20],
-            "Description for product B that is long enough to pass validation.",
-            15.0m,
-            string.Empty,
-            [_ingredient],
-            [],
-            [_productCategory]);
-
-        apiFactory.MenuDbContext.Product.AddRange([_productA, _productB]);
+        apiFactory.MenuDbContext.Category.Add(_productCategory);
+        apiFactory.MenuDbContext.Ingredient.Add(_ingredient);
+        apiFactory.MenuDbContext.Product.AddRange([_product, _productA, _productB]);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
@@ -80,10 +51,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
             [_ingredient.Id],
             []);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/products/{_product.Id}")
-            .WithJsonContent(request)
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_product.Id}")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -110,10 +80,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         Guid nonExistentId = Guid.NewGuid();
         UpdateProductRequest request = _product.ToUpdateProductRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/products/{nonExistentId}")
-            .WithJsonContent(request)
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{nonExistentId}")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -128,9 +97,8 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         // Arrange
         Guid id = _product.Id;
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/products/{id}")
-            .WithJsonContent(_product.ToUpdateProductRequest());
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{id}")
+                                                                   .WithJsonContent(_product.ToUpdateProductRequest());
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -145,10 +113,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
     public async Task UpdateProduct_ShouldReturnForbidden_ForNonAdminUser(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/products/{_product.Id}")
-            .WithJsonContent(_product.ToUpdateProductRequest())
-            .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_product.Id}")
+                                                                   .WithJsonContent(_product.ToUpdateProductRequest())
+                                                                   .AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -163,10 +130,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         // Arrange
         UpdateProductRequest request = _productA.ToUpdateProductRequest() with { Name = _productB.Name };
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/products/{_productA.Id}")
-            .WithJsonContent(request)
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_productA.Id}")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -176,21 +142,44 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
     }
 
     [Theory]
-    [MemberData(nameof(DataGenerator.InvalidUpdateProductRequests), MemberType = typeof(DataGenerator))]
+    [MemberData(nameof(InvalidUpdateProductRequests), MemberType = typeof(UpdateProductTests))]
     public async Task UpdateProduct_ShouldReturnBadRequest_ForInvalidRequest(UpdateProductRequest request)
     {
         // Arrange
         Guid id = _product.Id;
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreatePutMessage($"/api/menu/products/{id}")
-            .WithJsonContent(request)
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{id}")
+                                                                   .WithJsonContent(request)
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         await response.AssertStatusCode(HttpStatusCode.BadRequest);
+    }
+
+    public static TheoryData<UpdateProductRequest> InvalidUpdateProductRequests()
+    {
+        Faker faker = new();
+        Guid validCategoryId = _productCategory.Id;
+        Guid[] validIngredientIds = [ _ingredient.Id ];
+        string validName = faker.Random.String2(ProductNameValidator.MinLength, ProductNameValidator.MaxLength);
+        string validDescription = faker.Random.String2(ProductDescriptionValidator.MinLength, ProductDescriptionValidator.MaxLength);
+        decimal validPrice = faker.Finance.Amount(ProductPriceValidator.MinPrice, ProductPriceValidator.MaxPrice);
+
+        return
+        [
+            new UpdateProductRequest(string.Empty, validDescription, validPrice, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(faker.Random.String2(1, ProductNameValidator.MinLength - 1), validDescription, validPrice, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(faker.Random.String2(ProductNameValidator.MaxLength + 1, ProductNameValidator.MaxLength + 10), validDescription, validPrice, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(validName, faker.Random.String2(ProductDescriptionValidator.MaxLength + 1, ProductDescriptionValidator.MaxLength + 10), validPrice, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice - 0.01m, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(validName, validDescription, ProductPriceValidator.MaxPrice + 0.01m, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(validName, validDescription, validPrice, Guid.Empty, validIngredientIds, []),
+            new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, [], []),
+            new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, validIngredientIds, [Guid.Empty]),
+            new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, validIngredientIds, validIngredientIds),
+        ];
     }
 }

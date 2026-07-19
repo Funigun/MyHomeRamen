@@ -2,21 +2,32 @@ using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Configuration;
+using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Products;
 
 public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
-    private Category _productCategory = default!;
-    private Category _emptyCategory = default!;
+    private Category _ingredientCategory = default!;
+    private IEnumerable<Category> _productCategories = [];
 
     public async ValueTask InitializeAsync()
     {
-        _productCategory = DataGenerator.GeneratedProducts.First().Categories.First(c => c.CategoryType == CategoryType.Product);
-        _emptyCategory = DataGenerator.GenerateValidCategory(CategoryType.Product);
-        await Task.CompletedTask;
+        _productCategories = DataGenerator.CreateProductCategories(3);
+        _ingredientCategory = DataGenerator.CreateIngredientCategory();
+        Ingredient ingredient = DataGenerator.CreateIngredient(_ingredientCategory);
+        Product product = DataGenerator.CreateProduct([ingredient], [], _productCategories.First());
+        Product secondProduct = DataGenerator.CreateProduct([ingredient], [], _productCategories.Skip(1).First());
+        Product thirdProduct = DataGenerator.CreateProduct([ingredient], [], _productCategories.Skip(2).First());
+
+        apiFactory.MenuDbContext.Category.AddRange(_productCategories);
+        apiFactory.MenuDbContext.Ingredient.Add(ingredient);
+        apiFactory.MenuDbContext.Product.AddRange([product, secondProduct, thirdProduct]);
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     public async ValueTask DisposeAsync() => await Task.CompletedTask;
@@ -25,7 +36,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory) : IClas
     public async Task GetProductsByCategory_ShouldReturnOkWithProducts_ForValidProductCategory()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={_productCategory.Id.Value}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={_productCategories.First().Id.Value}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -47,10 +58,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory) : IClas
     public async Task GetProductsByCategory_ShouldReturnEmptyList_ForValidCategoryWithNoProducts()
     {
         // Arrange
-        apiFactory.MenuDbContext.Category.Add(_emptyCategory);
-        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={_emptyCategory.Id.Value}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={_productCategories.Last().Id.Value}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -92,9 +100,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory) : IClas
     public async Task GetProductsByCategory_ShouldReturnBadRequest_ForIngredientCategory()
     {
         // Arrange
-        Category ingredientCategory = DataGenerator.GeneratedCategories.First(c => c.CategoryType == CategoryType.Ingredient);
-
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={ingredientCategory.Id.Value}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/products?categoryId={_ingredientCategory.Id.Value}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

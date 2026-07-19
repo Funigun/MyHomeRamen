@@ -1,9 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
+using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Configuration;
+using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Products;
 
@@ -14,8 +18,15 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
 
     public async ValueTask InitializeAsync()
     {
-        _product = DataGenerator.GeneratedProducts.First();
-        await Task.CompletedTask;
+        Category ingredientCategory = DataGenerator.CreateIngredientCategory();
+        Category productCategory = DataGenerator.CreateProductCategory();
+        Ingredient ingredient = DataGenerator.CreateIngredient(ingredientCategory);
+        _product = DataGenerator.CreateProduct([ingredient], [], productCategory);
+
+        apiFactory.MenuDbContext.Category.AddRange([ingredientCategory, productCategory]);
+        apiFactory.MenuDbContext.Ingredient.Add(ingredient);
+        apiFactory.MenuDbContext.Product.Add(_product);
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     public async ValueTask DisposeAsync() => await Task.CompletedTask;
@@ -24,9 +35,8 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetProductByIdForManage_ShouldReturnOk_ForAuthenticatedAdmin()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage")
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -45,8 +55,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetProductByIdForManage_ShouldReturnUnauthorized_ForUnauthenticatedUser()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -61,9 +70,8 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetProductByIdForManage_ShouldReturnForbidden_ForNonAdminRole(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage")
-            .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage")
+                                                                   .AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -76,9 +84,8 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetProductByIdForManage_ShouldReturnBadRequest_ForNonExistentId()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}/manage")
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}/manage")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -91,18 +98,15 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
     public async Task GetProductByIdForManage_ResponseShouldContainCategoryAndIngredientIds()
     {
         // Arrange
-        Product product = DataGenerator.GeneratedProducts.First(p => p.Categories.Count > 0 && p.BaseIngredients.Count > 0);
-        Guid expectedCategoryId = product.Categories.First().Id.Value;
-        IEnumerable<Guid> expectedIngredientIds = product.BaseIngredients.Select(i => i.Id.Value);
+        Guid expectedCategoryId = _product.Categories[0].Id.Value;
+        IEnumerable<Guid> expectedIngredientIds = _product.BaseIngredients.Select(i => i.Id.Value);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{product.Id.Value}/manage")
-            .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetProductByIdForManageResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetProductByIdForManageResponse>(TestContext.Current.CancellationToken);
+        GetProductByIdForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetProductByIdForManageResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
