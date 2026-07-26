@@ -22,7 +22,7 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory) : IClas
         Ingredient ingredient = DataGenerator.CreateIngredient(_ingredientCategory);
         Product product = DataGenerator.CreateProduct([ingredient], [], _productCategories.First());
         Product secondProduct = DataGenerator.CreateProduct([ingredient], [], _productCategories.Skip(1).First());
-        Product thirdProduct = DataGenerator.CreateProduct([ingredient], [], _productCategories.Skip(2).First());
+        Product thirdProduct = DataGenerator.CreateProduct([ingredient], [], _productCategories.Skip(1).First());
 
         apiFactory.MenuDbContext.Category.AddRange(_productCategories);
         apiFactory.MenuDbContext.Ingredient.Add(ingredient);

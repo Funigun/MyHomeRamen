@@ -40,7 +40,7 @@ internal class DataGenerator
                              f.ShoppingCart().ProductOriginalId(productName),
                              productName,
                              f.ShoppingCart().ProductDescription(productName),
-                             f.Random.Number(),
+                             f.Random.Number(1, 45),
                              "",
                              baseIngredients.ToList(),
                              customIngredients.ToList()

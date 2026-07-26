@@ -61,17 +61,19 @@ internal static class DataGenerator
         return categories;
     }
 
-    internal static Ingredient CreateIngredient(Category category)
+    internal static Ingredient CreateIngredient(Category category, string? name = null)
         => new Faker<Ingredient>()
            .CustomInstantiator(f =>
            {
-               string productName = f.RamenMenu().IngredientName();
+               string ingName = name ?? f.RamenMenu().IngredientName();
+               string ingDescription = name is null ? f.RamenMenu().IngredientDescription(ingName) : $"{name} description";
+
 
                return Ingredient.Create
                       (
                           Guid.NewGuid(),
-                          productName,
-                          f.RamenMenu().IngredientDescription(productName),
+                          ingName,
+                          ingDescription,
                           f.Random.Number(),
                           [category]
                       );
@@ -88,7 +90,7 @@ internal static class DataGenerator
                       Guid.CreateVersion7(),
                       productName,
                       f.RamenMenu().ProductDescription(productName),
-                      f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice),
+                      Math.Round(f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice), 2),
                       "",
                       baseIngredients,
                       customIngredients,

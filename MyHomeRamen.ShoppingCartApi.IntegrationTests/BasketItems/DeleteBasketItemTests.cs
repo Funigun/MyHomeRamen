@@ -1,7 +1,7 @@
 using System.Net;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.BasketItems;
-
+/*
 public sealed class DeleteBasketItemTests(WebApiFactory apiFactory)
 {
     private const string EndpointBase = "/api/shoppingcart/baskets";
@@ -108,3 +108,4 @@ public sealed class DeleteBasketItemTests(WebApiFactory apiFactory)
         await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }
+*/

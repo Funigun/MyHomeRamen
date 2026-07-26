@@ -13,7 +13,7 @@ internal static class Mappings
         {
             return new AddItemToBasketRequest
             (
-                item.Id.Value,
+                item.Product.OriginalId,
                 item.Quantity,
                 item.Product.BaseIngredients.Select(i => new BasketIngredientDto(i.Id.Value, i.Quantity)).ToList(),
                 item.Product.CustomIngredients.Select(i => new BasketIngredientDto(i.Id.Value, i.Quantity)).ToList(),

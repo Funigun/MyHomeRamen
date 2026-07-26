@@ -16,8 +16,8 @@ public sealed class GetMenuCategoriesTests(WebApiFactory apiFactory) : IClassFix
     public async Task GetMenuCategories_ShouldReturn_OnlyProductCategories()
     {
         // Arrange
-        Category ingredientCategory = DataGenerator.CreateProductCategory();
-        Category productCategory = DataGenerator.CreateIngredientCategory();
+        Category productCategory = DataGenerator.CreateProductCategory();
+        Category ingredientCategory = DataGenerator.CreateIngredientCategory();
         apiFactory.MenuDbContext.Category.AddRange([ingredientCategory, productCategory]);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

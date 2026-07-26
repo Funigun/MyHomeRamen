@@ -35,8 +35,7 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
 
         RuleFor(x => x.UpdateProductRequest.CategoryId)
             .NotEmpty()
-            .MustAsync(async (id, cancellation) =>
-                await dbContext.Category.Exists(c => c.Id == new CategoryId(id), cancellation))
+            .MustAsync(async (id, cancellation) => await dbContext.Category.Exists(c => c.Id == new CategoryId(id), cancellation))
             .WithMessage("Category does not exist.");
 
         RuleFor(x => x.UpdateProductRequest.IngredientIds)

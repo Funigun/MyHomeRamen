@@ -5,12 +5,29 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
+using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;
 
-public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
+public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private const string EndpointBase = "/api/menu/categories/by-type";
+
+    
+
+    public async ValueTask InitializeAsync()
+    {
+        Category productCategory = DataGenerator.CreateProductCategory();
+        Category secondProductCategory = DataGenerator.CreateProductCategory();
+        Category prodcutCategoryDuplicateCheck = DataGenerator.CreateProductCategory();
+        IEnumerable<Category> ingredientCategories = DataGenerator.CreateIngredientCategories();
+
+        apiFactory.MenuDbContext.Category.AddRange(new[] { productCategory, secondProductCategory, prodcutCategoryDuplicateCheck }.Concat(ingredientCategories));
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
+    public async ValueTask DisposeAsync() => await Task.CompletedTask;
 
     [Fact]
     public async Task GetCategoriesByType_ShouldReturnOkWithList_ForIngredientType()
@@ -38,9 +55,12 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        IEnumerable<GetCategoriesByTypeResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
     }
 
     [Fact]

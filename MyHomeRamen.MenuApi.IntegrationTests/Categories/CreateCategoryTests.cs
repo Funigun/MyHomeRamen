@@ -14,11 +14,15 @@ namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;
 public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private Category _productCategory = default!;
+    private Category _prodcutCategoryDuplicateCheck = default!;
 
     public async ValueTask InitializeAsync()
     {
-        _productCategory = DataGenerator.CreateProductCategory();
-        await Task.CompletedTask;
+        _productCategory = DataGenerator.CreateProductCategory("New product category");
+        _prodcutCategoryDuplicateCheck = DataGenerator.CreateProductCategory();
+
+        apiFactory.MenuDbContext.Category.Add(_prodcutCategoryDuplicateCheck);
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
     public async ValueTask DisposeAsync() => await Task.CompletedTask;
@@ -123,7 +127,7 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest;
-        CreateCategoryRequest request = _productCategory.ToCreateCategoryRequest();
+        CreateCategoryRequest request = _prodcutCategoryDuplicateCheck.ToCreateCategoryRequest();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories")
                                                                    .WithJsonContent(request)

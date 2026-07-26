@@ -17,10 +17,12 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
     public HttpClient HttpClient { get; private set; } = default!;
 
+    private readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};");
+
     async ValueTask IAsyncLifetime.InitializeAsync()
     {
         FakeUser user = new();
-        DbContextOptions<MenuDbContext> options = new DbContextOptionsBuilder<MenuDbContext>().UseSqlServer(dbFixture.ConnectionString).Options;
+        DbContextOptions<MenuDbContext> options = new DbContextOptionsBuilder<MenuDbContext>().UseSqlServer(_connectionString).Options;
         MenuDbContext = new MenuDbContext(options, user);
 
         await DataSeeder.SeedMenuModule(MenuDbContext);
@@ -40,7 +42,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
     {
         builder.ConfigureServices(services =>
         {
-            services.ReconfigureDbContext<MenuDbContext>(dbFixture.ConnectionString);
+            services.ReconfigureDbContext<MenuDbContext>(_connectionString);
             services.ReconfigureCache(redisFixture.ConnectionString);
             services.ReconfigureTokenOptions();
             services.ReconfigureClaimsTransformation();

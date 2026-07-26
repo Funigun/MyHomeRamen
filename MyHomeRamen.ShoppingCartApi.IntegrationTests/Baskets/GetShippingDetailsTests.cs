@@ -1,12 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
+using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
@@ -17,19 +19,16 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
     [Fact]
     public async Task GetShippingDetails_ShouldReturnOk_ForBasketWithShippingDetails()
     {
-        ShoppingCartDbContext? context = apiFactory.ShoppingCartDbContext;
-        User? user = await context.Users.FirstAsync(u => !u.IsGuest, TestContext.Current.CancellationToken);
+        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        User user = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(userId, TestContext.Current.CancellationToken))!;
 
-        List<Product>? products = await context.Products.Take(1).ToListAsync(TestContext.Current.CancellationToken);
-        Basket? basket = DataGenerator.GenerateValidBasket(user, products);
+        ShoppingCartDataSet shoppingCartDataSet = new();
+        ShippingDetails shippingDetails = shoppingCartDataSet.DeliveryShippingDetails();
+        Product product = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
+        Basket basket = DataGenerator.CreateBasket([DataGenerator.CreateBasketItem(product)], user!, shippingDetails: shippingDetails);
 
-        ShippingAddress? address = new("Street 1", "10", "2", "City", "12-345");
-        ShippingDetails? shippingDetails = ShippingDetails.CreateDelivery(address);
-
-        typeof(Basket).GetProperty(nameof(Basket.ShippingDetails))!.SetValue(basket, shippingDetails);
-
-        context.ShoppingCarts.Add(basket);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        apiFactory.ShoppingCartDbContext.Basket.Add(basket);
+        await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         string url = string.Format(EndpointBase, basket.Id.Value);
 
@@ -45,15 +44,15 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
         Assert.False(responseBody.PersonalPickup);
         Assert.True(responseBody.Delivery);
         Assert.NotNull(responseBody.ShippingAddress);
-        Assert.Equal("Street 1", responseBody.ShippingAddress.Street);
+        Assert.Equal("Test street", responseBody.ShippingAddress.Street);
     }
 
     [Fact]
     public async Task GetShippingDetails_ShouldReturnBadRequest_ForNonExistentBasket()
     {
-        ShoppingCartDbContext? context = apiFactory.ShoppingCartDbContext;
-        User? user = await context.Users.FirstAsync(u => !u.IsGuest, TestContext.Current.CancellationToken);
-        
+        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        User user = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(userId, TestContext.Current.CancellationToken))!;
+
         string url = string.Format(EndpointBase, Guid.NewGuid());
 
         using HttpClient client = apiFactory.CreateClient();
@@ -68,22 +67,22 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
     [Fact]
     public async Task GetShippingDetails_ShouldReturnBadRequest_ForBasketOfAnotherUser()
     {
-        ShoppingCartDbContext? context = apiFactory.ShoppingCartDbContext;
-        List<User>? users = await context.Users.Where(u => !u.IsGuest).Take(2).ToListAsync(TestContext.Current.CancellationToken);
-        User? basketOwner = users[0];
-        User? otherUser = users[1];
+        UserId basketOwnerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        UserId otherUserId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        User basketOwner = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(basketOwnerId, TestContext.Current.CancellationToken))!;
+        User otherUser = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(otherUserId, TestContext.Current.CancellationToken))!;
 
-        List<Product>? products = await context.Products.Take(1).ToListAsync(TestContext.Current.CancellationToken);
-        Basket? basket = DataGenerator.GenerateValidBasket(basketOwner, products);
+        Product product = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
+        Basket? basket = DataGenerator.CreateBasket([DataGenerator.CreateBasketItem(product)], basketOwner);
 
-        context.ShoppingCarts.Add(basket);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        apiFactory.ShoppingCartDbContext.Basket.Add(basket);
+        await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         string url = string.Format(EndpointBase, basket.Id.Value);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)
-                                                                  .AddAuthorizationHeader(UserRoles.Customer, otherUser.Id.Value.ToString());
+                                                                   .AddAuthorizationHeader(UserRoles.Customer, otherUser.Id.Value.ToString());
 
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 

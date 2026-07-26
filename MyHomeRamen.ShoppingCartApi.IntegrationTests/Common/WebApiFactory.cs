@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
 using MyHomeRamen.Common.Contracts.Menu;
@@ -21,10 +22,12 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
     public HttpClient HttpClient { get; private set; } = default!;
 
+    private readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};");
+
     async ValueTask IAsyncLifetime.InitializeAsync()
     {
         FakeUser user = new();
-        DbContextOptions<ShoppingCartDbContext> options = new DbContextOptionsBuilder<ShoppingCartDbContext>().UseSqlServer(dbFixture.ConnectionString).Options;
+        DbContextOptions<ShoppingCartDbContext> options = new DbContextOptionsBuilder<ShoppingCartDbContext>().UseSqlServer(_connectionString).Options;
         ShoppingCartDbContext = new ShoppingCartDbContext(options, user);
 
         await DataSeeder.SeedDatabase(ShoppingCartDbContext);
@@ -44,7 +47,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
     {
         builder.ConfigureServices(services =>
         {
-            services.ReconfigureDbContext<ShoppingCartDbContext>(dbFixture.ConnectionString);
+            services.ReconfigureDbContext<ShoppingCartDbContext>(_connectionString);
             services.ReconfigureCache(redisFixture.ConnectionString);
             services.ReconfigureTokenOptions();
             services.ReconfigureClaimsTransformation();
@@ -56,7 +59,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         .UseEnvironment("Test");
     }
 
-    private void MockMenuService(IServiceCollection services)
+    private static void MockMenuService(IServiceCollection services)
     {
         ServiceDescriptor? descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IMenuService));
 
@@ -67,13 +70,46 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
         IMenuService menuService = Substitute.For<IMenuService>();
 
-        menuService.ValidateProductConfigurationAsync(Arg.Is<Guid>(id => ShoppingCartDataSet.OriginalProductIds.Contains(id)), Arg.Any<List<Guid>>(), Arg.Any<List<Guid>>(), Arg.Any<CancellationToken>())
-                   .Returns(Task.FromResult(true));
+        menuService.ValidateProductConfigurationAsync(
+                Arg.Is<Guid>(id => ShoppingCartDataSet.OriginalProductIds.Contains(id)),
+                Arg.Any<List<Guid>>(),
+                Arg.Any<List<Guid>>(),
+                Arg.Any<CancellationToken>())
+            .Returns(Task.FromResult(true));
+
+        menuService.GetProductWithSelectedIngredientsAsync(
+                Arg.Is<Guid>(id => ShoppingCartDataSet.OriginalProductIds.Contains(id)),
+                Arg.Any<List<Guid>>(),
+                Arg.Any<List<Guid>>(),
+                Arg.Any<CancellationToken>())
+            .Returns(callInfo =>
+            {
+                Guid productId = callInfo.ArgAt<Guid>(0);
+                List<Guid> baseIngredientIds = callInfo.ArgAt<List<Guid>>(1);
+                List<Guid> customIngredientIds = callInfo.ArgAt<List<Guid>>(2);
+
+                IReadOnlyList<MenuIngredientResult> baseIngredients = baseIngredientIds
+                    .Select((Guid id, int index) => new MenuIngredientResult(id, $"Base Ingredient {index}", "Base ingredient", 1m))
+                    .ToList();
+
+                IReadOnlyList<MenuIngredientResult> customIngredients = customIngredientIds
+                    .Select((Guid id, int index ) => new MenuIngredientResult(id, $"Custom Ingredient {index}", "Custom ingredient", 1m))
+                    .ToList();
+
+                return Task.FromResult<MenuProductResult?>(new MenuProductResult(
+                    productId,
+                    "Test Product",
+                    "Test Product Description",
+                    10m,
+                    string.Empty,
+                    baseIngredients,
+                    customIngredients));
+            });
 
         services.AddSingleton(menuService);
     }
 
-    private void MockPaymentsService(IServiceCollection services)
+    private static void MockPaymentsService(IServiceCollection services)
     {
         ServiceDescriptor? descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IPaymentService));
         if (descriptor is not null)

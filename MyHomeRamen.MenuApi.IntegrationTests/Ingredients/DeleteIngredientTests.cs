@@ -1,6 +1,7 @@
 using System.Net;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -11,14 +12,23 @@ namespace MyHomeRamen.MenuApi.IntegrationTests.Ingredients;
 public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private Ingredient _standaloneIngredient = default!;
+    private Ingredient _productIngredient = default!;
+    private Ingredient _customIngredient = default!;
     private Category _ingredientCategory = default!;
 
     public async ValueTask InitializeAsync()
     {
         _ingredientCategory = DataGenerator.CreateIngredientCategory();
         _standaloneIngredient = DataGenerator.CreateIngredient(_ingredientCategory);
+        _productIngredient = DataGenerator.CreateIngredient(_ingredientCategory);
+        _customIngredient = DataGenerator.CreateIngredient(_ingredientCategory);
 
+        Category productCategory = DataGenerator.CreateProductCategory();
+        Product product = DataGenerator.CreateProduct([_productIngredient], [], productCategory);
+        Product productWithCustoms = DataGenerator.CreateProduct([_productIngredient], [_customIngredient], productCategory);
         apiFactory.MenuDbContext.Ingredient.Add(_standaloneIngredient);
+        apiFactory.MenuDbContext.Product.AddRange([product, productWithCustoms]);
+
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
@@ -91,7 +101,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixt
     public async Task DeleteIngredient_ShouldReturnBadRequest_WhenIngredientIsUsedAsBaseIngredient()
     {
         // Arrange — derive ingredient from a tracked generated product so the reference is guaranteed
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{_standaloneIngredient.Id.Value}")
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{_productIngredient.Id.Value}")
                                                                    .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
@@ -105,7 +115,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixt
     public async Task DeleteIngredient_ShouldReturnBadRequest_WhenIngredientIsUsedAsCustomIngredient()
     {
         // Arrange — derive ingredient from a tracked generated product so the reference is guaranteed
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{_standaloneIngredient.Id.Value}")
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{_customIngredient.Id.Value}")
                                                                    .AddAuthorizationHeader(UserRoles.Admin);
 
         // Act

@@ -2,7 +2,7 @@ namespace MyHomeRamen.Domain.Common.Ingredient;
 
 public static class IngredientConstants
 {
-    public const int MinNameLength = 10;
+    public const int MinNameLength = 5;
 
     public const int MaxNameLength = 50;
 

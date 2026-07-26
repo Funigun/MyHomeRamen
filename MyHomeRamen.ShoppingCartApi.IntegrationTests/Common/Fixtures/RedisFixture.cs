@@ -8,10 +8,7 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Fixtures;
 
 public sealed class RedisFixture : IAsyncLifetime
 {
-    private readonly RedisContainer _redisContainer = new RedisBuilder("redis:8.2")
-        .WithPortBinding(1450)
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1460))
-        .Build();
+    private readonly RedisContainer _redisContainer = new RedisBuilder("redis:8.2").Build();
 
     internal string ConnectionString => _redisContainer.GetConnectionString();
 

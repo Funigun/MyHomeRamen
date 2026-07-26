@@ -1,12 +1,15 @@
 using System.Net;
+using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
+using Org.BouncyCastle.Math.EC;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;
 
@@ -34,11 +37,15 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.NoContent);
 
-        IEnumerable<Category> updatedCategories = await apiFactory.MenuDbContext.Category.Query().GetByIds(items.Select(i => (CategoryId)i.Id), TestContext.Current.CancellationToken);
+        using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}")
+                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+
+        HttpResponseMessage assertResponse = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
+        IEnumerable<GetCategoriesByTypeResponse>? updatedCategories = await assertResponse.Content.ReadFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>(TestContext.Current.CancellationToken);
 
         foreach (CategoryOrderItemDto item in items)
         {
-            Category? updated = updatedCategories.FirstOrDefault(c => c.Id.Value == item.Id);
+            GetCategoriesByTypeResponse? updated = updatedCategories.FirstOrDefault(c => c.Id == item.Id);
 
             Assert.NotNull(updated);
             Assert.Equal(item.SortOrder, updated.SortOrder);

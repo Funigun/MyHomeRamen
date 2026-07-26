@@ -52,7 +52,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(expectedStatusCode);
         Assert.True(responseMessage.Headers.Location != null, "Expected Location header to be present in the response.");
     }
 
@@ -71,7 +71,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(expectedStatusCode);
     }
 
     [Theory]
@@ -91,8 +91,8 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        // assert
+        await responseMessage.AssertStatusCode(expectedStatusCode);
     }
 
     [Theory]
@@ -110,7 +110,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.True(responseMessage.StatusCode == expectedStatusCode, $"Expected status code {expectedStatusCode} but got {responseMessage.StatusCode}.");
+        await responseMessage.AssertStatusCode(expectedStatusCode);
     }
 
     public static TheoryData<CreateProductRequest> InvalidCreateProductRequests()

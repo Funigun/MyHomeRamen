@@ -1,5 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Common.Contracts.Menu.Products.Validators;
+using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 
@@ -24,7 +25,7 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
 
         RuleFor(x => x.CreateProductRequest.CategoryId)
             .NotEmpty()
-            .MustAsync(async (id, cancellation) => await dbContext.Category.Exists(c => c.Id.Value == id, cancellation))
+            .MustAsync(async (id, cancellation) => await dbContext.Category.Exists(c => c.Id == new CategoryId(id), cancellation))
             .WithMessage("Category does not exist.");
 
         RuleFor(x => x.CreateProductRequest.IngredientIds)

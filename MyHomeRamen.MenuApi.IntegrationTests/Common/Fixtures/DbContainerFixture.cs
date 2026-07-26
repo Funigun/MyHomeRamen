@@ -9,12 +9,11 @@ namespace MyHomeRamen.MenuApi.IntegrationTests.Common.Fixtures;
 public sealed class DbContainerFixture : IAsyncLifetime
 {
     private readonly MsSqlContainer _sqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
+                                                                  .WithPortBinding(14333, 1433)
                                                                   .WithPassword("Str0ng_P@ssw0rd4Tests")
-                                                                  .WithPortBinding(1433)
                                                                   .WithEnvironment("ACCEPT_EULA", "Y")
                                                                   .WithName("MyHomeRamenMenuTestDb")
                                                                   .WithCleanUp(true)
-                                                                  .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1433))
                                                                   .Build();
 
     internal string ConnectionString => _sqlContainer.GetConnectionString();

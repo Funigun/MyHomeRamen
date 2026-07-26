@@ -10,6 +10,7 @@ using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
+using Org.BouncyCastle.Math.EC;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Ingredients;
 
@@ -23,19 +24,25 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
     public async ValueTask InitializeAsync()
     {
         _ingredientCategory = DataGenerator.CreateIngredientCategory();
-        _ingredient = DataGenerator.CreateIngredient(_ingredientCategory);
+        _ingredient = DataGenerator.CreateIngredient(_ingredientCategory, "Ingredient");
 
         apiFactory.MenuDbContext.Ingredient.Add(_ingredient);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        _ingredientA = DataGenerator.CreateIngredient(_ingredientCategory);
-        _ingredientB = DataGenerator.CreateIngredient(_ingredientCategory);
+        _ingredientA = DataGenerator.CreateIngredient(_ingredientCategory, "Ingredient A");
+        _ingredientB = DataGenerator.CreateIngredient(_ingredientCategory, "Ingredient B");
 
         apiFactory.MenuDbContext.Ingredient.AddRange([_ingredientA, _ingredientB]);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync()
+    {
+        apiFactory.MenuDbContext.Ingredient.Delete(_ingredient);
+        apiFactory.MenuDbContext.Ingredient.Delete(_ingredientA);
+        apiFactory.MenuDbContext.Ingredient.Delete(_ingredientB);
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
 
     [Fact]
     public async Task UpdateIngredient_ShouldReturnOk_ForValidRequest()
@@ -62,13 +69,16 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
         Assert.Equal(_ingredient.Id.Value, result.Id);
 
         // Assert — updated fields persisted
-        Ingredient? updated = await apiFactory.MenuDbContext.Ingredient.Specification()
-            .ById(_ingredient.Id, TestContext.Current.CancellationToken);
+        using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/{_ingredient.Id.Value}")
+                                                                     .AddAuthorizationHeader(UserRoles.Admin);
 
-        Assert.NotNull(updated);
-        Assert.Equal(request.Name, updated.Name);
-        Assert.Equal(request.Description, updated.Description);
-        Assert.Equal(request.Price, updated.Price);
+        HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
+        GetIngredientByIdResponse? assertResult = await responseMessage.Content.ReadFromJsonAsync<GetIngredientByIdResponse>(TestContext.Current.CancellationToken);
+
+        Assert.NotNull(assertResult);
+        Assert.Equal(request.Name, assertResult.Name);
+        Assert.Equal(request.Description, assertResult.Description);
+        Assert.Equal(request.Price, assertResult.Price);
     }
 
     [Fact]

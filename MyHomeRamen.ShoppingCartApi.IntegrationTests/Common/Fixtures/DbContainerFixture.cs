@@ -9,13 +9,12 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Fixtures;
 public sealed class DbContainerFixture : IAsyncLifetime
 {
     private readonly MsSqlContainer _sqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest")
-        .WithPassword("Str0ng_P@ssw0rd4Tests")
-        .WithPortBinding(1400)
-        .WithEnvironment("ACCEPT_EULA", "Y")
-        .WithName("MyHomeRamenShoppingCartTestDb")
-        .WithCleanUp(true)
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(1410))
-        .Build();
+                                                        .WithPortBinding(14332, 1433)
+                                                        .WithPassword("Str0ng_P@ssw0rd4Tests")
+                                                        .WithEnvironment("ACCEPT_EULA", "Y")
+                                                        .WithName("MyHomeRamenShoppingCartTestDb")
+                                                        .WithCleanUp(true)
+                                                        .Build();
 
     internal string ConnectionString => _sqlContainer.GetConnectionString();
 

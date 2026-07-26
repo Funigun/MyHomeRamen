@@ -1,18 +1,53 @@
+using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.IntegrationTests.Authentication;
-using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
-using MyHomeRamen.IntegrationTests.Extensions;
-using MyHomeRamen.Domain.ShoppingCart.Baskets;
-using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
+using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.Ingredients;
+using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
+using MyHomeRamen.MenuApi.IntegrationTests.Common;
+using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
-public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
+public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private const string EndpointBase = "/api/shoppingcart/basket/summary";
+    private Basket _guestBasket = default!;
+    private Basket _customerBasket = default!;
+    private BasketItem _guestBasketItem = default!;
+    private BasketItem _customerBasketItem = default!;
+
+    public async ValueTask InitializeAsync()
+    {
+        Guid guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        Guid customerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        User? guestUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(guestId, TestContext.Current.CancellationToken);
+        User? customerUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(customerId, TestContext.Current.CancellationToken);
+
+        Ingredient ingredient = DataGenerator.CreateIngredient();
+        Product product = DataGenerator.CreateProduct([ingredient], []);
+        _guestBasketItem = DataGenerator.CreateBasketItem(product);
+        _customerBasketItem = DataGenerator.CreateBasketItem(product);
+
+        _guestBasket = DataGenerator.CreateBasket([_guestBasketItem], guestUser!);
+        _customerBasket = DataGenerator.CreateBasket([_customerBasketItem], customerUser!);
+
+        apiFactory.ShoppingCartDbContext.Basket.Add(_guestBasket);
+        apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
+        await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _guestBasket.CheckOut();
+        _customerBasket.CheckOut();
+        await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
 
     [Theory]
     [InlineData(UserRoles.Customer)]
@@ -21,21 +56,20 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketSummary_ShouldReturnOk_ForAnyAuthenticatedRole(UserRoles role)
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        UserId userId = _customerBasket.User.Id;
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).AddAuthorizationHeader(role, guestId.Value.ToString());
+        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).AddAuthorizationHeader(role, userId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
-        string msg = await response.Content.ReadAsStringAsync();
-        response.EnsureSuccessStatusCode();
+        await response.AssertStatusCode(HttpStatusCode.OK);
         GetCurrentBasketSummaryResponse? getResponse = await response.Content.ReadFromJsonAsync<GetCurrentBasketSummaryResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(getResponse);
-        Assert.Equal(DataGenerator.GeneratedBaskets.First().Id.Value, getResponse.Id);
+        Assert.Equal(_customerBasket.Id.Value, getResponse.Id);
         Assert.NotEmpty(getResponse.Items);
     }
 
@@ -46,19 +80,18 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketSummary_ShouldReturnBasketWithCorrectItems_ForAnyAuthenticatedRole(UserRoles role)
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        UserId userId = _customerBasket.User.Id;
+        Basket expectedBasket = _customerBasket;
+        BasketItem expectedItem = expectedBasket.Items.First();
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).AddAuthorizationHeader(role, guestId.Value.ToString());
-
-        Basket expectedBasket = DataGenerator.GeneratedBaskets.First();
-        BasketItem expectedItem = expectedBasket.Items.First();
+        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).AddAuthorizationHeader(role, userId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
-        response.EnsureSuccessStatusCode();
+        await response.AssertStatusCode(HttpStatusCode.OK);
         GetCurrentBasketSummaryResponse? getResponse = await response.Content.ReadFromJsonAsync<GetCurrentBasketSummaryResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(getResponse);
@@ -74,7 +107,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketSummary_ShouldReturnOk_ForGuest()
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        UserId guestId = _guestBasket.User.Id;
 
         using HttpClient client = apiFactory.CreateClient();
         HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).WithGuestCookie(guestId.Value.ToString());
@@ -83,11 +116,11 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
-        response.EnsureSuccessStatusCode();
+        await response.AssertStatusCode(HttpStatusCode.OK);
         GetCurrentBasketSummaryResponse? getResponse = await response.Content.ReadFromJsonAsync<GetCurrentBasketSummaryResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(getResponse);
-        Assert.Equal(DataGenerator.GeneratedBaskets.Skip(1).First().Id.Value, getResponse.Id);
+        Assert.Equal(_guestBasket.Id.Value, getResponse.Id);
         Assert.NotEmpty(getResponse.Items);
     }
 
@@ -95,18 +128,18 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketSummary_ShouldReturnBasketWithCorrectItems_ForGuest()
     {
         // Arrange
-        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        UserId guestId = _guestBasket.User.Id;
+        Basket expectedBasket = _guestBasket;
+        BasketItem expectedItem = expectedBasket.Items.First();
 
         using HttpClient client = apiFactory.CreateClient();
         HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).WithGuestCookie(guestId.Value.ToString());
-        Basket expectedBasket = DataGenerator.GeneratedBaskets.Skip(1).First();
-        BasketItem expectedItem = expectedBasket.Items.First();
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
-        response.EnsureSuccessStatusCode();
+        await response.AssertStatusCode(HttpStatusCode.OK);
         GetCurrentBasketSummaryResponse? getResponse = await response.Content.ReadFromJsonAsync<GetCurrentBasketSummaryResponse>(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(getResponse);

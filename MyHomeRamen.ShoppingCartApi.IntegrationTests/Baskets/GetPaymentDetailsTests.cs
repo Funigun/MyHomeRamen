@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Domain.ShoppingCart.Products;
@@ -9,6 +8,9 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
+using MyHomeRamen.Domain.ShoppingCart.Ingredients;
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
@@ -19,22 +21,22 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnOk_ForBasketWithPaymentDetails()
     {
-        User? user = await apiFactory.ShoppingCartDbContext.User.Query().FirstAsync(u => !u.IsGuest, TestContext.Current.CancellationToken);
+        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        User user = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(userId, TestContext.Current.CancellationToken))!;
 
-        List<Product>? products = await apiFactory.ShoppingCartDbContext.Product.Query().Take(1).ToListAsync(TestContext.Current.CancellationToken);
-        Basket? basket = DataGenerator.GenerateValidBasket(user, products);
-        PaymentDetails? paymentDetails = PaymentDetails.Create(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+        ShoppingCartDataSet shoppingCartDataSet = new();
+        PaymentDetails paymentDetails = shoppingCartDataSet.CashPaymentDetails();
+        Product product = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
+        Basket basket = DataGenerator.CreateBasket([DataGenerator.CreateBasketItem(product)], user!, paymentDetails: paymentDetails);
 
-        typeof(Basket).GetProperty(nameof(Basket.PaymentDetails))!.SetValue(basket, paymentDetails);
-
-        context.ShoppingCarts.Add(basket);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        apiFactory.ShoppingCartDbContext.Basket.Add(basket);
+        await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         string url = string.Format(EndpointBase, basket.Id.Value);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)
-                                                                  .AddAuthorizationHeader(UserRoles.Customer, user.Id.Value.ToString());
+                                                                   .AddAuthorizationHeader(UserRoles.Customer, user.Id.Value.ToString());
 
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -48,8 +50,8 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnBadRequest_ForNonExistentBasket()
     {
-        ShoppingCartDbContext? context = apiFactory.ShoppingCartDbContext;
-        User? user = await context.Users.FirstAsync(u => !u.IsGuest, TestContext.Current.CancellationToken);
+        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        User user = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(userId, TestContext.Current.CancellationToken))!;
 
         string url = string.Format(EndpointBase, Guid.NewGuid());
 
@@ -65,22 +67,24 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnBadRequest_ForBasketOfAnotherUser()
     {
-        ShoppingCartDbContext? context = apiFactory.ShoppingCartDbContext;
-        List<User>? users = await context.Users.Where(u => !u.IsGuest).Take(2).ToListAsync(TestContext.Current.CancellationToken);
-        User? basketOwner = users[0];
-        User? otherUser = users[1];
+        UserId customeId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
+        UserId guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        User? basketOwner = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(customeId, TestContext.Current.CancellationToken))!;
+        User? otherUser = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(guestId, TestContext.Current.CancellationToken))!;
 
-        List<Product>? products = await context.Products.Take(1).ToListAsync(TestContext.Current.CancellationToken);
-        Basket? basket = DataGenerator.GenerateValidBasket(basketOwner, products);
+        Ingredient ingredient = DataGenerator.CreateIngredient();
+        Product product = DataGenerator.CreateProduct([ingredient], []);
+        BasketItem basketItem = DataGenerator.CreateBasketItem(product);
+        Basket? basket = DataGenerator.CreateBasket([basketItem], basketOwner);
 
-        context.ShoppingCarts.Add(basket);
-        await context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        apiFactory.ShoppingCartDbContext.Basket.Add(basket);
+        await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         string url = string.Format(EndpointBase, basket.Id.Value);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)
-                                                                  .AddAuthorizationHeader(UserRoles.Customer, otherUser.Id.Value.ToString());
+                                                                   .AddAuthorizationHeader(UserRoles.Customer, otherUser.Id.Value.ToString());
 
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
