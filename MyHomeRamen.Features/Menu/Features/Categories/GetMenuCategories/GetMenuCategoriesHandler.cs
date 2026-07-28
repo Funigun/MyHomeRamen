@@ -10,8 +10,7 @@ public sealed class GetMenuCategoriesHandler(IMenuDbContext dbContext)
 {
     public async Task<IEnumerable<GetMenuCategoriesResponse>> Handle(GetMenuCategoriesQuery request, CancellationToken cancellationToken)
     {
-        List<Category> categories = await dbContext.Category.Query()
-                                                            .GetByType(CategoryType.Product, cancellationToken);
+        IEnumerable<Category> categories = await dbContext.Category.Query().GetByType(CategoryType.Product, cancellationToken);
 
         return categories.Select(c => c.ToMenuResponse());
     }

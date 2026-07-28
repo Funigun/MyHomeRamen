@@ -4,12 +4,12 @@ using MyHomeRamen.Features.Menu.Features.Products.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public partial class MenuDbContext : IProductSpecification
+public partial class ProductRepository : IProductSpecification
 {
     async Task<Product> IProductSpecification.ById(ProductId productId, CancellationToken cancellationToken)
-        => await Products.Include(p => p.Categories)
-                         .Include(p => p.BaseIngredients)
-                         .Include(p => p.CustomIngredients)
-                         .AsSplitQuery()
-                         .FirstAsync(p => p.Id == productId, cancellationToken);
+        => await menuDbContext.Products.Include(p => p.Categories)
+                                       .Include(p => p.BaseIngredients)
+                                       .Include(p => p.CustomIngredients)
+                                       .AsSplitQuery()
+                                       .FirstAsync(p => p.Id == productId, cancellationToken);
 }

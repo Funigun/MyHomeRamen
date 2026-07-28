@@ -1,16 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public partial class MenuDbContext : IIngredientSpecification
+public partial class IngredientRepository : IIngredientSpecification
 {
-    public async Task<Ingredient> ById(IngredientId ingredientId, CancellationToken cancellationToken)
-        => await Ingredients.Include(i => i.Categories)
-                            .AsSplitQuery()
-                            .FirstAsync(i => i.Id == ingredientId, cancellationToken);
+    async Task<Ingredient> IIngredientSpecification.ById(IngredientId ingredientId, CancellationToken cancellationToken)
+        => await menuDbContext.Ingredients.Include(i => i.Categories)
+                                          .AsSplitQuery()
+                                          .FirstAsync(i => i.Id == ingredientId, cancellationToken);
 
-    public async Task<IEnumerable<Ingredient>> ByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken)
-        => await Ingredients.Where(ingredient => ingredientIds.Contains(ingredient.Id)).ToListAsync(cancellationToken);
+    async Task<IEnumerable<Ingredient>> IIngredientSpecification.ByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken)
+        => await List(DbQueryOptions<Ingredient>.Where(i => ingredientIds.Contains(i.Id)), cancellationToken);
 }

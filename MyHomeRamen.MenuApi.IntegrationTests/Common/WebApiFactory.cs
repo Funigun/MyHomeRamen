@@ -1,8 +1,16 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Categories.Common;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Menu.Features.Permissions.Common;
+using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Menu.Features.Roles;
+using MyHomeRamen.Features.Menu.Features.Users.Common;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
@@ -19,11 +27,30 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
     private readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};");
 
+    private ServiceProvider? _seedServiceProvider;
+    private IServiceScope? _seedScope;
+
     async ValueTask IAsyncLifetime.InitializeAsync()
     {
         FakeUser user = new();
         DbContextOptions<MenuDbContext> options = new DbContextOptionsBuilder<MenuDbContext>().UseSqlServer(_connectionString).Options;
-        MenuDbContext = new MenuDbContext(options, user);
+
+        // MenuDbContext resolves repositories via IServiceProvider - build seed container with same graph as AddMenuPersistance
+        ServiceCollection services = new();
+        services.AddSingleton(options);
+        services.AddSingleton<ICurrentUser>(user);
+        services.AddScoped<MenuDbContext>();
+        services.AddScoped<IMenuDbContext>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IIngredientRepository, IngredientRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
+
+        _seedServiceProvider = services.BuildServiceProvider();
+        _seedScope = _seedServiceProvider.CreateScope();
+        MenuDbContext = _seedScope.ServiceProvider.GetRequiredService<IMenuDbContext>();
 
         await DataSeeder.SeedMenuModule(MenuDbContext);
 
@@ -32,7 +59,11 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
     public new async Task DisposeAsync()
     {
-        await ((IAsyncDisposable)MenuDbContext).DisposeAsync();
+        _seedScope?.Dispose();
+        if (_seedServiceProvider is not null)
+        {
+            await _seedServiceProvider.DisposeAsync();
+        }
 
         HttpClient.Dispose();
         await base.DisposeAsync();

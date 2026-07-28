@@ -4,7 +4,7 @@ using MyHomeRamen.Features.Menu.Features.Permissions.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public partial class MenuDbContext : IPermissionQuery
+public partial class PermissionRepository : IPermissionQuery
 {
-    private IQueryable<Permission> PermissionsQuery => Permissions.AsNoTracking();
+    private IQueryable<Permission> PermissionsQuery => menuDbContext.Permissions.AsNoTracking();
 }

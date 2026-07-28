@@ -12,7 +12,7 @@ public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : ICommandHa
 
         dbContext.Category.Delete(category);
 
-        List<Category> remaining = await dbContext.Category.Specification().GetRemainingForResequencing(category.CategoryType, category.Id, cancellationToken);
+        List<Category> remaining = (await dbContext.Category.Specification().GetRemainingForResequencing(category.CategoryType, category.Id, cancellationToken)).ToList();
 
         for (int i = 0; i < remaining.Count; i++)
         {

@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Common.Contracts.Menu.Products.DTOs;
 using MyHomeRamen.Domain.Menu.Categories;
@@ -11,18 +11,17 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public partial class MenuDbContext : IProductQuery
+public partial class ProductRepository : IProductQuery
 {
-    private IQueryable<Product> ProductsQuery 
-        => Products.AsNoTracking();
-
     public async Task<List<Product>> GetByCategory(CategoryId categoryId, CancellationToken cancellationToken)
-        => await ProductsQuery.Include(p => p.BaseIngredients)
+        => await menuDbContext.Products.AsNoTracking()
+                              .Include(p => p.BaseIngredients)
                               .Where(p => p.Categories.Any(c => c.Id == categoryId))
                               .ToListAsync(cancellationToken);
 
     public async Task<List<Product>> GetWithAllIngredients(CancellationToken cancellationToken)
-        => await ProductsQuery.Include(p => p.BaseIngredients)
+        => await menuDbContext.Products.AsNoTracking()
+                              .Include(p => p.BaseIngredients)
                               .Include(p => p.CustomIngredients)
                               .ToListAsync(cancellationToken);
 
@@ -33,73 +32,58 @@ public partial class MenuDbContext : IProductQuery
         Expression<Func<Product, ProductForManageDto>> projection,
         CancellationToken cancellationToken)
     {
-        IQueryable<Product> query = ProductsQuery;
+        string? nameFilter = string.IsNullOrWhiteSpace(filter.Name) ? null : filter.Name.ToLower();
 
-        if (!string.IsNullOrWhiteSpace(filter.Name))
+        List<CategoryId>? categoryIds = filter.CategoryIds is not null && filter.CategoryIds.Any()
+            ? filter.CategoryIds.Select(id => (CategoryId)id).ToList()
+            : null;
+
+        List<IngredientId>? ingredientIds = filter.IngredientIds is not null && filter.IngredientIds.Any()
+            ? filter.IngredientIds.Select(id => (IngredientId)id).ToList()
+            : null;
+
+        decimal? priceFrom = filter.PriceFrom;
+        decimal? priceTo = filter.PriceTo;
+
+        Expression<Func<Product, bool>> predicate = p =>
+            (nameFilter == null || p.Name.ToLower().Contains(nameFilter)) &&
+            (categoryIds == null || p.Categories.Any(c => categoryIds.Contains(c.Id))) &&
+            (ingredientIds == null || p.BaseIngredients.Any(i => ingredientIds.Contains(i.Id)) || p.CustomIngredients.Any(i => ingredientIds.Contains(i.Id))) &&
+            (priceFrom == null || p.Price >= priceFrom.Value) &&
+            (priceTo == null || p.Price <= priceTo.Value);
+
+        Expression<Func<Product, object>> orderBy = orderParameters.SortBy switch
         {
-            query = query.Where(p => p.Name.ToLower().Contains(filter.Name.ToLower()));
-        }
-
-        if (filter.CategoryIds is not null && filter.CategoryIds.Any())
-        {
-            List<CategoryId> ids = filter.CategoryIds.Select(id => (CategoryId)id).ToList();
-            query = query.Where(p => p.Categories.Any(c => ids.Contains(c.Id)));
-        }
-
-        if (filter.IngredientIds is not null && filter.IngredientIds.Any())
-        {
-            List<IngredientId> ids = filter.IngredientIds.Select(id => (IngredientId)id).ToList();
-            query = query.Where(p =>
-                p.BaseIngredients.Any(i => ids.Contains(i.Id)) ||
-                p.CustomIngredients.Any(i => ids.Contains(i.Id)));
-        }
-
-        if (filter.PriceFrom.HasValue)
-        {
-            query = query.Where(p => p.Price >= filter.PriceFrom.Value);
-        }
-
-        if (filter.PriceTo.HasValue)
-        {
-            query = query.Where(p => p.Price <= filter.PriceTo.Value);
-        }
-
-        int totalCount = await query.CountAsync(cancellationToken);
-
-        Expression<Func<Product, object>> keySelector = orderParameters.SortOrder switch
-        {
-            "Price" => c => c.Price,
-            "Name" => c => c.Name,
-            _ => pageParameters => pageParameters.Name
+            "Price" => p => p.Price,
+            "Name" => p => p.Name,
+            _ => p => p.Name
         };
 
-        query = query.Paged(pageParameters.PageNumber, pageParameters.PageSize)
-                     .OrderedBy(keySelector, orderParameters.SortOrder);
+        DbQueryOptions<Product> query = new(Filter: predicate, OrderBy: orderBy, OrderDirection: orderParameters.SortOrder);
+        DbPagedQueryOptions<Product> paged = DbPagedQueryOptions<Product>.From(query, pageParameters);
 
-        List<ProductForManageDto> products = await query.Select(projection).ToListAsync(cancellationToken);
-
-        return new(totalCount, products);
+        return await QueryPaged(paged, projection, cancellationToken);
     }
 
     public async Task<bool> IsProductNameUnique(string name, CancellationToken cancellationToken)
-        => await ProductsQuery.AnyAsync(p => p.Name.ToLower() != name.ToLower(), cancellationToken);
+        => !await Exists(p => p.Name.ToLower() == name.ToLower(), cancellationToken);
 
     public async Task<bool> IsProductNameUniqueExcluding(string name, ProductId excludeId, CancellationToken cancellationToken)
-        => !await ProductsQuery.AnyAsync(p => p.Id != excludeId && p.Name.ToLower() == name.ToLower(), cancellationToken);
+        => !await Exists(p => p.Id != excludeId && p.Name.ToLower() == name.ToLower(), cancellationToken);
 
     public async Task<bool> IsCategoryUsedByProduct(CategoryId categoryId, CancellationToken cancellationToken)
-        => await ProductsQuery.AnyAsync(p => p.Categories.Any(c => c.Id == categoryId), cancellationToken);
+        => await Exists(p => p.Categories.Any(c => c.Id == categoryId), cancellationToken);
 
     public async Task<bool> IsIngredientUsedAsBaseByProduct(IngredientId ingredientId, CancellationToken cancellationToken)
-        => await ProductsQuery.AnyAsync(p => p.BaseIngredients.Any(i => i.Id == ingredientId), cancellationToken);
+        => await Exists(p => p.BaseIngredients.Any(i => i.Id == ingredientId), cancellationToken);
 
     public async Task<bool> IsIngredientUsedAsCustomByProduct(IngredientId ingredientId, CancellationToken cancellationToken)
-        => await ProductsQuery.AnyAsync(p => p.CustomIngredients.Any(i => i.Id == ingredientId), cancellationToken);
+        => await Exists(p => p.CustomIngredients.Any(i => i.Id == ingredientId), cancellationToken);
 
     async Task<Product> IProductQuery.ById(ProductId productId, CancellationToken cancellationToken)
-        => await ProductsQuery.Include(p => p.BaseIngredients)
+        => await menuDbContext.Products.AsNoTracking()
+                              .Include(p => p.BaseIngredients)
                               .Include(p => p.CustomIngredients)
                               .Include(p => p.Categories)
                               .FirstAsync(p => p.Id == productId, cancellationToken);
-
 }

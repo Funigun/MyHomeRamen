@@ -12,8 +12,7 @@ public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext)
     {
         CategoryType categoryType = (CategoryType)request.CategoryType;
 
-        List<Category> categories = await dbContext.Category.Query()
-                                                            .GetByType(categoryType, cancellationToken);
+        IEnumerable<Category> categories = await dbContext.Category.Query().GetByType(categoryType, cancellationToken);
 
         return categories.Select(c => c.ToResponse());
     }

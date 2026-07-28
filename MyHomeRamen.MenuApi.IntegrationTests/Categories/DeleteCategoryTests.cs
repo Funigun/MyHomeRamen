@@ -58,20 +58,20 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         await response.AssertStatusCode(HttpStatusCode.NoContent);
 
         // Assert — deleted record no longer exists in DB
-        bool stillExists = await apiFactory.MenuDbContext.Category.Query().Exists((CategoryId)idToDelete, TestContext.Current.CancellationToken);
+        bool stillExists = await apiFactory.MenuDbContext.Category.Exists(c => c.Id == new CategoryId(idToDelete), TestContext.Current.CancellationToken);
         Assert.False(stillExists, "Deleted category should no longer exist in DB.");
 
         // Assert — ALL remaining categories of the same type have contiguous sort orders starting from 1
-        List<Category> allRemaining = await apiFactory.MenuDbContext.Category.Query().GetByType(categoryType, TestContext.Current.CancellationToken);
+        IEnumerable<Category> allRemaining = await apiFactory.MenuDbContext.Category.Query().GetByType(categoryType, TestContext.Current.CancellationToken);
 
-        for (int i = 0; i < allRemaining.Count; i++)
+        for (int i = 0; i < allRemaining.Count(); i++)
         {
-            Assert.Equal(i + 1, allRemaining[i].SortOrder);
+            Assert.Equal(i + 1, allRemaining.ElementAt(i).SortOrder);
         }
 
         // Assert — cat1 and cat3 are adjacent with cat3 immediately following cat1
-        int cat1Index = allRemaining.FindIndex(c => c.Id == cat1.Id);
-        int cat3Index = allRemaining.FindIndex(c => c.Id == cat3.Id);
+        int cat1Index = allRemaining.ToList().FindIndex(c => c.Id == cat1.Id);
+        int cat3Index = allRemaining.ToList().FindIndex(c => c.Id == cat3.Id);
         Assert.Equal(cat1Index + 1, cat3Index);
     }
 

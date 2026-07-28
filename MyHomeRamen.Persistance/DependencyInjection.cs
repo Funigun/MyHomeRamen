@@ -22,6 +22,7 @@ using MyHomeRamen.Persistance.ShoppingCart;
 using MyHomeRamen.Features.Orders.Features.Abstractions;
 using MyHomeRamen.Persistance.Identity;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MenuModule = MyHomeRamen.Features.Menu.Features;
 
 namespace MyHomeRamen.Persistance;
 
@@ -37,15 +38,19 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "menu");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
 
-        services.AddScoped<IMenuDbContext, MenuDbContext>();
-        services.AddScoped<ICategoryRepository>(provider => provider.GetRequiredService<MenuDbContext>());
-        services.AddScoped<Features.Menu.Features.Products.Common.IProductRepository>(provider => provider.GetRequiredService<MenuDbContext>());
-        services.AddScoped<Features.Menu.Features.Ingredients.Common.IIngredientRepository>(provider => provider.GetRequiredService<MenuDbContext>());
-        services.AddScoped<Features.Menu.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        // Must resolve same MenuDbContext instance as repositories (repos take concrete MenuDbContext)
+        services.AddScoped<IMenuDbContext>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<MenuModule.Products.Common.IProductRepository, ProductRepository>();
+        services.AddScoped<MenuModule.Ingredients.Common.IIngredientRepository, IngredientRepository>();
+        services.AddScoped<MenuModule.Users.Common.IUserRepository, UserRepository>();
+        services.AddScoped<MenuModule.Roles.IRoleRepository, RoleRepository>();
+        services.AddScoped<MenuModule.Permissions.Common.IPermissionRepository, PermissionRepository>();
 
         return services;
     }
@@ -60,6 +65,7 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "basket");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
@@ -86,6 +92,7 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "orders");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
@@ -105,6 +112,7 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "reservations");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
@@ -129,6 +137,7 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "payments");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
@@ -156,6 +165,7 @@ public static class DependencyInjection
                 {
                     serverOptions.CommandTimeout(600);
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "identity");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });

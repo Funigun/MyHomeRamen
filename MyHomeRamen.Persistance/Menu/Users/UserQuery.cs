@@ -4,7 +4,7 @@ using MyHomeRamen.Features.Menu.Features.Users.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public partial class MenuDbContext : IUserQuery
+public partial class UserRepository : IUserQuery
 {
-    private IQueryable<User> UsersQuery => Users.AsNoTracking();
+    private IQueryable<User> UsersQuery => menuDbContext.Users.AsNoTracking();
 }
