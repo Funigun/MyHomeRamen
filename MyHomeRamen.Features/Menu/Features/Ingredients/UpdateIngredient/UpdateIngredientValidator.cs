@@ -1,6 +1,7 @@
 using FluentValidation;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
+using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 
@@ -8,28 +9,21 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
 {
     public UpdateIngredientValidator(IMenuDbContext dbContext)
     {
+        RuleFor(x => x.Id)
+            .MustBeValidIngredientId(dbContext);
+
         RuleFor(x => x.UpdateIngredientRequest.Name)
-            .SetValidator(new IngredientNameValidator());
+            .MustMeetNameLengthRequirements();
 
         RuleFor(x => x.UpdateIngredientRequest.Description)
-            .SetValidator(new IngredientDescriptionValidator());
+            .MustMeetDescriptionLengthRequirements();
 
         RuleFor(x => x.UpdateIngredientRequest.Price)
-            .SetValidator(new IngredientPriceValidator());
+            .MustBeValidIngredientPrice();
 
         RuleFor(x => x)
-            .MustAsync(async (command, ct) =>
-            {
-                return await dbContext.Ingredient.Exists(i => i.Id == command.Id, ct);
-            })
-            .WithMessage("Ingredient with the specified ID does not exist.");
-
-        RuleFor(x => x)
-            .MustAsync(async (command, ct) =>
-            {
-                return await dbContext.Ingredient.Query().IsIngredientNameUniqueExcluding(command.UpdateIngredientRequest.Name, command.Id, ct);
-            })
-            .WithMessage("Ingredient with this name already exists.");
+            .MustHaveUniqueIngredientNameExcluding(dbContext, c => c.UpdateIngredientRequest.Name, c => c.Id)
+            .OverridePropertyName(nameof(UpdateIngredientCommand.UpdateIngredientRequest) + "." + nameof(UpdateIngredientRequest.Name));
 
         RuleFor(x => x.UpdateIngredientRequest.CategoryIds)
             .NotEmpty()

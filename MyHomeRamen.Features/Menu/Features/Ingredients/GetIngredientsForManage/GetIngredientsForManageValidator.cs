@@ -1,5 +1,5 @@
 using FluentValidation;
-using MyHomeRamen.Domain.Common.Ingredient;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForManage;
 
@@ -7,8 +7,10 @@ public sealed class GetIngredientsForManageValidator : AbstractValidator<GetIngr
 {
     public GetIngredientsForManageValidator()
     {
-        RuleFor(x => x.Request.Name)
-            .MaximumLength(IngredientConstants.MaxNameLength)
-            .WithMessage($"Name must not exceed {IngredientConstants.MaxNameLength} characters.");
+        When(x => x.Request.Name is not null, () =>
+        {
+            RuleFor(x => x.Request.Name!)
+                .MustNotExceedIngredientNameLength();
+        });
     }
 }

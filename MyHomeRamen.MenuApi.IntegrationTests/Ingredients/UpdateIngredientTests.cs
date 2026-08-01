@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using Bogus;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Validators;
+using MyHomeRamen.Domain.Common.Ingredient;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.IntegrationTests.Authentication;
@@ -151,19 +151,19 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
     public static TheoryData<UpdateIngredientRequest> InvalidUpdateIngredientRequests()
     {
         Faker faker = new();
-        string validName = faker.Random.String2(IngredientNameValidator.MinLength, IngredientNameValidator.MaxLength);
-        string validDescription = faker.Random.String2(IngredientDescriptionValidator.MinLength, IngredientDescriptionValidator.MaxLength);
-        decimal validPrice = faker.Finance.Amount(IngredientPriceValidator.MinPrice, IngredientPriceValidator.MaxPrice);
+        string validName = faker.Random.String2(IngredientConstants.MinNameLength, IngredientConstants.MaxNameLength);
+        string validDescription = faker.Random.String2(IngredientConstants.MinDescriptionLength, IngredientConstants.MaxDescriptionLength);
+        decimal validPrice = faker.Finance.Amount(IngredientConstants.MinPrice, IngredientConstants.MaxPrice);
         IEnumerable<Guid> validCategoryIds = [Guid.NewGuid()];
 
         return
         [
             new UpdateIngredientRequest(string.Empty, validDescription, validPrice, validCategoryIds),
-            new UpdateIngredientRequest(faker.Random.String2(1, IngredientNameValidator.MinLength - 1), validDescription, validPrice, validCategoryIds),
-            new UpdateIngredientRequest(faker.Random.String2(IngredientNameValidator.MaxLength + 1, IngredientNameValidator.MaxLength + 10), validDescription, validPrice, validCategoryIds),
-            new UpdateIngredientRequest(validName, faker.Random.String2(IngredientDescriptionValidator.MaxLength + 1, IngredientDescriptionValidator.MaxLength + 10), validPrice, validCategoryIds),
-            new UpdateIngredientRequest(validName, validDescription, IngredientPriceValidator.MinPrice - 0.01m, validCategoryIds),
-            new UpdateIngredientRequest(validName, validDescription, IngredientPriceValidator.MaxPrice + 0.01m, validCategoryIds),
+            new UpdateIngredientRequest(faker.Random.String2(1, IngredientConstants.MinNameLength - 1), validDescription, validPrice, validCategoryIds),
+            new UpdateIngredientRequest(faker.Random.String2(IngredientConstants.MaxNameLength + 1, IngredientConstants.MaxNameLength + 10), validDescription, validPrice, validCategoryIds),
+            new UpdateIngredientRequest(validName, faker.Random.String2(IngredientConstants.MaxDescriptionLength + 1, IngredientConstants.MaxDescriptionLength + 10), validPrice, validCategoryIds),
+            new UpdateIngredientRequest(validName, validDescription, IngredientConstants.MinPrice - 0.01m, validCategoryIds),
+            new UpdateIngredientRequest(validName, validDescription, IngredientConstants.MaxPrice + 0.01m, validCategoryIds),
             new UpdateIngredientRequest(validName, validDescription, validPrice, []),
         ];
     }
