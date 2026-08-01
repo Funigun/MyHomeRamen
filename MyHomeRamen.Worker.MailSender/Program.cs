@@ -13,7 +13,7 @@ Log.Logger = new LoggerConfiguration().ReadFrom
 
 try
 {
-    builder.AddWorkerServiceDefaults("my-home-ramen-mailing-worker");
+    builder.AddWorkerServiceDefaults();
     builder.Services.AddHostedService<Worker>();
 
     IHost host = builder.Build();

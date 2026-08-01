@@ -9,6 +9,7 @@ public sealed class CategorySortOrderValidator : AbstractValidator<int>
     public CategorySortOrderValidator()
     {
         RuleFor(x => x)
-            .GreaterThanOrEqualTo(MinSortOrder).WithMessage($"Sort order must be greater than or equal to {MinSortOrder}.");
+            .GreaterThanOrEqualTo(MinSortOrder)
+            .WithMessage($"Sort order must be greater than or equal to {MinSortOrder}.");
     }
 }

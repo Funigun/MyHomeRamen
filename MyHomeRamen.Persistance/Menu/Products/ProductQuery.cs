@@ -5,9 +5,9 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Endpoints.Models;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
 using MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
-using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
@@ -59,10 +59,18 @@ public partial class ProductRepository : IProductQuery
             _ => p => p.Name
         };
 
-        DbQueryOptions<Product> query = new(Filter: predicate, OrderBy: orderBy, OrderDirection: orderParameters.SortOrder);
-        DbPagedQueryOptions<Product> paged = DbPagedQueryOptions<Product>.From(query, pageParameters);
+        DbQueryOptions<Product> query = new() {Filter = predicate, OrderBy = orderBy, OrderDirection = orderParameters.SortOrder};
+        PagedDbQueryOptions<Product, ProductForManageDto> paged = new PagedDbQueryOptions<Product, ProductForManageDto>()
+        {
+            Filter = query.Filter,
+            OrderBy = orderBy,
+            OrderDirection = query.OrderDirection,
+            PageNumber = pageParameters.PageNumber,
+            PageSize = pageParameters.PageSize,
+            Selector = projection
+        };
 
-        return await QueryPaged(paged, projection, cancellationToken);
+        return await QueryPaged(menuDbContext.Products, paged, cancellationToken);
     }
 
     public async Task<bool> IsProductNameUnique(string name, CancellationToken cancellationToken)

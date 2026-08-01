@@ -13,6 +13,7 @@ using MyHomeRamen.Worker.MessagesHandler.Payments;
 using MyHomeRamen.Worker.MessagesHandler.Reservations;
 using MyHomeRamen.Worker.MessagesHandler.ShoppingCart;
 using Serilog;
+using MyHomeRamen.Infrastructure.Cache;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
@@ -32,7 +33,7 @@ try
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
-    builder.AddWorkerServiceDefaults(ServiceNames.MessagesWorker(configurationProvider.InfrastructurePrefix));
+    builder.AddWorkerServiceDefaults();
 
     // Add current user mock for DB contexts that require AuditableEntity updates
     builder.Services.AddScoped<ICurrentUser, WorkerUser>();
@@ -44,6 +45,7 @@ try
     builder.Services.AddOrdersPersistance(databaseConfigurationProvider);
     builder.Services.AddReservationsPersistance(databaseConfigurationProvider);
     builder.Services.AddPaymentsPersistance(databaseConfigurationProvider);
+    builder.Services.AddCacheService();
 
     // RabbitMq configuration
     builder.AddRabbitMQClient(ServiceNames.RabbitMq(configurationProvider.InfrastructurePrefix));

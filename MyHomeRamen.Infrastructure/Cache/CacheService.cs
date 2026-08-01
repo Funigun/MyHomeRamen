@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Features.Common.Cache;
@@ -7,36 +8,51 @@ namespace MyHomeRamen.Infrastructure.Cache;
 
 internal sealed class CacheService(HybridCache hybridCache, IServiceScopeFactory scopeFactory) : ICacheService
 {
-    public async Task<TCached> GetOrSetAsync<TRequest, TCached>(
-        ICachePolicy<TRequest, TCached> policy,
-        TRequest request,
-        Func<CancellationToken, ValueTask<TCached>> factory,
-        CancellationToken cancellationToken)
+    public async Task<TCached> GetOrSetAsync<TCached>(CachePolicy policy, Func<CancellationToken, ValueTask<TCached>> factory, CancellationToken cancellationToken)
     {
         RestaurantConfigurationProvider restaurantConfigurationProvider = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<RestaurantConfigurationProvider>();
-
         HybridCacheEntryOptions? options = null;
 
-        if (policy.ExpirationTime.HasValue || policy.LocalExpirationTime.HasValue)
+        using Activity? activity = CacheDiagnostics.ActivitySource.StartActivity("CacheService.GetOrSet");
+
+        if (policy.DistributedExpirationTime.HasValue || policy.LocalExpirationTime.HasValue)
         {
             options = new HybridCacheEntryOptions
             {
-                Expiration = policy.ExpirationTime,
+                Expiration = policy.DistributedExpirationTime,
                 LocalCacheExpiration = policy.LocalExpirationTime,
             };
         }
 
         string restaurantId = restaurantConfigurationProvider.RestaurantId.ToString();
-        string key = $"{restaurantId}_{policy.GetKey(request)}";
-        List<string> tags = policy.Tags.Select(tag => $"{restaurantId}_{tag}").ToList();
+        string key = $"{restaurantId}_{policy.Module}_{policy.Key}";
+
+        List<string> tags = policy.Tags.Select(tag => $"{restaurantId}_{policy.Module}_{tag}").ToList();
+
         tags.Add(restaurantId);
 
-        return await hybridCache.GetOrCreateAsync(
-            key,
-            factory,
-            options,
-            tags,
-            cancellationToken: cancellationToken);
+        TCached result = await hybridCache.GetOrCreateAsync
+                        (
+                            key, 
+                            async (cancellationToken) =>
+                            {
+                                TCached results = await factory(cancellationToken);
+
+                                if (results is not null && results.ToString() is not null)
+                                {
+                                    string tag = $"{restaurantId}_{policy.Module}_{results.ToString()!}";
+                                    tags.Add(tag);
+                                    activity?.AddTag("CacheService.ComputedKey", tag);
+                                }
+
+                                return results;
+                            },
+                            options,
+                            tags,
+                            cancellationToken
+                        );
+
+        return result;
     }
 
     public async Task RemoveByKeyAsync(string key, CancellationToken cancellationToken)

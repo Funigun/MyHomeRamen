@@ -9,7 +9,6 @@ using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
-using Org.BouncyCastle.Math.EC;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;
 

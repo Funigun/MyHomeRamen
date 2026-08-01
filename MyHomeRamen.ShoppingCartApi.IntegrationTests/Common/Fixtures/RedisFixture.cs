@@ -1,4 +1,3 @@
-using DotNet.Testcontainers.Builders;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Fixtures;
 using Testcontainers.Redis;
 

@@ -1,15 +1,15 @@
 using System.Linq.Expressions;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
-using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
 public partial class IngredientRepository : IIngredientQuery
 {
     public async Task<List<Ingredient>> GetForDropdown(CancellationToken cancellationToken)
-        => (await QueryList(DbQueryOptions<Ingredient>.Empty.OrderByAsc(i => i.Name), i => i, cancellationToken)).ToList();
+        => (await QueryList(menuDbContext.Ingredients, new DbQueryOptions<Ingredient, Ingredient>() { OrderBy = i => i.Name, Selector = i => i }, cancellationToken)).ToList();
 
     public async Task<List<Ingredient>> GetForManage(string? name, IEnumerable<Guid>? categoryIds, CancellationToken cancellationToken)
     {
@@ -23,14 +23,11 @@ public partial class IngredientRepository : IIngredientQuery
             (nameFilter == null || i.Name.ToLower().Contains(nameFilter)) &&
             (ids == null || i.Categories.Any(c => ids.Contains(c.Id)));
 
-        return (await QueryList(
-            DbQueryOptions<Ingredient>.Where(predicate).OrderByAsc(i => i.Name),
-            i => i,
-            cancellationToken)).ToList();
+        return (await QueryList(menuDbContext.Ingredients, new DbQueryOptions<Ingredient, Ingredient>() { Filter = predicate, OrderBy = i => i.Name, Selector = i => i }, cancellationToken)).ToList();
     }
 
     public async Task<List<Ingredient>> GetByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken)
-        => (await QueryList(DbQueryOptions<Ingredient>.Where(i => ingredientIds.Contains(i.Id)), i => i, cancellationToken)).ToList();
+        => (await QueryList(menuDbContext.Ingredients, new DbQueryOptions<Ingredient, Ingredient>() { Filter = i => ingredientIds.Contains(i.Id), OrderBy = i => i.Name, Selector = i => i }, cancellationToken)).ToList();
 
     public async Task<bool> IsIngredientNameUnique(string name, CancellationToken cancellationToken)
         => !await Exists(i => i.Name.ToLower() == name.ToLower(), cancellationToken);

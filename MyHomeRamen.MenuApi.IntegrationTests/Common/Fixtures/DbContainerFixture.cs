@@ -1,5 +1,4 @@
-﻿using DotNet.Testcontainers.Builders;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Fixtures;
+﻿using MyHomeRamen.MenuApi.IntegrationTests.Common.Fixtures;
 using Testcontainers.MsSql;
 
 [assembly: AssemblyFixture(typeof(DbContainerFixture))]

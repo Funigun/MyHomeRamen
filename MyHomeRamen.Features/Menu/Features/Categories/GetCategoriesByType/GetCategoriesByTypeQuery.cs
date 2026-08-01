@@ -1,5 +1,5 @@
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 

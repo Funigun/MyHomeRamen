@@ -1,6 +1,6 @@
-        using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
-using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
@@ -10,8 +10,8 @@ public partial class CategoryRepository : ICategorySpecification
         => await First(c => c.Id == categoryId, cancellationToken);
 
     async Task<IEnumerable<Category>> ICategorySpecification.ByIds(IEnumerable<CategoryId> categoryIds, CancellationToken cancellationToken)
-        => await List(DbQueryOptions<Category>.Where(c => categoryIds.Contains(c.Id)), cancellationToken);
+        => await List(new DbQueryOptions<Category>() { Filter = c => categoryIds.Contains(c.Id) }, cancellationToken );
 
     async Task<IEnumerable<Category>> ICategorySpecification.GetRemainingForResequencing(CategoryType categoryType, CategoryId excludeId, CancellationToken cancellationToken)
-        => await List(DbQueryOptions<Category>.Where(c => c.CategoryType == categoryType && c.Id != excludeId), cancellationToken);
+        => await List(new DbQueryOptions<Category>() { Filter = c => c.CategoryType == categoryType && c.Id != excludeId }, cancellationToken );
 }

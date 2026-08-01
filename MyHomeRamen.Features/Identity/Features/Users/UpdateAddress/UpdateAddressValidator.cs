@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MyHomeRamen.Common.Contracts.Users.Account.Validators;
-using MyHomeRamen.Domain.Common.Address;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Identity.Abstractions;
 

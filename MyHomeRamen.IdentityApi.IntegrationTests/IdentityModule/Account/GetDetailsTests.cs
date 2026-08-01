@@ -3,7 +3,6 @@ using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Account;
 

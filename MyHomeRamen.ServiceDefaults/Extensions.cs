@@ -14,13 +14,9 @@ public static class Extensions
     private const string HealthEndpointPath = "/health";
     private const string AlivenessEndpointPath = "/alive";
 
-    private static string _sourceName;
-
-    public static TBuilder AddApiServiceDefaults<TBuilder>(this TBuilder builder, string sourceName)
+    public static TBuilder AddApiServiceDefaults<TBuilder>(this TBuilder builder)
             where TBuilder : IHostApplicationBuilder
     {
-        _sourceName = sourceName;
-
         builder.WithHttpMetrics()
                .WithConfiguredLogging();
 
@@ -36,7 +32,8 @@ public static class Extensions
                                    .AddHttpClientInstrumentation()
                                    .AddEntityFrameworkCoreInstrumentation()
                                    .AddSqlClientInstrumentation()
-                                   .AddRedisInstrumentation();
+                                   .AddRedisInstrumentation()
+                                   .AddSource("MyHomeRamen.Activity.Cache");
                            });
 
         builder.AddOpenTelemetryExporters();
@@ -54,11 +51,9 @@ public static class Extensions
         return builder;
     }
 
-    public static TBuilder AddBlazorServiceDefaults<TBuilder>(this TBuilder builder, string sourceName)
+    public static TBuilder AddBlazorServiceDefaults<TBuilder>(this TBuilder builder)
             where TBuilder : IHostApplicationBuilder
     {
-        _sourceName = sourceName;
-
         builder.WithHttpMetrics()
                .WithConfiguredLogging();
 
@@ -90,11 +85,9 @@ public static class Extensions
         return builder;
     }
 
-    public static TBuilder AddWorkerServiceDefaults<TBuilder>(this TBuilder builder, string sourceName)
+    public static TBuilder AddWorkerServiceDefaults<TBuilder>(this TBuilder builder)
             where TBuilder : IHostApplicationBuilder
     {
-        _sourceName = sourceName;
-
         builder.WithHttpMetrics()
                .WithConfiguredLogging();
 

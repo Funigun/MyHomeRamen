@@ -6,7 +6,6 @@ using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;
 

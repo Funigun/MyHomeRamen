@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Abstractions;

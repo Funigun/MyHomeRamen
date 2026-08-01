@@ -18,10 +18,7 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
                        .RequireAuthorization("RestaurantManager");
     }
 
-    private static async Task<IResult> HandleAsync(
-        [FromRoute] Guid id,
-        [FromServices] ICommandHandler<DeleteCategoryCommand> handler,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync([FromRoute] Guid id, [FromServices] ICommandHandler<DeleteCategoryCommand> handler, CancellationToken cancellationToken)
     {
         DeleteCategoryCommand command = new(id);
         await handler.Handle(command, cancellationToken);

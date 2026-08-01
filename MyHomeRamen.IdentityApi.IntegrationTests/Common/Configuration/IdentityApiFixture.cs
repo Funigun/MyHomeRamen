@@ -1,4 +1,3 @@
-using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;

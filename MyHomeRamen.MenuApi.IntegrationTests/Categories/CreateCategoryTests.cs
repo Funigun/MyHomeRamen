@@ -2,7 +2,7 @@ using System.Net;
 using Bogus;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
+using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
@@ -112,13 +112,13 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
             new CreateCategoryRequest(string.Empty, validCategoryType),
 
             // Name: too short
-            new CreateCategoryRequest(faker.Random.String2(1, CategoryNameValidator.MinLength - 1), validCategoryType),
+            new CreateCategoryRequest(faker.Random.String2(1, CategoryConstants.MinNameLength - 1), validCategoryType),
 
             // Name: too long
-            new CreateCategoryRequest(faker.Random.String2(CategoryNameValidator.MaxLength + 1, CategoryNameValidator.MaxLength + 10), validCategoryType),
+            new CreateCategoryRequest(faker.Random.String2(CategoryConstants.MaxNameLength + 1, CategoryConstants.MaxNameLength + 10), validCategoryType),
 
             // CategoryType: invalid
-            new CreateCategoryRequest(faker.Random.String2(CategoryNameValidator.MinLength, CategoryNameValidator.MaxLength), 999),
+            new CreateCategoryRequest(faker.Random.String2(CategoryConstants.MinNameLength, CategoryConstants.MaxNameLength), 999),
         ];
     }
 

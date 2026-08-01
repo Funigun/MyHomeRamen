@@ -48,7 +48,7 @@ try
             });
         });
 
-        builder.AddApiServiceDefaults(ServiceNames.Api(configurationProvider.InfrastructurePrefix));
+        builder.AddApiServiceDefaults();
     }
 
     builder.Services.AddSerilog();

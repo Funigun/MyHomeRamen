@@ -1,10 +1,13 @@
 ﻿using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 public interface ICategoryQuery
 {
     Task<IEnumerable<Category>> GetByType(CategoryType categoryType, CancellationToken cancellationToken);
+
+    Task<IEnumerable<CategoryByTypeDto>> GetByTypeDto(GetCategoryByTypeQueryOptions options, CancellationToken cancellationToken);
 
     Task<int> GetNextSortOrder(CategoryType categoryType, CancellationToken cancellationToken);
 

@@ -6,10 +6,8 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
-using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
-using NSubstitute;
 using StackExchange.Redis;
 using System.Security.Claims;
 

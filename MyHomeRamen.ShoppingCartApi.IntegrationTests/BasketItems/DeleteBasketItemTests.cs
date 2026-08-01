@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.BasketItems;
 /*
 public sealed class DeleteBasketItemTests(WebApiFactory apiFactory)

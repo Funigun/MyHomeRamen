@@ -1,4 +1,13 @@
 <Solution>
+  <Folder Name="/ADR/" />
+  <Folder Name="/ADR/Architecture/">
+    <File Path="Wiki/Architecture/0001-modular-monolith-architecture.md" />
+    <File Path="Wiki/Architecture/0002-aspire-orchestration.md" />
+    <File Path="Wiki/Architecture/0003-module-specific-database-contexts.md" />
+    <File Path="Wiki/Architecture/0004-restaurant-configuration.md" />
+    <File Path="Wiki/Architecture/0005-repository-strategy.md" />
+    <File Path="Wiki/Architecture/0006-cache-strategy.md" />
+  </Folder>
   <Folder Name="/Aspire/">
     <Project Path="MyHomeRamen.AppHost/MyHomeRamen.AppHost.csproj" />
     <Project Path="MyHomeRamen.ServiceDefaults/MyHomeRamen.ServiceDefaults.csproj" />
@@ -40,6 +49,7 @@
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
     <File Path="README.md" />
   </Folder>
   <Folder Name="/Tests/">
@@ -68,6 +78,7 @@
   </Folder>
   <Folder Name="/_github/">
     <File Path=".github/copilot-instructions.md" />
+    <File Path=".github/prompts/refactor-feature.md" />
   </Folder>
   <Folder Name="/_github/agents/">
     <File Path=".github/agents/drax-implementation.agent.md" />

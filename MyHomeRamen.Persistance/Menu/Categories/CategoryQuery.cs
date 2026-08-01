@@ -1,18 +1,42 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Common.Cache;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
-using MyHomeRamen.Persistance.Common;
+using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
+using MyHomeRamen.Persistance.Cache;
 
 namespace MyHomeRamen.Persistance.Menu;
 
 public partial class CategoryRepository : ICategoryQuery
 {
     public async Task<IEnumerable<Category>> GetByType(CategoryType categoryType, CancellationToken cancellationToken)
-        => await QueryList(
-            DbQueryOptions<Category>.Where(c => c.CategoryType == categoryType).OrderByAsc(c => c.SortOrder),
-            c => c,
-            cancellationToken);
+    {
+        DbQueryOptions<Category, Category> options = new()
+        {
+            Filter = c => c.CategoryType == categoryType,
+            OrderBy = c => c.SortOrder,
+            OrderDirection = "asc",
+            Selector = c => c
+        };
+
+        return await QueryList(menuDbContext.Categories, options, cancellationToken);
+    }
+
+
+    public async Task<IEnumerable<CategoryByTypeDto>> GetByTypeDto(GetCategoryByTypeQueryOptions options, CancellationToken cancellationToken)
+    {
+        string cacheKey = $"CategoryByTypeDto:{options.CategoryType}";
+        TimeSpan cacheExpirationTime = TimeSpan.FromMinutes(5, 30);
+        IEnumerable<string> cacheTags = [$"categories:{options.CategoryType}"];
+
+        CachePolicy policy = CachePolicy.LocalCache<MenuCacheModule>(cacheKey, cacheExpirationTime, cacheTags);
+
+        IQueryable<Category> query = menuDbContext.Categories;
+
+        return await QueryList(query, options, policy, cancellationToken);
+    }
 
     public async Task<int> GetNextSortOrder(CategoryType categoryType, CancellationToken cancellationToken)
     {
@@ -29,7 +53,15 @@ public partial class CategoryRepository : ICategoryQuery
     }
 
     public async Task<IEnumerable<Category>> GetByIds(IEnumerable<CategoryId> categoryIds, CancellationToken cancellationToken)
-        => await QueryList(DbQueryOptions<Category>.Where(c => categoryIds.Contains(c.Id)), c => c, cancellationToken);
+    {
+        DbQueryOptions<Category, Category> options = new() 
+        { 
+            Filter = c => categoryIds.Contains(c.Id), 
+            Selector = c => Category.Create(c.Id, c.Name, c.SortOrder, c.CategoryType)
+        };
+
+        return await QueryList(menuDbContext.Categories, options, cancellationToken);
+    }
 
     public async Task<bool> IsCategoryNameUnique(string name, CancellationToken cancellationToken)
         => !await Exists(c => c.Name == name, cancellationToken);

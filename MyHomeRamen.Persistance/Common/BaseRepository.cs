@@ -1,12 +1,13 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Abstractions;
+using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Repository;
 
 namespace MyHomeRamen.Persistance.Common;
 
-public abstract class BaseRepository<TEntity, TId>(DbContext dbContext) : IRepository<TEntity, TId>
+public abstract class BaseRepository<TEntity, TId>(DbContext dbContext, ICacheService cacheService) : IRepository<TEntity, TId>
                   where TEntity : class, IEntity<TId>
                   where TId : IEntityId, new()
 {
@@ -15,7 +16,7 @@ public abstract class BaseRepository<TEntity, TId>(DbContext dbContext) : IRepos
     public void AddRange(IEnumerable<TEntity> entities) => dbContext.Set<TEntity>().AddRange(entities);
 
     public async Task<int> Count(CancellationToken cancellationToken) => await dbContext.Set<TEntity>().CountAsync(cancellationToken);
-
+     
     public void Delete(TEntity entity) => dbContext.Set<TEntity>().Remove(entity);
 
     public Task<int> ExecuteDelete(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken) => dbContext.Set<TEntity>().Where(predicate).ExecuteDeleteAsync(cancellationToken);
@@ -40,15 +41,32 @@ public abstract class BaseRepository<TEntity, TId>(DbContext dbContext) : IRepos
     public async Task<TEntity?> FirstOrDefault(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken) => await dbContext.Set<TEntity>().FirstOrDefaultAsync(predicate, cancellationToken);
 
     public async Task<IEnumerable<TEntity>> List(DbQueryOptions<TEntity> options, CancellationToken cancellationToken)
-        => await Apply(dbContext.Set<TEntity>(), options).ToListAsync(cancellationToken);
-
-    public async Task<TProjection> QueryFirst<TProjection>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TProjection>> selector, CancellationToken cancellationToken)
         => await dbContext.Set<TEntity>()
-                          .AsNoTracking()
-                          .Where(predicate)
-                          .Select(selector)
-                          .FirstAsync(cancellationToken);
+                          .Filtered(options.Filter)
+                          .OrderedBy(options.OrderBy, options.OrderDirection)
+                          .ToListAsync(cancellationToken);
 
+    public async Task<TProjection> QueryFirst<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CancellationToken cancellationToken)
+           where TModel : class
+           where TProjection : class
+        => await query.AsNoTracking()
+                      .Filtered(options.Filter)
+                      .OrderedBy(options.OrderBy, options.OrderDirection)     
+                      .Select(options.Selector!)
+                      .FirstAsync(cancellationToken);
+
+    public async Task<TProjection> QueryFirst<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CachePolicy cachePolicy, CancellationToken cancellationToken)
+           where TModel : class
+           where TProjection : class
+        => await cacheService.GetOrSetAsync
+           (
+               cachePolicy,
+               async (cancellationToken) => await QueryFirst(query, options, cancellationToken),
+               cancellationToken
+           );
+
+    //ToDo: Refactor and remove
+    [Obsolete("Use QueryFirstOrDefault instead with IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options overload.")]
     public async Task<TProjection?> QueryFirstOrDefault<TProjection>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TProjection>> selector, CancellationToken cancellationToken)
         => await dbContext.Set<TEntity>()
                           .AsNoTracking()
@@ -56,29 +74,67 @@ public abstract class BaseRepository<TEntity, TId>(DbContext dbContext) : IRepos
                           .Select(selector)
                           .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<IEnumerable<TProjection>> QueryList<TProjection>(DbQueryOptions<TEntity> options, Expression<Func<TEntity, TProjection>> selector, CancellationToken cancellationToken)
-        => await Apply(dbContext.Set<TEntity>().AsNoTracking(), options)
-                          .Select(selector)
-                          .ToListAsync(cancellationToken);
+    public async Task<TProjection?> QueryFirstOrDefault<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CancellationToken cancellationToken)
+       where TModel : class
+       where TProjection : class
+    => await query.AsNoTracking()
+                  .Filtered(options.Filter)
+                  .OrderedBy(options.OrderBy, options.OrderDirection)
+                  .Select(options.Selector!)
+                  .FirstOrDefaultAsync(cancellationToken);
 
-    public async Task<PagedResult<TProjection>> QueryPaged<TProjection>(DbPagedQueryOptions<TEntity> options, Expression<Func<TEntity, TProjection>> selector, CancellationToken cancellationToken)
+    public async Task<TProjection?> QueryFirstOrDefault<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CachePolicy cachePolicy, CancellationToken cancellationToken)
+           where TModel : class
+           where TProjection : class
+        => await cacheService.GetOrSetAsync
+           (
+               cachePolicy,
+               async (cancellationToken) => await QueryFirstOrDefault(query, options, cancellationToken),
+               cancellationToken
+           );
+
+    public async Task<IEnumerable<TProjection>> QueryList<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CancellationToken cancellationToken)
+           where TModel : class
+           where TProjection : class
+        => await query.AsNoTracking()
+                      .Filtered(options.Filter)
+                      .OrderedBy(options.OrderBy, options.OrderDirection)
+                      .Select(options.Selector!)
+                      .ToListAsync(cancellationToken);
+
+    public async Task<IEnumerable<TProjection>> QueryList<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CachePolicy cachePolicy, CancellationToken cancellationToken)
+           where TModel : class
+           where TProjection : class
+           => await cacheService.GetOrSetAsync
+              (
+                  cachePolicy,
+                  async (cancellationToken) => await QueryList(query, options, cancellationToken),                                                           
+                  cancellationToken
+              );
+
+    public async Task<PagedResult<TProjection>> QueryPaged<TModel, TProjection>(IQueryable<TModel> query, PagedDbQueryOptions<TModel, TProjection> options, CancellationToken cancellationToken)
+           where TModel : class
+           where TProjection : class
     {
-        IQueryable<TEntity> query = Apply(dbContext.Set<TEntity>().AsNoTracking(), options);
+        query = query.AsNoTracking().Filtered(options.Filter);
 
         int totalCount = await query.CountAsync(cancellationToken);
 
-        List<TProjection> items = await query.Paged(options.PageNumber, options.PageSize)
-                                             .Select(selector)
+        List<TProjection> items = await query.OrderedBy(options.OrderBy, options.OrderDirection)
+                                             .Paged(options.PageNumber, options.PageSize)
+                                             .Select(options.Selector!)
                                              .ToListAsync(cancellationToken);
 
         return new PagedResult<TProjection>(totalCount, items);
     }
 
-    private static IQueryable<TEntity> Apply(IQueryable<TEntity> source, DbQueryOptions<TEntity> options)
-        => source.Filtered(options.Filter)
-                 .OrderedBy(options.OrderBy, options.OrderDirection);
-
-    private static IQueryable<TEntity> Apply(IQueryable<TEntity> source, DbPagedQueryOptions<TEntity> options)
-        => source.Filtered(options.Filter)
-                 .OrderedBy(options.OrderBy, options.OrderDirection);
+    public async Task<PagedResult<TProjection>> QueryPaged<TModel, TProjection>(IQueryable<TModel> query, PagedDbQueryOptions<TModel, TProjection> options, CachePolicy cachePolicy, CancellationToken cancellationToken)
+           where TModel : class
+           where TProjection : class
+           => await cacheService.GetOrSetAsync
+              (
+                  cachePolicy,
+                  async (cancellationToken) => await QueryPaged(query, options, cancellationToken),
+                  cancellationToken
+              );
 }
