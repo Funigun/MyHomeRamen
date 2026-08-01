@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using Bogus;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Products.Validators;
+using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
@@ -118,23 +118,23 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
         Faker faker = new();
         Guid validCategoryId = _productCategoryId;
         Guid[] validIngredientIds = [_productIngredientId];
-        string validName = faker.Random.String2(ProductNameValidator.MinLength, ProductNameValidator.MaxLength);
-        string validDescription = faker.Random.String2(ProductDescriptionValidator.MinLength, ProductDescriptionValidator.MaxLength);
+        string validName = faker.Random.String2(ProductConstants.MinNameLength, ProductConstants.MaxNameLength);
+        string validDescription = faker.Random.String2(ProductConstants.MinDescriptionLength, ProductConstants.MaxDescriptionLength);
 
         return
         [
-            new CreateProductRequest(string.Empty, validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(faker.Random.String2(1, ProductNameValidator.MinLength - 1), validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(faker.Random.String2(ProductNameValidator.MaxLength + 1, ProductNameValidator.MaxLength + 10), validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, string.Empty, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, faker.Random.String2(1, ProductDescriptionValidator.MinLength - 1), ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, faker.Random.String2(ProductDescriptionValidator.MaxLength + 1, ProductDescriptionValidator.MaxLength + 10), ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice - 0.01m, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MaxPrice + 0.01m, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, Guid.Empty, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, validCategoryId, [], []),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, [Guid.Empty]),
-            new CreateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice, validCategoryId, validIngredientIds, validIngredientIds),
+            new CreateProductRequest(string.Empty, validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(faker.Random.String2(1, ProductConstants.MinNameLength - 1), validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(faker.Random.String2(ProductConstants.MaxNameLength + 1, ProductConstants.MaxNameLength + 10), validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, string.Empty, ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, faker.Random.String2(1, ProductConstants.MinDescriptionLength - 1), ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, faker.Random.String2(ProductConstants.MaxDescriptionLength + 1, ProductConstants.MaxDescriptionLength + 10), ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice - 0.01m, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, validDescription, ProductConstants.MaxPrice + 0.01m, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice, Guid.Empty, validIngredientIds, []),
+            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice, validCategoryId, [], []),
+            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, [Guid.Empty]),
+            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, validIngredientIds),
         ];
     }
 }

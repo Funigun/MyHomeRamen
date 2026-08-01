@@ -1,6 +1,6 @@
 using FluentValidation;
-using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Products.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsByCategory;
 
@@ -9,13 +9,8 @@ public sealed class GetProductsByCategoryValidator : AbstractValidator<GetProduc
     public GetProductsByCategoryValidator(IMenuDbContext dbContext)
     {
         RuleFor(x => x.Request.CategoryId)
-            .NotEmpty();
-
-        RuleFor(x => x.Request.CategoryId)
-            .MustAsync((categoryId, cancellationToken) => dbContext.Category.Exists(category => category.Id == new CategoryId(categoryId), cancellationToken))
-            .WithMessage("Category does not exist.")
-            .MustAsync((categoryId, cancellationToken) => dbContext.Category.Query().IsProductCategoryType(new CategoryId(categoryId), cancellationToken))
-            .WithMessage("Category must be a product category.")
-            .When(x => x.Request.CategoryId != Guid.Empty);
+            .Cascade(CascadeMode.Stop)
+            .MustBeExistingProductCategory(dbContext)
+            .MustBeProductCategoryType(dbContext);
     }
 }

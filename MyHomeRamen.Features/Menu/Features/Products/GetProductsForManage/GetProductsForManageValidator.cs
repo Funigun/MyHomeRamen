@@ -1,5 +1,5 @@
 using FluentValidation;
-using MyHomeRamen.Domain.Common.Product;
+using MyHomeRamen.Features.Menu.Features.Products.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
 
@@ -8,8 +8,7 @@ public sealed class GetProductsForManageValidator : AbstractValidator<GetProduct
     public GetProductsForManageValidator()
     {
         RuleFor(x => x.Request.Name)
-            .MaximumLength(ProductConstants.MaxNameLength)
-            .WithMessage($"Name must not exceed {ProductConstants.MaxNameLength} characters.");
+            .MustNotExceedProductNameLength();
 
         RuleFor(x => x.Request.PriceFrom)
             .GreaterThanOrEqualTo(0)

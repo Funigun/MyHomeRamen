@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using Bogus;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
-using MyHomeRamen.Common.Contracts.Menu.Products.Validators;
+using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
@@ -164,18 +164,18 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         Faker faker = new();
         Guid validCategoryId = _productCategory.Id;
         Guid[] validIngredientIds = [ _ingredient.Id ];
-        string validName = faker.Random.String2(ProductNameValidator.MinLength, ProductNameValidator.MaxLength);
-        string validDescription = faker.Random.String2(ProductDescriptionValidator.MinLength, ProductDescriptionValidator.MaxLength);
-        decimal validPrice = faker.Finance.Amount(ProductPriceValidator.MinPrice, ProductPriceValidator.MaxPrice);
+        string validName = faker.Random.String2(ProductConstants.MinNameLength, ProductConstants.MaxNameLength);
+        string validDescription = faker.Random.String2(ProductConstants.MinDescriptionLength, ProductConstants.MaxDescriptionLength);
+        decimal validPrice = faker.Finance.Amount(ProductConstants.MinPrice, ProductConstants.MaxPrice);
 
         return
         [
             new UpdateProductRequest(string.Empty, validDescription, validPrice, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(faker.Random.String2(1, ProductNameValidator.MinLength - 1), validDescription, validPrice, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(faker.Random.String2(ProductNameValidator.MaxLength + 1, ProductNameValidator.MaxLength + 10), validDescription, validPrice, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(validName, faker.Random.String2(ProductDescriptionValidator.MaxLength + 1, ProductDescriptionValidator.MaxLength + 10), validPrice, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(validName, validDescription, ProductPriceValidator.MinPrice - 0.01m, validCategoryId, validIngredientIds, []),
-            new UpdateProductRequest(validName, validDescription, ProductPriceValidator.MaxPrice + 0.01m, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(faker.Random.String2(1, ProductConstants.MinNameLength - 1), validDescription, validPrice, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(faker.Random.String2(ProductConstants.MaxNameLength + 1, ProductConstants.MaxNameLength + 10), validDescription, validPrice, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(validName, faker.Random.String2(ProductConstants.MaxDescriptionLength + 1, ProductConstants.MaxDescriptionLength + 10), validPrice, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(validName, validDescription, ProductConstants.MinPrice - 0.01m, validCategoryId, validIngredientIds, []),
+            new UpdateProductRequest(validName, validDescription, ProductConstants.MaxPrice + 0.01m, validCategoryId, validIngredientIds, []),
             new UpdateProductRequest(validName, validDescription, validPrice, Guid.Empty, validIngredientIds, []),
             new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, [], []),
             new UpdateProductRequest(validName, validDescription, validPrice, validCategoryId, validIngredientIds, [Guid.Empty]),
