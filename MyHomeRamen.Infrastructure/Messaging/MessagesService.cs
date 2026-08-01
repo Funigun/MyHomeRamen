@@ -7,7 +7,7 @@ using RabbitMQ.Client.Events;
 
 namespace MyHomeRamen.Infrastructure.Messaging;
 
-public class MessagesService(ILogger<MessagesService> logger, IConnection connection, QueueConfigurationFactory queueConfigurationFactory) : IMessagesService
+public class MessagesService(ILogger<MessagesService> logger, IConnection connection) : IMessagesService
 {
     public async Task PublishAsync<T>(T message, CancellationToken cancellationToken)
            where T : class
@@ -16,7 +16,7 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
 
         IChannel channel = await connection.CreateChannelAsync(null, cancellationToken);
 
-        QueueConfiguration config = queueConfigurationFactory.CreateQueueConfiguration<T>();
+        QueueConfiguration config = QueueConfigurationFactory.CreateQueueConfiguration<T>();
 
         await channel.QueueDeclareAsync(
             queue: config.QueueName,
@@ -40,7 +40,7 @@ public class MessagesService(ILogger<MessagesService> logger, IConnection connec
     {
         logger.LogInformation("Consuming message of type {MessageType} from message broker", typeof(T).Name);
 
-        QueueConfiguration config = queueConfigurationFactory.CreateQueueConfiguration<T>();
+        QueueConfiguration config = QueueConfigurationFactory.CreateQueueConfiguration<T>();
 
         IChannel channel = await connection.CreateChannelAsync(null, cancellationToken);
 

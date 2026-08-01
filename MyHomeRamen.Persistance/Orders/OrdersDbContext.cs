@@ -149,7 +149,7 @@ public sealed partial class OrdersDbContext(DbContextOptions<OrdersDbContext> op
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("orders");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrdersDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Orders.Configurations"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrdersDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Orders.Configurations", StringComparison.OrdinalIgnoreCase));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

@@ -16,7 +16,7 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-
+            // Fix migration snapshot
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
-internal class UpdateShippingDetailsTests
+internal sealed class UpdateShippingDetailsTests
 {
     //TODO: Implement tests for UpdateShippingDetailsEndpoint
 }

@@ -9,21 +9,24 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
 {
     public UpdateProductValidator(IMenuDbContext dbContext)
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .MustBeValidProductId(dbContext);
 
         RuleFor(x => x.UpdateProductRequest.Name)
             .MustMeetProductNameLengthRequirements();
 
-        RuleFor(x => x.UpdateProductRequest.Description)
-            .MustMeetProductDescriptionLengthRequirements();
+        When(x => !string.IsNullOrEmpty(x.UpdateProductRequest.Description), () =>
+        {
+            RuleFor(x => x.UpdateProductRequest.Description!)
+                .MustMeetProductDescriptionLengthRequirements();
+        });
 
         RuleFor(x => x.UpdateProductRequest.Price)
             .MustBeValidProductPrice();
 
         RuleFor(x => x)
             .MustHaveUniqueProductNameExcluding(dbContext, c => c.UpdateProductRequest.Name, c => c.Id)
-            .OverridePropertyName(nameof(UpdateProductCommand.UpdateProductRequest) + "." + nameof(UpdateProductRequest.Name));
+            .OverridePropertyName(nameof(UpdateProductCommand.UpdateProductRequest) + "." + nameof(UpdateProductCommand.UpdateProductRequest.Name));
 
         RuleFor(x => x.UpdateProductRequest.CategoryId)
             .MustBeExistingProductCategory(dbContext);

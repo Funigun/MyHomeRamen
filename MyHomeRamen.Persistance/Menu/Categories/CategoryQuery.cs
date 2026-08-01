@@ -24,7 +24,6 @@ public partial class CategoryRepository : ICategoryQuery
         return await QueryList(menuDbContext.Categories, options, cancellationToken);
     }
 
-
     public async Task<IEnumerable<CategoryByTypeDto>> GetByTypeDto(GetCategoryByTypeQueryOptions options, CancellationToken cancellationToken)
     {
         string cacheKey = $"CategoryByTypeDto:{options.CategoryType}";
@@ -42,14 +41,10 @@ public partial class CategoryRepository : ICategoryQuery
     {
         bool any = await Exists(c => c.CategoryType == categoryType, cancellationToken);
 
-        if (!any)
-        {
-            return CategoryConstants.MinSortOrder;
-        }
-
-        return await menuDbContext.Categories.AsNoTracking()
+        return any ? await menuDbContext.Categories.AsNoTracking()
                                              .Where(c => c.CategoryType == categoryType)
-                                             .MaxAsync(c => c.SortOrder, cancellationToken) + 1;
+                                             .MaxAsync(c => c.SortOrder, cancellationToken) + 1 
+                   : CategoryConstants.MinSortOrder;
     }
 
     public async Task<IEnumerable<Category>> GetByIds(IEnumerable<CategoryId> categoryIds, CancellationToken cancellationToken)

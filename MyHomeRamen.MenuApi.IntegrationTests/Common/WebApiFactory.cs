@@ -25,7 +25,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
     public HttpClient HttpClient { get; private set; } = default!;
 
-    private readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};");
+    private readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};", StringComparison.OrdinalIgnoreCase);
 
     private ServiceProvider? _seedServiceProvider;
     private IServiceScope? _seedScope;

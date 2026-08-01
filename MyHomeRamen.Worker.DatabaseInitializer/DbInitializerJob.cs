@@ -11,7 +11,7 @@ using Quartz;
 
 namespace MyHomeRamen.Worker.DatabaseInitializer;
 
-internal class DbInitializerJob(IIdentityDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
+internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
                                 IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext,
                                 IPaymentsDbContext paymentsDbContext, IConfiguration configuration,
                                 ILogger<DbInitializerJob> logger)

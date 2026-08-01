@@ -1,6 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Common.Contracts.Menu;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 
@@ -12,7 +12,7 @@ public sealed class AddItemToBasketValidator : AbstractValidator<AddItemToBasket
             .NotEmpty();
 
         RuleFor(x => x.AddItemToBasketRequest.Quantity)
-            .SetValidator(new BasketItemQuantityValidator());
+            .MustBeValidBasketItemQuantity();
 
         RuleFor(x => x.AddItemToBasketRequest.BaseIngredients)
             .NotNull();
@@ -21,7 +21,7 @@ public sealed class AddItemToBasketValidator : AbstractValidator<AddItemToBasket
             .ChildRules(ingredient =>
             {
                 ingredient.RuleFor(i => i.Id).NotEmpty();
-                ingredient.RuleFor(i => i.Quantity).SetValidator(new BasketItemQuantityValidator());
+                ingredient.RuleFor(i => i.Quantity).MustBeValidBasketItemQuantity();
             });
 
         RuleFor(x => x.AddItemToBasketRequest.CustomIngredients)
@@ -31,11 +31,11 @@ public sealed class AddItemToBasketValidator : AbstractValidator<AddItemToBasket
             .ChildRules(ingredient =>
             {
                 ingredient.RuleFor(i => i.Id).NotEmpty();
-                ingredient.RuleFor(i => i.Quantity).SetValidator(new BasketItemQuantityValidator());
+                ingredient.RuleFor(i => i.Quantity).MustBeValidBasketItemQuantity();
             });
 
         RuleFor(x => x.AddItemToBasketRequest.Comments)
-            .SetValidator(new BasketItemCommentValidator()!);
+            .MustBeValidBasketItemComment();
 
         RuleFor(x => x)
             .MustAsync(async (cmd, ct) =>

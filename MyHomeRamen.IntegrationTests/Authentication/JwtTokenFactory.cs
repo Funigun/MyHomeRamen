@@ -48,7 +48,7 @@ public static class JwtTokenFactory
         return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
     }
 
-    private static IEnumerable<Claim> GenerateClaimsForRole(UserRoles role, string userId)
+    private static List<Claim> GenerateClaimsForRole(UserRoles role, string userId)
     {
         List<Claim> claims = [];
 

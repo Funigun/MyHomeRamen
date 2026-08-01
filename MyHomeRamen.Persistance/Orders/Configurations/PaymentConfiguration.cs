@@ -4,7 +4,7 @@ using MyHomeRamen.Domain.Orders.Payments;
 
 namespace MyHomeRamen.Persistance.Orders.Configurations;
 
-internal class PaymentConfiguration : IEntityTypeConfiguration<Payment>
+internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 {
     public void Configure(EntityTypeBuilder<Payment> builder)
     {

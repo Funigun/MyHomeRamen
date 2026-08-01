@@ -161,7 +161,7 @@ public sealed partial class ShoppingCartDbContext(DbContextOptions<ShoppingCartD
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("basket");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingCartDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("ShoppingCart.Configurations"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingCartDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("ShoppingCart.Configurations", StringComparison.OrdinalIgnoreCase));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

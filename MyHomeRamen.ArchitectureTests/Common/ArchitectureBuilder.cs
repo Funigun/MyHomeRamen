@@ -42,7 +42,7 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
 
     public System.Reflection.Assembly ArchitectureTestsAssembly { get; private set; } = typeof(BaseArchitectureTest).Assembly;
 
-    public System.Reflection.Assembly[] AllAssemblies { get; private set; }
+    public IEnumerable<System.Reflection.Assembly> AllAssemblies { get; private set; } = [];
 
     public void Setup(IEnumerable<System.Reflection.Assembly> assemblies)
     {

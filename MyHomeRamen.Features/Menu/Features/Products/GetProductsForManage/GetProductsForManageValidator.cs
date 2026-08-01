@@ -7,8 +7,11 @@ public sealed class GetProductsForManageValidator : AbstractValidator<GetProduct
 {
     public GetProductsForManageValidator()
     {
-        RuleFor(x => x.Request.Name)
-            .MustNotExceedProductNameLength();
+        When(x => !string.IsNullOrEmpty(x.Request.Name), () =>
+        {
+            RuleFor(x => x.Request.Name!)
+                .MustNotExceedProductNameLength();
+        });
 
         RuleFor(x => x.Request.PriceFrom)
             .GreaterThanOrEqualTo(0)

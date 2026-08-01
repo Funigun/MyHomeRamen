@@ -9,12 +9,13 @@ using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using System.Text;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
-    private const string EndpointBase = "/api/shopping-cart/{0}/shipping-details";
+    private static readonly CompositeFormat EndpointBase = CompositeFormat.Parse("/api/shopping-cart/{0}/shipping-details");
 
     [Fact]
     public async Task GetShippingDetails_ShouldReturnOk_ForBasketWithShippingDetails()
@@ -30,7 +31,7 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
         apiFactory.ShoppingCartDbContext.Basket.Add(basket);
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        string url = string.Format(EndpointBase, basket.Id.Value);
+        string url = string.Format(null, EndpointBase, basket.Id.Value);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)
@@ -53,7 +54,7 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
         UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
         User user = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(userId, TestContext.Current.CancellationToken))!;
 
-        string url = string.Format(EndpointBase, Guid.NewGuid());
+        string url = string.Format(null, EndpointBase, Guid.NewGuid());
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)
@@ -78,7 +79,7 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
         apiFactory.ShoppingCartDbContext.Basket.Add(basket);
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        string url = string.Format(EndpointBase, basket.Id.Value);
+        string url = string.Format(null, EndpointBase, basket.Id.Value);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)

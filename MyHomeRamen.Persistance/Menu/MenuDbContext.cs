@@ -169,16 +169,4 @@ public sealed partial class MenuDbContext(DbContextOptions<MenuDbContext> option
             }
         }
     }
-
-    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
-    {
-        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
-
-        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
-        {
-            settersBuilder.SetProperty(kvp.Key, kvp.Value);
-        }
-
-        return settersBuilder;
-    }
 }

@@ -4,7 +4,7 @@ using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
-internal class ShoppingCartDataSet : DataSet
+internal sealed class ShoppingCartDataSet : DataSet
 {
     internal static readonly IEnumerable<Guid> OriginalProductIds = [ Guid.Parse("9942e0d8-c7ec-4171-8d54-deb0f5d7db90"), Guid.Parse("9942e0d8-c7ec-4171-8d54-deb0f5d7db91"), Guid.Parse("9942e0d8-c7ec-4171-8d54-deb0f5d7db92"), Guid.Parse("9942e0d8-c7ec-4171-8d54-deb0f5d7db93")];
     internal static readonly Dictionary<Guid, Guid> PaymentMethods = new()

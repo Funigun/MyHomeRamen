@@ -14,12 +14,12 @@ namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateShippingDetai
 
 internal sealed class UpdateShippingDetailsEndpoint : IEndpoint
 {
-    public void MapEndpoint(IEndpointRouteBuilder app)
+    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        app.MapStandardPut("api/shopping-cart/{id}/update-shipping-details", Handle)
-           .AllowAnonymous()
-           .WithTags("Baskets")
-           .WithDescription("Updates the shipping details for active basket.");
+        endpointBuilder.MapStandardPut("api/shopping-cart/{id}/update-shipping-details", Handle)
+                       .AllowAnonymous()
+                       .WithTags("Baskets")
+                       .WithDescription("Updates the shipping details for active basket.");
     }
 
     internal static async Task<Results<Ok, BadRequest>> Handle(

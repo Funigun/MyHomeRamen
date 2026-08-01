@@ -3,6 +3,7 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.DeleteBasketItem;
 
@@ -11,13 +12,9 @@ public sealed class DeleteBasketItemValidationPolicy : AbstractValidator<DeleteB
     public DeleteBasketItemValidationPolicy(IShoppingCartDbContext dbContext, ICurrentUser currentUser)
     {
         RuleFor(x => x.BasketId)
-            .NotEmpty()
-            .MustAsync(async (basketId, ct) =>
-            {
-                UserId userId = new(currentUser.UserId);
-                return await dbContext.Basket.Query().GetByIdForUserAsync(basketId, userId, ct) != null;
-            })
-            .WithMessage("Basket was not found or does not belong to the current user.");
+            .MustBeAccessibleBasket(
+                dbContext,
+                _ => new UserId(currentUser.UserId));
 
         RuleFor(x => x.BasketItemId)
             .NotEmpty()

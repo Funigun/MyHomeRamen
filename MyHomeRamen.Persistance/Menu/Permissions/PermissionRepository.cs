@@ -5,7 +5,7 @@ using MyHomeRamen.Features.Common.Cache;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public partial class PermissionRepository(MenuDbContext menuDbContext, ICacheService cacheService) : BaseRepository<Permission, PermissionId>(menuDbContext, cacheService), IPermissionRepository
+public sealed partial class PermissionRepository(MenuDbContext menuDbContext, ICacheService cacheService) : BaseRepository<Permission, PermissionId>(menuDbContext, cacheService), IPermissionRepository
 {
     IPermissionQuery IPermissionRepository.Query() => this;
 

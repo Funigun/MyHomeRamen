@@ -9,7 +9,7 @@ using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
-internal class DataGenerator
+internal sealed class DataGenerator
 {
     internal static Ingredient CreateIngredient()
         => new Faker<Ingredient>()

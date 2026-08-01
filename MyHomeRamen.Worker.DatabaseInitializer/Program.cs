@@ -23,7 +23,7 @@ try
     builder.AddConfiguration();
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     builder.Services.AddScoped<DatabaseConfigurationProvider>();
-    RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
+
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
     builder.AddWorkerServiceDefaults();

@@ -9,7 +9,7 @@ public partial class ShoppingCartDbContext : IBasketSpecification
 {
     private IQueryable<Basket> TrackedBasketQuery => ShoppingCarts;
 
-    public async Task<Basket?> GetForUserTrackedAsync(UserId userId, CancellationToken cancellationToken)
+    public async Task<Basket> GetForUserTrackedAsync(UserId userId, CancellationToken cancellationToken)
         => await TrackedBasketQuery
             .Where(b => b.User.Id == userId && b.Status == BasketStatus.Active)
             .Include(b => b.Items)

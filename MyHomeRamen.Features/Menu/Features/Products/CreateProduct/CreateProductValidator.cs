@@ -12,8 +12,11 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
             .MustMeetProductNameLengthRequirements()
             .MustHaveUniqueProductName(dbContext);
 
-        RuleFor(x => x.CreateProductRequest.Description)
-            .MustMeetProductDescriptionLengthRequirements();
+        When(x => !string.IsNullOrEmpty(x.CreateProductRequest.Description), () =>
+        {
+            RuleFor(x => x.CreateProductRequest.Description!)
+                .MustMeetProductDescriptionLengthRequirements();
+        });
 
         RuleFor(x => x.CreateProductRequest.Price)
             .MustBeValidProductPrice();

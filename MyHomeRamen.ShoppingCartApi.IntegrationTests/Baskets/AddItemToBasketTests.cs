@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
+using MyHomeRamen.Domain.Common.Basket;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
@@ -69,7 +69,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
         Assert.NotEqual(Guid.Empty, responseBody.BasketItemId);
 
         Assert.NotNull(response.Headers.Location);
-        Assert.Contains(responseBody.BasketItemId.ToString(), response.Headers.Location.ToString());
+        Assert.Contains(responseBody.BasketItemId.ToString(), response.Headers.Location.ToString(), StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -124,15 +124,15 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
         List<BasketIngredientDto> validBaseIngredients = [baseIngredient];
         List<BasketIngredientDto> validCustomIngredients = [customIngredient];
 
-        string tooLongComment = new('a', BasketItemCommentValidator.MaxCommentLength + 1);
+        string tooLongComment = new('a', BasketConstants.MaxCommentLength + 1);
 
         return
         [
             // Quantity: below minimum
-            new AddItemToBasketRequest(productId, BasketItemQuantityValidator.MinQuantity - 1, validBaseIngredients, validCustomIngredients, null),
+            new AddItemToBasketRequest(productId, BasketConstants.MinQuantity - 1, validBaseIngredients, validCustomIngredients, null),
 
             // Quantity: above maximum
-            new AddItemToBasketRequest(productId, BasketItemQuantityValidator.MaxQuantity + 1, validBaseIngredients, validCustomIngredients, null),
+            new AddItemToBasketRequest(productId, BasketConstants.MaxQuantity + 1, validBaseIngredients, validCustomIngredients, null),
 
             // ProductId: empty
             new AddItemToBasketRequest(Guid.Empty, 1, validBaseIngredients, validCustomIngredients, null),

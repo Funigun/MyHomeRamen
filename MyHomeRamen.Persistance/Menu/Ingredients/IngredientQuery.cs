@@ -15,9 +15,7 @@ public partial class IngredientRepository : IIngredientQuery
     {
         string? nameFilter = string.IsNullOrWhiteSpace(name) ? null : name.ToLower();
 
-        List<CategoryId>? ids = categoryIds is not null && categoryIds.Any()
-            ? categoryIds.Select(id => (CategoryId)id).ToList()
-            : null;
+        List<CategoryId>? ids = categoryIds?.Select(id => (CategoryId)id).ToList() ?? null;
 
         Expression<Func<Ingredient, bool>> predicate = i =>
             (nameFilter == null || i.Name.ToLower().Contains(nameFilter)) &&

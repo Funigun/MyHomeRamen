@@ -9,7 +9,7 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
 {
     public UpdateIngredientValidator(IMenuDbContext dbContext)
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Id.Value)
             .MustBeValidIngredientId(dbContext);
 
         RuleFor(x => x.UpdateIngredientRequest.Name)
@@ -23,7 +23,7 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
 
         RuleFor(x => x)
             .MustHaveUniqueIngredientNameExcluding(dbContext, c => c.UpdateIngredientRequest.Name, c => c.Id)
-            .OverridePropertyName(nameof(UpdateIngredientCommand.UpdateIngredientRequest) + "." + nameof(UpdateIngredientRequest.Name));
+            .OverridePropertyName(nameof(UpdateIngredientCommand.UpdateIngredientRequest) + "." + nameof(UpdateIngredientCommand.UpdateIngredientRequest.Name));
 
         RuleFor(x => x.UpdateIngredientRequest.CategoryIds)
             .NotEmpty()

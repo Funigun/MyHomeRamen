@@ -2,9 +2,9 @@
 
 namespace MyHomeRamen.Infrastructure.Messaging.Configuration;
 
-public sealed class QueueConfigurationFactory
+public static class QueueConfigurationFactory
 {
-    public QueueConfiguration CreateQueueConfiguration<T>()
+    public static QueueConfiguration CreateQueueConfiguration<T>()
     {
         string queueName = GetQueueNameByMessageType<T>() ?? string.Empty;
 

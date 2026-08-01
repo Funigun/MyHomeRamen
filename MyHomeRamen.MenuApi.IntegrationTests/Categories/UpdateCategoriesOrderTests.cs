@@ -22,7 +22,6 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
         apiFactory.MenuDbContext.Category.AddRange(categories);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-
         List<CategoryOrderItemDto> items = categories.Select((c, index) => new CategoryOrderItemDto(c.Id.Value, categories.Count() - 1 - index)).ToList();
         UpdateCategoriesOrderRequest request = new(items);
 
@@ -44,7 +43,7 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
 
         foreach (CategoryOrderItemDto item in items)
         {
-            GetCategoriesByTypeResponse? updated = updatedCategories.FirstOrDefault(c => c.Id == item.Id);
+            GetCategoriesByTypeResponse? updated = updatedCategories?.FirstOrDefault(c => c.Id == item.Id);
 
             Assert.NotNull(updated);
             Assert.Equal(item.SortOrder, updated.SortOrder);

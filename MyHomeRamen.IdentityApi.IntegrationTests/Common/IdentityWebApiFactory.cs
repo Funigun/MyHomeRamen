@@ -17,7 +17,7 @@ public sealed class IdentityWebApiFactory(DbContainerFixture dbContainerFixture,
 
     public DataSeeder DataSeeder { get; private set; } = dataSeeder;
 
-    private readonly string _connectionString = dbContainerFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};");
+    private readonly string _connectionString = dbContainerFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};", StringComparison.OrdinalIgnoreCase);
     
 
     async ValueTask IAsyncLifetime.InitializeAsync()

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using MyHomeRamen.Common.Contracts.Users.Account.Validators;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.UpdateAddress;
