@@ -14,9 +14,8 @@ public sealed class GetDetailsTests(IdentityApiFixture apiFixture) : IClassFixtu
     public async Task GetDetails_ShouldReturn200_WithCorrectUserDetails()
     {
         // Arrange
-        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
         httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
-
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

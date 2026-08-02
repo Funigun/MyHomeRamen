@@ -6,7 +6,7 @@ string repoRoot = @"C:\Users\stepn\source\repos\MyHomeRamen";
 
 Dictionary<string, string[]> modules = new()
 {
-    ["Menu"] = new[]
+    ["Menu"] = new string[]
     {
         //"Products/CreateProduct",
         //"Products/UpdateProduct",
@@ -14,17 +14,17 @@ Dictionary<string, string[]> modules = new()
         //"Products/GetProductByIdForManage",
         //"Products/GetProductsByCategory",
         //"Products/GetProductsForManage",
-        "Categories/CreateCategory",
-        "Categories/GetCategoriesByType",
-        "Categories/GetMenuCategories",
-        "Categories/UpdateCategoriesOrder",
-        //"Ingredients/CreateIngredient",
-        //"Ingredients/GetIngredientById",
-        //"Ingredients/GetIngredientsForDropdown",
-        //"Ingredients/GetIngredientsForManage",
-        //"Ingredients/UpdateIngredient",
+        //"Categories/CreateCategory",
+        //"Categories/GetCategoriesByType",
+        //"Categories/GetMenuCategories",
+        //"Categories/UpdateCategoriesOrder",
+        "Ingredients/CreateIngredient",
+        "Ingredients/GetIngredientById",
+        "Ingredients/GetIngredientsForDropdown",
+        "Ingredients/GetIngredientsForManage",
+        "Ingredients/UpdateIngredient",
     },
-    ["Identity"] = new[]
+    ["Identity"] = new string[]
     {
         //"Users/CreateAddress",
         //"Users/DeleteAddress",
@@ -38,7 +38,7 @@ Dictionary<string, string[]> modules = new()
         //"Users/UpdateAddress",
         //"Roles/GetAvailableRoles",
     },
-    ["ShoppingCart"] = new[]
+    ["ShoppingCart"] = new string[]
     {
         //"Baskets/AddItemToBasket",
         //"Baskets/ClearBasket",
@@ -50,7 +50,7 @@ Dictionary<string, string[]> modules = new()
         //"Baskets/UpdatePaymentDetails",
         //"Baskets/UpdateShippingDetails",
     },
-    ["Payments"] = new[]
+    ["Payments"] = new string[]
     {
         //"PaymentMethods/GetAvailableMethods",
     },

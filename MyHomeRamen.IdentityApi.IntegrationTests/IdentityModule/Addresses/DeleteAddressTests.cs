@@ -10,9 +10,8 @@ public sealed class DeleteAddressTests(IdentityApiFixture apiFixture) : IClassFi
     public async Task DeleteAddress_ShouldReturn204_WhenAddressExists()
     {
         // Arrange
-        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}");
         httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
-
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -25,9 +24,8 @@ public sealed class DeleteAddressTests(IdentityApiFixture apiFixture) : IClassFi
     public async Task DeleteAddress_ShouldReturn400_WhenAddressNotFound()
     {
         // Arrange
-        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/account/me/addresses/{Guid.NewGuid()}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/account/me/addresses/{Guid.NewGuid()}");
         httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
-
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -40,9 +38,8 @@ public sealed class DeleteAddressTests(IdentityApiFixture apiFixture) : IClassFi
     public async Task DeleteAddress_ShouldReturn400_WhenAddressBelongsToAnotherUser()
     {
         // Arrange
-        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.AnotherUserAddressId}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.AnotherUserAddressId}");
         httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
-
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

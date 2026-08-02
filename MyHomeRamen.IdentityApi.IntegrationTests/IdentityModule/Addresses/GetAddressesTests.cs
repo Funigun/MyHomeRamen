@@ -16,9 +16,8 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
     public async Task GetAddresses_ShouldReturn200_WithAddressList()
     {
         // Arrange
-        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
         httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
-
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -63,9 +62,8 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
         apiFixture.ApiFactory.UsersDbContext.Users.Add(newUser);
         await apiFixture.ApiFactory.UsersDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
         httpRequest.AddIdentityAuthorizationHeader("test-no-addresses-user");
-
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
