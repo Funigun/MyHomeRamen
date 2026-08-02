@@ -54,9 +54,9 @@ internal sealed class ShoppingCartDataSet : DataSet
 
     public string IngredientDescription(string ingredientName) => ingredientDescriptions[ingredientName];
 
-    public ShippingDetails DeliveryShippingDetails() => ShippingDetails.CreateDelivery(new("Test street", "Test building", "Test apartment", "Test city", "12345"));
+    public static ShippingDetails DeliveryShippingDetails() => ShippingDetails.CreateDelivery(new("Test street", "Test building", "Test apartment", "Test city", "12345"));
 
-    public ShippingDetails PersonalPickupShippingDetails() => ShippingDetails.CreatePersonalPickup();
+    public static ShippingDetails PersonalPickupShippingDetails() => ShippingDetails.CreatePersonalPickup();
 
-    public PaymentDetails CashPaymentDetails() => PaymentDetails.Create(PaymentMethods.Keys.First().ToString(), PaymentMethods.Values.First().ToString());
+    public static PaymentDetails CashPaymentDetails() => PaymentDetails.Create(PaymentMethods.Keys.First().ToString(), PaymentMethods.Values.First().ToString());
 }

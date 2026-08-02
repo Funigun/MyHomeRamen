@@ -33,8 +33,8 @@ public partial class CategoryRepository : ICategoryQuery
         bool any = await Exists(c => c.CategoryType == categoryType, cancellationToken);
 
         return any ? await menuDbContext.Categories.AsNoTracking()
-                                             .Where(c => c.CategoryType == categoryType)
-                                             .MaxAsync(c => c.SortOrder, cancellationToken) + 1 
+                                                   .Where(c => c.CategoryType == categoryType)
+                                                   .MaxAsync(c => c.SortOrder, cancellationToken) + 1 
                    : CategoryConstants.MinSortOrder;
     }
 

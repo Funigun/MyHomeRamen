@@ -36,8 +36,8 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
         string endpoint = $"{EndpointBase}/{_customerBasket.Id.Value}";
 
         using HttpClient client = apiFactory.CreateClient();
-        using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint)
-                                                               .AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint);
+        request.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -54,8 +54,8 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
         string endpoint = $"{EndpointBase}/{Guid.NewGuid()}";
 
         using HttpClient client = apiFactory.CreateClient();
-        using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint)
-                                                               .AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint);
+        request.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -72,8 +72,8 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
         string endpoint = $"{EndpointBase}/{_customerBasket.Id.Value}";
 
         using HttpClient client = apiFactory.CreateClient();
-        using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint)
-                                                               .AddAuthorizationHeader(UserRoles.Customer, differentUserId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint);
+        request.AddAuthorizationHeader(UserRoles.Customer, differentUserId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);

@@ -33,9 +33,9 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         HttpStatusCode expectedStatusCode = HttpStatusCode.Created;
         CreateCategoryRequest request = _productCategory.ToCreateCategoryRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -52,8 +52,8 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         HttpStatusCode expectedStatusCode = HttpStatusCode.Unauthorized;
         CreateCategoryRequest request = _productCategory.ToCreateCategoryRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories")
-                                                                   .WithJsonContent(request);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories");
+        httpRequest.WithJsonContent(request);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -71,9 +71,9 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         HttpStatusCode expectedStatusCode = HttpStatusCode.Forbidden;
         CreateCategoryRequest request = _productCategory.ToCreateCategoryRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -89,9 +89,9 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         // Arrange
         HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest;
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -128,9 +128,9 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest;
         CreateCategoryRequest request = _prodcutCategoryDuplicateCheck.ToCreateCategoryRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -146,12 +146,13 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         CreateCategoryRequest firstRequest = DataGenerator.CreateIngredientCategory().ToCreateCategoryRequest();
         CreateCategoryRequest secondRequest = DataGenerator.CreateIngredientCategory().ToCreateCategoryRequest();
 
-        using HttpRequestMessage firstHttpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories")
-                                                                        .WithJsonContent(firstRequest)
-                                                                        .AddAuthorizationHeader(UserRoles.Admin);
-        using HttpRequestMessage secondHttpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories")
-                                                                         .WithJsonContent(secondRequest)
-                                                                         .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage firstHttpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories");
+        firstHttpRequest.WithJsonContent(firstRequest);
+        firstHttpRequest.AddAuthorizationHeader(UserRoles.Admin);
+
+        using HttpRequestMessage secondHttpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories");
+        secondHttpRequest.WithJsonContent(secondRequest);
+        secondHttpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage firstResponse = await apiFactory.HttpClient.SendAsync(firstHttpRequest, TestContext.Current.CancellationToken);
@@ -160,12 +161,15 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         CreateCategoryResponse firstResult = await firstResponse.ResponseToDto<CreateCategoryResponse>();
         CreateCategoryResponse secondResult = await secondResponse.ResponseToDto<CreateCategoryResponse>();
 
-        Category? firstCategory = await apiFactory.MenuDbContext.Category.Query().ById((CategoryId)firstResult.Id, TestContext.Current.CancellationToken);
-        Category? secondCategory = await apiFactory.MenuDbContext.Category.Query().ById((CategoryId)secondResult.Id, TestContext.Current.CancellationToken);
+        IEnumerable<Category> categories = await apiFactory.MenuDbContext.Category.Query().GetByIds([(CategoryId)firstResult.Id, (CategoryId)secondResult.Id,], TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.NotNull(firstCategory);
-        Assert.NotNull(secondCategory);
+        Assert.Contains(categories, c => c.Id == (CategoryId)firstResult.Id);
+        Assert.Contains(categories, c => c.Id == (CategoryId)secondResult.Id);
+
+        Category firstCategory = categories.First(c => c.Id == (CategoryId)firstResult.Id);
+        Category secondCategory = categories.First(c => c.Id == (CategoryId)secondResult.Id);
+
         Assert.Equal(firstCategory.SortOrder + 1, secondCategory.SortOrder);
     }
 }

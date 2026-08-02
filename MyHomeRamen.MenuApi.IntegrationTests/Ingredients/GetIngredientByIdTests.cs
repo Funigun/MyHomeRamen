@@ -31,8 +31,8 @@ public sealed class GetIngredientByIdTests(WebApiFactory apiFactory) : IClassFix
     public async Task GetIngredientById_ShouldReturnOk_ForAuthenticatedAdmin()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_ingredient.Id.Value}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_ingredient.Id.Value}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -50,8 +50,7 @@ public sealed class GetIngredientByIdTests(WebApiFactory apiFactory) : IClassFix
     public async Task GetIngredientById_ShouldReturnUnauthorized_ForUnauthenticatedUser()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions
-            .CreateGetMessage($"{EndpointBase}/{_ingredient.Id.Value}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_ingredient.Id.Value}");
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -66,8 +65,8 @@ public sealed class GetIngredientByIdTests(WebApiFactory apiFactory) : IClassFix
     public async Task GetIngredientById_ShouldReturnForbidden_ForNonAdminRole(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_ingredient.Id.Value}")
-                                                                   .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_ingredient.Id.Value}");
+        httpRequest.AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -80,8 +79,8 @@ public sealed class GetIngredientByIdTests(WebApiFactory apiFactory) : IClassFix
     public async Task GetIngredientById_ShouldReturnBadRequest_ForNonExistentId()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -96,8 +95,8 @@ public sealed class GetIngredientByIdTests(WebApiFactory apiFactory) : IClassFix
         // Arrange
         IEnumerable<Guid> expectedIds = [_category.Id.Value];
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_ingredient.Id.Value}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_ingredient.Id.Value}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

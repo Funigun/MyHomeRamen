@@ -47,9 +47,8 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
 
         Guid idToDelete = cat2.Id;
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{idToDelete}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
-
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{idToDelete}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -80,9 +79,8 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         // Arrange
         Guid nonExistentId = Guid.NewGuid();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{nonExistentId}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
-
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{nonExistentId}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -94,8 +92,8 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     public async Task DeleteCategory_ShouldReturnBadRequest_WhenCategoryIsUsedByProduct()
     {
         // Arrange
-           using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_productCategory.Id.Value}")
-                                                                      .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_productCategory.Id.Value}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -108,8 +106,8 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     public async Task DeleteCategory_ShouldReturnBadRequest_WhenCategoryIsUsedByIngredient()
     {
         // Arrange — derive category from a tracked generated ingredient so the reference is guaranteed
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_ingredientcategory.Id.Value}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_ingredientcategory.Id.Value}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -137,9 +135,8 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     public async Task DeleteCategory_ShouldReturnForbidden_ForNonManagerRoles(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_productCategory.Id.Value}")
-                                                                   .AddAuthorizationHeader(role);
-
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_productCategory.Id.Value}");
+        httpRequest.AddAuthorizationHeader(role);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -151,9 +148,8 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     public async Task DeleteCategory_ShouldReturnBadRequest_ForEmptyGuid()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{Guid.Empty}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
-
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{Guid.Empty}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 

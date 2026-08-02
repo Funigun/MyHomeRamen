@@ -51,9 +51,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
             [_ingredient.Id],
             []);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_product.Id}")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_product.Id}");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -80,9 +80,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         Guid nonExistentId = Guid.NewGuid();
         UpdateProductRequest request = _product.ToUpdateProductRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{nonExistentId}")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{nonExistentId}");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -97,8 +97,8 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         // Arrange
         Guid id = _product.Id;
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{id}")
-                                                                   .WithJsonContent(_product.ToUpdateProductRequest());
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{id}");
+        httpRequest.WithJsonContent(_product.ToUpdateProductRequest());
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -113,9 +113,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
     public async Task UpdateProduct_ShouldReturnForbidden_ForNonAdminUser(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_product.Id}")
-                                                                   .WithJsonContent(_product.ToUpdateProductRequest())
-                                                                   .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_product.Id}");
+        httpRequest.WithJsonContent(_product.ToUpdateProductRequest());
+        httpRequest.AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -130,9 +130,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         // Arrange
         UpdateProductRequest request = _productA.ToUpdateProductRequest() with { Name = _productB.Name };
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_productA.Id}")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_productA.Id}");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -148,9 +148,9 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         // Arrange
         Guid id = _product.Id;
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{id}")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{id}");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

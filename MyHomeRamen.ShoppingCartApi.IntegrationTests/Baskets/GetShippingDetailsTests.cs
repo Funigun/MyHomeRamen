@@ -23,8 +23,7 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
         UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
         User user = (await apiFactory.ShoppingCartDbContext.User.Query().FindByIdAsync(userId, TestContext.Current.CancellationToken))!;
 
-        ShoppingCartDataSet shoppingCartDataSet = new();
-        ShippingDetails shippingDetails = shoppingCartDataSet.DeliveryShippingDetails();
+        ShippingDetails shippingDetails = ShoppingCartDataSet.DeliveryShippingDetails();
         Product product = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
         Basket basket = DataGenerator.CreateBasket([DataGenerator.CreateBasketItem(product)], user!, shippingDetails: shippingDetails);
 
@@ -34,8 +33,8 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
         string url = string.Format(null, EndpointBase, basket.Id.Value);
 
         using HttpClient client = apiFactory.CreateClient();
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)
-                                                                  .AddAuthorizationHeader(UserRoles.Customer, user.Id.Value.ToString());
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url);
+        httpRequest.AddAuthorizationHeader(UserRoles.Customer, user.Id.Value.ToString());
 
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -57,8 +56,8 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
         string url = string.Format(null, EndpointBase, Guid.NewGuid());
 
         using HttpClient client = apiFactory.CreateClient();
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)
-                                                                  .AddAuthorizationHeader(UserRoles.Customer, user.Id.Value.ToString());
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url);
+        httpRequest.AddAuthorizationHeader(UserRoles.Customer, user.Id.Value.ToString());
 
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -82,8 +81,8 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
         string url = string.Format(null, EndpointBase, basket.Id.Value);
 
         using HttpClient client = apiFactory.CreateClient();
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url)
-                                                                   .AddAuthorizationHeader(UserRoles.Customer, otherUser.Id.Value.ToString());
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(url);
+        httpRequest.AddAuthorizationHeader(UserRoles.Customer, otherUser.Id.Value.ToString());
 
         HttpResponseMessage response = await client.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 

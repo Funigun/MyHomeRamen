@@ -52,8 +52,7 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory) : IClassFixtur
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetProductByIdResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetProductByIdResponse>(TestContext.Current.CancellationToken);
+        GetProductByIdResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetProductByIdResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
@@ -71,8 +70,7 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory) : IClassFixtur
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetProductByIdResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetProductByIdResponse>(TestContext.Current.CancellationToken);
+        GetProductByIdResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetProductByIdResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
@@ -119,8 +117,8 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory) : IClassFixtur
     public async Task GetProductById_ShouldReturnBadRequest_ForNonExistentId()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

@@ -59,7 +59,8 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
         UserId userId = _customerBasket.User.Id;
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).AddAuthorizationHeader(role, userId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.AddAuthorizationHeader(role, userId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -85,7 +86,8 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
         BasketItem expectedItem = expectedBasket.Items.First();
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).AddAuthorizationHeader(role, userId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.AddAuthorizationHeader(role, userId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -110,7 +112,8 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
         UserId guestId = _guestBasket.User.Id;
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).WithGuestCookie(guestId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.WithGuestCookie(guestId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -133,7 +136,8 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
         BasketItem expectedItem = expectedBasket.Items.First();
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase).WithGuestCookie(guestId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.WithGuestCookie(guestId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);

@@ -56,8 +56,8 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
         UserId userId = _customerBasket.User.Id;
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase)
-                                                         .AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -86,8 +86,8 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
         UserId guestId = _guestBasket.User.Id;
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase)
-                                                         .WithGuestCookie(guestId.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.WithGuestCookie(guestId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -110,8 +110,8 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase)
-                                                         .AddAuthorizationHeader(UserRoles.Customer, userWithoutBasket.Id.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.AddAuthorizationHeader(UserRoles.Customer, userWithoutBasket.Id.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -125,7 +125,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
     {
         // Arrange
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -144,8 +144,8 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
         Ingredient customIngredient = product.CustomIngredients.First();
 
         using HttpClient client = apiFactory.CreateClient();
-        HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase)
-                                                         .AddAuthorizationHeader(UserRoles.Customer, _customerBasket.User.Id.Value.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.AddAuthorizationHeader(UserRoles.Customer, _customerBasket.User.Id.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);

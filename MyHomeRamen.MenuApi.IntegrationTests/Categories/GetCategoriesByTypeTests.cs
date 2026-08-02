@@ -13,8 +13,6 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
 {
     private const string EndpointBase = "/api/menu/categories/by-type";
 
-    
-
     public async ValueTask InitializeAsync()
     {
         Category productCategory = DataGenerator.CreateProductCategory();
@@ -32,8 +30,8 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     public async Task GetCategoriesByType_ShouldReturnOkWithList_ForIngredientType()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Ingredient}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Ingredient}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -49,8 +47,8 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     public async Task GetCategoriesByType_ShouldReturnOk_ForAuthenticatedManager()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -81,8 +79,8 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     public async Task GetCategoriesByType_ShouldReturnForbidden_ForNonManagerRoles(UserRoles role)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}")
-                                                                   .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}");
+        httpRequest.AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -95,8 +93,8 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     public async Task GetCategoriesByType_ShouldReturnBadRequest_ForInvalidCategoryType()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType=999")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType=999");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

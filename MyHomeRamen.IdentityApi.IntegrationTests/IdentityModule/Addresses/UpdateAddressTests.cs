@@ -15,9 +15,10 @@ public sealed class UpdateAddressTests(IdentityApiFixture apiFixture) : IClassFi
         // Arrange
         UpdateAddressRequest request = DataGenerator.GenerateValidUpdateAddressRequest(isDefault: false);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}")
-            .WithJsonContent(request)
-            .AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -36,9 +37,10 @@ public sealed class UpdateAddressTests(IdentityApiFixture apiFixture) : IClassFi
         // Arrange
         UpdateAddressRequest request = DataGenerator.GenerateValidUpdateAddressRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{Guid.NewGuid()}")
-            .WithJsonContent(request)
-            .AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{Guid.NewGuid()}");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -53,8 +55,9 @@ public sealed class UpdateAddressTests(IdentityApiFixture apiFixture) : IClassFi
         // Arrange
         UpdateAddressRequest request = DataGenerator.GenerateValidUpdateAddressRequest();
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}")
-            .WithJsonContent(request);
+        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}");
+        httpRequest.WithJsonContent(request);
+
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -68,9 +71,10 @@ public sealed class UpdateAddressTests(IdentityApiFixture apiFixture) : IClassFi
     public async Task UpdateAddress_ShouldReturn400_WhenPayloadInvalid(UpdateAddressRequest request)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}")
-            .WithJsonContent(request)
-            .AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+        using using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/account/me/addresses/{apiFixture.ApiFactory.DataSeeder.SeededAddressId}");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+
 
         // Act
         HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

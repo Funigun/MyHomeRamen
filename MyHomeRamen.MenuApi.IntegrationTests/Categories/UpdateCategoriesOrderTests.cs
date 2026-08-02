@@ -25,9 +25,9 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
         List<CategoryOrderItemDto> items = categories.Select((c, index) => new CategoryOrderItemDto(c.Id.Value, categories.Count() - 1 - index)).ToList();
         UpdateCategoriesOrderRequest request = new(items);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -35,8 +35,8 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.NoContent);
 
-        using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}")
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}");
+        assertRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         HttpResponseMessage assertResponse = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
         GetCategoriesByTypeResponse? updatedCategories = await assertResponse.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(TestContext.Current.CancellationToken);
@@ -57,8 +57,8 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
         List<CategoryOrderItemDto> items = [new CategoryOrderItemDto(Guid.NewGuid(), 0)];
         UpdateCategoriesOrderRequest request = new(items);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order")
-                                                                   .WithJsonContent(request);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order");
+        httpRequest.WithJsonContent(request);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -76,9 +76,9 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
         List<CategoryOrderItemDto> items = [new CategoryOrderItemDto(Guid.NewGuid(), 0)];
         UpdateCategoriesOrderRequest request = new(items);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(role);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(role);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -92,9 +92,9 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
     public async Task UpdateCategoriesOrder_ShouldReturnBadRequest_ForInvalidRequest(UpdateCategoriesOrderRequest request)
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order")
-                                                                   .WithJsonContent(request)
-                                                                   .AddAuthorizationHeader(UserRoles.Admin);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order");
+        httpRequest.WithJsonContent(request);
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
