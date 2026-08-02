@@ -129,9 +129,8 @@
             _model = Model;
         }
 
-        IEnumerable<GetCategoriesByTypeResponse> categoriesResponse =
-            await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
-        _categories = categoriesResponse.Select(c => new CategoryOption(c.Id, c.Name));
+        GetCategoriesByTypeResponse categoriesResponse = await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
+        _categories = categoriesResponse.Categories.Select(c => new CategoryOption(c.Id, c.Name));
 
         IEnumerable<GetIngredientsForDropdownResponse> ingredientsResponse =
             await MenuApiClient.GetIngredientsForDropdownAsync();

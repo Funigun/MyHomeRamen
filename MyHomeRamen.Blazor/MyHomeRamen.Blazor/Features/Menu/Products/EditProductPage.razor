@@ -39,8 +39,8 @@
     {
         var response = await MenuApiClient.GetProductByIdForManageAsync(Id);
 
-        IEnumerable<GetCategoriesByTypeResponse> categoriesResponse = await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
-        IEnumerable<CategoryOption> categoryOptions = categoriesResponse.Select(c => new CategoryOption(c.Id, c.Name));
+        GetCategoriesByTypeResponse categoriesResponse = await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
+        IEnumerable<CategoryOption> categoryOptions = categoriesResponse.Categories.Select(c => new CategoryOption(c.Id, c.Name));
 
         IEnumerable<GetIngredientsForDropdownResponse> ingredientsResponse = await MenuApiClient.GetIngredientsForDropdownAsync();
         IEnumerable<IngredientOption> ingredientOptions = ingredientsResponse.Select(i => new IngredientOption(i.Id, i.Name));

@@ -1,4 +1,4 @@
-﻿using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+﻿using MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
 using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
 using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
 using MyHomeRamen.Domain.Menu.Categories;

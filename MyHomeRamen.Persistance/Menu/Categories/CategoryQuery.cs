@@ -5,25 +5,13 @@ using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
+using MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
 using MyHomeRamen.Persistance.Cache;
 
 namespace MyHomeRamen.Persistance.Menu;
 
 public partial class CategoryRepository : ICategoryQuery
 {
-    public async Task<IEnumerable<Category>> GetByType(CategoryType categoryType, CancellationToken cancellationToken)
-    {
-        DbQueryOptions<Category, Category> options = new()
-        {
-            Filter = c => c.CategoryType == categoryType,
-            OrderBy = c => c.SortOrder,
-            OrderDirection = "asc",
-            Selector = c => c
-        };
-
-        return await QueryList(menuDbContext.Categories, options, cancellationToken);
-    }
-
     public async Task<IEnumerable<CategoryByTypeDto>> GetByTypeDto(GetCategoryByTypeQueryOptions options, CancellationToken cancellationToken)
     {
         string cacheKey = $"CategoryByTypeDto:{options.CategoryType}";
@@ -32,9 +20,12 @@ public partial class CategoryRepository : ICategoryQuery
 
         CachePolicy policy = CachePolicy.LocalCache<MenuCacheModule>(cacheKey, cacheExpirationTime, cacheTags);
 
-        IQueryable<Category> query = menuDbContext.Categories;
+        return await QueryList(menuDbContext.Categories, options, policy, cancellationToken);
+    }
 
-        return await QueryList(query, options, policy, cancellationToken);
+    public async Task<IEnumerable<CategoryForMenuDto>> GetMenuCategories(GetMenuCategoriesQueryOptions options, CancellationToken cancellationToken)
+    {
+        return await QueryList(menuDbContext.Categories, options, cancellationToken);
     }
 
     public async Task<int> GetNextSortOrder(CategoryType categoryType, CancellationToken cancellationToken)

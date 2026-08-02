@@ -39,11 +39,11 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
                                                                    .AddAuthorizationHeader(UserRoles.Admin);
 
         HttpResponseMessage assertResponse = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetCategoriesByTypeResponse>? updatedCategories = await assertResponse.Content.ReadFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>(TestContext.Current.CancellationToken);
+        GetCategoriesByTypeResponse? updatedCategories = await assertResponse.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(TestContext.Current.CancellationToken);
 
         foreach (CategoryOrderItemDto item in items)
         {
-            GetCategoriesByTypeResponse? updated = updatedCategories?.FirstOrDefault(c => c.Id == item.Id);
+            CategoryByTypeDto? updated = updatedCategories?.Categories.FirstOrDefault(c => c.Id == item.Id);
 
             Assert.NotNull(updated);
             Assert.Equal(item.SortOrder, updated.SortOrder);

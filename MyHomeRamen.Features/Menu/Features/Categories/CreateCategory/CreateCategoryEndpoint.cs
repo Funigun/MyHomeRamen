@@ -2,12 +2,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
+
+public sealed record CreateCategoryRequest(string Name, int CategoryType);
+
+public sealed record CreateCategoryResponse(Guid Id);
 
 public sealed class CreateCategoryEndpoint : IEndpoint
 {
@@ -29,6 +31,6 @@ public sealed class CreateCategoryEndpoint : IEndpoint
         CreateCategoryCommand command = new(request);
         CreateCategoryResponse response = await handler.Handle(command, cancellationToken);
 
-        return Results.Created($"/api/menu/categories/{response.Id}", response);
+        return TypedResults.Created($"/api/menu/categories/{response.Id}", response);
     }
 }

@@ -8,10 +8,10 @@ public sealed class UpdateCategoriesOrderValidator : AbstractValidator<UpdateCat
 {
     public UpdateCategoriesOrderValidator(IMenuDbContext menuDbContext)
     {
-        RuleFor(x => x.UpdateCategoriesOrderRequest.Items)
+        RuleFor(x => x.Request.Items)
             .MustHaveValidUniqueIds(menuDbContext, x => x.Select(item => item.Id));
 
-        RuleForEach(x => x.UpdateCategoriesOrderRequest.Items)
+        RuleForEach(x => x.Request.Items)
             .ChildRules(item =>
             {
                 item.RuleFor(x => x.SortOrder)

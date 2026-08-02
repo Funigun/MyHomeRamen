@@ -7,7 +7,7 @@ public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategori
 {
     public GetCategoriesByTypeValidator()
     {
-        RuleFor(x => x.CategoryType)
+        RuleFor(x => x.Request.CategoryType)
             .MustBeValidCategoryType();
     }
 }

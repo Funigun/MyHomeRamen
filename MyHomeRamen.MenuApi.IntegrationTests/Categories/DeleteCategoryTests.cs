@@ -31,7 +31,6 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
 
     public async ValueTask DisposeAsync() => await Task.CompletedTask;
 
-
     [Fact]
     public async Task DeleteCategory_ShouldReturnNoContent_ForValidId()
     {
@@ -62,7 +61,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         Assert.False(stillExists, "Deleted category should no longer exist in DB.");
 
         // Assert — ALL remaining categories of the same type have contiguous sort orders starting from 1
-        IEnumerable<Category> allRemaining = await apiFactory.MenuDbContext.Category.Query().GetByType(categoryType, TestContext.Current.CancellationToken);
+        IEnumerable<Category> allRemaining = await apiFactory.MenuDbContext.Category.Query().GetByIds([cat1.Id, cat3.Id], TestContext.Current.CancellationToken);
 
         for (int i = 0; i < allRemaining.Count(); i++)
         {

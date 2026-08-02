@@ -58,7 +58,7 @@
 </MudPaper>
 
 @code {
-    private List<GetCategoriesByTypeResponse> _categories = [];
+    private List<CategoryByTypeDto> _categories = [];
     private List<ProductTableModel> _products = [];
     private PageState _productsPaging = PageState.Default();
     private bool _isLoading = true;
@@ -77,9 +77,8 @@
         _errorMessage = null;
         try
         {
-            IEnumerable<GetCategoriesByTypeResponse> response =
-                await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
-            _categories = response.ToList();
+            GetCategoriesByTypeResponse response = await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
+            _categories = response.Categories.ToList();
         }
         catch (HttpRequestException)
         {
@@ -139,7 +138,7 @@
         await LoadCategoriesAsync();
     }
 
-    private async Task OnCategoriesOrderChangedAsync(List<GetCategoriesByTypeResponse> items)
+    private async Task OnCategoriesOrderChangedAsync(List<CategoryByTypeDto> items)
     {
         _successMessage = null;
         _errorMessage = null;

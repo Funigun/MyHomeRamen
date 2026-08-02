@@ -8,11 +8,11 @@ public sealed class CreateCategoryValidator : AbstractValidator<CreateCategoryCo
 {
     public CreateCategoryValidator(IMenuDbContext dbContext)
     {
-        RuleFor(x => x.CreateCategoryRequest.Name)
+        RuleFor(x => x.Request.Name)
             .MustMeetLengthRequirements()
             .MustHaveUniqueName(dbContext);
 
-        RuleFor(x => x.CreateCategoryRequest.CategoryType)
+        RuleFor(x => x.Request.CategoryType)
             .MustBeValidCategoryType();
     }
 }

@@ -45,11 +45,13 @@
     <File Path="Scripts/SliceScaffold/FileScaffoldFactory.cs" />
     <File Path="Scripts/SliceScaffold/SliceScaffoldScript.cs" />
   </Folder>
+  <Folder Name="/Scripts/SliceRefactor/">
+    <File Path="Scripts/SliceRefactor/SliceRefactorScript.cs" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
-    <File Path="global.json" />
     <File Path="README.md" />
   </Folder>
   <Folder Name="/Tests/">

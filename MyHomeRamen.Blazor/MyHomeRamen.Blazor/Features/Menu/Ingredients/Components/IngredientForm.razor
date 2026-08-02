@@ -97,10 +97,9 @@
             _model = Model;
         }
 
-        IEnumerable<GetCategoriesByTypeResponse> response =
-            await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
+        GetCategoriesByTypeResponse response = await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
 
-        _categories = response.Select(c => new CategoryOption(c.Id, c.Name));
+        _categories = response.Categories.Select(c => new CategoryOption(c.Id, c.Name));
     }
 
     private async Task SubmitAsync()

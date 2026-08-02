@@ -9,7 +9,7 @@ public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCo
 {
     public DeleteCategoryValidator(IMenuDbContext dbContext)
     {
-        RuleFor(x => x.Id)
+        RuleFor(x => x.Request.Id)
             .Cascade(CascadeMode.Stop)
             .MustBeValidCategoryId(dbContext)
             .MustNotBeUsed(dbContext);

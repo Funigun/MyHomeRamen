@@ -1,9 +1,8 @@
 using System.Net;
 using Bogus;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;

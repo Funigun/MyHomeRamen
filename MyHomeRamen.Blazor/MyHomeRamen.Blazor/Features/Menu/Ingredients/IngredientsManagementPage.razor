@@ -56,7 +56,7 @@
 </MudPaper>
 
 @code {
-    private List<GetCategoriesByTypeResponse> _categories = [];
+    private List<CategoryByTypeDto> _categories = [];
     private List<IngredientTableModel> _ingredients = [];
     private PageState _ingredientsPaging = PageState.Default();
     private bool _isLoading = true;
@@ -75,9 +75,8 @@
         _errorMessage = null;
         try
         {
-            IEnumerable<GetCategoriesByTypeResponse> response =
-                await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
-            _categories = response.ToList();
+            GetCategoriesByTypeResponse response = await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
+            _categories = response.Categories.ToList();
         }
         catch (HttpRequestException)
         {
@@ -112,7 +111,7 @@
         await DialogService.ShowAsync<CategoryFormDialog>("Create Category", p, dialogOptions);
     }
 
-    private async Task OnCategoriesOrderChangedAsync(List<GetCategoriesByTypeResponse> items)
+    private async Task OnCategoriesOrderChangedAsync(List<CategoryByTypeDto> items)
     {
         _successMessage = null;
         _errorMessage = null;
