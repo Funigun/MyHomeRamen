@@ -1,10 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
+using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
+using MyHomeRamen.Features.Menu.Features.Categories.UpdateCategoriesOrder;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -113,12 +112,12 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
             new UpdateCategoriesOrderRequest([]),
 
             // Sort order below minimum
-            new UpdateCategoriesOrderRequest([new CategoryOrderItemDto(validId, CategorySortOrderValidator.MinSortOrder - 1)]),
+            new UpdateCategoriesOrderRequest([new CategoryOrderItemDto(validId, CategoryConstants.MinSortOrder - 1)]),
 
             // Duplicate IDs
             new UpdateCategoriesOrderRequest([
-                new CategoryOrderItemDto(validId, CategorySortOrderValidator.MinSortOrder),
-                new CategoryOrderItemDto(validId, CategorySortOrderValidator.MinSortOrder + 1),
+                new CategoryOrderItemDto(validId, CategoryConstants.MinSortOrder),
+                new CategoryOrderItemDto(validId, CategoryConstants.MinSortOrder + 1),
             ]),
         ];
     }

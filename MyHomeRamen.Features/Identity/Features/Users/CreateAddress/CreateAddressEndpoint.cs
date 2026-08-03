@@ -5,12 +5,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
-using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
-
 namespace MyHomeRamen.Features.Identity.Features.Users.CreateAddress;
+
+public sealed record CreateAddressRequest(
+    string Street,
+    string Building,
+    string? Apartment,
+    string City,
+    string ZipCode,
+    bool IsDefault);
+
+public sealed record CreateAddressResponse(Guid Id);
 
 public sealed class CreateAddressEndpoint : IEndpoint
 {

@@ -1,8 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Bogus;
-using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
+using MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
 using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;

@@ -1,8 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.Products;

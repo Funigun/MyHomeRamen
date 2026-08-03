@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 

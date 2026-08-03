@@ -1,6 +1,4 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Abstractions;
@@ -39,7 +37,6 @@ public sealed partial class MenuDbContext(DbContextOptions<MenuDbContext> option
     }
 
     public DbSet<Product> Products { get; set; }
-
 
     public DbSet<Category> Categories { get; set; }
 

@@ -5,10 +5,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Common.Contracts.Users.Employees.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetEmployees;
+
+public sealed record GetEmployeesResponse(IEnumerable<EmployeeDto> Employees);
+
+public sealed record EmployeeDto(string UserName, string FirstName, string LastName, string Email);
 
 public sealed class GetEmployeesEndpoint : IEndpoint
 {

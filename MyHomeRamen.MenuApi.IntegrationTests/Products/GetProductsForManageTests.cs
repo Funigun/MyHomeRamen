@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
+using MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;

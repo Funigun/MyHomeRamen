@@ -1,6 +1,7 @@
 ﻿using MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
+using MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
+using MyHomeRamen.Features.Menu.Features.Products.CreateProduct;
+using MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;

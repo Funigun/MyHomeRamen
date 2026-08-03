@@ -1,7 +1,7 @@
 ﻿using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
@@ -15,8 +15,8 @@ internal static class Mappings
             (
                 item.Product.OriginalId,
                 item.Quantity,
-                item.Product.BaseIngredients.Select(i => new BasketIngredientDto(i.Id.Value, i.Quantity)).ToList(),
-                item.Product.CustomIngredients.Select(i => new BasketIngredientDto(i.Id.Value, i.Quantity)).ToList(),
+                item.Product.BaseIngredients.Select(i => new Features.ShoppingCart.Features.Baskets.AddItemToBasket.BasketIngredientDto(i.Id.Value, i.Quantity)).ToList(),
+                item.Product.CustomIngredients.Select(i => new Features.ShoppingCart.Features.Baskets.AddItemToBasket.BasketIngredientDto(i.Id.Value, i.Quantity)).ToList(),
                 item.Comment
             );
         }
@@ -24,9 +24,9 @@ internal static class Mappings
 
     extension(Ingredient ingredient)
     {
-        internal BasketIngredientDto ToBasketIngredientDto()
+        internal Features.ShoppingCart.Features.Baskets.AddItemToBasket.BasketIngredientDto ToBasketIngredientDto()
         {
-            return new BasketIngredientDto(ingredient.Id.Value, 1);
+            return new Features.ShoppingCart.Features.Baskets.AddItemToBasket.BasketIngredientDto(ingredient.Id.Value, 1);
         }
     }
 }

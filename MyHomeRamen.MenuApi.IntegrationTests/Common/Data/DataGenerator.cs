@@ -68,7 +68,6 @@ internal static class DataGenerator
                string ingName = name ?? f.RamenMenu().IngredientName();
                string ingDescription = name is null ? f.RamenMenu().IngredientDescription(ingName) : $"{name} description";
 
-
                return Ingredient.Create
                       (
                           Guid.NewGuid(),

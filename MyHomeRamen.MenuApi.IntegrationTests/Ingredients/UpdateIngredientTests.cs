@@ -1,8 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using Bogus;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
+using MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 using MyHomeRamen.Domain.Common.Ingredient;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
@@ -10,6 +9,7 @@ using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
+using MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientById;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Ingredients;
 

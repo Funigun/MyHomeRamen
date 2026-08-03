@@ -1,4 +1,3 @@
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Domain.Menu.Ingredients;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientById;

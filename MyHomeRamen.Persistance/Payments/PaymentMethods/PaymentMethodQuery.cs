@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.DTOs;
-using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses;
+
 using MyHomeRamen.Domain.Payments.PaymentMethods;
 using MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentMethods.GetAvailableMethods;
 
 namespace MyHomeRamen.Persistance.Payments;
 

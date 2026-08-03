@@ -1,4 +1,3 @@
-using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Menu.Features.Abstractions;

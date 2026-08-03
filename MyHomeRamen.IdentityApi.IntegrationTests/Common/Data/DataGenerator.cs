@@ -1,5 +1,6 @@
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 using MyHomeRamen.Domain.Common.Address;
+using MyHomeRamen.Features.Identity.Features.Users.CreateAddress;
+using MyHomeRamen.Features.Identity.Features.Users.UpdateAddress;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 

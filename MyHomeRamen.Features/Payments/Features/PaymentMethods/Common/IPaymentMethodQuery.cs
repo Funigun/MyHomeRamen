@@ -1,5 +1,5 @@
-using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses;
 using MyHomeRamen.Domain.Payments.PaymentMethods;
+using MyHomeRamen.Features.Payments.Features.PaymentMethods.GetAvailableMethods;
 
 namespace MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
 

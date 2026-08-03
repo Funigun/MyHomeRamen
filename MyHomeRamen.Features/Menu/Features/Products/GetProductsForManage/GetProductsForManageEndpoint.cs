@@ -3,12 +3,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
+
+public sealed record GetProductsForManageRequest(
+    string? Name,
+    Guid[]? CategoryIds,
+    Guid[]? IngredientIds,
+    decimal? PriceFrom,
+    decimal? PriceTo,
+    string? OrderBy);
+
+public sealed record GetProductsForManageResponse(int Page, int PageSize, int TotalCount, IEnumerable<ProductForManageDto> Products);
+
+public sealed record ProductForManageDto(Guid Id, string Name, string? Description, decimal Price);
 
 public sealed class GetProductsForManageEndpoint : IEndpoint
 {
@@ -34,3 +44,4 @@ public sealed class GetProductsForManageEndpoint : IEndpoint
         return Results.Ok(response);
     }
 }
+

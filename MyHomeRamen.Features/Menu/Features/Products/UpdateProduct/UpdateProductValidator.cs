@@ -1,5 +1,4 @@
 using FluentValidation;
-using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
 

@@ -3,11 +3,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsByCategory;
+
+public sealed record GetProductsByCategoryRequest(Guid CategoryId);
+
+public sealed record GetProductsByCategoryResponse(
+    Guid Id,
+    string Name,
+    string Description,
+    decimal Price,
+    string ImageUrl,
+    IEnumerable<ProductIngredientDto> Ingredients);
+
+public sealed record ProductIngredientDto(Guid Id, string Name);
 
 public sealed class GetProductsByCategoryEndpoint : IEndpoint
 {
@@ -32,3 +42,4 @@ public sealed class GetProductsByCategoryEndpoint : IEndpoint
         return Results.Ok(response);
     }
 }
+

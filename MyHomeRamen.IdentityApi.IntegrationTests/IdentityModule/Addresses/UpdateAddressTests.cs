@@ -1,6 +1,5 @@
 using System.Net;
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
-using MyHomeRamen.Common.Contracts.Users.Account.Responses;
+using MyHomeRamen.Features.Identity.Features.Users.UpdateAddress;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;

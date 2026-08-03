@@ -1,5 +1,3 @@
-using MyHomeRamen.Common.Contracts.Menu.Products.DTOs;
-using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Products;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsByCategory;

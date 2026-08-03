@@ -3,10 +3,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientById;
+
+public sealed record GetIngredientByIdResponse(
+    Guid Id,
+    string Name,
+    string Description,
+    decimal Price,
+    IEnumerable<Guid> CategoryIds);
 
 public sealed class GetIngredientByIdEndpoint : IEndpoint
 {
@@ -30,3 +36,4 @@ public sealed class GetIngredientByIdEndpoint : IEndpoint
         return Results.Ok(response);
     }
 }
+

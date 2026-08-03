@@ -1,5 +1,4 @@
 ﻿using MyHomeRamen.Domain.Menu.Categories;
-using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 using MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
 

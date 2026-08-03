@@ -4,11 +4,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
-using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.UpdateAddress;
+
+public sealed record UpdateAddressRequest(
+    Guid Id,
+    string Street,
+    string Building,
+    string? Apartment,
+    string City,
+    string ZipCode,
+    bool IsDefault);
+
+public sealed record UpdateAddressResponse(Guid Id);
 
 public sealed class UpdateAddressEndpoint : IEndpoint
 {

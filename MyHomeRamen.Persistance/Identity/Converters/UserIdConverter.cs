@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyHomeRamen.Domain.Identity.Users;
 
-
 namespace MyHomeRamen.Persistance.Identity.Converters;
 
 public class UserIdConverter : ValueConverter<UserId, Guid>

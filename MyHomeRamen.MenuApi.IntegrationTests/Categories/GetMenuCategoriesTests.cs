@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
+using MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -25,15 +25,15 @@ public sealed class GetMenuCategoriesTests(WebApiFactory apiFactory) : IClassFix
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetMenuCategoriesResponse>? result = await responseMessage.Content
-            .ReadFromJsonAsync<IEnumerable<GetMenuCategoriesResponse>>(TestContext.Current.CancellationToken);
+        GetMenuCategoriesResponse? result = await responseMessage.Content
+            .ReadFromJsonAsync<GetMenuCategoriesResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
-        Assert.All(result, c => Assert.NotEqual(Guid.Empty, c.Id));
-        Assert.All(result, c => Assert.NotEqual(ingredientCategory.Id.Value, c.Id));
+        Assert.NotEmpty(result.Categories);
+        Assert.All(result.Categories, c => Assert.NotEqual(Guid.Empty, c.Id));
+        Assert.All(result.Categories, c => Assert.NotEqual(ingredientCategory.Id.Value, c.Id));
     }
 
     [Fact]

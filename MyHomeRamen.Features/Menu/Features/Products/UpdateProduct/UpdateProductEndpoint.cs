@@ -3,12 +3,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
+
+public sealed record UpdateProductRequest(
+    string Name,
+    string? Description,
+    decimal Price,
+    Guid CategoryId,
+    IEnumerable<Guid> IngredientIds,
+    IEnumerable<Guid> CustomIngredientIds);
+
+public sealed record UpdateProductResponse(Guid Id);
 
 public sealed class UpdateProductEndpoint : IEndpoint
 {
@@ -34,3 +42,4 @@ public sealed class UpdateProductEndpoint : IEndpoint
         return Results.Ok(response);
     }
 }
+

@@ -1,4 +1,3 @@
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 using MyHomeRamen.Domain.Identity.Users;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.CreateAddress;

@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Aspire.Hosting.Testing;
 using Microsoft.Data.SqlClient;
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
+using MyHomeRamen.Features.Identity.Features.Users.Register;
 using MyHomeRamen.SystemTests.Config;
 
 namespace MyHomeRamen.SystemTests.KeycloakIntegrationTests;

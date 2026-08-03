@@ -1,6 +1,6 @@
 using System.Net;
 using Bogus;
-using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
+using MyHomeRamen.Features.Menu.Features.Products.CreateProduct;
 using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
