@@ -11,9 +11,11 @@ using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetShippingDetails;
 
-public sealed record ShippingDetailsResponse(bool PersonalPickup, bool Delivery, ShippingAddressDto? ShippingAddress);
+public sealed record ShippingDetailsDto(bool PersonalPickup, bool Delivery, ShippingAddressDto? ShippingAddress);
 
-public record ShippingAddressDto(string Street, string Building, string Apartment, string City, string ZipCode);
+public sealed record ShippingAddressDto(string Street, string Building, string Apartment, string City, string ZipCode);
+
+public sealed record ShippingDetailsResponse(bool PersonalPickup, bool Delivery, ShippingAddressDto? ShippingAddress);
 
 public sealed class GetShippingDetailsEndpoint : IEndpoint
 {

@@ -23,6 +23,7 @@ using MyHomeRamen.Features.Orders.Features.Abstractions;
 using MyHomeRamen.Persistance.Identity;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MenuModule = MyHomeRamen.Features.Menu.Features;
+using MyHomeRamen.Features.ShoppingCart.Features.Products.Common;
 
 namespace MyHomeRamen.Persistance;
 
@@ -43,14 +44,13 @@ public static class DependencyInjection
             );
         });
 
-        // Must resolve same MenuDbContext instance as repositories (repos take concrete MenuDbContext)
         services.AddScoped<IMenuDbContext>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<MenuModule.Products.Common.IProductRepository, ProductRepository>();
-        services.AddScoped<MenuModule.Ingredients.Common.IIngredientRepository, IngredientRepository>();
-        services.AddScoped<MenuModule.Users.Common.IUserRepository, UserRepository>();
-        services.AddScoped<MenuModule.Roles.IRoleRepository, RoleRepository>();
-        services.AddScoped<MenuModule.Permissions.Common.IPermissionRepository, PermissionRepository>();
+        services.AddScoped<MenuModule.Products.Common.IProductRepository, Menu.ProductRepository>();
+        services.AddScoped<MenuModule.Ingredients.Common.IIngredientRepository, Menu.IngredientRepository>();
+        services.AddScoped<MenuModule.Users.Common.IUserRepository, Menu.UserRepository>();
+        services.AddScoped<MenuModule.Roles.IRoleRepository, Menu.RoleRepository>();
+        services.AddScoped<MenuModule.Permissions.Common.IPermissionRepository, Menu.PermissionRepository>();
 
         return services;
     }
@@ -71,13 +71,13 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IShoppingCartDbContext, ShoppingCartDbContext>();
-        services.AddScoped<IBasketRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<IBasketItemRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Products.Common.IProductRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Ingredients.Common.IIngredientRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<IBasketRepository, BasketRepository>();
+        services.AddScoped<IBasketItemRepository, BasktetItemRepository>();
+        services.AddScoped<IProductRepository, ShoppingCart.ProductRepository>();
+        services.AddScoped<Features.ShoppingCart.Features.Ingredients.Common.IIngredientRepository, ShoppingCart.IngredientRepository>();
+        services.AddScoped<Features.ShoppingCart.Features.Users.Common.IUserRepository, ShoppingCart.UserRepository>();
+        services.AddScoped<Features.ShoppingCart.Features.Roles.Common.IRoleRepository, ShoppingCart.RoleRepository>();
+        services.AddScoped<Features.ShoppingCart.Features.Permissions.Common.IPermissionRepository, ShoppingCart.PermissionRepository>();
 
         return services;
     }

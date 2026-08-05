@@ -65,15 +65,6 @@ public abstract class BaseRepository<TEntity, TId>(DbContext dbContext, ICacheSe
                cancellationToken
            );
 
-    //ToDo: Refactor and remove
-    [Obsolete("Use QueryFirstOrDefault instead with IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options overload.")]
-    public async Task<TProjection?> QueryFirstOrDefault<TProjection>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TProjection>> selector, CancellationToken cancellationToken)
-        => await dbContext.Set<TEntity>()
-                          .AsNoTracking()
-                          .Where(predicate)
-                          .Select(selector)
-                          .FirstOrDefaultAsync(cancellationToken);
-
     public async Task<TProjection?> QueryFirstOrDefault<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CancellationToken cancellationToken)
        where TModel : class
        where TProjection : class

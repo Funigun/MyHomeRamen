@@ -16,9 +16,9 @@ public sealed record GetProductsForManageRequest(
     decimal? PriceTo,
     string? OrderBy);
 
-public sealed record GetProductsForManageResponse(int Page, int PageSize, int TotalCount, IEnumerable<ProductForManageDto> Products);
-
 public sealed record ProductForManageDto(Guid Id, string Name, string? Description, decimal Price);
+
+public sealed record GetProductsForManageResponse(int Page, int PageSize, int TotalCount, IEnumerable<ProductForManageDto> Products);
 
 public sealed class GetProductsForManageEndpoint : IEndpoint
 {

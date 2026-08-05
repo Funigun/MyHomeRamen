@@ -40,13 +40,13 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory) : IClas
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetProductsByCategoryResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>(TestContext.Current.CancellationToken);
+        GetProductsByCategoryResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetProductsByCategoryResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
-        Assert.All(result, product =>
+        Assert.NotEmpty(result.Products);
+        Assert.All(result.Products, product =>
         {
             Assert.NotEqual(Guid.Empty, product.Id);
             Assert.NotNull(product.Name);
@@ -62,12 +62,12 @@ public sealed class GetProductsByCategoryTests(WebApiFactory apiFactory) : IClas
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetProductsByCategoryResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>(TestContext.Current.CancellationToken);
+        GetProductsByCategoryResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetProductsByCategoryResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
-        Assert.Empty(result);
+        Assert.Empty(result.Products);
     }
 
     [Fact]

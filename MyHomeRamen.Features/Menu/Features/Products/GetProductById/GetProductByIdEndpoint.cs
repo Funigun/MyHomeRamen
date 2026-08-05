@@ -7,6 +7,13 @@ using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductById;
 
+public sealed record ProductByIdDto(
+    Guid Id,
+    string Name,
+    string Description,
+    List<IngredientDto> BaseIngredients,
+    List<IngredientDto> CustomIngredients);
+
 public sealed record GetProductByIdResponse(
     Guid Id,
     string Name,

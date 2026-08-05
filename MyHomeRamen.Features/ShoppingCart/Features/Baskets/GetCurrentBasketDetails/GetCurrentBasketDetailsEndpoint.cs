@@ -7,6 +7,10 @@ using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
+public sealed record CurrentBasketDetailsDto(
+    Guid BasketId,
+    IEnumerable<BasketDetailsItemDto> Items);
+
 public sealed record GetCurrentBasketDetailsResponse(Guid BasketId, IEnumerable<BasketDetailsItemDto> Items);
 
 public sealed record BasketDetailsItemDto(

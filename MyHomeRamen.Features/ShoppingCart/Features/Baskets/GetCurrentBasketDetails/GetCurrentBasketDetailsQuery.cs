@@ -1,12 +1,36 @@
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
 public sealed record GetCurrentBasketDetailsQuery : IQuery<GetCurrentBasketDetailsResponse?>;
+
+public sealed record GetCurrentBasketDetailsQueryOptions(UserId UserId)
+    : DbQueryOptions<Basket, CurrentBasketDetailsDto>
+    (
+        new()
+        {
+            Filter = basket => basket.User.Id == UserId && basket.Status == BasketStatus.Active,
+            Selector = basket => new CurrentBasketDetailsDto(
+                basket.Id.Value,
+                basket.Items.Select(item => new BasketDetailsItemDto(
+                    item.Id.Value,
+                    item.Quantity,
+                    item.Price,
+                    item.Comment,
+                    new BasketDetailsItemProductDto(
+                        item.Product.Id.Value,
+                        item.Product.Name,
+                        item.Product.Description,
+                        item.Product.ImageUrl,
+                        item.Product.BaseIngredients.Select(ingredient => new BasketDetailsIngredientDto(ingredient.Id.Value, ingredient.Name, ingredient.Description, ingredient.Price)),
+                        item.Product.CustomIngredients.Select(ingredient => new BasketDetailsIngredientDto(ingredient.Id.Value, ingredient.Name, ingredient.Description, ingredient.Price))))))
+        }
+    );
 
 public sealed class GetCurrentBasketDetailsHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser)
     : IQueryHandler<GetCurrentBasketDetailsQuery, GetCurrentBasketDetailsResponse?>
@@ -15,9 +39,11 @@ public sealed class GetCurrentBasketDetailsHandler(IShoppingCartDbContext dbCont
     {
         UserId userId = new(currentUser.UserId);
 
-        Basket? basket = await dbContext.Basket.Query().GetForUserAsync(userId, cancellationToken);
+        CurrentBasketDetailsDto? basket = await dbContext.Basket.Query().GetCurrentBasketDetailsAsync(new GetCurrentBasketDetailsQueryOptions(userId), cancellationToken);
 
-        return basket?.ToResponse();
+        return basket is null
+            ? null
+            : new GetCurrentBasketDetailsResponse(basket.BasketId, basket.Items);
     }
 }
 

@@ -60,7 +60,4 @@ public partial class CategoryRepository : ICategoryQuery
 
     public async Task<bool> IsUsedByIngredients(CategoryId categoryId, CancellationToken cancellationToken)
         => await menuDbContext.Ingredient.Exists(ingredient => ingredient.Categories.Any(category => category.Id == categoryId), cancellationToken);
-
-    public async Task<Category?> ById(CategoryId id, CancellationToken cancellationToken)
-        => await QueryFirstOrDefault(c => c.Id == id, c => c, cancellationToken);
 }

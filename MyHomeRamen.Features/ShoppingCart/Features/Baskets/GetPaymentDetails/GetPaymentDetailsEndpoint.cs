@@ -11,6 +11,8 @@ using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetPaymentDetails;
 
+public sealed record PaymentDetailsDto(string PaymentMethodId, string PaymentChannelId);
+
 public sealed record PaymentDetailsResponse(string PaymentMethodId, string PaymentChannelId);
 
 public sealed class GetPaymentDetailsEndpoint : IEndpoint

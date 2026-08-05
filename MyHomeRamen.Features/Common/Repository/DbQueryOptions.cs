@@ -14,9 +14,9 @@ public record DbQueryOptions<TEntity>
 
 public record DbQueryOptions<TEntity, TProjection> : DbQueryOptions<TEntity> 
         where TEntity : class
-        where TProjection : class
+        
 {
-    public Expression<Func<TEntity, TProjection>>? Selector { get; init; }
+    public Expression<Func<TEntity, TProjection?>>? Selector { get; init; }
 }
 
 public record PagedDbQueryOptions<TEntity> : DbQueryOptions<TEntity>

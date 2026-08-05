@@ -21,6 +21,4 @@ public interface ICategoryQuery
     Task<bool> IsUsedByProducts(CategoryId categoryId, CancellationToken cancellationToken);
 
     Task<bool> IsUsedByIngredients(CategoryId categoryId, CancellationToken cancellationToken);
-
-    Task<Category?> ById(CategoryId id, CancellationToken cancellationToken);
 }

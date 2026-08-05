@@ -1,20 +1,29 @@
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForDropdown;
 
-public sealed record GetIngredientsForDropdownQuery : IQuery<IEnumerable<GetIngredientsForDropdownResponse>>;
+public sealed record GetIngredientsForDropdownQuery : IQuery<GetIngredientsForDropdownResponse>;
 
-public sealed class GetIngredientsForDropdownHandler(IMenuDbContext dbContext)
-    : IQueryHandler<GetIngredientsForDropdownQuery, IEnumerable<GetIngredientsForDropdownResponse>>
-{
-    public async Task<IEnumerable<GetIngredientsForDropdownResponse>> Handle(GetIngredientsForDropdownQuery request, CancellationToken cancellationToken)
+public sealed record GetIngredientsForDropdownQueryOptions() : DbQueryOptions<Ingredient, IngredientForDropdownDto>
+(
+    new()
     {
-        List<Ingredient> ingredients = await dbContext.Ingredient.Query()
-                                                                 .GetForDropdown(cancellationToken);
+        OrderBy = ingredient => ingredient.Name,
+        OrderDirection = "asc",
+        Selector = ingredient => new IngredientForDropdownDto(ingredient.Id.Value, ingredient.Name)
+    }
+);
 
-        return ingredients.Select(i => i.ToResponse());
+public sealed class GetIngredientsForDropdownHandler(IMenuDbContext dbContext): IQueryHandler<GetIngredientsForDropdownQuery, GetIngredientsForDropdownResponse>
+{
+    public async Task<GetIngredientsForDropdownResponse> Handle(GetIngredientsForDropdownQuery request, CancellationToken cancellationToken)
+    {
+        IEnumerable<IngredientForDropdownDto> ingredients = await dbContext.Ingredient.Query().ForDropdown(new GetIngredientsForDropdownQueryOptions(), cancellationToken);
+
+        return new GetIngredientsForDropdownResponse(ingredients);
     }
 }
 

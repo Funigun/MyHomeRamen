@@ -7,14 +7,16 @@ using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForDropdown;
 
-public sealed record GetIngredientsForDropdownResponse(Guid Id, string Name);
+public sealed record IngredientForDropdownDto(Guid Id, string Name);
+
+public sealed record GetIngredientsForDropdownResponse(IEnumerable<IngredientForDropdownDto> Ingredients);
 
 public sealed class GetIngredientsForDropdownEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<IEnumerable<GetIngredientsForDropdownResponse>>("api/menu/ingredients/dropdown", HandleAsync)
+            .MapStandardGet<GetIngredientsForDropdownResponse>("api/menu/ingredients/dropdown", HandleAsync)
             .WithName("GetIngredientsForDropdownEndpoint")
             .WithTags("Ingredients")
             .WithDescription("Returns an ordered list of ingredients for use in dropdown selectors.")
@@ -22,11 +24,11 @@ public sealed class GetIngredientsForDropdownEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromServices] IQueryHandler<GetIngredientsForDropdownQuery, IEnumerable<GetIngredientsForDropdownResponse>> handler,
+        [FromServices] IQueryHandler<GetIngredientsForDropdownQuery, GetIngredientsForDropdownResponse> handler,
         CancellationToken cancellationToken)
     {
         GetIngredientsForDropdownQuery query = new();
-        IEnumerable<GetIngredientsForDropdownResponse> response = await handler.Handle(query, cancellationToken);
+        GetIngredientsForDropdownResponse response = await handler.Handle(query, cancellationToken);
 
         return Results.Ok(response);
     }
