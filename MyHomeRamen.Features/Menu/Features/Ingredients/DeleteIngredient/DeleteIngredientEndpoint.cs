@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints;
+
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.DeleteIngredient;
 
 public sealed class DeleteIngredientEndpoint : IEndpoint
@@ -28,3 +29,4 @@ public sealed class DeleteIngredientEndpoint : IEndpoint
         return TypedResults.NoContent();
     }
 }
+

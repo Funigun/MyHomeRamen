@@ -4,10 +4,10 @@ using MyHomeRamen.Features.Payments.Features.Roles.Common;
 
 namespace MyHomeRamen.Persistance.Payments;
 
-public partial class PaymentsDbContext : IRoleQuery
+public partial class RoleRepository : IRoleQuery
 {
     public async Task<Role?> GetByNameWithPermissionsAsync(string name, CancellationToken cancellationToken)
-        => await Roles.AsNoTracking()
+        => await paymentsDbContext.Roles.AsNoTracking()
                       .Include(role => role.Permissions)
                       .FirstOrDefaultAsync(role => role.Name == name, cancellationToken);
 }

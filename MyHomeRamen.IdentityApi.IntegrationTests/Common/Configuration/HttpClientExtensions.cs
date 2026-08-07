@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -34,6 +35,22 @@ internal static class HttpClientExtensions
     {
         requestMessage.Content = JsonContent.Create(body);
         return requestMessage;
+    }
+
+    internal static async Task AssertStatusCode(this HttpResponseMessage responseMessage, HttpStatusCode expected)
+    {
+        if (responseMessage.StatusCode == expected)
+        {
+            return;
+        }
+
+        string content = await responseMessage.ReadMessageContent();
+        Assert.Fail($"Expected status code {expected} but got {responseMessage.StatusCode}. Response body: {content}");
+    }
+
+    internal static async Task<string> ReadMessageContent(this HttpResponseMessage responseMessage)
+    {
+        return await responseMessage.Content?.ReadAsStringAsync(TestContext.Current.CancellationToken) ?? string.Empty;
     }
 
     internal static async Task<TDto> ResponseToDto<TDto>(this HttpResponseMessage responseMessage)

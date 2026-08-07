@@ -4,13 +4,14 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdatePaymentDetails;
+
+public record UpdatePaymentDetailsRequest(string PaymentMethodId, string PaymentChannelId);
 
 internal sealed class UpdatePaymentDetailsEndpoint : IEndpoint
 {

@@ -1,5 +1,6 @@
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
-using MyHomeRamen.Common.Contracts.Users.Account.Validators;
+using MyHomeRamen.Domain.Common.Address;
+using MyHomeRamen.Features.Identity.Features.Users.CreateAddress;
+using MyHomeRamen.Features.Identity.Features.Users.UpdateAddress;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
@@ -19,9 +20,9 @@ internal static class DataGenerator
     public static TheoryData<CreateAddressRequest> InvalidAddAddressRequests() => new()
     {
         new CreateAddressRequest(string.Empty, "10A", "5", "Warsaw", "00-001", false),
-        new CreateAddressRequest(new string('a', AddressValidationExtensions.MaxStreetLength + 1), "10A", "5", "Warsaw", "00-001", false),
+        new CreateAddressRequest(new string('a', AddressConstants.MaxStreetLength + 1), "10A", "5", "Warsaw", "00-001", false),
         new CreateAddressRequest("Main Street", string.Empty, "5", "Warsaw", "00-001", false),
-        new CreateAddressRequest("Main Street", new string('a', AddressValidationExtensions.MaxBuildingLength + 1), "5", "Warsaw", "00-001", false),
+        new CreateAddressRequest("Main Street", new string('a', AddressConstants.MaxBuildingLength + 1), "5", "Warsaw", "00-001", false),
         new CreateAddressRequest("Main Street", "10A", "5", string.Empty, "00-001", false),
         new CreateAddressRequest("Main Street", "10A", "5", "Warsaw", string.Empty, false),
     };
@@ -41,9 +42,9 @@ internal static class DataGenerator
     public static TheoryData<UpdateAddressRequest> InvalidUpdateAddressRequests() => new()
     {
         new UpdateAddressRequest(Guid.Empty, string.Empty, "10A", "5", "Warsaw", "00-001", false),
-        new UpdateAddressRequest(Guid.Empty, new string('a', AddressValidationExtensions.MaxStreetLength + 1), "10A", "5", "Warsaw", "00-001", false),
+        new UpdateAddressRequest(Guid.Empty, new string('a', AddressConstants.MaxStreetLength + 1), "10A", "5", "Warsaw", "00-001", false),
         new UpdateAddressRequest(Guid.Empty, "Main Street", string.Empty, "5", "Warsaw", "00-001", false),
-        new UpdateAddressRequest(Guid.Empty, "Main Street", new string('a', AddressValidationExtensions.MaxBuildingLength + 1), "5", "Warsaw", "00-001", false),
+        new UpdateAddressRequest(Guid.Empty, "Main Street", new string('a', AddressConstants.MaxBuildingLength + 1), "5", "Warsaw", "00-001", false),
         new UpdateAddressRequest(Guid.Empty, "Main Street", "10A", "5", string.Empty, "00-001", false),
         new UpdateAddressRequest(Guid.Empty, "Main Street", "10A", "5", "Warsaw", string.Empty, false),
     };

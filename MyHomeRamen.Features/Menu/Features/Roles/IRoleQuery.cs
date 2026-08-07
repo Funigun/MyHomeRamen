@@ -4,5 +4,5 @@ namespace MyHomeRamen.Features.Menu.Features.Roles;
 
 public interface IRoleQuery
 {
-    Task<bool> Exists(RoleId roleId, CancellationToken cancellationToken);
+    Task<IEnumerable<Role>> GetAll(CancellationToken cancellationToken);
 }

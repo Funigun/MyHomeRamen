@@ -7,6 +7,8 @@ using MyHomeRamen.Features.Common.Endpoints.Command;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.DeleteCategory;
 
+public sealed record DeleteCategoryRequest(Guid Id);
+
 public sealed class DeleteCategoryEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
@@ -18,12 +20,9 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
                        .RequireAuthorization("RestaurantManager");
     }
 
-    private static async Task<IResult> HandleAsync(
-        [FromRoute] Guid id,
-        [FromServices] ICommandHandler<DeleteCategoryCommand> handler,
-        CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync([AsParameters] DeleteCategoryRequest request, [FromServices] ICommandHandler<DeleteCategoryCommand> handler, CancellationToken cancellationToken)
     {
-        DeleteCategoryCommand command = new(id);
+        DeleteCategoryCommand command = new(request);
         await handler.Handle(command, cancellationToken);
 
         return TypedResults.NoContent();

@@ -1,4 +1,3 @@
-using MyHomeRamen.Common.Contracts.Users.Employees.Responses;
 using MyHomeRamen.Features.Identity.Services.Dto;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetEmployees;

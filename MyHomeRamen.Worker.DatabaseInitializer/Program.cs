@@ -1,7 +1,7 @@
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Persistance;
-using MyHomeRamen.ServiceDefaults;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.DatabaseInitializer;
 using MyHomeRamen.Worker.DatabaseInitializer.Config;
@@ -23,10 +23,10 @@ try
     builder.AddConfiguration();
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     builder.Services.AddScoped<DatabaseConfigurationProvider>();
-    RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
+
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
-    builder.AddWorkerServiceDefaults(ServiceNames.DbInitializerWorker(configurationProvider.InfrastructurePrefix));
+    builder.AddWorkerServiceDefaults();
 
     builder.Services.AddQuartzServices(q =>
     {
@@ -49,6 +49,7 @@ try
     builder.Services.AddOrdersPersistance(databaseConfigurationProvider);
     builder.Services.AddReservationsPersistance(databaseConfigurationProvider);
     builder.Services.AddPaymentsPersistance(databaseConfigurationProvider);
+    builder.Services.AddCacheService();
 
     builder.Services.AddQuartzHostedService(options =>
     {

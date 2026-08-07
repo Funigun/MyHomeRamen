@@ -3,10 +3,32 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
+
+public sealed record CurrentBasketDetailsDto(
+    Guid BasketId,
+    IEnumerable<BasketDetailsItemDto> Items);
+
+public sealed record GetCurrentBasketDetailsResponse(Guid BasketId, IEnumerable<BasketDetailsItemDto> Items);
+
+public sealed record BasketDetailsItemDto(
+    Guid Id,
+    int Quantity,
+    decimal Price,
+    string? Comment,
+    BasketDetailsItemProductDto Product);
+
+public sealed record BasketDetailsItemProductDto(
+    Guid Id,
+    string Name,
+    string Description,
+    string ImageUrl,
+    IEnumerable<BasketDetailsIngredientDto> BaseIngredients,
+    IEnumerable<BasketDetailsIngredientDto> CustomIngredients);
+
+public sealed record BasketDetailsIngredientDto(Guid Id, string Name, string Description, decimal Price);
 
 public sealed class GetCurrentBasketDetailsEndpoint : IEndpoint
 {

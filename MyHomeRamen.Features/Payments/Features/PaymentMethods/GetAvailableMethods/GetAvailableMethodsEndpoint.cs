@@ -4,10 +4,13 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Payments.Features.PaymentMethods.GetAvailableMethods;
+
+public sealed record GetAvailableMethodsResponse(Guid Id, string Name, string Image, IEnumerable<AvailableChannelDto> Channels);
+
+public sealed record AvailableChannelDto(Guid Id, string Name, string ImageUrl);
 
 public sealed class GetAvailableMethodsEndpoint : IEndpoint
 {
@@ -30,3 +33,4 @@ public sealed class GetAvailableMethodsEndpoint : IEndpoint
         return TypedResults.Ok(response);
     }
 }
+

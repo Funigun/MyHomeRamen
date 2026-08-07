@@ -1,4 +1,3 @@
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateShippingDetails;

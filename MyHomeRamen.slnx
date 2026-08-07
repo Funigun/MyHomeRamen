@@ -1,4 +1,13 @@
 <Solution>
+  <Folder Name="/ADR/" />
+  <Folder Name="/ADR/Architecture/">
+    <File Path="Wiki/Architecture/0001-modular-monolith-architecture.md" />
+    <File Path="Wiki/Architecture/0002-aspire-orchestration.md" />
+    <File Path="Wiki/Architecture/0003-module-specific-database-contexts.md" />
+    <File Path="Wiki/Architecture/0004-restaurant-configuration.md" />
+    <File Path="Wiki/Architecture/0005-repository-strategy.md" />
+    <File Path="Wiki/Architecture/0006-cache-strategy.md" />
+  </Folder>
   <Folder Name="/Aspire/">
     <Project Path="MyHomeRamen.AppHost/MyHomeRamen.AppHost.csproj" />
     <Project Path="MyHomeRamen.ServiceDefaults/MyHomeRamen.ServiceDefaults.csproj" />
@@ -36,6 +45,9 @@
     <File Path="Scripts/SliceScaffold/FileScaffoldFactory.cs" />
     <File Path="Scripts/SliceScaffold/SliceScaffoldScript.cs" />
   </Folder>
+  <Folder Name="/Scripts/SliceRefactor/">
+    <File Path="Scripts/SliceRefactor/SliceRefactorScript.cs" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
@@ -47,6 +59,8 @@
     <Project Path="MyHomeRamen.BlazorTests/MyHomeRamen.BlazorTests.csproj" Id="b596964e-80e4-453a-8de7-e24a2ac61410" />
     <Project Path="MyHomeRamen.IdentityApi.IntegrationTests/MyHomeRamen.IdentityApi.IntegrationTests.csproj" Id="0c080d1c-40c7-4c47-b41b-adb997ea1986" />
     <Project Path="MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj" Id="81c45925-f5aa-4a1c-b28f-5882ed6bc05a" />
+    <Project Path="MyHomeRamen.MenuApi.IntegrationTests/MyHomeRamen.MenuApi.IntegrationTests.csproj" Id="2289d418-c0d1-450b-993b-80150ba13713" />
+    <Project Path="MyHomeRamen.ShoppingCartApi.IntegrationTests/MyHomeRamen.ShoppingCartApi.IntegrationTests.csproj" />
     <Project Path="MyHomeRamen.SystemTests/MyHomeRamen.SystemTests.csproj" />
     <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />
   </Folder>
@@ -66,6 +80,7 @@
   </Folder>
   <Folder Name="/_github/">
     <File Path=".github/copilot-instructions.md" />
+    <File Path=".github/prompts/refactor-feature.md" />
   </Folder>
   <Folder Name="/_github/agents/">
     <File Path=".github/agents/drax-implementation.agent.md" />
@@ -78,7 +93,10 @@
     <File Path=".github/instructions/blazor.instructions.md" />
     <File Path=".github/instructions/module-introduction.instructions.md" />
   </Folder>
-  <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/skills/">
+    <File Path="plan.md" />
+    <File Path="prompt.md" />
+  </Folder>
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
   </Folder>

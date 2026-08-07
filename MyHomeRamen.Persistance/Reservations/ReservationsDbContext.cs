@@ -1,8 +1,7 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Reservations.Bookings;
 using MyHomeRamen.Domain.Reservations.Permissions;
@@ -23,6 +22,13 @@ namespace MyHomeRamen.Persistance.Reservations;
 public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContext> options) : DbContext(options), IReservationsDbContext
 {
     private readonly ICurrentUser _currentUser = default!;
+    private readonly IServiceProvider _serviceProvider = default!;
+
+    public ReservationsDbContext(DbContextOptions<ReservationsDbContext> options, ICurrentUser currentUser, IServiceProvider serviceProvider) : this(options)
+    {
+        _currentUser = currentUser;
+        _serviceProvider = serviceProvider;
+    }
 
     public ReservationsDbContext(DbContextOptions<ReservationsDbContext> options, ICurrentUser currentUser) : this(options)
     {
@@ -39,15 +45,15 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public IBookingRepository Booking => this;
+    public IBookingRepository Booking => _serviceProvider.GetService<IBookingRepository>() ?? throw new InvalidOperationException("BookingRepository is not registered in the service provider.");
 
-    public ITableRepository Table => this;
+    public ITableRepository Table => _serviceProvider.GetService<ITableRepository>() ?? throw new InvalidOperationException("TableRepository is not registered in the service provider.");
 
-    public IUserRepository User => this;
+    public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
 
-    public IRoleRepository Role => this;
+    public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
 
-    public IPermissionRepository Permission => this;
+    public IPermissionRepository Permission => _serviceProvider.GetService<IPermissionRepository>() ?? throw new InvalidOperationException("PermissionRepository is not registered in the service provider.");
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -143,7 +149,7 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("reservations");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ReservationsDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Reservations.Configurations"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ReservationsDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Reservations.Configurations", StringComparison.OrdinalIgnoreCase));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -153,17 +159,5 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
-    }
-
-    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
-    {
-        UpdateSettersBuilder<TEntity> settersBuilder = new();
-
-        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
-        {
-            settersBuilder.SetProperty(kvp.Key, kvp.Value);
-        }
-
-        return settersBuilder;
     }
 }

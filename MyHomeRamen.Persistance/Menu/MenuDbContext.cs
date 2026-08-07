@@ -1,7 +1,6 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
@@ -10,7 +9,6 @@ using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Domain.Menu.Roles;
 using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
@@ -22,25 +20,23 @@ using MyHomeRamen.Persistance.Menu.Converters;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public sealed partial class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
+public sealed class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
 {
     private readonly ICurrentUser _currentUser = default!;
-    private readonly ICacheService _cacheService = default!;
-
+    private readonly IServiceProvider _serviceProvider = default!;
 
     public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser) : this(options)
     {
         _currentUser = currentUser;
     }
 
-    public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser, ICacheService cacheService) : this(options)
+    public MenuDbContext(DbContextOptions<MenuDbContext> options, ICurrentUser currentUser, IServiceProvider serviceProvider) : this(options)
     {
         _currentUser = currentUser;
-        _cacheService = cacheService;
+        _serviceProvider = serviceProvider;
     }
 
     public DbSet<Product> Products { get; set; }
-
 
     public DbSet<Category> Categories { get; set; }
 
@@ -52,17 +48,17 @@ public sealed partial class MenuDbContext(DbContextOptions<MenuDbContext> option
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public IProductRepository Product => this;
+    public IProductRepository Product => _serviceProvider.GetService<IProductRepository>() ?? throw new InvalidOperationException("ProductRepository is not registered in the service provider.");
 
-    public ICategoryRepository Category => this;
+    public ICategoryRepository Category => _serviceProvider.GetService<ICategoryRepository>() ?? throw new InvalidOperationException("CategoryRepository is not registered in the service provider.");
 
-    public IIngredientRepository Ingredient => this;
+    public IIngredientRepository Ingredient => _serviceProvider.GetService<IIngredientRepository>() ?? throw new InvalidOperationException("IngredientRepository is not registered in the service provider.");
 
-    public IUserRepository User => this;
+    public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
 
-    public IRoleRepository Role => this;
+    public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
 
-    public IPermissionRepository Permission => this;
+    public IPermissionRepository Permission => _serviceProvider.GetService<IPermissionRepository>() ?? throw new InvalidOperationException("PermissionRepository is not registered in the service provider.");
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
     {
@@ -169,17 +165,5 @@ public sealed partial class MenuDbContext(DbContextOptions<MenuDbContext> option
                     break;
             }
         }
-    }
-
-    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
-    {
-        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
-
-        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
-        {
-            settersBuilder.SetProperty(kvp.Key, kvp.Value);
-        }
-
-        return settersBuilder;
     }
 }

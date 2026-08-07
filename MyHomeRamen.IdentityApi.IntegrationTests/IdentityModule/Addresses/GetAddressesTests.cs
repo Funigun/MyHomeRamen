@@ -1,15 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Domain.Identity.Roles;
+using MyHomeRamen.Features.Identity.Features.Users.GetAddresses;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
 
-public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory)
+public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFixture<IdentityApiFixture>
 {
     private const string Endpoint = "/api/account/me/addresses";
 
@@ -17,11 +16,11 @@ public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory)
     public async Task GetAddresses_ShouldReturn200_WithAddressList()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint)
-            .AddIdentityAuthorizationHeader(DataSeeder.SeededUserKeycloakId);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
+        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -39,7 +38,7 @@ public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory)
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -49,7 +48,7 @@ public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory)
     public async Task GetAddresses_ShouldReturnEmptyList_WhenUserHasNoAddresses()
     {
         // Arrange
-        Role role = await apiFactory.UsersDbContext.Role.Specification().ByName("Customer", TestContext.Current.CancellationToken);
+        Role role = await apiFixture.ApiFactory.IdentityDbContext.Role.Specification().ByName("Customer", TestContext.Current.CancellationToken);
 
         User newUser = User.Create(
             keycloakUserId: "test-no-addresses-user",
@@ -60,14 +59,14 @@ public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory)
             phoneNumber: "000000000",
             role: role);
 
-        apiFactory.UsersDbContext.Users.Add(newUser);
-        await apiFactory.UsersDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        apiFixture.ApiFactory.IdentityDbContext.User.Add(newUser);
+        await apiFixture.ApiFactory.IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint)
-            .AddIdentityAuthorizationHeader("test-no-addresses-user");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
+        httpRequest.AddIdentityAuthorizationHeader("test-no-addresses-user");
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

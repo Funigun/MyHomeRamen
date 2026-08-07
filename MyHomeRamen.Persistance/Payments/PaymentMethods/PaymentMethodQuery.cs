@@ -1,17 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.DTOs;
-using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses;
+
 using MyHomeRamen.Domain.Payments.PaymentMethods;
 using MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
+using MyHomeRamen.Features.Payments.Features.PaymentMethods.GetAvailableMethods;
 
 namespace MyHomeRamen.Persistance.Payments;
 
-public partial class PaymentsDbContext : IPaymentMethodQuery
+public partial class PaymentMethodRepository : IPaymentMethodQuery
 {
-    private IQueryable<PaymentMethod> PaymentMethodsQuery => PaymentMethods.AsNoTracking();
-
     public async Task<List<GetAvailableMethodsResponse>> GetAvailableMethodsAsync(CancellationToken cancellationToken)
-        => await PaymentMethodsQuery
+        => await paymentsDbContext.PaymentMethods.AsNoTracking()
             .Include(method => method.PaymentChannels.OrderBy(channel => channel.DisplayOrder))
             .Where(method => method.IsActive)
             .OrderBy(method => method.DisplayOrder)
@@ -23,7 +21,7 @@ public partial class PaymentsDbContext : IPaymentMethodQuery
             .ToListAsync(cancellationToken);
 
     public async Task<PaymentMethod?> GetByIdAsync(PaymentMethodId id, CancellationToken cancellationToken)
-        => await PaymentMethodsQuery
+        => await paymentsDbContext.PaymentMethods.AsNoTracking()
             .Include(method => method.PaymentChannels)
             .Where(method => method.Id == id && method.IsActive)
             .FirstOrDefaultAsync(cancellationToken);

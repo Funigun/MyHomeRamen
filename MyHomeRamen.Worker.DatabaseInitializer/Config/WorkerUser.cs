@@ -3,7 +3,7 @@ using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Worker.DatabaseInitializer.Config;
 
-internal class WorkerUser(IConfiguration configuration) : ICurrentUser
+internal sealed class WorkerUser(IConfiguration configuration) : ICurrentUser
 {
     public string Id { get; init; } = "DB Migrator";
 

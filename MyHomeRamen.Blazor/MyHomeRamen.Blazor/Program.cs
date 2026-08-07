@@ -2,7 +2,6 @@ using MudBlazor.Services;
 using MyHomeRamen.Blazor.Common.Configuration;
 using MyHomeRamen.Blazor.Components;
 using MyHomeRamen.Blazor.Presentation;
-using MyHomeRamen.ServiceDefaults;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -24,7 +23,7 @@ try
     builder.Services.AddScoped<ThemeProviderService>();
     string infrastructurePrefix = builder.Configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
 
-    builder.AddBlazorServiceDefaults(ServiceNames.Blazor(infrastructurePrefix));
+    builder.AddBlazorServiceDefaults();
 
     builder.Services.AddRazorComponents()
                     .AddInteractiveServerComponents()

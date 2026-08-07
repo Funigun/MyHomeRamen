@@ -1,5 +1,3 @@
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Products;

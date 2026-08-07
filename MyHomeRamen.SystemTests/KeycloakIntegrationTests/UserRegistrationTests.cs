@@ -1,7 +1,7 @@
 ﻿using System.Net.Http.Json;
 using Aspire.Hosting.Testing;
 using Microsoft.Data.SqlClient;
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
+using MyHomeRamen.Features.Identity.Features.Users.Register;
 using MyHomeRamen.SystemTests.Config;
 
 namespace MyHomeRamen.SystemTests.KeycloakIntegrationTests;
@@ -50,8 +50,9 @@ public sealed class UserRegistrationTests(AppConfigurationFixture appConfigurati
         using SqlConnection connection = new(AppConfigurationFixture.ConnectionString);
         await connection.OpenAsync(TestContext.Current.CancellationToken);
 
-        using SqlCommand command = new($"SELECT COUNT(*) FROM {schema}.Users WHERE ID = @user", connection);
+        using SqlCommand command = new($"SELECT COUNT(*) FROM @schema.Users WHERE ID = @user", connection);
         command.Parameters.AddWithValue("@user", user.ToUpper());
+        command.Parameters.AddWithValue("@schema", schema);
 
         int count = (int)await command.ExecuteScalarAsync(TestContext.Current.CancellationToken);
         Assert.True(count == 1, $"User with email '{user}' not found in {schema} module");

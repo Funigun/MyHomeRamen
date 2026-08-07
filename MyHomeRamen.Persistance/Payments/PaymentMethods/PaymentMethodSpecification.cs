@@ -4,10 +4,10 @@ using MyHomeRamen.Features.Payments.Features.PaymentMethods.Common;
 
 namespace MyHomeRamen.Persistance.Payments;
 
-public partial class PaymentsDbContext : IPaymentMethodSpecification
+public partial class PaymentMethodRepository : IPaymentMethodSpecification
 {
     public async Task<PaymentMethod?> ByIdAsync(PaymentMethodId id, CancellationToken cancellationToken)
-        => await PaymentMethodsQuery
+        => await paymentsDbContext.PaymentMethods.AsNoTracking()
             .Include(method => method.PaymentChannels)
             .Where(method => method.Id == id && method.IsActive)
             .FirstOrDefaultAsync(cancellationToken);

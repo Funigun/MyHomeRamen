@@ -1,13 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
-using MyHomeRamen.Common.Contracts.Users.Account.Responses;
+using MyHomeRamen.Features.Identity.Features.Users.GetDetails;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Account;
 
-public sealed class GetDetailsTests(IdentityWebApiFactory apiFactory)
+public sealed class GetDetailsTests(IdentityApiFixture apiFixture) : IClassFixture<IdentityApiFixture>
 {
     private const string Endpoint = "/api/account/me";
 
@@ -15,11 +14,11 @@ public sealed class GetDetailsTests(IdentityWebApiFactory apiFactory)
     public async Task GetDetails_ShouldReturn200_WithCorrectUserDetails()
     {
         // Arrange
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint)
-            .AddIdentityAuthorizationHeader(DataSeeder.SeededUserKeycloakId);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
+        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -40,7 +39,7 @@ public sealed class GetDetailsTests(IdentityWebApiFactory apiFactory)
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
 
         // Act
-        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);

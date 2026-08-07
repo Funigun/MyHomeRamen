@@ -4,7 +4,7 @@ namespace MyHomeRamen.Common.Contracts.Menu.Products.Validators;
 
 public sealed class ProductNameValidator : AbstractValidator<string>
 {
-    public const int MinLength = 15;
+    public const int MinLength = 5;
 
     public const int MaxLength = 100;
 

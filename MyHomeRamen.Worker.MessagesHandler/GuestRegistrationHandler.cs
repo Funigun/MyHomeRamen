@@ -4,11 +4,11 @@ using MyHomeRamen.Worker.Common;
 
 namespace MyHomeRamen.Worker.MessagesHandler;
 
-internal class GuestRegistrationHandler(ILogger<GuestRegistrationHandler> logger, IServiceScopeFactory serviceScopeFactory) : BackgroundService
+internal partial class GuestRegistrationHandler(ILogger<GuestRegistrationHandler> logger, IServiceScopeFactory serviceScopeFactory) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Background messages worker starting at: {time}", DateTimeOffset.Now);
+        logger.LogInformation("Background messages worker starting at: {Time}", DateTimeOffset.Now);
 
         using IServiceScope scope = serviceScopeFactory.CreateScope();
         IMessagesService messagesService = scope.ServiceProvider.GetRequiredService<IMessagesService>();

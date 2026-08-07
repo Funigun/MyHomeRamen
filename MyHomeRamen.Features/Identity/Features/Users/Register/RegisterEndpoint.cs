@@ -4,10 +4,18 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Common.Contracts.Users.Account.Requests;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.Register;
+
+public sealed record RegisterRequest(
+    string UserName,
+    string FirstName,
+    string LastName,
+    string Email,
+    string PhoneNumber,
+    string Password,
+    string ConfirmPassword);
 
 public sealed class RegisterEndpoint : IEndpoint
 {

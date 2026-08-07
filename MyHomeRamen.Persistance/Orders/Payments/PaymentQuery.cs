@@ -2,7 +2,7 @@ using MyHomeRamen.Features.Orders.Features.Payments.Common;
 
 namespace MyHomeRamen.Persistance.Orders;
 
-public partial class OrdersDbContext : IPaymentQuery
+public partial class PaymentRepository : IPaymentQuery
 {
 
 }

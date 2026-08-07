@@ -4,10 +4,13 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Common.Contracts.Users.Roles.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Roles.GetAvailableRoles;
+
+public sealed record GetAvailableRolesResponse(IEnumerable<RoleDto> Roles);
+
+public sealed record RoleDto(string Id, string Name, string Description);
 
 public sealed class GetAvailableRolesEndpoint : IEndpoint
 {

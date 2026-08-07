@@ -4,8 +4,8 @@ using MyHomeRamen.Features.Reservations.Features.Users.Common;
 
 namespace MyHomeRamen.Persistance.Reservations;
 
-public partial class ReservationsDbContext : IUserSpecification
+public partial class UserRepository : IUserSpecification
 {
     async Task<User> IUserSpecification.ByIdAsync(UserId userId, CancellationToken cancellationToken)
-        => await Set<User>().FirstAsync(user => user.Id == userId, cancellationToken);
+        => await reservationsDbContext.Users.FirstAsync(user => user.Id == userId, cancellationToken);
 }

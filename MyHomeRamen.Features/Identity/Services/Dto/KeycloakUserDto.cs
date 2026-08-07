@@ -12,5 +12,5 @@ public sealed record KeycloakUserDto
 
     public bool Enabled { get; set; } = true;
 
-    public List<KeycloakCredentialDto> Credentials { get; set; } = [];
+    public IEnumerable<KeycloakCredentialDto> Credentials { get; set; } = [];
 }

@@ -4,13 +4,13 @@ namespace MyHomeRamen.ArchitectureTests.ProjectTests;
 
 public sealed class ApiToBlazorContractSyncTests(ArchitectureBuilder architectureBuilder, ITestOutputHelper outputHelper) : BaseArchitectureTest(architectureBuilder), IAsyncLifetime
 {
-    private static System.Reflection.Assembly _blazorServerAssembly;
-    private static System.Reflection.Assembly _domainAssembly;
+    private static System.Reflection.Assembly _blazorServerAssembly = default!;
+    private static System.Reflection.Assembly _domainAssembly = default!;
 
     public async ValueTask InitializeAsync()
     {
-        _blazorServerAssembly = architectureBuilder.BlazorServerAssembly;
-        _domainAssembly = architectureBuilder.DomainAssembly;
+        _blazorServerAssembly = ArchitectureBuilder.BlazorServerAssembly;
+        _domainAssembly = ArchitectureBuilder.DomainAssembly;
     }
 
     public async ValueTask DisposeAsync()

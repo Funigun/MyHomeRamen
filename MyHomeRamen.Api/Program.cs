@@ -1,7 +1,5 @@
 using System.Reflection;
 using FluentValidation;
-using MyHomeRamen.Api.Common.Extentsions;
-using MyHomeRamen.Api.Common.Middleware;
 using MyHomeRamen.Features;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Infrastructure.Cache;
@@ -11,6 +9,8 @@ using Scalar.AspNetCore;
 using Serilog;
 using MyHomeRamen.Api.DependencyInjection;
 using MyHomeRamen.Api.Authorization;
+using MyHomeRamen.Api.Middlewares;
+using MyHomeRamen.Api.WebPresentation;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -48,7 +48,7 @@ try
             });
         });
 
-        builder.AddApiServiceDefaults(ServiceNames.Api(configurationProvider.InfrastructurePrefix));
+        builder.AddApiServiceDefaults();
     }
 
     builder.Services.AddSerilog();

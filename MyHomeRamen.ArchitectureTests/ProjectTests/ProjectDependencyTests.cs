@@ -15,16 +15,16 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.ApiFeaturesAssembly,
-            architectureBuilder.BlazorServerAssembly,
-            architectureBuilder.ServiceDefaultsAssembly
+            ArchitectureBuilder.ApiFeaturesAssembly,
+            ArchitectureBuilder.BlazorServerAssembly,
+            ArchitectureBuilder.ServiceDefaultsAssembly
         ];
 
-        IEnumerable<IArchRule> appHostRules = PrepareProjectRules(architectureBuilder.AppHostAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> appHostRules = PrepareProjectRules(ArchitectureBuilder.AppHostAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in appHostRules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
@@ -33,16 +33,16 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.BlazorClientAssembly,
-            architectureBuilder.ServiceDefaultsAssembly,
-            architectureBuilder.ApiContractsAssembly
+            ArchitectureBuilder.BlazorClientAssembly,
+            ArchitectureBuilder.ServiceDefaultsAssembly,
+            ArchitectureBuilder.ApiContractsAssembly
         ];
 
-        IEnumerable<IArchRule> blazorServerRules = PrepareProjectRules(architectureBuilder.BlazorServerAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> blazorServerRules = PrepareProjectRules(ArchitectureBuilder.BlazorServerAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in blazorServerRules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
@@ -51,19 +51,19 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.ApiFeaturesAssembly,
-            architectureBuilder.DomainAssembly,
-            architectureBuilder.InfrastructureAssembly,
-            architectureBuilder.PersistanceAssembly,
-            architectureBuilder.ServiceDefaultsAssembly,
-            architectureBuilder.ApiContractsAssembly
+            ArchitectureBuilder.ApiFeaturesAssembly,
+            ArchitectureBuilder.DomainAssembly,
+            ArchitectureBuilder.InfrastructureAssembly,
+            ArchitectureBuilder.PersistanceAssembly,
+            ArchitectureBuilder.ServiceDefaultsAssembly,
+            ArchitectureBuilder.ApiContractsAssembly
         ];
 
-        IEnumerable<IArchRule> apiRules = PrepareProjectRules(architectureBuilder.ApiFeaturesAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> apiRules = PrepareProjectRules(ArchitectureBuilder.ApiFeaturesAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in apiRules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
@@ -72,15 +72,15 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.DomainAssembly,
-            architectureBuilder.ApiFeaturesAssembly
+            ArchitectureBuilder.DomainAssembly,
+            ArchitectureBuilder.ApiFeaturesAssembly
         ];
 
-        IEnumerable<IArchRule> infrastructureRules = PrepareProjectRules(architectureBuilder.InfrastructureAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> infrastructureRules = PrepareProjectRules(ArchitectureBuilder.InfrastructureAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in infrastructureRules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
@@ -89,16 +89,16 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.DomainAssembly,
-            architectureBuilder.ApiFeaturesAssembly,
-            architectureBuilder.ApiContractsAssembly
+            ArchitectureBuilder.DomainAssembly,
+            ArchitectureBuilder.ApiFeaturesAssembly,
+            ArchitectureBuilder.ApiContractsAssembly
         ];
 
-        IEnumerable<IArchRule> persistanceRules = PrepareProjectRules(architectureBuilder.PersistanceAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> persistanceRules = PrepareProjectRules(ArchitectureBuilder.PersistanceAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in persistanceRules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
@@ -107,18 +107,18 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.WorkerCommonAssembly,
-            architectureBuilder.DomainAssembly,
-            architectureBuilder.InfrastructureAssembly,
-            architectureBuilder.PersistanceAssembly,
-            architectureBuilder.ServiceDefaultsAssembly
+            ArchitectureBuilder.WorkerCommonAssembly,
+            ArchitectureBuilder.DomainAssembly,
+            ArchitectureBuilder.InfrastructureAssembly,
+            ArchitectureBuilder.PersistanceAssembly,
+            ArchitectureBuilder.ServiceDefaultsAssembly
         ];
 
-        IEnumerable<IArchRule> workerMailSenderRules = PrepareProjectRules(architectureBuilder.WorkerMailSenderAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> workerMailSenderRules = PrepareProjectRules(ArchitectureBuilder.WorkerMailSenderAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in workerMailSenderRules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
@@ -127,20 +127,20 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.ApiFeaturesAssembly,
-            architectureBuilder.WorkerCommonAssembly,
-            architectureBuilder.DomainAssembly,
-            architectureBuilder.InfrastructureAssembly,
-            architectureBuilder.PersistanceAssembly,
-            architectureBuilder.ServiceDefaultsAssembly,
-            architectureBuilder.ApiContractsAssembly
+            ArchitectureBuilder.ApiFeaturesAssembly,
+            ArchitectureBuilder.WorkerCommonAssembly,
+            ArchitectureBuilder.DomainAssembly,
+            ArchitectureBuilder.InfrastructureAssembly,
+            ArchitectureBuilder.PersistanceAssembly,
+            ArchitectureBuilder.ServiceDefaultsAssembly,
+            ArchitectureBuilder.ApiContractsAssembly
         ];
 
-        IEnumerable<IArchRule> workerMessagesHandlerRules = PrepareProjectRules(architectureBuilder.WorkerMessagesHandlerAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> workerMessagesHandlerRules = PrepareProjectRules(ArchitectureBuilder.WorkerMessagesHandlerAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in workerMessagesHandlerRules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
@@ -149,25 +149,25 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     {
         IEnumerable<Assembly> allowedAssemblies =
         [
-            architectureBuilder.ApiFeaturesAssembly,
-            architectureBuilder.WorkerCommonAssembly,
-            architectureBuilder.DomainAssembly,
-            architectureBuilder.InfrastructureAssembly,
-            architectureBuilder.PersistanceAssembly,
-            architectureBuilder.ServiceDefaultsAssembly
+            ArchitectureBuilder.ApiFeaturesAssembly,
+            ArchitectureBuilder.WorkerCommonAssembly,
+            ArchitectureBuilder.DomainAssembly,
+            ArchitectureBuilder.InfrastructureAssembly,
+            ArchitectureBuilder.PersistanceAssembly,
+            ArchitectureBuilder.ServiceDefaultsAssembly
         ];
 
-        IEnumerable<IArchRule> workerDbInitializerRules = PrepareProjectRules(architectureBuilder.WorkerDbInitializerAssembly, allowedAssemblies);
+        IEnumerable<IArchRule> workerDbInitializerRules = PrepareProjectRules(ArchitectureBuilder.WorkerDbInitializerAssembly, allowedAssemblies);
 
         foreach (IArchRule rule in workerDbInitializerRules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
     private IEnumerable<IArchRule> PrepareProjectRules(Assembly projectAssembly, IEnumerable<Assembly> allowedDependencies)
     {
-        IEnumerable<Assembly> forbiddenAssemblies = architectureBuilder.AllAssemblies
+        IEnumerable<Assembly> forbiddenAssemblies = ArchitectureBuilder.AllAssemblies
             .Where(a => a.FullName != projectAssembly.FullName && !allowedDependencies.Any(allowed => allowed.FullName == a.FullName));
         return forbiddenAssemblies.Select(forbidden =>
             Types().That()
@@ -183,9 +183,9 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
     public void CommonProjects_ShouldNotHave_AnyProjectDependencies()
     {
         // Arrange
-        Assembly[] commonAssemblies = [architectureBuilder.WorkerCommonAssembly, architectureBuilder.ServiceDefaultsAssembly];
+        Assembly[] commonAssemblies = [ArchitectureBuilder.WorkerCommonAssembly, ArchitectureBuilder.ServiceDefaultsAssembly];
 
-        IEnumerable<Assembly> otherProjectAssemblies = architectureBuilder.AllAssemblies
+        IEnumerable<Assembly> otherProjectAssemblies = ArchitectureBuilder.AllAssemblies
             .Where(a => !commonAssemblies.Any(c => c.FullName == a.FullName));
 
         IEnumerable<IArchRule> rules = commonAssemblies.SelectMany(commonAssembly =>
@@ -202,7 +202,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
         // Act & Assert
         foreach (IArchRule rule in rules)
         {
-            rule.Check(architectureBuilder.Architecture);
+            rule.Check(ArchitectureBuilder.Architecture);
         }
     }
 
@@ -224,7 +224,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
                      .Are(DomainLayer)
                      .Should()
                      .NotDependOnAnyTypesThat()
-                     .Are(forbiddenApiCommonTypes)).Evaluate(architectureBuilder.Architecture).Where(r => !r.Passed)];
+                     .Are(forbiddenApiCommonTypes)).Evaluate(ArchitectureBuilder.Architecture).Where(r => !r.Passed)];
 
         if (failures.Count != 0)
         {
@@ -241,6 +241,6 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
                      .Are(DomainLayer)
                      .Should()
                      .NotDependOnAnyTypesThat()
-                     .Are(forbiddenApiCommonTypes).Check(architectureBuilder.Architecture);
+                     .Are(forbiddenApiCommonTypes).Check(ArchitectureBuilder.Architecture);
     }
 }

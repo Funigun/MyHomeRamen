@@ -3,11 +3,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.CreateIngredient;
+
+public sealed record CreateIngredientRequest(
+    string Name,
+    string Description,
+    decimal Price,
+    IEnumerable<Guid> CategoryIds);
+
+public sealed record CreateIngredientResponse(Guid Id);
 
 public sealed class CreateIngredientEndpoint : IEndpoint
 {
@@ -31,3 +37,4 @@ public sealed class CreateIngredientEndpoint : IEndpoint
         return Results.Created($"/api/menu/ingredients/{response.Id}", response);
     }
 }
+

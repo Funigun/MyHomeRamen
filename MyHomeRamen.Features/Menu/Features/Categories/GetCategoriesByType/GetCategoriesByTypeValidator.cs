@@ -1,5 +1,5 @@
 using FluentValidation;
-using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 
@@ -7,12 +7,7 @@ public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategori
 {
     public GetCategoriesByTypeValidator()
     {
-        RuleFor(x => x.CategoryType)
-            .Must(BeValidCategoryType).WithMessage("Please select a valid category type.");
-    }
-
-    private static bool BeValidCategoryType(int categoryType)
-    {
-        return Enum.IsDefined(typeof(CategoryType), (CategoryType)categoryType);
+        RuleFor(x => x.Request.CategoryType)
+            .MustBeValidCategoryType();
     }
 }

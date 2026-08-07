@@ -22,6 +22,8 @@ using MyHomeRamen.Persistance.ShoppingCart;
 using MyHomeRamen.Features.Orders.Features.Abstractions;
 using MyHomeRamen.Persistance.Identity;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MenuModule = MyHomeRamen.Features.Menu.Features;
+using MyHomeRamen.Features.ShoppingCart.Features.Products.Common;
 
 namespace MyHomeRamen.Persistance;
 
@@ -37,15 +39,18 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "menu");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
 
-        services.AddScoped<IMenuDbContext, MenuDbContext>();
-        services.AddScoped<ICategoryRepository>(provider => provider.GetRequiredService<MenuDbContext>());
-        services.AddScoped<Features.Menu.Features.Products.Common.IProductRepository>(provider => provider.GetRequiredService<MenuDbContext>());
-        services.AddScoped<Features.Menu.Features.Ingredients.Common.IIngredientRepository>(provider => provider.GetRequiredService<MenuDbContext>());
-        services.AddScoped<Features.Menu.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<IMenuDbContext>(provider => provider.GetRequiredService<MenuDbContext>());
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<MenuModule.Products.Common.IProductRepository, Menu.ProductRepository>();
+        services.AddScoped<MenuModule.Ingredients.Common.IIngredientRepository, Menu.IngredientRepository>();
+        services.AddScoped<MenuModule.Users.Common.IUserRepository, Menu.UserRepository>();
+        services.AddScoped<MenuModule.Roles.IRoleRepository, Menu.RoleRepository>();
+        services.AddScoped<MenuModule.Permissions.Common.IPermissionRepository, Menu.PermissionRepository>();
 
         return services;
     }
@@ -60,18 +65,19 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "basket");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
 
         services.AddScoped<IShoppingCartDbContext, ShoppingCartDbContext>();
-        services.AddScoped<IBasketRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<IBasketItemRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Products.Common.IProductRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Ingredients.Common.IIngredientRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
-        services.AddScoped<Features.ShoppingCart.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<IBasketRepository, BasketRepository>();
+        services.AddScoped<IBasketItemRepository, BasktetItemRepository>();
+        services.AddScoped<IProductRepository, ShoppingCart.ProductRepository>();
+        services.AddScoped<Features.ShoppingCart.Features.Ingredients.Common.IIngredientRepository, ShoppingCart.IngredientRepository>();
+        services.AddScoped<Features.ShoppingCart.Features.Users.Common.IUserRepository, ShoppingCart.UserRepository>();
+        services.AddScoped<Features.ShoppingCart.Features.Roles.Common.IRoleRepository, ShoppingCart.RoleRepository>();
+        services.AddScoped<Features.ShoppingCart.Features.Permissions.Common.IPermissionRepository, ShoppingCart.PermissionRepository>();
 
         return services;
     }
@@ -86,6 +92,7 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "orders");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
@@ -105,16 +112,17 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "reservations");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
 
         services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
-        services.AddScoped<IBookingRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
-        services.AddScoped<ITableRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
-        services.AddScoped<Features.Reservations.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
-        services.AddScoped<Features.Reservations.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
-        services.AddScoped<Features.Reservations.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<ITableRepository, TableRepository>();
+        services.AddScoped<Features.Reservations.Features.Users.Common.IUserRepository, Reservations.UserRepository>();
+        services.AddScoped<Features.Reservations.Features.Roles.Common.IRoleRepository, Reservations.RoleRepository>();
+        services.AddScoped<Features.Reservations.Features.Permissions.Common.IPermissionRepository, Reservations.PermissionRepository>();
 
         return services;
     }
@@ -129,18 +137,19 @@ public static class DependencyInjection
                 serverOptions =>
                 {
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "payments");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
 
         services.AddScoped<IPaymentsDbContext, PaymentsDbContext>();
-        services.AddScoped<IPaymentMethodRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<IPaymentChannelRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<IPaymentGatewayRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<Features.Payments.Features.Orders.Common.IOrderRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<Features.Payments.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<Features.Payments.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<Features.Payments.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+        services.AddScoped<IPaymentChannelRepository, PaymentChannelRepository>();
+        services.AddScoped<IPaymentGatewayRepository, PaymentGatewayRepository>();
+        services.AddScoped<Features.Payments.Features.Orders.Common.IOrderRepository, Payments.OrderRepository>();
+        services.AddScoped<Features.Payments.Features.Users.Common.IUserRepository, Payments.UserRepository>();
+        services.AddScoped<Features.Payments.Features.Roles.Common.IRoleRepository, Payments.RoleRepository>();
+        services.AddScoped<Features.Payments.Features.Permissions.Common.IPermissionRepository, Payments.PermissionRepository>();
 
         return services;
     }
@@ -156,13 +165,14 @@ public static class DependencyInjection
                 {
                     serverOptions.CommandTimeout(600);
                     serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "identity");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
                 }
             );
         });
 
         services.AddScoped<IIdentityDbContext, IdentityDbContext>();
-        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<IdentityDbContext>());
-        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<IdentityDbContext>());
+        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository, Identity.UserRepository>();
+        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository, Identity.RoleRepository>();
 
         return services;
     }

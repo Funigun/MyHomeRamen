@@ -1,17 +1,17 @@
 ﻿using System.Runtime.CompilerServices;
 using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
-using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.Orders.Features.Abstractions;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
 using MyHomeRamen.Features.Reservations.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Worker.DatabaseInitializer.Config;
 using Quartz;
-using MyHomeRamen.Features.Orders.Features.Abstractions;
-using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.Worker.DatabaseInitializer;
 
-internal class DbInitializerJob(IIdentityDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
+internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
                                 IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext,
                                 IPaymentsDbContext paymentsDbContext, IConfiguration configuration,
                                 ILogger<DbInitializerJob> logger)
@@ -33,10 +33,10 @@ internal class DbInitializerJob(IIdentityDbContext userContext, IMenuDbContext m
             { ordersDbContext, DatabaseUserConfig.Create("Order", configuration) }
         };
 
+        bool dbExists = await userContext.EnsureCreated(cancellationToken);
+
         foreach (IUnitOfWork dbContext in unitOfWorkContexts.Keys)
         {
-            bool dbExists = await dbContext.EnsureCreated(cancellationToken);
-
             DatabaseUserConfig userConfig = unitOfWorkContexts[dbContext];
 
             await dbContext.ExecuteSql(

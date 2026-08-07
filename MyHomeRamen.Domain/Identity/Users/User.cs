@@ -1,7 +1,6 @@
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Common.Address;
 using MyHomeRamen.Domain.Identity.Roles;
-using MyHomeRamen.Domain.Users;
 
 namespace MyHomeRamen.Domain.Identity.Users;
 
@@ -12,8 +11,6 @@ public class User : AuditableEntity, IEntity<UserId>
     private readonly List<Role> _roles = [];
 
     public UserId Id { get; private set; }
-
-    public Guid RestaurantId { get; private set; }
 
     public string? KeycloakUserId { get; private set; }
 
@@ -45,10 +42,12 @@ public class User : AuditableEntity, IEntity<UserId>
         {
             Id = Guid.CreateVersion7(),
             KeycloakUserId = keycloakUserId,
+            UserName = userName,
             FirstName = firstName,
             LastName = lastName,
             Email = email,
             PhoneNumber = phoneNumber,
+            Role = role.Name,
         };
 
         user.AddRole(role);

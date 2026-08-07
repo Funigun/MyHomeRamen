@@ -5,10 +5,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Common.Contracts.Users.Employees.Requests;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.RegisterEmployee;
+
+public sealed record RegisterEmployeeRequest(
+    string Username,
+    string FirstName,
+    string LastName,
+    string Email,
+    string PhoneNumber,
+    string TemporaryPassword);
 
 public sealed class RegisterEmployeeEndpoint : IEndpoint
 {

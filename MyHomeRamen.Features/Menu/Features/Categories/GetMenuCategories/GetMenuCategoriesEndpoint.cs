@@ -3,30 +3,34 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
+
+public sealed record CategoryForMenuDto(Guid Id, string Name);
+
+public sealed record GetMenuCategoriesResponse(IEnumerable<CategoryForMenuDto> Categories);
 
 public sealed class GetMenuCategoriesEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<IEnumerable<GetMenuCategoriesResponse>>("api/menu/categories/menu", HandleAsync)
+            .MapStandardGet<GetMenuCategoriesResponse>("api/menu/categories/menu", HandleAsync)
             .WithName("GetMenuCategoriesEndpoint")
             .WithTags("Categories")
             .WithDescription("Returns all product categories for the public restaurant menu page.")
             .AllowAnonymous();
     }
 
-    private static async Task<IResult> HandleAsync(
-        [FromServices] IQueryHandler<GetMenuCategoriesQuery, IEnumerable<GetMenuCategoriesResponse>> handler,
+    private static async Task<Results<Ok<GetMenuCategoriesResponse>, BadRequest>> HandleAsync(
+        [FromServices] IQueryHandler<GetMenuCategoriesQuery, GetMenuCategoriesResponse> handler,
         CancellationToken cancellationToken)
     {
         GetMenuCategoriesQuery query = new();
-        IEnumerable<GetMenuCategoriesResponse> response = await handler.Handle(query, cancellationToken);
+        GetMenuCategoriesResponse response = await handler.Handle(query, cancellationToken);
 
-        return Results.Ok(response);
+        return TypedResults.Ok(response);
     }
 }

@@ -1,8 +1,7 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
@@ -26,13 +25,20 @@ using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
 
-public sealed partial class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : DbContext(options), IShoppingCartDbContext
+public sealed class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : DbContext(options), IShoppingCartDbContext
 {
     private readonly ICurrentUser _currentUser = default!;
+    private readonly IServiceProvider _serviceProvider = default!;
 
     public ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options, ICurrentUser currentUser) : this(options)
     {
         _currentUser = currentUser;
+    }
+
+    public ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options, ICurrentUser currentUser, IServiceProvider serviceProvider) : this(options)
+    {
+        _currentUser = currentUser;
+        _serviceProvider = serviceProvider;
     }
 
     public DbSet<Basket> ShoppingCarts { get; set; }
@@ -53,19 +59,19 @@ public sealed partial class ShoppingCartDbContext(DbContextOptions<ShoppingCartD
 
     public DbSet<ShippingDetails> ShippingDetailEntries { get; set; }
 
-    public IBasketRepository Basket => this;
+    public IBasketRepository Basket => _serviceProvider.GetService<IBasketRepository>() ?? throw new InvalidOperationException("BasketRepository is not registered in the service provider.");
 
-    public IBasketItemRepository BasketItem => this;
+    public IBasketItemRepository BasketItem => _serviceProvider.GetService<IBasketItemRepository>() ?? throw new InvalidOperationException("BasketItemRepository is not registered in the service provider.");
 
-    public IProductRepository Product => this;
+    public IProductRepository Product => _serviceProvider.GetService<IProductRepository>() ?? throw new InvalidOperationException("ProductRepository is not registered in the service provider.");
 
-    public IIngredientRepository Ingredient => this;
+    public IIngredientRepository Ingredient => _serviceProvider.GetService<IIngredientRepository>() ?? throw new InvalidOperationException("IngredientRepository is not registered in the service provider.");
 
-    public IUserRepository User => this;
+    public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
 
-    public IRoleRepository Role => this;
+    public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
 
-    public IPermissionRepository Permission => this;
+    public IPermissionRepository Permission => _serviceProvider.GetService<IPermissionRepository>() ?? throw new InvalidOperationException("PermissionRepository is not registered in the service provider.");
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -161,7 +167,7 @@ public sealed partial class ShoppingCartDbContext(DbContextOptions<ShoppingCartD
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("basket");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingCartDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("ShoppingCart.Configurations"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ShoppingCartDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("ShoppingCart.Configurations", StringComparison.OrdinalIgnoreCase));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -173,17 +179,5 @@ public sealed partial class ShoppingCartDbContext(DbContextOptions<ShoppingCartD
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
-    }
-
-    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
-    {
-        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
-
-        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
-        {
-            settersBuilder.SetProperty(kvp.Key, kvp.Value);
-        }
-
-        return settersBuilder;
     }
 }

@@ -21,13 +21,13 @@ else
             <MudText Style="min-width: 88px;" Typo="Typo.subtitle2">Actions</MudText>
         </MudStack>
         <MudDivider />
-        <MudDropContainer T="GetCategoriesByTypeResponse"
+        <MudDropContainer T="CategoryByTypeDto"
                           Items="Items"
                           ItemsSelector="@((_, _) => true)"
                           ItemDropped="OnItemDropped"
                           Class="d-flex flex-column">
             <ChildContent>
-                <MudDropZone T="GetCategoriesByTypeResponse" Identifier="items" AllowReorder="true" />
+                <MudDropZone T="CategoryByTypeDto" Identifier="items" AllowReorder="true" />
             </ChildContent>
             <ItemRenderer>
                 <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-1">
@@ -59,14 +59,14 @@ else
 }
 
 @code {
-    [Parameter, EditorRequired] public List<GetCategoriesByTypeResponse> Items { get; set; } = default!;
+    [Parameter, EditorRequired] public List<CategoryByTypeDto> Items { get; set; } = default!;
     [Parameter] public bool IsLoading { get; set; }
     [Parameter] public EventCallback<Guid> OnDelete { get; set; }
-    [Parameter] public EventCallback<List<GetCategoriesByTypeResponse>> OnOrderChanged { get; set; }
+    [Parameter] public EventCallback<List<CategoryByTypeDto>> OnOrderChanged { get; set; }
 
     private bool _hasPendingChanges;
 
-    private void OnItemDropped(MudItemDropInfo<GetCategoriesByTypeResponse> dropInfo)
+    private void OnItemDropped(MudItemDropInfo<CategoryByTypeDto> dropInfo)
     {
         int oldIndex = Items.ToList().IndexOf(dropInfo.Item);
         Items.RemoveAt(oldIndex);

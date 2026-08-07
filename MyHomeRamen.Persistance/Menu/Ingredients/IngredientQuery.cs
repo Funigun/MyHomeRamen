@@ -1,46 +1,32 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MyHomeRamen.Domain.Menu.Categories;
+using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientById;
+using MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForDropdown;
+using MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForManage;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public partial class MenuDbContext : IIngredientQuery
+public partial class IngredientRepository : IIngredientQuery
 {
-    private IQueryable<Ingredient> IngredientsQuery => Ingredients.AsNoTracking();
+    public async Task<IngredientByIdDto?> GetById(GetIngredientByIdQueryOptions options, CancellationToken cancellationToken)
+        => await QueryFirstOrDefault(
+            menuDbContext.Ingredients
+                .Include(i => i.Categories)
+                .AsSplitQuery(),
+            options,
+            cancellationToken);
 
-    public async Task<List<Ingredient>> GetForDropdown(CancellationToken cancellationToken)
-        => await IngredientsQuery.OrderBy(i => i.Name)
-                                 .ToListAsync(cancellationToken);
+    public async Task<IEnumerable<IngredientForDropdownDto>> ForDropdown(GetIngredientsForDropdownQueryOptions options, CancellationToken cancellationToken)
+        => await QueryList(menuDbContext.Ingredients, options, cancellationToken);
 
-    public async Task<List<Ingredient>> GetForManage(string? name, IEnumerable<Guid>? categoryIds, CancellationToken cancellationToken)
-    {
-        IQueryable<Ingredient> query = IngredientsQuery;
-
-        if (!string.IsNullOrWhiteSpace(name))
-        {
-            query = query.Where(i => i.Name.ToLower().Contains(name.ToLower()));
-        }
-
-        if (categoryIds is not null && categoryIds.Any())
-        {
-            List<CategoryId> ids = categoryIds.Select(id => (CategoryId)id).ToList();
-            query = query.Where(i => i.Categories.Any(c => ids.Contains(c.Id)));
-        }
-
-        return await query.OrderBy(i => i.Name)
-                          .ToListAsync(cancellationToken);
-    }
-
-    public async Task<List<Ingredient>> GetByIds(IEnumerable<IngredientId> ingredientIds, CancellationToken cancellationToken)
-        => await Ingredients.Where(e => ingredientIds.Contains(e.Id)).ToListAsync(cancellationToken);
+    public async Task<PagedResult<IngredientForManageDto>> ForManage(GetIngredientsForManageQueryOptions options, CancellationToken cancellationToken)
+        => await QueryPaged(menuDbContext.Ingredients, options, cancellationToken);
 
     public async Task<bool> IsIngredientNameUnique(string name, CancellationToken cancellationToken)
-        => await IngredientsQuery.AnyAsync(i => i.Name.ToLower() != name.ToLower(), cancellationToken);
+        => !await Exists(i => i.Name.ToLower() == name.ToLower(), cancellationToken);
 
     public async Task<bool> IsIngredientNameUniqueExcluding(string name, IngredientId excludeId, CancellationToken cancellationToken)
-        => !await IngredientsQuery.AnyAsync(i => i.Id != excludeId && i.Name.ToLower() == name.ToLower(), cancellationToken);
-
-    public async Task<bool> IsCategoryUsedByIngredient(CategoryId categoryId, CancellationToken cancellationToken)
-        => await IngredientsQuery.AnyAsync(i => i.Categories.Any(c => c.Id == categoryId), cancellationToken);
+        => !await Exists(i => i.Id != excludeId && i.Name.ToLower() == name.ToLower(), cancellationToken);
 }

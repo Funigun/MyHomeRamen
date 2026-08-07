@@ -13,21 +13,21 @@ public class MenuService(IMenuDbContext dbContext) : IMenuService
         List<Guid> selectedCustomIngredientIds,
         CancellationToken cancellationToken)
     {
-        bool exists = await dbContext.Product.Exists(p => p.Id == (ProductId)productId, cancellationToken);
+        bool exists = await dbContext.Product.Exists(p => p.Id == new ProductId(productId), cancellationToken);
         if (!exists)
         {
             return false;
         }
 
-        Product? product = await dbContext.Product.Specification().ById((ProductId)productId, cancellationToken);
+        Product? product = await dbContext.Product.Specification().ById(new ProductId(productId), cancellationToken);
 
         if (product is null)
         {
             return false;
         }
 
-        bool baseValid = selectedBaseIngredientIds.All(id => product.BaseIngredients.Any(i => i.Id == (IngredientId)id));
-        bool customValid = selectedCustomIngredientIds.All(id => product.CustomIngredients.Any(i => i.Id == (IngredientId)id));
+        bool baseValid = selectedBaseIngredientIds.All(id => product.BaseIngredients.Any(i => i.Id == new IngredientId(id)));
+        bool customValid = selectedCustomIngredientIds.All(id => product.CustomIngredients.Any(i => i.Id == new IngredientId(id)));
 
         return baseValid && customValid;
     }
@@ -38,7 +38,7 @@ public class MenuService(IMenuDbContext dbContext) : IMenuService
         List<Guid> selectedCustomIngredientIds,
         CancellationToken cancellationToken)
     {
-        Product? product = await dbContext.Product.Specification().ById(productId, cancellationToken);
+        Product? product = await dbContext.Product.Specification().ById(new ProductId(productId), cancellationToken);
 
         if (product is null)
         {

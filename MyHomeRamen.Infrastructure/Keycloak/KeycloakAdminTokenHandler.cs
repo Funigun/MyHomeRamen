@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using MyHomeRamen.Features.Common.Cache;
+using MyHomeRamen.Infrastructure.Cache;
 
 namespace MyHomeRamen.Infrastructure.Keycloak;
 
@@ -36,14 +37,15 @@ internal sealed class KeycloakAdminTokenHandler(
         return response;
     }
 
-    private Task<string> GetOrFetchTokenAsync(CancellationToken cancellationToken) =>
-        cacheService.GetOrSetAsync(
-            new KeycloakAdminTokenCachePolicy(_adminOptions.TokenLifetimeSeconds),
-            _adminOptions,
-            FetchTokenFromKeycloakAsync,
-            cancellationToken);
+    private async Task<string> GetOrFetchTokenAsync(CancellationToken cancellationToken) 
+        => await cacheService.GetOrSetAsync
+        (
+            CachePolicy.LocalCache<IdentityCacheModule>("", TimeSpan.FromSeconds(_adminOptions.TokenLifetimeSeconds), ["keycloak_admin_token"]),
+            async (cancellationToken) => await FetchTokenFromKeycloakAsync(cancellationToken),
+            cancellationToken
+        );
 
-    private async ValueTask<string> FetchTokenFromKeycloakAsync(CancellationToken cancellationToken)
+    private async Task<string> FetchTokenFromKeycloakAsync(CancellationToken cancellationToken)
     {
         using HttpClient client = httpClientFactory.CreateClient();
         string tokenUrl = $"{_adminOptions.BaseUrl}/realms/{_adminOptions.Realm}/protocol/openid-connect/token";

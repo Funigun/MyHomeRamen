@@ -4,10 +4,10 @@ using MyHomeRamen.Features.Payments.Features.Users.Common;
 
 namespace MyHomeRamen.Persistance.Payments;
 
-public partial class PaymentsDbContext : IUserSpecification
+public partial class UserRepository : IUserSpecification
 {
     public async Task<User> ByIdAsync(UserId userId, CancellationToken cancellationToken)
-        => await Users.Include(user => user.Roles)
+        => await paymentsDbContext.Users.Include(user => user.Roles)
                       .Include(user => user.Permissions)
                       .AsSplitQuery()
                       .FirstAsync(user => user.Id == userId, cancellationToken);

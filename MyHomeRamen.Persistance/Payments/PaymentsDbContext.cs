@@ -1,7 +1,6 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Payments.Orders;
 using MyHomeRamen.Domain.Payments.PaymentChannels;
@@ -23,13 +22,21 @@ using MyHomeRamen.Persistance.Payments.Converters;
 
 namespace MyHomeRamen.Persistance.Payments;
 
-public sealed partial class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : DbContext(options), IPaymentsDbContext
+public sealed class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options) : DbContext(options), IPaymentsDbContext
 {
     private readonly ICurrentUser _currentUser = default!;
+    private readonly IServiceProvider _serviceProvider = default!;
 
     public PaymentsDbContext(DbContextOptions<PaymentsDbContext> options, ICurrentUser currentUser) : this(options)
     {
         _currentUser = currentUser;
+
+    }
+
+    public PaymentsDbContext(DbContextOptions<PaymentsDbContext> options, ICurrentUser currentUser, IServiceProvider serviceProvider) : this(options, currentUser)
+    {
+        _currentUser = currentUser;
+        _serviceProvider = serviceProvider;
     }
 
     public DbSet<PaymentMethod> PaymentMethods { get; set; }
@@ -46,19 +53,19 @@ public sealed partial class PaymentsDbContext(DbContextOptions<PaymentsDbContext
 
     public DbSet<Permission> Permissions { get; set; }
 
-    public IPaymentMethodRepository PaymentMethod => this;
+    public IPaymentMethodRepository PaymentMethod => _serviceProvider.GetService<IPaymentMethodRepository>() ?? throw new InvalidOperationException("PaymentMethodRepository is not registered in the service provider.");
 
-    public IPaymentChannelRepository PaymentChannel => this;
+    public IPaymentChannelRepository PaymentChannel => _serviceProvider.GetService<IPaymentChannelRepository>() ?? throw new InvalidOperationException("PaymentChannelRepository is not registered in the service provider.");
 
-    public IPaymentGatewayRepository PaymentGateway => this;
+    public IPaymentGatewayRepository PaymentGateway => _serviceProvider.GetService<IPaymentGatewayRepository>() ?? throw new InvalidOperationException("PaymentGatewayRepository is not registered in the service provider.");
 
-    public IOrderRepository Order => this;
+    public IOrderRepository Order => _serviceProvider.GetService<IOrderRepository>() ?? throw new InvalidOperationException("OrderRepository is not registered in the service provider.");
 
-    public IUserRepository User => this;
+    public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
 
-    public IRoleRepository Role => this;
+    public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
 
-    public IPermissionRepository Permission => this;
+    public IPermissionRepository Permission => _serviceProvider.GetService<IPermissionRepository>() ?? throw new InvalidOperationException("PermissionRepository is not registered in the service provider.")   ;
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -154,7 +161,7 @@ public sealed partial class PaymentsDbContext(DbContextOptions<PaymentsDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("payments");
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(PaymentsDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Payments.Configurations"));
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(PaymentsDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Payments.Configurations", StringComparison.OrdinalIgnoreCase));
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -166,17 +173,5 @@ public sealed partial class PaymentsDbContext(DbContextOptions<PaymentsDbContext
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
-    }
-
-    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
-    {
-        UpdateSettersBuilder<TEntity> settersBuilder = new UpdateSettersBuilder<TEntity>();
-
-        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
-        {
-            settersBuilder.SetProperty(kvp.Key, kvp.Value);
-        }
-
-        return settersBuilder;
     }
 }

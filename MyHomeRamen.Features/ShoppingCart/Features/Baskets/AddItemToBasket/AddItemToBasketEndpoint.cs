@@ -3,11 +3,20 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
+
+public sealed record AddItemToBasketRequest(
+    Guid ProductId,
+    int Quantity,
+    List<BasketIngredientDto> BaseIngredients,
+    List<BasketIngredientDto> CustomIngredients,
+    string? Comments);
+
+public sealed record BasketIngredientDto(Guid Id, int Quantity);
+
+public sealed record AddItemToBasketResponse(Guid BasketId, Guid BasketItemId);
 
 public sealed class AddItemToBasketEndpoint : IEndpoint
 {

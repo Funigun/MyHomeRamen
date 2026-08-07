@@ -150,7 +150,7 @@ public sealed class EnpointPipelineConventionsTests(ArchitectureBuilder architec
     private static string GetTypeNameWithoutGenericArity(Type type)
     {
         string name = type.Name;
-        int arityIndex = name.IndexOf('`');
+        int arityIndex = name.IndexOf('`', StringComparison.OrdinalIgnoreCase);
         return arityIndex >= 0 ? name[..arityIndex] : name;
     }
 }

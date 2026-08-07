@@ -4,8 +4,8 @@ using MyHomeRamen.Features.ShoppingCart.Features.Ingredients.Common;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
 
-public partial class ShoppingCartDbContext : IIngredientQuery
+public partial class IngredientRepository : IIngredientQuery
 {
     public async Task<Ingredient?> ByIdAsync(IngredientId ingredientId, CancellationToken cancellationToken)
-        => await Ingredients.AsNoTracking().FirstOrDefaultAsync(ingredient => ingredient.Id == ingredientId, cancellationToken);
+        => await shoppingCartDbContext.Ingredients.AsNoTracking().FirstOrDefaultAsync(ingredient => ingredient.Id == ingredientId, cancellationToken);
 }

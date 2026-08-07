@@ -1,7 +1,7 @@
 using MyHomeRamen.Domain.Common.User;
 using MyHomeRamen.Domain.Identity.Users;
 
-namespace MyHomeRamen.Domain.Users;
+namespace MyHomeRamen.Domain.Identity;
 
 internal static class UserValidator
 {

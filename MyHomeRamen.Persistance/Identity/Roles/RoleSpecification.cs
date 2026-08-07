@@ -4,8 +4,8 @@ using MyHomeRamen.Features.Identity.Features.Roles.Common;
 
 namespace MyHomeRamen.Persistance.Identity;
 
-public partial class IdentityDbContext : IRoleSpecification
+public partial class RoleRepository : IRoleSpecification
 {
     public Task<Role> ByName(string roleName, CancellationToken cancellationToken)
-        => Roles.FirstAsync(role => role.Name.ToLower() == roleName.ToLower(), cancellationToken);
+        => identityDbContext.Roles.FirstAsync(role => role.Name.ToLower() == roleName.ToLower(), cancellationToken);
 }

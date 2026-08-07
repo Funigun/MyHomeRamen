@@ -38,9 +38,8 @@
     {
         var response = await MenuApiClient.GetIngredientByIdAsync(Id);
 
-        IEnumerable<GetCategoriesByTypeResponse> categoriesResponse =
-            await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
-        IEnumerable<CategoryOption> categoryOptions = categoriesResponse.Select(c => new CategoryOption(c.Id, c.Name));
+        GetCategoriesByTypeResponse categoriesResponse = await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Ingredient);
+        IEnumerable<CategoryOption> categoryOptions = categoriesResponse.Categories.Select(c => new CategoryOption(c.Id, c.Name));
 
         if (response is not null)
         {

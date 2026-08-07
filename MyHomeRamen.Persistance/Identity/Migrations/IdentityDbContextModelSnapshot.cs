@@ -57,45 +57,6 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.ToTable("Roles", "identity");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.Address", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Apartment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Building")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ZipCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Addresses", "identity");
-                });
-
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -156,21 +117,6 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.ToTable("Users", "identity");
                 });
 
-            modelBuilder.Entity("UserAddresses", b =>
-                {
-                    b.Property<Guid>("AddressId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("AddressId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAddresses", "identity");
-                });
-
             modelBuilder.Entity("UserRoles", b =>
                 {
                     b.Property<Guid>("RolesId")
@@ -186,26 +132,49 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.ToTable("UserRoles", "identity");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.Address", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.User", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Identity.Users.User", null)
-                        .WithMany("Addresses")
-                        .HasForeignKey("UserId");
-                });
+                    b.OwnsMany("MyHomeRamen.Domain.Identity.Users.Address", "Addresses", b1 =>
+                        {
+                            b1.Property<Guid>("UserId")
+                                .HasColumnType("uniqueidentifier");
 
-            modelBuilder.Entity("UserAddresses", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.Identity.Users.Address", null)
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier")
+                                .HasColumnName("Id");
 
-                    b.HasOne("MyHomeRamen.Domain.Identity.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                            b1.Property<string>("Apartment")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("Building")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<bool>("IsDefault")
+                                .HasColumnType("bit");
+
+                            b1.Property<string>("Street")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<string>("ZipCode")
+                                .IsRequired()
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("UserId", "Id");
+
+                            b1.ToTable("Address", "identity");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserId");
+                        });
+
+                    b.Navigation("Addresses");
                 });
 
             modelBuilder.Entity("UserRoles", b =>
@@ -221,11 +190,6 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.User", b =>
-                {
-                    b.Navigation("Addresses");
                 });
 #pragma warning restore 612, 618
         }

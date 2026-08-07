@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Common.Contracts.Users.Account.Responses;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
+
+public sealed record GetMyIdResponse(Guid Id);
 
 public sealed class GetMyIdEndpoint : IEndpoint
 {

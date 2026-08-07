@@ -1,30 +1,23 @@
 using FluentValidation;
-using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
+using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.UpdateCategoriesOrder;
 
 public sealed class UpdateCategoriesOrderValidator : AbstractValidator<UpdateCategoriesOrderCommand>
 {
-    public UpdateCategoriesOrderValidator()
+    public UpdateCategoriesOrderValidator(IMenuDbContext menuDbContext)
     {
-        RuleFor(x => x.UpdateCategoriesOrderRequest.Items)
-            .NotEmpty().WithMessage("Categories list must not be empty.")
-            .Must(HaveUniqueIds).WithMessage("Category IDs must be unique within the request.");
+        RuleFor(x => x.Request.Items)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty().WithMessage("Items collection must not be empty.")
+            .MustHaveValidUniqueIds(menuDbContext, x => x.Select(item => item.Id));
 
-        RuleForEach(x => x.UpdateCategoriesOrderRequest.Items)
+        RuleForEach(x => x.Request.Items)
             .ChildRules(item =>
             {
-                item.RuleFor(x => x.Id)
-                    .NotEmpty().WithMessage("Category ID must not be empty.");
-
                 item.RuleFor(x => x.SortOrder)
-                    .SetValidator(new CategorySortOrderValidator());
+                    .MustBeValidSortOrder();
             });
-    }
-
-    private static bool HaveUniqueIds(IEnumerable<CategoryOrderItemDto> items)
-    {
-        return items.Select(i => i.Id).Distinct().Count() == items.Count();
     }
 }

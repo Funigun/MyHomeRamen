@@ -4,8 +4,8 @@ using MyHomeRamen.Features.ShoppingCart.Features.Users.Common;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
 
-public partial class ShoppingCartDbContext : IUserSpecification
+public partial class UserRepository : IUserSpecification
 {
     public async Task<User?> ByIdAsync(UserId userId, CancellationToken cancellationToken)
-        => await Users.FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
+        => await shoppingCartDbContext.Users.FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
 }

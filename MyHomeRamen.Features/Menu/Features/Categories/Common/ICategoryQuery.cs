@@ -1,16 +1,18 @@
 ﻿using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
+using MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 public interface ICategoryQuery
 {
-    Task<List<Category>> GetByType(CategoryType categoryType, CancellationToken cancellationToken);
+    Task<IEnumerable<CategoryForMenuDto>> GetMenuCategories(GetMenuCategoriesQueryOptions options, CancellationToken cancellationToken);
+
+    Task<IEnumerable<CategoryByTypeDto>> GetByTypeDto(GetCategoryByTypeQueryOptions options, CancellationToken cancellationToken);
 
     Task<int> GetNextSortOrder(CategoryType categoryType, CancellationToken cancellationToken);
 
     Task<IEnumerable<Category>> GetByIds(IEnumerable<CategoryId> categoryIds, CancellationToken cancellationToken);
-
-    Task<bool> Exists(CategoryId categoryId, CancellationToken cancellationToken);
 
     Task<bool> IsCategoryNameUnique(string name, CancellationToken cancellationToken);
 
@@ -19,5 +21,4 @@ public interface ICategoryQuery
     Task<bool> IsUsedByProducts(CategoryId categoryId, CancellationToken cancellationToken);
 
     Task<bool> IsUsedByIngredients(CategoryId categoryId, CancellationToken cancellationToken);
-    Task<Category?> ById(CategoryId id, CancellationToken cancellationToken);
 }

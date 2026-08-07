@@ -36,13 +36,13 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return result?.Id ?? throw new InvalidOperationException("Failed to deserialize ingredient creation response.");
     }
 
-    public async Task<IEnumerable<GetCategoriesByTypeResponse>> GetCategoriesByTypeAsync(int categoryType, CancellationToken ct = default)
+    public async Task<GetCategoriesByTypeResponse> GetCategoriesByTypeAsync(int categoryType, CancellationToken ct = default)
     {
-        IEnumerable<GetCategoriesByTypeResponse>? result = await httpClient
-            .GetFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>(
+        GetCategoriesByTypeResponse? result = await httpClient
+            .GetFromJsonAsync<GetCategoriesByTypeResponse>(
                 $"/api/menu/categories/by-type?categoryType={categoryType}", ct);
 
-        return result ?? [];
+        return result ?? new([]);
     }
 
     public async Task<IEnumerable<GetIngredientsForDropdownResponse>> GetIngredientsForDropdownAsync(CancellationToken ct = default)

@@ -90,4 +90,7 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
         PaymentDetails = details;
     }
+
+    public void CheckOut() => Status = BasketStatus.CheckedOut;
+    
 }

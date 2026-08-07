@@ -1,6 +1,7 @@
 using FluentValidation;
 using MyHomeRamen.Common.Contracts.Payments;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdatePaymentDetails;
 
@@ -20,9 +21,11 @@ public sealed class UpdatePaymentDetailsValidationPolicy : AbstractValidator<Upd
         });
 
         RuleFor(x => x)
-            .MustAsync(async (cmd, ct) => await dbContext.Basket.Specification().GetByIdForUserTrackedAsync(cmd.BasketId, cmd.UserId, ct) != null)
-            .WithMessage("Basket not found or not active.")
-            .OverridePropertyName(x => x.BasketId);
+            .MustHaveAccessibleBasket(
+                dbContext,
+                cmd => cmd.BasketId,
+                cmd => cmd.UserId,
+                nameof(UpdatePaymentDetailsCommand.BasketId));
 
         RuleFor(x => x.Request)
             .MustAsync(async (req, ct) =>
