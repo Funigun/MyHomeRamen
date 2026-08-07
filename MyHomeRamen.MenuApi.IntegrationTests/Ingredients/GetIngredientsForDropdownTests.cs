@@ -32,12 +32,12 @@ public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory) : I
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetIngredientsForDropdownResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetIngredientsForDropdownResponse>>(TestContext.Current.CancellationToken);
+        GetIngredientsForDropdownResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetIngredientsForDropdownResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
+        Assert.NotEmpty(result.Ingredients);
     }
 
     [Fact]

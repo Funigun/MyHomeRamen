@@ -15,14 +15,11 @@ internal sealed class CacheService(HybridCache hybridCache, IServiceScopeFactory
 
         using Activity? activity = CacheDiagnostics.ActivitySource.StartActivity("CacheService.GetOrSet");
 
-        if (policy.DistributedExpirationTime.HasValue || policy.LocalExpirationTime.HasValue)
+        options = new HybridCacheEntryOptions
         {
-            options = new HybridCacheEntryOptions
-            {
-                Expiration = policy.DistributedExpirationTime,
-                LocalCacheExpiration = policy.LocalExpirationTime,
-            };
-        }
+            Expiration = policy.DistributedExpirationTime ?? TimeSpan.FromMilliseconds(1),
+            LocalCacheExpiration = policy.LocalExpirationTime ?? TimeSpan.FromMilliseconds(1),
+        };
 
         string restaurantId = restaurantConfigurationProvider.RestaurantId.ToString();
         string key = $"{restaurantId}_{policy.Module}_{policy.Key}";
@@ -40,7 +37,7 @@ internal sealed class CacheService(HybridCache hybridCache, IServiceScopeFactory
 
                                 if (results is not null && results.ToString() is not null)
                                 {
-                                    string tag = $"{restaurantId}_{policy.Module}_{results.ToString()!}";
+                                    string tag = $"{restaurantId}_{policy.Module}_{results}";
                                     tags.Add(tag);
                                     activity?.AddTag("CacheService.ComputedKey", tag);
                                 }

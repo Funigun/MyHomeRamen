@@ -12,7 +12,8 @@ public sealed record GetMenuCategoriesQueryOptions()
                    (
                        new DbQueryOptions<Category, CategoryForMenuDto>
                        {
-                           Selector = c => new(c.Id.Value, c.Name)
+                           Selector = c => new(c.Id.Value, c.Name),
+                           Filter = c => c.CategoryType == CategoryType.Product,
                        }
                    );
 

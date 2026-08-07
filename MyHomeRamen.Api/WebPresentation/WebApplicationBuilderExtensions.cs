@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Api.Common.Extentsions;
+﻿namespace MyHomeRamen.Api.WebPresentation;
 
 public static class WebApplicationBuilderExtensions
 {

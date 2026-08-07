@@ -1,7 +1,6 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Common.Authorization;
@@ -13,22 +12,30 @@ using MyHomeRamen.Persistance.Identity.Converters;
 
 namespace MyHomeRamen.Persistance.Identity;
 
-public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : DbContext(options), IIdentityDbContext
+public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : DbContext(options), IIdentityDbContext
 {
-    private readonly RestaurantConfigurationProvider _restaurantConfiguration;
-    private readonly ICurrentUser _currentUser;
+    private readonly RestaurantConfigurationProvider _restaurantConfiguration = default!;
+    private readonly ICurrentUser _currentUser = default!;
+    private readonly IServiceProvider _serviceProvider = default!;
 
     public DbSet<User> Users { get; set; }
 
     public DbSet<Role> Roles { get; set; }
 
-    public IUserRepository User => this;
-    public IRoleRepository Role => this;
+    public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
+    public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
 
     public IdentityDbContext(DbContextOptions<IdentityDbContext> options, RestaurantConfigurationProvider configFactory, ICurrentUser currentUser) : this(options)
     {
         _restaurantConfiguration = configFactory;
         _currentUser = currentUser;
+    }
+
+    public IdentityDbContext(DbContextOptions<IdentityDbContext> options, RestaurantConfigurationProvider configFactory, ICurrentUser currentUser, IServiceProvider serviceProvider) : this(options, configFactory, currentUser)
+    {
+        _restaurantConfiguration = configFactory;
+        _currentUser = currentUser;
+        _serviceProvider = serviceProvider;
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
@@ -145,17 +152,5 @@ public sealed partial class IdentityDbContext(DbContextOptions<IdentityDbContext
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
     {
         return await Database.ExecuteSqlInterpolatedAsync(sql, cancellationToken);
-    }
-
-    private UpdateSettersBuilder<TEntity> PrepareSettersBuilder<TEntity>(Dictionary<Expression<Func<TEntity, object>>, Expression> valuesToUpdate) where TEntity : class
-    {
-        UpdateSettersBuilder<TEntity> settersBuilder = new();
-
-        foreach (KeyValuePair<Expression<Func<TEntity, object>>, Expression> kvp in valuesToUpdate)
-        {
-            settersBuilder.SetProperty(kvp.Key, kvp.Value);
-        }
-
-        return settersBuilder;
     }
 }

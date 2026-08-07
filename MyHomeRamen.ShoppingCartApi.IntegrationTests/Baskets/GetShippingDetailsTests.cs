@@ -6,10 +6,10 @@ using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
-using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using System.Text;
+using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 

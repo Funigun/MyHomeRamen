@@ -1,36 +1,14 @@
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 using MyHomeRamen.Domain.Orders.Products;
-using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Orders.Features.Products.Common;
+using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Orders;
 
-public partial class OrdersDbContext : IProductRepository
+public sealed partial class ProductRepository(OrdersDbContext ordersDbContext, ICacheService cacheService)
+    : BaseRepository<Product, ProductId>(ordersDbContext, cacheService), IProductRepository
 {
-    public void Add(Product entity) => Products.Add(entity);
+    public IProductQuery Query() => this;
 
-    public void AddRange(IEnumerable<Product> entities) => Products.AddRange(entities);
-
-    public async Task<bool> Exists(Expression<Func<Product, bool>> predicate, CancellationToken cancellationToken)
-        => await Products.AnyAsync(predicate, cancellationToken);
-
-    public void Delete(Product entity) => Products.Remove(entity);
-
-    public async Task<int> ExecuteDelete(Expression<Func<Product, bool>> predicate, CancellationToken cancellationToken)
-        => await Products.Where(predicate).ExecuteDeleteAsync(cancellationToken);
-
-    public async Task<int> ExecuteUpdate(Expression<Func<Product, bool>> filterPredicate, Dictionary<Expression<Func<Product, object>>, Expression> valuesToUpdate, CancellationToken cancellationToken)
-    {
-        UpdateSettersBuilder<Product>? settersBuilder = PrepareSettersBuilder(valuesToUpdate);
-        return await Products.Where(filterPredicate).ExecuteUpdateAsync(s => settersBuilder.BuildSettersExpression(), cancellationToken);
-    }
-
-    async Task<int> IRepository<Product, ProductId>.Count(CancellationToken cancellationToken)
-        => await Products.CountAsync(cancellationToken);
-
-    IProductQuery IProductRepository.Query() => this;
-
-    IProductSpecification IProductRepository.Specification() => this;
+    public IProductSpecification Specification() => this;
 }

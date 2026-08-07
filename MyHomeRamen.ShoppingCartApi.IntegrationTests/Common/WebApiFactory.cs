@@ -5,7 +5,16 @@ using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
 using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Common.Contracts.Payments;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.BasketItems.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Ingredients.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Permissions.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Products.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Roles.Common;
+using MyHomeRamen.Features.ShoppingCart.Features.Users.Common;
+using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.Persistance.ShoppingCart;
@@ -13,7 +22,7 @@ using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Fixtures;
 using NSubstitute;
 
-namespace MyHomeRamen.MenuApi.IntegrationTests.Common;
+namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 
 public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture redisFixture) : WebApplicationFactory<IApiAssemblyMarker>, IAsyncLifetime
 {
@@ -23,11 +32,32 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
     private readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};", StringComparison.OrdinalIgnoreCase);
 
+    private ServiceProvider? _seedServiceProvider;
+    private IServiceScope? _seedScope;
+
     async ValueTask IAsyncLifetime.InitializeAsync()
     {
         FakeUser user = new();
         DbContextOptions<ShoppingCartDbContext> options = new DbContextOptionsBuilder<ShoppingCartDbContext>().UseSqlServer(_connectionString).Options;
-        ShoppingCartDbContext = new ShoppingCartDbContext(options, user);
+
+        ServiceCollection services = new();
+        services.AddSingleton(options);
+        services.AddSingleton<ICurrentUser>(user);
+        services.AddScoped<ShoppingCartDbContext>(provider => new ShoppingCartDbContext(options, user, provider));
+        services.AddScoped<IShoppingCartDbContext>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+        services.AddScoped<IBasketRepository, BasketRepository>();
+        services.AddScoped<IBasketItemRepository, BasktetItemRepository>();
+        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IIngredientRepository, IngredientRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IPermissionRepository, PermissionRepository>();
+        services.AddCacheService();
+
+        _seedServiceProvider = services.BuildServiceProvider();
+        _seedScope = _seedServiceProvider.CreateScope();
+
+        ShoppingCartDbContext = _seedScope.ServiceProvider.GetRequiredService<IShoppingCartDbContext>();
 
         await DataSeeder.SeedDatabase(ShoppingCartDbContext);
 
@@ -36,7 +66,16 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
     public new async Task DisposeAsync()
     {
-        await ((IAsyncDisposable)ShoppingCartDbContext).DisposeAsync();
+        if (ShoppingCartDbContext is IAsyncDisposable asyncDisposable)
+        {
+            await asyncDisposable.DisposeAsync();
+        }
+
+        _seedScope?.Dispose();
+        if (_seedServiceProvider is not null)
+        {
+            await _seedServiceProvider.DisposeAsync();
+        }
 
         HttpClient.Dispose();
         await base.DisposeAsync();
@@ -46,6 +85,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
     {
         builder.ConfigureServices(services =>
         {
+            services.AddScoped<IShoppingCartDbContext>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
             services.ReconfigureDbContext<ShoppingCartDbContext>(_connectionString);
             services.ReconfigureCache(redisFixture.ConnectionString);
             services.ReconfigureTokenOptions();
@@ -92,7 +132,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
                     .ToList();
 
                 IReadOnlyList<MenuIngredientResult> customIngredients = customIngredientIds
-                    .Select((Guid id, int index ) => new MenuIngredientResult(id, $"Custom Ingredient {index}", "Custom ingredient", 1m))
+                    .Select((Guid id, int index) => new MenuIngredientResult(id, $"Custom Ingredient {index}", "Custom ingredient", 1m))
                     .ToList();
 
                 return Task.FromResult<MenuProductResult?>(new MenuProductResult(

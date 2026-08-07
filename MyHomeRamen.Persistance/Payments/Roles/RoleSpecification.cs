@@ -4,8 +4,8 @@ using MyHomeRamen.Features.Payments.Features.Roles.Common;
 
 namespace MyHomeRamen.Persistance.Payments;
 
-public partial class PaymentsDbContext : IRoleSpecification
+public partial class RoleRepository : IRoleSpecification
 {
     public async Task<Role?> ByIdAsync(RoleId id, CancellationToken cancellationToken)
-        => await Roles.AsNoTracking().FirstOrDefaultAsync(role => role.Id == id, cancellationToken);
+        => await paymentsDbContext.Roles.AsNoTracking().FirstOrDefaultAsync(role => role.Id == id, cancellationToken);
 }

@@ -1,6 +1,6 @@
 ﻿using MyHomeRamen.Features.Common.Cache;
 
-namespace MyHomeRamen.Persistance.Cache;
+namespace MyHomeRamen.Persistance.Common;
 
 internal sealed class MenuCacheModule : ICacheModule
 {

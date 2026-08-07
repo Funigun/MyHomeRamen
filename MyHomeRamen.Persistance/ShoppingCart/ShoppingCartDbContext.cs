@@ -1,7 +1,5 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Abstractions;
@@ -27,7 +25,7 @@ using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
 
-public sealed partial class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : DbContext(options), IShoppingCartDbContext
+public sealed class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext> options) : DbContext(options), IShoppingCartDbContext
 {
     private readonly ICurrentUser _currentUser = default!;
     private readonly IServiceProvider _serviceProvider = default!;

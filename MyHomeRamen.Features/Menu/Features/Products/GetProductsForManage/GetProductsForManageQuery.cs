@@ -1,3 +1,6 @@
+using System.Linq.Expressions;
+using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Query;
@@ -8,15 +11,15 @@ namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
 
 public sealed record GetProductsForManageQuery(PageParameters PageParameters, GetProductsForManageRequest Request) : IQuery<GetProductsForManageResponse>;
 
-public sealed record GetProductsForManageQueryOptions(GetProductsForManageRequest Request, PageParameters PageParameters)
+public sealed record GetProductsForManageQueryOptions(GetProductsForManageRequest Request, IEnumerable<CategoryId>? CategoryIds, IEnumerable<IngredientId>? IngredientIds, PageParameters PageParameters)
     : PagedDbQueryOptions<Product, ProductForManageDto>
     (
         new()
         {
-            Filter = product =>
+            Filter = product => 
                 (string.IsNullOrWhiteSpace(Request.Name) || product.Name.ToLower().Contains(Request.Name.ToLower())) &&
-                (Request.CategoryIds == null || product.Categories.Any(category => Request.CategoryIds.Contains(category.Id.Value))) &&
-                (Request.IngredientIds == null || product.BaseIngredients.Any(ingredient => Request.IngredientIds.Contains(ingredient.Id.Value)) || product.CustomIngredients.Any(ingredient => Request.IngredientIds.Contains(ingredient.Id.Value))) &&
+                (CategoryIds == null || product.Categories.Any(category => CategoryIds.Contains(category.Id))) &&
+                (IngredientIds == null || product.BaseIngredients.Any(ingredient => IngredientIds.Contains(ingredient.Id)) || product.CustomIngredients.Any(ingredient => IngredientIds.Contains(ingredient.Id))) &&
                 (Request.PriceFrom == null || product.Price >= Request.PriceFrom.Value) &&
                 (Request.PriceTo == null || product.Price <= Request.PriceTo.Value),
             OrderBy = Request.OrderBy switch
@@ -37,7 +40,10 @@ public sealed class GetProductsForManageHandler(IMenuDbContext dbContext) : IQue
         GetProductsForManageQuery query,
         CancellationToken cancellationToken)
     {
-        GetProductsForManageQueryOptions options = new(query.Request, query.PageParameters);
+        IEnumerable<CategoryId>? categoryIds = query.Request.CategoryIds?.Length > 0 ? query.Request.CategoryIds?.Select(c => new CategoryId(c)) : null;
+        IEnumerable<IngredientId>? ingredientIds = query.Request.IngredientIds?.Length > 0 ? query.Request.IngredientIds?.Select(i => new IngredientId(i)) : null;
+
+        GetProductsForManageQueryOptions options = new(query.Request, categoryIds, ingredientIds, query.PageParameters);
 
         PagedResult<ProductForManageDto> pagedResult = await dbContext.Product.Query().ForManage(options, cancellationToken);
 

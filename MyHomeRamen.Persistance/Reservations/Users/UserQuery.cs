@@ -4,8 +4,8 @@ using MyHomeRamen.Features.Reservations.Features.Users.Common;
 
 namespace MyHomeRamen.Persistance.Reservations;
 
-public partial class ReservationsDbContext : IUserQuery
+public partial class UserRepository : IUserQuery
 {
     async Task<bool> IUserQuery.ExistsAsync(UserId userId, CancellationToken cancellationToken)
-        => await Set<User>().AsNoTracking().AnyAsync(user => user.Id == userId, cancellationToken);
+        => await reservationsDbContext.Users.AsNoTracking().AnyAsync(user => user.Id == userId, cancellationToken);
 }

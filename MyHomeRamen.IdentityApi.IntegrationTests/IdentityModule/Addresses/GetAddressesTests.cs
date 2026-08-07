@@ -48,7 +48,7 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
     public async Task GetAddresses_ShouldReturnEmptyList_WhenUserHasNoAddresses()
     {
         // Arrange
-        Role role = await apiFixture.ApiFactory.UsersDbContext.Role.Specification().ByName("Customer", TestContext.Current.CancellationToken);
+        Role role = await apiFixture.ApiFactory.IdentityDbContext.Role.Specification().ByName("Customer", TestContext.Current.CancellationToken);
 
         User newUser = User.Create(
             keycloakUserId: "test-no-addresses-user",
@@ -59,8 +59,8 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
             phoneNumber: "000000000",
             role: role);
 
-        apiFixture.ApiFactory.UsersDbContext.Users.Add(newUser);
-        await apiFixture.ApiFactory.UsersDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        apiFixture.ApiFactory.IdentityDbContext.User.Add(newUser);
+        await apiFixture.ApiFactory.IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
         httpRequest.AddIdentityAuthorizationHeader("test-no-addresses-user");

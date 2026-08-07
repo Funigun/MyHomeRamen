@@ -10,9 +10,9 @@ namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForManage
 
 public sealed record GetIngredientsForManageRequest(string? Name, Guid[]? CategoryIds);
 
-public sealed record GetIngredientsForManageResponse(int Page, int PageSize, int TotalCount, IEnumerable<IngredientForManageDto> Ingredients);
-
 public sealed record IngredientForManageDto(Guid Id, string Name, string Description);
+
+public sealed record GetIngredientsForManageResponse(int Page, int PageSize, int TotalCount, IEnumerable<IngredientForManageDto> Ingredients);
 
 public sealed class GetIngredientsForManageEndpoint : IEndpoint
 {

@@ -5,10 +5,6 @@ namespace MyHomeRamen.Features.Identity.Features.Users.Common;
 
 public interface IUserRepository : IRepository<User, UserId>
 {
-    void Update(User entity);
-
-    void Update(IEnumerable<User> entities);
-
     IUserQuery Query();
 
     IUserSpecification Specification();

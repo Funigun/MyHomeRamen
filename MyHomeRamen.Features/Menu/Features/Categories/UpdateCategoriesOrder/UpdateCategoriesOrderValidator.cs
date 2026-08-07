@@ -9,6 +9,8 @@ public sealed class UpdateCategoriesOrderValidator : AbstractValidator<UpdateCat
     public UpdateCategoriesOrderValidator(IMenuDbContext menuDbContext)
     {
         RuleFor(x => x.Request.Items)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty().WithMessage("Items collection must not be empty.")
             .MustHaveValidUniqueIds(menuDbContext, x => x.Select(item => item.Id));
 
         RuleForEach(x => x.Request.Items)

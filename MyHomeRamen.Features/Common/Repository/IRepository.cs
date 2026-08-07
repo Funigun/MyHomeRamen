@@ -11,6 +11,10 @@ public interface IRepository<TEntity, TId>
 
     void AddRange(IEnumerable<TEntity> entities);
 
+    void Update(TEntity entity);
+
+    void UpdateRange(IEnumerable<TEntity> entities);
+
     Task<bool> Exists(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken);
 
     void Delete(TEntity entity);

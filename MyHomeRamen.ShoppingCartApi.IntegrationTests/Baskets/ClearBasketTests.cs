@@ -3,7 +3,7 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
-using MyHomeRamen.MenuApi.IntegrationTests.Common;
+using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;

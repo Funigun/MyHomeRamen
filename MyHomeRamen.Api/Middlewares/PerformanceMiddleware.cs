@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace MyHomeRamen.Api.Common.Middleware;
+namespace MyHomeRamen.Api.Middlewares;
 
 public sealed class PerformanceMiddleware(RequestDelegate next, ILogger<PerformanceMiddleware> logger)
 {

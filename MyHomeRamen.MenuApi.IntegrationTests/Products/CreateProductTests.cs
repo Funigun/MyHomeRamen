@@ -27,14 +27,16 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         apiFactory.MenuDbContext.Category.AddRange([ingredientCategory, productCategory]);
         apiFactory.MenuDbContext.Ingredient.Add(ingredient);
-        apiFactory.MenuDbContext.Product.Add(_product);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _productCategoryId = productCategory.Id;
         _productIngredientId = ingredient.Id;
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync()
+    {
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
 
     [Fact]
     public async Task CreateProduct_ShouldReturnLocationHeader_ForValidRequest()

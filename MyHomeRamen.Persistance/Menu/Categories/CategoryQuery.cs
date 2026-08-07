@@ -6,7 +6,7 @@ using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 using MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
-using MyHomeRamen.Persistance.Cache;
+using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
 
@@ -15,9 +15,9 @@ public partial class CategoryRepository : ICategoryQuery
     public async Task<IEnumerable<CategoryByTypeDto>> GetByTypeDto(GetCategoryByTypeQueryOptions options, CancellationToken cancellationToken)
     {
         string cacheKey = $"CategoryByTypeDto:{options.CategoryType}";
-        TimeSpan cacheExpirationTime = TimeSpan.FromMinutes(5, 30);
+        TimeSpan cacheExpirationTime = TimeSpan.FromSeconds(5, 30);
         IEnumerable<string> cacheTags = [$"categories:{options.CategoryType}"];
-
+        
         CachePolicy policy = CachePolicy.LocalCache<MenuCacheModule>(cacheKey, cacheExpirationTime, cacheTags);
 
         return await QueryList(menuDbContext.Categories, options, policy, cancellationToken);

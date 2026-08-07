@@ -1,7 +1,6 @@
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Common.Address;
 using MyHomeRamen.Domain.Identity.Roles;
-using MyHomeRamen.Domain.Users;
 
 namespace MyHomeRamen.Domain.Identity.Users;
 

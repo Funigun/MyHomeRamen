@@ -4,8 +4,8 @@ using MyHomeRamen.Features.Payments.Features.PaymentChannels.Common;
 
 namespace MyHomeRamen.Persistance.Payments;
 
-public partial class PaymentsDbContext : IPaymentChannelSpecification
+public partial class PaymentChannelRepository : IPaymentChannelSpecification
 {
     async Task<PaymentChannel?> IPaymentChannelSpecification.ByIdAsync(PaymentChannelId id, CancellationToken cancellationToken)
-        => await PaymentChannels.AsNoTracking().FirstOrDefaultAsync(channel => channel.Id == id, cancellationToken);
+        => await paymentsDbContext.PaymentChannels.AsNoTracking().FirstOrDefaultAsync(channel => channel.Id == id, cancellationToken);
 }

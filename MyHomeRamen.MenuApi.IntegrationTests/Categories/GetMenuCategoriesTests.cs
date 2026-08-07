@@ -25,8 +25,7 @@ public sealed class GetMenuCategoriesTests(WebApiFactory apiFactory) : IClassFix
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetMenuCategoriesResponse? result = await responseMessage.Content
-            .ReadFromJsonAsync<GetMenuCategoriesResponse>(TestContext.Current.CancellationToken);
+        GetMenuCategoriesResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetMenuCategoriesResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);

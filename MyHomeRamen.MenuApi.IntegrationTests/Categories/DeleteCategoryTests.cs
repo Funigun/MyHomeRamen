@@ -1,7 +1,9 @@
 using System.Net;
+using System.Net.Http.Json;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -29,14 +31,22 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync()
+    {
+        apiFactory.MenuDbContext.Product.Delete(_product);
+        apiFactory.MenuDbContext.Ingredient.Delete(_ingredient);
+        apiFactory.MenuDbContext.Category.Delete(_ingredientcategory);
+        apiFactory.MenuDbContext.Category.Delete(_productCategory);
+
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
 
     [Fact]
     public async Task DeleteCategory_ShouldReturnNoContent_ForValidId()
     {
         // Arrange
         const CategoryType categoryType = CategoryType.Product;
-        int numOfExistingCategories = await apiFactory.MenuDbContext.Category.Count(TestContext.Current.CancellationToken);
+        int numOfExistingCategories = 1;
 
         Category cat1 = Category.Create(Guid.NewGuid(), $"DelTest1_{Guid.NewGuid():N}", numOfExistingCategories + 1, categoryType);
         Category cat2 = Category.Create(Guid.NewGuid(), $"DelTest2_{Guid.NewGuid():N}", numOfExistingCategories + 2, categoryType);
@@ -60,7 +70,13 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         Assert.False(stillExists, "Deleted category should no longer exist in DB.");
 
         // Assert — ALL remaining categories of the same type have contiguous sort orders starting from 1
-        IEnumerable<Category> allRemaining = await apiFactory.MenuDbContext.Category.Query().GetByIds([cat1.Id, cat3.Id], TestContext.Current.CancellationToken);
+        using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}");
+        assertRequest.AddAuthorizationHeader(UserRoles.Admin);
+
+        HttpResponseMessage assertResponse = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
+
+        GetCategoriesByTypeResponse productCategories = (await assertResponse.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(TestContext.Current.CancellationToken))!;
+        IEnumerable<CategoryByTypeDto> allRemaining = productCategories.Categories.OrderBy(c => c.SortOrder);
 
         for (int i = 0; i < allRemaining.Count(); i++)
         {
@@ -68,8 +84,8 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         }
 
         // Assert — cat1 and cat3 are adjacent with cat3 immediately following cat1
-        int cat1Index = allRemaining.ToList().FindIndex(c => c.Id == cat1.Id);
-        int cat3Index = allRemaining.ToList().FindIndex(c => c.Id == cat3.Id);
+        int cat1Index = allRemaining.ToList().FindIndex(c => c.Id == cat1.Id.Value);
+        int cat3Index = allRemaining.ToList().FindIndex(c => c.Id == cat3.Id.Value);
         Assert.Equal(cat1Index + 1, cat3Index);
     }
 

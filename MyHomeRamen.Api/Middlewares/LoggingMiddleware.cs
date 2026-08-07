@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Api.Common.Middleware;
+﻿namespace MyHomeRamen.Api.Middlewares;
 
 public sealed class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger)
 {

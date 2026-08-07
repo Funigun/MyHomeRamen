@@ -20,7 +20,7 @@ using MyHomeRamen.Persistance.Menu.Converters;
 
 namespace MyHomeRamen.Persistance.Menu;
 
-public sealed partial class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
+public sealed class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbContext(options), IMenuDbContext
 {
     private readonly ICurrentUser _currentUser = default!;
     private readonly IServiceProvider _serviceProvider = default!;

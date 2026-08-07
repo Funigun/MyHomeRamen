@@ -9,7 +9,7 @@ using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
-using MyHomeRamen.MenuApi.IntegrationTests.Common;
+using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;

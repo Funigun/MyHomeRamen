@@ -12,6 +12,7 @@ namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;
 public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private const string EndpointBase = "/api/menu/categories/by-type";
+    private IEnumerable<Category> _categories = [];
 
     public async ValueTask InitializeAsync()
     {
@@ -20,11 +21,21 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
         Category prodcutCategoryDuplicateCheck = DataGenerator.CreateProductCategory();
         IEnumerable<Category> ingredientCategories = DataGenerator.CreateIngredientCategories();
 
-        apiFactory.MenuDbContext.Category.AddRange(new[] { productCategory, secondProductCategory, prodcutCategoryDuplicateCheck }.Concat(ingredientCategories));
+        _categories = new[] { productCategory, secondProductCategory, prodcutCategoryDuplicateCheck }.Concat(ingredientCategories);
+
+        apiFactory.MenuDbContext.Category.AddRange(_categories);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync()
+    {
+        foreach (Category category in _categories)
+        {
+            apiFactory.MenuDbContext.Category.Delete(category);
+        }
+
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
 
     [Fact]
     public async Task GetCategoriesByType_ShouldReturnOkWithList_ForIngredientType()
@@ -35,12 +46,12 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetCategoriesByTypeResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>(TestContext.Current.CancellationToken);
+        GetCategoriesByTypeResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
+        Assert.NotEmpty(result.Categories);
     }
 
     [Fact]
@@ -52,12 +63,12 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        IEnumerable<GetCategoriesByTypeResponse>? result = await responseMessage.Content.ReadFromJsonAsync<IEnumerable<GetCategoriesByTypeResponse>>(TestContext.Current.CancellationToken);
+        GetCategoriesByTypeResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(TestContext.Current.CancellationToken);
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
+        Assert.NotEmpty(result.Categories);
     }
 
     [Fact]

@@ -3,7 +3,7 @@ using System.Text.Json;
 using FluentValidation;
 using MyHomeRamen.Features.Common.Exceptions;
 
-namespace MyHomeRamen.Api.Common.Middleware;
+namespace MyHomeRamen.Api.Middlewares;
 
 public sealed class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
 {

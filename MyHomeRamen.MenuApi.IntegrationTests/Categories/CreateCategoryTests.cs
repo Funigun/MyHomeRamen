@@ -1,8 +1,10 @@
 using System.Net;
+using System.Net.Http.Json;
 using Bogus;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
+using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -24,7 +26,11 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync()
+    {
+        apiFactory.MenuDbContext.Category.Delete(_prodcutCategoryDuplicateCheck);
+        await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+    }
 
     [Fact]
     public async Task CreateCategory_ShouldReturnCreated_ForValidRequest()
@@ -161,14 +167,19 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         CreateCategoryResponse firstResult = await firstResponse.ResponseToDto<CreateCategoryResponse>();
         CreateCategoryResponse secondResult = await secondResponse.ResponseToDto<CreateCategoryResponse>();
 
-        IEnumerable<Category> categories = await apiFactory.MenuDbContext.Category.Query().GetByIds([(CategoryId)firstResult.Id, (CategoryId)secondResult.Id,], TestContext.Current.CancellationToken);
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/categories/by-type?categoryType={(int)CategoryType.Ingredient}");
+        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+
+        // Act
+        HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        GetCategoriesByTypeResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(TestContext.Current.CancellationToken);
 
         // Assert
-        Assert.Contains(categories, c => c.Id == (CategoryId)firstResult.Id);
-        Assert.Contains(categories, c => c.Id == (CategoryId)secondResult.Id);
+        Assert.Contains(result.Categories, c => c.Id == firstResult.Id);
+        Assert.Contains(result.Categories, c => c.Id == secondResult.Id);
 
-        Category firstCategory = categories.First(c => c.Id == (CategoryId)firstResult.Id);
-        Category secondCategory = categories.First(c => c.Id == (CategoryId)secondResult.Id);
+        CategoryByTypeDto firstCategory = result.Categories.First(c => c.Id == firstResult.Id);
+        CategoryByTypeDto secondCategory = result.Categories.First(c => c.Id == secondResult.Id);
 
         Assert.Equal(firstCategory.SortOrder + 1, secondCategory.SortOrder);
     }

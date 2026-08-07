@@ -13,5 +13,5 @@ public partial class CategoryRepository : ICategorySpecification
         => await List(new DbQueryOptions<Category>() { Filter = c => categoryIds.Contains(c.Id) }, cancellationToken );
 
     async Task<IEnumerable<Category>> ICategorySpecification.GetRemainingForResequencing(CategoryType categoryType, CategoryId excludeId, CancellationToken cancellationToken)
-        => await List(new DbQueryOptions<Category>() { Filter = c => c.CategoryType == categoryType && c.Id != excludeId }, cancellationToken );
+        => await List(new DbQueryOptions<Category>() { Filter = c => c.CategoryType == categoryType && c.Id != excludeId, OrderBy = c => c.SortOrder, OrderDirection = "asc" }, cancellationToken );
 }

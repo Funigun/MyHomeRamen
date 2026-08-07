@@ -1,3 +1,4 @@
+using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Query;
@@ -8,14 +9,14 @@ namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForManage
 
 public sealed record GetIngredientsForManageQuery(GetIngredientsForManageRequest Request, PageParameters PageParameters) : IQuery<GetIngredientsForManageResponse>;
 
-public sealed record GetIngredientsForManageQueryOptions(string? Name, IEnumerable<Guid>? CategoryIds, PageParameters PageParameters) 
+public sealed record GetIngredientsForManageQueryOptions(string? Name, IEnumerable<CategoryId>? CategoryIds, PageParameters PageParameters) 
                     : PagedDbQueryOptions<Ingredient, IngredientForManageDto>
                     (
                         new()
                         {
                             Filter = ingredient =>
                                 (string.IsNullOrWhiteSpace(Name) || ingredient.Name.ToLower().Contains(Name.ToLower())) &&
-                                (CategoryIds == null || ingredient.Categories.Any(category => CategoryIds.Contains(category.Id.Value))),
+                                (CategoryIds == null || ingredient.Categories.Any(category => CategoryIds.Contains(category.Id))),
                             OrderBy = ingredient => ingredient.Name,
                             OrderDirection = "asc",
                             PageNumber = PageParameters.PageNumber,
@@ -28,7 +29,9 @@ public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext) : I
 {
     public async Task<GetIngredientsForManageResponse> Handle(GetIngredientsForManageQuery query, CancellationToken cancellationToken)
     {
-        GetIngredientsForManageQueryOptions options = new(query.Request.Name, query.Request.CategoryIds, query.PageParameters);
+        IEnumerable<CategoryId>? categoryIds = query.Request.CategoryIds?.Length > 0 ? query.Request.CategoryIds.Select(c => new CategoryId(c)) : null;
+
+        GetIngredientsForManageQueryOptions options = new(query.Request.Name, categoryIds, query.PageParameters);
 
         PagedResult<IngredientForManageDto> result = await dbContext.Ingredient.Query().ForManage(options, cancellationToken);
 

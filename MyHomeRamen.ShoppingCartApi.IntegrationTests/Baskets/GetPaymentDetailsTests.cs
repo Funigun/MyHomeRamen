@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetPaymentDetails;
-using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
@@ -12,6 +11,7 @@ using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using System.Text;
+using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 

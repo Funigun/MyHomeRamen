@@ -4,8 +4,8 @@ using MyHomeRamen.Features.Orders.Features.Roles.Common;
 
 namespace MyHomeRamen.Persistance.Orders;
 
-public partial class OrdersDbContext : IRoleSpecification
+public partial class RoleRepository : IRoleSpecification
 {
     public Task<Role?> ByName(string orderRoleName, CancellationToken cancellationToken)
-        => Roles.Where(role => role.Name == orderRoleName).FirstOrDefaultAsync(cancellationToken);
+        => ordersDbContext.Roles.Where(role => role.Name == orderRoleName).FirstOrDefaultAsync(cancellationToken);
 }

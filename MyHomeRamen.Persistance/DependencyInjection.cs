@@ -118,11 +118,11 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
-        services.AddScoped<IBookingRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
-        services.AddScoped<ITableRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
-        services.AddScoped<Features.Reservations.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
-        services.AddScoped<Features.Reservations.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
-        services.AddScoped<Features.Reservations.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<ReservationsDbContext>());
+        services.AddScoped<IBookingRepository, BookingRepository>();
+        services.AddScoped<ITableRepository, TableRepository>();
+        services.AddScoped<Features.Reservations.Features.Users.Common.IUserRepository, Reservations.UserRepository>();
+        services.AddScoped<Features.Reservations.Features.Roles.Common.IRoleRepository, Reservations.RoleRepository>();
+        services.AddScoped<Features.Reservations.Features.Permissions.Common.IPermissionRepository, Reservations.PermissionRepository>();
 
         return services;
     }
@@ -143,13 +143,13 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IPaymentsDbContext, PaymentsDbContext>();
-        services.AddScoped<IPaymentMethodRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<IPaymentChannelRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<IPaymentGatewayRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<Features.Payments.Features.Orders.Common.IOrderRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<Features.Payments.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<Features.Payments.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
-        services.AddScoped<Features.Payments.Features.Permissions.Common.IPermissionRepository>(provider => provider.GetRequiredService<PaymentsDbContext>());
+        services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+        services.AddScoped<IPaymentChannelRepository, PaymentChannelRepository>();
+        services.AddScoped<IPaymentGatewayRepository, PaymentGatewayRepository>();
+        services.AddScoped<Features.Payments.Features.Orders.Common.IOrderRepository, Payments.OrderRepository>();
+        services.AddScoped<Features.Payments.Features.Users.Common.IUserRepository, Payments.UserRepository>();
+        services.AddScoped<Features.Payments.Features.Roles.Common.IRoleRepository, Payments.RoleRepository>();
+        services.AddScoped<Features.Payments.Features.Permissions.Common.IPermissionRepository, Payments.PermissionRepository>();
 
         return services;
     }
@@ -171,8 +171,8 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IIdentityDbContext, IdentityDbContext>();
-        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository>(provider => provider.GetRequiredService<IdentityDbContext>());
-        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository>(provider => provider.GetRequiredService<IdentityDbContext>());
+        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository, Identity.UserRepository>();
+        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository, Identity.RoleRepository>();
 
         return services;
     }

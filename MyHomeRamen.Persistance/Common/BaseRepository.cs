@@ -15,6 +15,10 @@ public abstract class BaseRepository<TEntity, TId>(DbContext dbContext, ICacheSe
 
     public void AddRange(IEnumerable<TEntity> entities) => dbContext.Set<TEntity>().AddRange(entities);
 
+    public void Update(TEntity entity) => dbContext.Set<TEntity>().Update(entity);
+
+    public void UpdateRange(IEnumerable<TEntity> entities) => dbContext.Set<TEntity>().UpdateRange(entities);
+
     public async Task<int> Count(CancellationToken cancellationToken) => await dbContext.Set<TEntity>().CountAsync(cancellationToken);
      
     public void Delete(TEntity entity) => dbContext.Set<TEntity>().Remove(entity);
