@@ -60,29 +60,8 @@ using MyHomeRamen.Features.{Module}.Features.{AggregatePath}.Common;
 
 namespace MyHomeRamen.Persistance.{Module};
 
-public partial class {Module}DbContext : I{Aggregate}Repository
+public partial class {Aggregate}Repository : I{Aggregate}Repository
 {
-    public void Add({Aggregate} entity) => {Aggregates}.Add(entity);
-
-    public void AddRange(IEnumerable<{Aggregate}> entities) => {Aggregates}.AddRange(entities);
-
-    public async Task<bool> Exists(Expression<Func<{Aggregate}, bool>> predicate, CancellationToken cancellationToken)
-        => await {Aggregates}.AnyAsync(predicate, cancellationToken);
-
-    public void Delete({Aggregate} entity) => {Aggregates}.Remove(entity);
-
-    public async Task<int> ExecuteDelete(Expression<Func<{Aggregate}, bool>> predicate, CancellationToken cancellationToken)
-        => await {Aggregates}.Where(predicate).ExecuteDeleteAsync(cancellationToken);
-
-    public async Task<int> ExecuteUpdate(Expression<Func<{Aggregate}, bool>> filterPredicate, Dictionary<Expression<Func<{Aggregate}, object>>, Expression> valuesToUpdate, CancellationToken cancellationToken)
-    {
-        UpdateSettersBuilder<{Aggregate}>? settersBuilder = PrepareSettersBuilder(valuesToUpdate);
-        return await {Aggregates}.Where(filterPredicate).ExecuteUpdateAsync(s => settersBuilder.BuildSettersExpression(), cancellationToken);
-    }
-
-    async Task<int> IRepository<{Aggregate}, {Aggregate}Id>.Count(CancellationToken cancellationToken)
-        => await {Aggregates}.CountAsync(cancellationToken);
-
     I{Aggregate}Query I{Aggregate}Repository.Query() => this;
 
     I{Aggregate}Specification I{Aggregate}Repository.Specification() => this;
@@ -97,7 +76,7 @@ using MyHomeRamen.Features.{Module}.Features.{AggregatePath}.Common;
 
 namespace MyHomeRamen.Persistance.{Module};
 
-public partial class {Module}DbContext : I{Aggregate}Query
+public partial class {Aggregate}Repository : I{Aggregate}Query
 {
 
 }
@@ -112,7 +91,7 @@ using MyHomeRamen.Features.{Module}.Features.{AggregatePath}.Common;
 
 namespace MyHomeRamen.Persistance.{Module};
 
-public partial class {Module}DbContext : I{Aggregate}Specification
+public partial class {Aggregate}Repository : I{Aggregate}Specification
 {
 
 }

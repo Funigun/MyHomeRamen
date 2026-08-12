@@ -1,9 +1,11 @@
+using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForManage;
 
@@ -24,6 +26,18 @@ public sealed record GetIngredientsForManageQueryOptions(string? Name, IEnumerab
                             Selector = ingredient => new IngredientForManageDto(ingredient.Id.Value, ingredient.Name, ingredient.Description)
                         }
                     );
+
+public sealed class GetIngredientsForManageValidator : AbstractValidator<GetIngredientsForManageQuery>
+{
+    public GetIngredientsForManageValidator()
+    {
+        When(x => x.Request.Name is not null, () =>
+        {
+            RuleFor(x => x.Request.Name!)
+                .MustNotExceedIngredientNameLength();
+        });
+    }
+}
 
 public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext) : IQueryHandler<GetIngredientsForManageQuery, GetIngredientsForManageResponse>
 {

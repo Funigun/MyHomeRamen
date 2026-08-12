@@ -1,14 +1,26 @@
+using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetShippingDetails;
 
 public sealed record GetShippingDetailsQuery(BasketId BasketId, UserId UserId) : IQuery<ShippingDetailsResponse>;
 
+public sealed class GetShippingDetailsValidationPolicy : AbstractValidator<GetShippingDetailsQuery>
+{
+    public GetShippingDetailsValidationPolicy(IShoppingCartDbContext dbContext)
+    {
+        RuleFor(x => x.BasketId)
+            .MustBeAccessibleBasket(
+                dbContext,
+                query => query.UserId);
+    }
+}
 public sealed record GetShippingDetailsQueryOptions(BasketId BasketId, UserId UserId)
     : DbQueryOptions<Basket, ShippingDetailsDto?>
     (

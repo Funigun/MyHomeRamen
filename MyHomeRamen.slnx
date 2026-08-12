@@ -25,6 +25,11 @@
     <File Path="Scripts/Common/PlanFileConstants.cs" />
     <File Path="Scripts/Common/PlanFileService.cs" />
   </Folder>
+  <Folder Name="/Scripts/FeatureScaffold/">
+    <File Path="Scripts/FeatureScaffold/FeatureDetails.cs" />
+    <File Path="Scripts/FeatureScaffold/FeatureScaffoldScript.cs" />
+    <File Path="Scripts/FeatureScaffold/FileFactory.cs" />
+  </Folder>
   <Folder Name="/Scripts/ImplementationVerify/">
     <File Path="Scripts/ImplementationVerify/CheckResult.cs" />
     <File Path="Scripts/ImplementationVerify/DiffParser.cs" />
@@ -38,15 +43,6 @@
   </Folder>
   <Folder Name="/Scripts/RepositoryScaffold/">
     <File Path="Scripts/RepositoryScaffold/RepositoryScaffoldScript.cs" />
-  </Folder>
-  <Folder Name="/Scripts/ScliceScaffold/">
-    <File Path="RepositoryScaffold.cs" />
-    <File Path="Scripts/SliceScaffold/FileDetails.cs" />
-    <File Path="Scripts/SliceScaffold/FileScaffoldFactory.cs" />
-    <File Path="Scripts/SliceScaffold/SliceScaffoldScript.cs" />
-  </Folder>
-  <Folder Name="/Scripts/SliceRefactor/">
-    <File Path="Scripts/SliceRefactor/SliceRefactorScript.cs" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -80,7 +76,6 @@
   </Folder>
   <Folder Name="/_github/">
     <File Path=".github/copilot-instructions.md" />
-    <File Path=".github/prompts/refactor-feature.md" />
   </Folder>
   <Folder Name="/_github/agents/">
     <File Path=".github/agents/drax-implementation.agent.md" />

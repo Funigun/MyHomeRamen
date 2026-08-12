@@ -1,3 +1,4 @@
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
@@ -51,3 +52,18 @@ public sealed class GetCurrentBasketSummaryHandler(IShoppingCartDbContext dbCont
     }
 }
 
+internal static class Mappings
+{
+    public static GetCurrentBasketSummaryResponse ToResponse(this Basket basket)
+        => new(
+            basket.Id.Value,
+            basket.Items.Select(item => item.ToDto()));
+
+    public static BasketSummaryItemDto ToDto(this BasketItem item)
+        => new(
+            item.Id.Value,
+            item.Product.Name,
+            item.Product.ImageUrl,
+            item.Quantity,
+            item.Price);
+}

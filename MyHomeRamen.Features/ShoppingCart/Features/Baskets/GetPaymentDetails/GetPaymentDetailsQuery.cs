@@ -1,12 +1,25 @@
+using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetPaymentDetails;
 
 public sealed record GetPaymentDetailsQuery(BasketId BasketId, UserId UserId) : IQuery<PaymentDetailsResponse>;
+
+public sealed class GetPaymentDetailsValidationPolicy : AbstractValidator<GetPaymentDetailsQuery>
+{
+    public GetPaymentDetailsValidationPolicy(IShoppingCartDbContext dbContext)
+    {
+        RuleFor(x => x.BasketId)
+            .MustBeAccessibleBasket(
+                dbContext,
+                query => query.UserId);
+    }
+}
 
 public sealed record GetPaymentDetailsQueryOptions(BasketId BasketId, UserId UserId)
     : DbQueryOptions<Basket, PaymentDetailsDto>
@@ -30,4 +43,3 @@ public sealed class GetPaymentDetailsHandler(IShoppingCartDbContext dbContext) :
             : new PaymentDetailsResponse(paymentDetails.PaymentMethodId, paymentDetails.PaymentChannelId);
     }
 }
-

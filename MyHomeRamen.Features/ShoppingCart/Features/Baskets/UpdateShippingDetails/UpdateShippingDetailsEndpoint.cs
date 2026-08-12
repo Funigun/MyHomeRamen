@@ -1,14 +1,15 @@
 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Builder;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateShippingDetails;
 
@@ -37,6 +38,28 @@ internal sealed class UpdateShippingDetailsEndpoint : IEndpoint
         await handler.Handle(command, cancellationToken);
 
         return TypedResults.Ok();
+    }
+}
+
+public static class Mappings
+{
+    public static ShippingDetails ToDomain(this UpdateShippingDetailsRequest request)
+    {
+        if (request.PersonalPickup)
+        {
+            return ShippingDetails.CreatePersonalPickup();
+        }
+
+        ShippingAddress address = new
+        (
+            request.ShippingAddress!.Street,
+            request.ShippingAddress.Building,
+            request.ShippingAddress.Apartment,
+            request.ShippingAddress.City,
+            request.ShippingAddress.ZipCode
+        );
+
+        return ShippingDetails.CreateDelivery(address);
     }
 }
 

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
@@ -6,6 +7,7 @@ using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Products.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
 
@@ -33,6 +35,32 @@ public sealed record GetProductsForManageQueryOptions(GetProductsForManageReques
             Selector = product => new ProductForManageDto(product.Id.Value, product.Name, product.Description, product.Price)
         }
     );
+
+public sealed class GetProductsForManageValidator : AbstractValidator<GetProductsForManageQuery>
+{
+    public GetProductsForManageValidator()
+    {
+        When(x => !string.IsNullOrEmpty(x.Request.Name), () =>
+        {
+            RuleFor(x => x.Request.Name!)
+                .MustNotExceedProductNameLength();
+        });
+
+        RuleFor(x => x.Request.PriceFrom)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("PriceFrom must be a non-negative value.")
+            .When(x => x.Request.PriceFrom.HasValue);
+
+        RuleFor(x => x.Request.PriceTo)
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("PriceTo must be a non-negative value.")
+            .When(x => x.Request.PriceTo.HasValue);
+
+        RuleFor(x => x)
+            .Must(x => !x.Request.PriceFrom.HasValue || !x.Request.PriceTo.HasValue || x.Request.PriceFrom <= x.Request.PriceTo)
+            .WithMessage("PriceFrom must not exceed PriceTo.");
+    }
+}
 
 public sealed class GetProductsForManageHandler(IMenuDbContext dbContext) : IQueryHandler<GetProductsForManageQuery, GetProductsForManageResponse>
 {

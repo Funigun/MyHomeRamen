@@ -1,9 +1,12 @@
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
+using MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
@@ -45,5 +48,30 @@ public sealed class GetCurrentBasketDetailsHandler(IShoppingCartDbContext dbCont
             ? null
             : new GetCurrentBasketDetailsResponse(basket.BasketId, basket.Items);
     }
+}
+
+internal static class Mappings
+{
+    public static GetCurrentBasketDetailsResponse ToResponse(this Basket basket)
+        => new(
+            basket.Id.Value,
+            basket.Items.Select(i => i.ToDto()));
+
+    private static BasketDetailsItemDto ToDto(this BasketItem item)
+        => new(
+            item.Id.Value,
+            item.Quantity,
+            item.Price,
+            item.Comment,
+            item.Product.ToProductDto());
+
+    private static BasketDetailsItemProductDto ToProductDto(this Product product)
+        => new(
+            product.Id.Value,
+            product.Name,
+            product.Description,
+            product.ImageUrl,
+            product.BaseIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name, i.Description, i.Price)),
+            product.CustomIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name, i.Description, i.Price)));
 }
 

@@ -1,7 +1,9 @@
+using FluentValidation;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientById;
 
@@ -21,6 +23,15 @@ public sealed record GetIngredientByIdQueryOptions(IngredientId IngredientId)
                                ingredient.Categories.Select(category => category.Id.Value))
                        }
                    );
+
+public sealed class GetIngredientByIdValidator : AbstractValidator<GetIngredientByIdQuery>
+{
+    public GetIngredientByIdValidator(IMenuDbContext dbContext)
+    {
+        RuleFor(x => x.Id)
+            .MustBeValidIngredientId(dbContext);
+    }
+}
 
 public sealed class GetIngredientByIdHandler(IMenuDbContext dbContext) : IQueryHandler<GetIngredientByIdQuery, GetIngredientByIdResponse>
 {

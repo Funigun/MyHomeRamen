@@ -1,10 +1,25 @@
+using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
 
 public sealed record CreateCategoryCommand(CreateCategoryRequest Request) : ICommand<CreateCategoryResponse>;
+
+public sealed class CreateCategoryValidator : AbstractValidator<CreateCategoryCommand>
+{
+    public CreateCategoryValidator(IMenuDbContext dbContext)
+    {
+        RuleFor(x => x.Request.Name)
+            .MustMeetLengthRequirements()
+            .MustHaveUniqueName(dbContext);
+
+        RuleFor(x => x.Request.CategoryType)
+            .MustBeValidCategoryType();
+    }
+}
 
 public sealed class CreateCategoryHandler(IMenuDbContext dbContext) : ICommandHandler<CreateCategoryCommand, CreateCategoryResponse>
 {

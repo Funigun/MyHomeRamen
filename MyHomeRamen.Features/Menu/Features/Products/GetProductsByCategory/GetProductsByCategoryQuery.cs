@@ -1,8 +1,10 @@
+using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Products.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsByCategory;
 
@@ -25,6 +27,17 @@ public sealed record GetProductsByCategoryQueryOptions(CategoryId CategoryId)
                                product.BaseIngredients.Select(ingredient => new ProductIngredientDto(ingredient.Id.Value, ingredient.Name)).ToList())
                        }
                    );
+
+public sealed class GetProductsByCategoryValidator : AbstractValidator<GetProductsByCategoryQuery>
+{
+    public GetProductsByCategoryValidator(IMenuDbContext dbContext)
+    {
+        RuleFor(x => x.Request.CategoryId)
+            .Cascade(CascadeMode.Stop)
+            .MustBeExistingProductCategory(dbContext)
+            .MustBeProductCategoryType(dbContext);
+    }
+}
 
 public sealed class GetProductsByCategoryHandler(IMenuDbContext dbContext) : IQueryHandler<GetProductsByCategoryQuery, GetProductsByCategoryResponse>
 {

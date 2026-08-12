@@ -1,7 +1,9 @@
+using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 
@@ -18,6 +20,15 @@ public record GetCategoryByTypeQueryOptions(CategoryType CategoryType)
                         Selector = c => new CategoryByTypeDto(c.Id, c.Name, c.SortOrder)
                     }
               );
+
+public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategoriesByTypeQuery>
+{
+    public GetCategoriesByTypeValidator()
+    {
+        RuleFor(x => x.Request.CategoryType)
+            .MustBeValidCategoryType();
+    }
+}
 
 public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext)
                   : IQueryHandler<GetCategoriesByTypeQuery, GetCategoriesByTypeResponse>

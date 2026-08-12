@@ -1,11 +1,34 @@
-using MyHomeRamen.Features.Common.Endpoints.Command;
+using System.Collections.ObjectModel;
+using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.CreateIngredient;
 
 public sealed record CreateIngredientCommand(CreateIngredientRequest CreateIngredientRequest) : ICommand<CreateIngredientResponse>;
+
+public sealed class CreateIngredientValidator : AbstractValidator<CreateIngredientCommand>
+{
+    public CreateIngredientValidator(IMenuDbContext dbContext)
+    {
+        RuleFor(x => x.CreateIngredientRequest.Name)
+            .MustMeetNameLengthRequirements()
+            .MustHaveUniqueIngredientName(dbContext);
+
+        RuleFor(x => x.CreateIngredientRequest.Description)
+            .MustMeetDescriptionLengthRequirements();
+
+        RuleFor(x => x.CreateIngredientRequest.Price)
+            .MustBeValidIngredientPrice();
+
+        RuleFor(x => x.CreateIngredientRequest.CategoryIds)
+            .NotEmpty()
+            .WithMessage("At least one category must be selected.");
+    }
+}
 
 public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : ICommandHandler<CreateIngredientCommand, CreateIngredientResponse>
 {
@@ -23,3 +46,15 @@ public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : ICommand
     }
 }
 
+internal static class Mappings
+{
+    public static Ingredient ToDomain(this CreateIngredientRequest request, IEnumerable<Category> categories)
+    {
+        return Ingredient.Create(
+            Guid.NewGuid(),
+            request.Name,
+            request.Description,
+            request.Price,
+            new Collection<Category>(categories.ToList()));
+    }
+}
