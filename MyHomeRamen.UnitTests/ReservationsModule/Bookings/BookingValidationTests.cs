@@ -8,7 +8,6 @@ namespace MyHomeRamen.UnitTests.ReservationsModule.Bookings;
 public class BookingValidationTests
 {
     private static readonly BookingId DefaultId = new(Guid.NewGuid());
-    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
 
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()

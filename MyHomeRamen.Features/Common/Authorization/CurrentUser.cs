@@ -1,16 +1,13 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using MyHomeRamen.Features.Common.Configurations;
 
 namespace MyHomeRamen.Features.Common.Authorization;
 
-public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, RestaurantConfigurationProvider configurationProvider) : ICurrentUser
+public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
     public string Id => GetIdentityId();
 
     public Guid UserId => TryGetUserId() ?? TryGetGuestId() ?? Guid.Empty;
-
-    public Guid RestaurantId { get; init; } = configurationProvider.RestaurantId;
 
     public IEnumerable<Claim> Claims { get; init; } = httpContextAccessor.HttpContext?.User?.Claims ?? [];
 

@@ -72,7 +72,6 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
                 case EntityState.Added:
                     entry.Entity.CreatedBy = _currentUser.Id.ToString();
                     entry.Entity.CreatedOn = currentDateTime;
-                    entry.Entity.SetRestaurantId(_currentUser.RestaurantId);
                     break;
 
                 case EntityState.Modified:

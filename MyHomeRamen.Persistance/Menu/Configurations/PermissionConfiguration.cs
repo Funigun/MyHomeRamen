@@ -14,8 +14,5 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         builder.Property(x => x.Name)
                .IsRequired()
                .HasMaxLength(UserConstants.MaxPermissionNameLength);
-
-        builder.Property(x => x.RestaurantId)
-               .IsRequired();
     }
 }

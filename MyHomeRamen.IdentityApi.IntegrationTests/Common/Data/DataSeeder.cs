@@ -8,8 +8,6 @@ public class DataSeeder
 {
     internal readonly string SeededUserKeycloakId = "test-keycloak-user-id";
 
-    internal readonly Guid SeededRestaurantId = Guid.Parse("fac13f05-5688-4169-9f89-927ae708dd35");
-
     internal readonly string FullAddressesUserKeycloakId = "test-full-addresses-user-id";
 
     internal readonly string AnotherUserKeycloakId = "test-another-user-id";

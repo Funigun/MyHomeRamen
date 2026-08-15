@@ -10,6 +10,7 @@
 
 	<ItemGroup>
 		<Folder Include="Identity\Extensions\" />
+		<Folder Include="Identity\Features\Employees\" />
 		<Folder Include="Orders\Features\Users\Common\" />
 		<Folder Include="Restaurants\" />
 		<Folder Include="Reservations\" />

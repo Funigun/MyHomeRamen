@@ -15,9 +15,6 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
                .IsRequired()
                .HasMaxLength(UserConstants.MaxRoleNameLength);
 
-        builder.Property(x => x.RestaurantId)
-               .IsRequired();
-
         builder.HasMany(x => x.Permissions)
                .WithMany()
                .UsingEntity(j => j.ToTable("RolePermissions"));

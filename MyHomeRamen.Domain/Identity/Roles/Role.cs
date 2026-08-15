@@ -6,8 +6,6 @@ public class Role : AuditableEntity, IEntity<RoleId>
 {
     public RoleId Id { get; private set; }
 
-    public Guid RestaurantId { get; private set; }
-
     public string Name { get; private set; } = default!;
 
     public string Description { get; private set; } = default!;

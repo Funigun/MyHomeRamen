@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.Features.Roles.Common;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
@@ -14,7 +13,6 @@ namespace MyHomeRamen.Persistance.Identity;
 
 public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : DbContext(options), IIdentityDbContext
 {
-    private readonly RestaurantConfigurationProvider _restaurantConfiguration = default!;
     private readonly ICurrentUser _currentUser = default!;
     private readonly IServiceProvider _serviceProvider = default!;
 
@@ -25,15 +23,13 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
     public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
 
-    public IdentityDbContext(DbContextOptions<IdentityDbContext> options, RestaurantConfigurationProvider configFactory, ICurrentUser currentUser) : this(options)
+    public IdentityDbContext(DbContextOptions<IdentityDbContext> options, ICurrentUser currentUser) : this(options)
     {
-        _restaurantConfiguration = configFactory;
         _currentUser = currentUser;
     }
 
-    public IdentityDbContext(DbContextOptions<IdentityDbContext> options, RestaurantConfigurationProvider configFactory, ICurrentUser currentUser, IServiceProvider serviceProvider) : this(options, configFactory, currentUser)
+    public IdentityDbContext(DbContextOptions<IdentityDbContext> options, ICurrentUser currentUser, IServiceProvider serviceProvider) : this(options, currentUser)
     {
-        _restaurantConfiguration = configFactory;
         _currentUser = currentUser;
         _serviceProvider = serviceProvider;
     }
@@ -52,7 +48,6 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             {
                 case EntityState.Added:
                     entry.Entity.CreatedBy = _currentUser.Id;
-                    entry.Entity.SetRestaurantId(_restaurantConfiguration.RestaurantId);
                     break;
             }
         }
@@ -63,7 +58,6 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             {
                 case EntityState.Added:
                     entry.Entity.CreatedBy = _currentUser.Id;
-                    entry.Entity.SetRestaurantId(_restaurantConfiguration.RestaurantId);
                     break;
             }
         }
@@ -80,11 +74,6 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             b.ToTable("Users");
             b.HasKey(u => u.Id);
             b.Property(u => u.Id).ValueGeneratedNever();
-
-            b.HasQueryFilter(u => u.RestaurantId == _restaurantConfiguration.RestaurantId);
-
-            b.Property(u => u.RestaurantId)
-             .IsRequired(true);
 
             b.Property(u => u.GuestId).IsRequired(false);
             b.Property(u => u.KeycloakUserId).IsRequired(false);

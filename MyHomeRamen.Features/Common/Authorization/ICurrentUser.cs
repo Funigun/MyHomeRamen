@@ -8,7 +8,5 @@ public interface ICurrentUser
 
     Guid UserId { get; }
 
-    Guid RestaurantId { get; init; }
-
     IEnumerable<Claim> Claims { get; init; }
 }

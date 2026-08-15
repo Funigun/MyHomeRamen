@@ -46,12 +46,10 @@ internal static class ConfigurationExtensions
 
     internal static IResourceBuilder<ProjectResource> WithRestaurantConfig(this IResourceBuilder<ProjectResource> builder, IConfiguration configuration)
     {
-        string restaurantId = configuration[$"{ConfigurationConstants.RestaurantConfigurationSection}:RestaurantId"]!;
         string restaurantName = configuration[$"{ConfigurationConstants.RestaurantConfigurationSection}:Name"]!;
         string infrastructurePrefix = configuration[$"{ConfigurationConstants.RestaurantConfigurationSection}:InfrastructurePrefix"]!;
 
-        return builder.WithEnvironment($"{ConfigurationConstants.RestaurantConfigurationSection}__RestaurantId", restaurantId)
-                      .WithEnvironment($"{ConfigurationConstants.RestaurantConfigurationSection}__Name", restaurantName)
+        return builder.WithEnvironment($"{ConfigurationConstants.RestaurantConfigurationSection}__Name", restaurantName)
                       .WithEnvironment($"{ConfigurationConstants.RestaurantConfigurationSection}__InfrastructurePrefix", infrastructurePrefix);
     }
 }

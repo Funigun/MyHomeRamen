@@ -18,7 +18,7 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("reservations")
-                .HasAnnotation("ProductVersion", "10.0.1")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -56,9 +56,6 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
                     b.Property<DateTimeOffset?>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -73,42 +70,7 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
                     b.ToTable("Bookings", "reservations");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Reservations.Tables.Table", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("MaxNumberOfSeats")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MinNumberOfSeats")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("TableNumber")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tables", "reservations");
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.Reservations.Users.Permission", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Reservations.Permissions.Permission", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -135,15 +97,12 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("Permissions", "reservations");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Reservations.Users.Role", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Reservations.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -170,12 +129,41 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("Roles", "reservations");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Reservations.Tables.Table", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("MaxNumberOfSeats")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MinNumberOfSeats")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("TableNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tables", "reservations");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Reservations.Users.User", b =>
@@ -215,9 +203,6 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -293,13 +278,13 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
 
             modelBuilder.Entity("PermissionRole", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Reservations.Users.Permission", null)
+                    b.HasOne("MyHomeRamen.Domain.Reservations.Permissions.Permission", null)
                         .WithMany()
                         .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyHomeRamen.Domain.Reservations.Users.Role", null)
+                    b.HasOne("MyHomeRamen.Domain.Reservations.Roles.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -308,7 +293,7 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
 
             modelBuilder.Entity("PermissionUser", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Reservations.Users.Permission", null)
+                    b.HasOne("MyHomeRamen.Domain.Reservations.Permissions.Permission", null)
                         .WithMany()
                         .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -323,7 +308,7 @@ namespace MyHomeRamen.Persistance.Reservations.Migrations
 
             modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Reservations.Users.Role", null)
+                    b.HasOne("MyHomeRamen.Domain.Reservations.Roles.Role", null)
                         .WithMany()
                         .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)

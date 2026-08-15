@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using MyHomeRamen.Features.Common.Configurations;
 
 namespace MyHomeRamen.Persistance.Identity;
 
@@ -17,6 +16,6 @@ public class IdentityDbContextFactory : IDesignTimeDbContextFactory<IdentityDbCo
         DbContextOptionsBuilder<IdentityDbContext> optionsBuilder = new DbContextOptionsBuilder<IdentityDbContext>();
         optionsBuilder.UseSqlServer(configuration["UserServiceDb"]);
 
-        return new IdentityDbContext(optionsBuilder.Options, new RestaurantConfigurationProvider(configuration), null!);
+        return new IdentityDbContext(optionsBuilder.Options, null!);
     }
 }

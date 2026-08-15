@@ -123,7 +123,7 @@ MyHomeRamen.IntegrationTests/           ← Integration tests — API vertical s
 │   │                                   ←   registered as [assembly: AssemblyFixture(typeof(WebApiFactory))]
 │   ├── BaseIntegrationTest.cs
 │   └── Configuration/
-│       ├── ApiConfig.cs                ← Static config constants (e.g. RestaurantId)
+│       ├── ApiConfig.cs                ← Static config constants (e.g. ApiBaseUrl)
 │       ├── ApiServicesExtensions.cs    ← ReconfigureDatabase / ReconfigureCache / ReconfigureTokenOptions
 │       ├── HttpClientExtensions.cs     ← CreatePostMessage / WithJsonContent / AddAuthorizationHeader / ResponseToDto
 │       ├── JwtTokenFactory.cs          ← GenerateAdminToken / GenerateEmployeeToken / GenerateCustomerToken

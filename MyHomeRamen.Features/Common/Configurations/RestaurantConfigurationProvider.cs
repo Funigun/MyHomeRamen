@@ -9,6 +9,4 @@ public class RestaurantConfigurationProvider(IConfiguration configuration)
     public string InfrastructurePrefix => configuration.GetValue<string>($"{SectionKey}InfrastructurePrefix")!;
 
     public string RestaurantName => configuration[$"{SectionKey}Name"]!;
-
-    public Guid RestaurantId => configuration.GetValue<Guid>($"{SectionKey}RestaurantId");
 }

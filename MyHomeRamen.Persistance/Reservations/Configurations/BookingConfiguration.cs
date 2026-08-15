@@ -10,9 +10,6 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
     {
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.RestaurantId)
-               .IsRequired();
-
         builder.Property(x => x.Status)
                .HasConversion<string>();
 

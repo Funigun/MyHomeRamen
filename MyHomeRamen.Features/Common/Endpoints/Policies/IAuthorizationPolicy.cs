@@ -2,5 +2,5 @@
 
 public interface IAuthorizationPolicy<TRequest>
 {
-    Task<bool> IsAuthorized(TRequest request);
+    Task<bool> Authorize(TRequest request, CancellationToken cancellationToken);
 }

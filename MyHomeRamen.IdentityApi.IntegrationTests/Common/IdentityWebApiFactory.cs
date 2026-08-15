@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.Features.Roles.Common;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
@@ -32,7 +31,6 @@ public sealed class IdentityWebApiFactory(DbContainerFixture dbContainerFixture,
     async ValueTask IAsyncLifetime.InitializeAsync()
     {
         IdentityFakeUser user = new(DataSeeder);
-        RestaurantConfigurationProvider restaurantConfiguration = IdentityFakeRestaurantConfig.Create(DataSeeder);
         DbContextOptions<IdentityDbContext> options = new DbContextOptionsBuilder<IdentityDbContext>()
             .UseSqlServer(_connectionString)
             .Options;
@@ -40,8 +38,7 @@ public sealed class IdentityWebApiFactory(DbContainerFixture dbContainerFixture,
         ServiceCollection services = new();
         services.AddSingleton(options);
         services.AddSingleton<ICurrentUser>(user);
-        services.AddSingleton(restaurantConfiguration);
-        services.AddScoped<IdentityDbContext>(provider => new IdentityDbContext(options, restaurantConfiguration, user, provider));
+        services.AddScoped<IdentityDbContext>(provider => new IdentityDbContext(options, user, provider));
         services.AddScoped<IIdentityDbContext>(provider => provider.GetRequiredService<IdentityDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
@@ -78,7 +75,6 @@ public sealed class IdentityWebApiFactory(DbContainerFixture dbContainerFixture,
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.UseSetting("RestaurantConfiguration:RestaurantId", DataSeeder.SeededRestaurantId.ToString());
         builder.UseSetting("RestaurantConfiguration:Name", "TestRestaurant");
         builder.UseSetting("RestaurantConfiguration:InfrastructurePrefix", "test");
 

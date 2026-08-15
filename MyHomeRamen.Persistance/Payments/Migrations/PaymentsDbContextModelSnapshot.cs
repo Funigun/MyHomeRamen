@@ -48,9 +48,6 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                     b.Property<Guid>("OriginalId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("Orders", "payments");
@@ -102,9 +99,6 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                     b.Property<Guid?>("PaymentMethodId1")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PaymentGatewayId");
@@ -140,9 +134,6 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -183,15 +174,12 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("PaymentMethods", "payments");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Payments.Users.Permission", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Payments.Permissions.Permission", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -219,15 +207,12 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("Permissions", "payments");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Payments.Users.Role", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Payments.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -254,9 +239,6 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -300,9 +282,6 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -381,13 +360,13 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
 
             modelBuilder.Entity("PermissionRole", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Payments.Users.Permission", null)
+                    b.HasOne("MyHomeRamen.Domain.Payments.Permissions.Permission", null)
                         .WithMany()
                         .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyHomeRamen.Domain.Payments.Users.Role", null)
+                    b.HasOne("MyHomeRamen.Domain.Payments.Roles.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -396,7 +375,7 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
 
             modelBuilder.Entity("PermissionUser", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Payments.Users.Permission", null)
+                    b.HasOne("MyHomeRamen.Domain.Payments.Permissions.Permission", null)
                         .WithMany()
                         .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -411,7 +390,7 @@ namespace MyHomeRamen.Persistance.Payments.Migrations
 
             modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Payments.Users.Role", null)
+                    b.HasOne("MyHomeRamen.Domain.Payments.Roles.Role", null)
                         .WithMany()
                         .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)

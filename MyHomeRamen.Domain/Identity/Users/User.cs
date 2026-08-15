@@ -71,11 +71,6 @@ public class User : AuditableEntity, IEntity<UserId>
         return user;
     }
 
-    public void SetRestaurantId(Guid restaurantId)
-    {
-        RestaurantId = restaurantId;
-    }
-
     public void AddRole(Role role)
     {
         _roles.Add(role);

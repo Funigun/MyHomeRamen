@@ -88,9 +88,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("BasketId");
@@ -117,9 +114,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 
                     b.Property<DateTimeOffset?>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -172,9 +166,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("Ingredients", "basket");
@@ -205,6 +196,38 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                         .IsUnique();
 
                     b.ToTable("PaymentDetails", "basket");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Permissions.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions", "basket");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Products.Product", b =>
@@ -247,15 +270,44 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Products", "basket");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Roles.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles", "basket");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.ShippingDetails.ShippingDetails", b =>
@@ -283,76 +335,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                     b.ToTable("ShippingDetails", "basket");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Users.Permission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions", "basket");
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Users.Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles", "basket");
-                });
-
             modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -375,9 +357,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 
                     b.Property<DateTimeOffset?>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -545,13 +524,13 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 
             modelBuilder.Entity("PermissionRole", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Users.Permission", null)
+                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Permissions.Permission", null)
                         .WithMany()
                         .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Users.Role", null)
+                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Roles.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -560,7 +539,7 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 
             modelBuilder.Entity("PermissionUser", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Users.Permission", null)
+                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Permissions.Permission", null)
                         .WithMany()
                         .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -575,7 +554,7 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 
             modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Users.Role", null)
+                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Roles.Role", null)
                         .WithMany()
                         .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)

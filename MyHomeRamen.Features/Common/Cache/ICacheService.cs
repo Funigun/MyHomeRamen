@@ -7,6 +7,4 @@ public interface ICacheService
     Task RemoveByKeyAsync(string key, CancellationToken cancellationToken);
 
     Task RemoveByTagsAsync(IEnumerable<string> tags, CancellationToken cancellationToken);
-
-    Task RemoveByRestaurantIdAsync(CancellationToken cancellationToken);
 }

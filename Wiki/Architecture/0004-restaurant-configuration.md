@@ -14,7 +14,7 @@ tags: ["architecture", "decision", "configuration", "deployment"]
 
 The "My Home Ramen" solution is designed to manage complete operations for a Ramen restaurant. A key requirement is the ability to easily deploy separate, isolated instances of the application for different restaurants.
 
-Configuring each deployment individually by modifying code or scattering settings across various configuration files is error-prone and inefficient. We need a unified strategy to handle restaurant-specific settings—such as identity, naming conventions, and database connections—that facilitates easy replication of the infrastructure for new clients.
+Configuring each deployment individually by modifying code or scattering settings across various configuration files is error-prone and inefficient. We need a unified strategy to handle restaurant-specific settingsï¿½such as identity, naming conventions, and database connectionsï¿½that facilitates easy replication of the infrastructure for new clients.
 
 Additionally, to support isolation or potential side-by-side deployments, we need control over resource naming (e.g., for messaging queues or cache keys) and database connectivity per module.
 
@@ -26,7 +26,7 @@ Key aspects of this decision:
 1.  **Unified Configuration Section**: All restaurant-specific settings will be grouped under a single configuration section `RestaurantConfiguration` in `appsettings.json` (or Environment Variables).
 2.  **Strongly Typed Provider**: Access to these settings will be mediated through `RestaurantConfigurationProvider`, which abstracts the raw `IConfiguration` usage.
 3.  **Configurable Scope**:
-    - **Identity**: `RestaurantName` and `RestaurantId` (GUID) to uniquely identify the deployment.
+    - **Identity**: `RestaurantName` to identify the deployment.
     - **Infrastructure Isolation**: An `InfrastructurePrefix` property to namespace shared resources (like RabbitMQ queues or Redis keys) if necessary, avoiding collisions.
     - **Persistence**: Dedicated connection strings for each module (`Identity`, `Menu`, `Reservations`, `Orders`, `ShoppingCart`, `Payments`, `Worker`) to allow granular control over database topology (e.g., all modules in one DB vs. separate DBs).
 
@@ -55,3 +55,7 @@ Key aspects of this decision:
 
 - **ALT-002**: **Description**: Embedding connection strings or names directly in code.
 - **ALT-002**: **Rejection Reason**: Prevents CI/CD and precludes running multiple instances.
+
+### Update Note (2026)
+
+The trial `RestaurantId` (GUID) field and its associated `AuditableEntity.RestaurantId`/query-filter plumbing have been removed from the domain, persistence and infrastructure layers. `RestaurantConfigurationProvider` (and Blazor's `RestaurantConfiguration`) retain `RestaurantName`/`InfrastructurePrefix` only. Proper multi-restaurant support will be reintroduced via a dedicated `Restaurants` module rather than a scattered `RestaurantId` column.

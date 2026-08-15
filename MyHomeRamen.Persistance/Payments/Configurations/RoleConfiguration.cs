@@ -11,9 +11,6 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
     {
         builder.HasKey(x => x.Id);
 
-        builder.Property(x => x.RestaurantId)
-               .IsRequired();
-
         builder.Property(x => x.Name)
                .IsRequired()
                .HasMaxLength(UserConstants.MaxRoleNameLength);

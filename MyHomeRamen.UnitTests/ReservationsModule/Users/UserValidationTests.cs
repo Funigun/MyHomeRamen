@@ -10,7 +10,6 @@ namespace MyHomeRamen.UnitTests.ReservationsModule.Users;
 public class UserValidationTests
 {
     private static readonly UserId TestUserId = new(Guid.NewGuid());
-    private static readonly Guid TestRestaurantId = Guid.NewGuid();
     private const string ValidFirstName = "John";
     private const string ValidLastName = "Doe";
     private const string ValidEmail = "john.doe@example.com";

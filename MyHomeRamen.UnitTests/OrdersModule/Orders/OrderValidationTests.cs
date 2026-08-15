@@ -8,7 +8,6 @@ namespace MyHomeRamen.UnitTests.OrdersModule.Orders;
 public class OrderValidationTests
 {
     private static readonly OrderId DefaultId = new(Guid.NewGuid());
-    private static readonly Guid DefaultRestaurantId = Guid.NewGuid();
 
     [Fact]
     public void CreateDineIn_Should_SetPropertiesCorrectly_When_InputIsValid()

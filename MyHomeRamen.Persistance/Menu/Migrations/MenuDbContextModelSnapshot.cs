@@ -18,7 +18,7 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("menu")
-                .HasAnnotation("ProductVersion", "10.0.1")
+                .HasAnnotation("ProductVersion", "10.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -110,9 +110,6 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("SortOrder")
                         .HasColumnType("int");
 
@@ -153,12 +150,41 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("Ingredients", "menu");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.Permssions.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Permissions", "menu");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Menu.Products.Product", b =>
@@ -198,50 +224,12 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("Products", "menu");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Menu.Users.Permission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions", "menu");
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.Menu.Users.Role", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -268,9 +256,6 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.ToTable("Roles", "menu");
@@ -293,9 +278,6 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
 
                     b.Property<DateTimeOffset?>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -424,13 +406,13 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
 
             modelBuilder.Entity("PermissionRole", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Menu.Users.Permission", null)
+                    b.HasOne("MyHomeRamen.Domain.Menu.Permssions.Permission", null)
                         .WithMany()
                         .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MyHomeRamen.Domain.Menu.Users.Role", null)
+                    b.HasOne("MyHomeRamen.Domain.Menu.Roles.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -439,7 +421,7 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
 
             modelBuilder.Entity("PermissionUser", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Menu.Users.Permission", null)
+                    b.HasOne("MyHomeRamen.Domain.Menu.Permssions.Permission", null)
                         .WithMany()
                         .HasForeignKey("PermissionsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -469,7 +451,7 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
 
             modelBuilder.Entity("RoleUser", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Menu.Users.Role", null)
+                    b.HasOne("MyHomeRamen.Domain.Menu.Roles.Role", null)
                         .WithMany()
                         .HasForeignKey("RolesId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -88,10 +88,7 @@
     <File Path=".github/instructions/blazor.instructions.md" />
     <File Path=".github/instructions/module-introduction.instructions.md" />
   </Folder>
-  <Folder Name="/_github/skills/">
-    <File Path="plan.md" />
-    <File Path="prompt.md" />
-  </Folder>
+  <Folder Name="/_github/skills/" />
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
   </Folder>

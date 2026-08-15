@@ -18,7 +18,6 @@ The `RestaurantConfiguration` section in `appsettings.Development.json` is cruci
 ```json
 "RestaurantConfiguration": {
   "Name": "My Home Ramen",
-  "RestaurantId": "fac13f05-5688-4169-9f89-927ae708dd32",
   "InfrastructurePrefix": "my-home-ramen"
 }
 ```
@@ -28,10 +27,6 @@ The `RestaurantConfiguration` section in `appsettings.Development.json` is cruci
 #### Name
 - **Description**: The display name of the restaurant.
 - **Usage**: Used primarily on the frontend application (`MyHomeRamen.Blazor`) to display the restaurant name to the user.
-
-#### RestaurantId
-- **Description**: A unique GUID identifier for the restaurant.
-- **Usage**: Used to create and distinguish different restaurants within a single network. When configuring a new restaurant environment, generate a new GUID for this field.
 
 #### InfrastructurePrefix
 - **Description**: A string prefix used for naming infrastructure resources and services.
