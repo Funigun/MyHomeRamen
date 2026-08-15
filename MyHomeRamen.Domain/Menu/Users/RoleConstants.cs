@@ -1,6 +1,4 @@
-﻿using MyHomeRamen.Domain.Menu.Permssions;
-
-namespace MyHomeRamen.Domain.Menu.Roles;
+﻿namespace MyHomeRamen.Domain.Menu.Users;
 
 public static class RoleConstants
 {

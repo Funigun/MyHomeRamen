@@ -7,7 +7,6 @@ using MyHomeRamen.ServiceDefaults;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler;
 using MyHomeRamen.Worker.MessagesHandler.Common;
-using MyHomeRamen.Worker.MessagesHandler.Menu;
 using MyHomeRamen.Worker.MessagesHandler.Orders;
 using MyHomeRamen.Worker.MessagesHandler.Payments;
 using MyHomeRamen.Worker.MessagesHandler.Reservations;
@@ -54,7 +53,6 @@ try
     // Register handlers
     builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, ShoppingCartUserRegisteredHandler>();
     builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, OrdersUserRegisteredHandler>();
-    builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, MenuUserRegisteredHandler>();
     builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, PaymentsUserRegisteredHandler>();
     builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, ReservationsUserRegisteredHandler>();
 

@@ -7,14 +7,10 @@ using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
-using MyHomeRamen.Features.Menu.Features.Permissions.Common;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
-using MyHomeRamen.Features.Menu.Features.Roles;
-using MyHomeRamen.Features.Menu.Features.Users.Common;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Fixtures;
 using MyHomeRamen.Persistance.Menu;
 
@@ -44,16 +40,11 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IIngredientRepository, IngredientRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddCacheService();
 
         _seedServiceProvider = services.BuildServiceProvider();
         _seedScope = _seedServiceProvider.CreateScope();
         MenuDbContext = _seedScope.ServiceProvider.GetRequiredService<IMenuDbContext>();
-
-        await DataSeeder.SeedMenuModule(MenuDbContext);
 
         HttpClient = CreateClient();
     }

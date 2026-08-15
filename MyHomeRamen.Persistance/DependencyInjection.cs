@@ -48,9 +48,6 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<MenuModule.Products.Common.IProductRepository, Menu.ProductRepository>();
         services.AddScoped<MenuModule.Ingredients.Common.IIngredientRepository, Menu.IngredientRepository>();
-        services.AddScoped<MenuModule.Users.Common.IUserRepository, Menu.UserRepository>();
-        services.AddScoped<MenuModule.Roles.IRoleRepository, Menu.RoleRepository>();
-        services.AddScoped<MenuModule.Permissions.Common.IPermissionRepository, Menu.PermissionRepository>();
 
         return services;
     }

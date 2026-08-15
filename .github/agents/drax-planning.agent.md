@@ -29,7 +29,6 @@ You **DO NOT** write code or change any files.
 
 Conditional reading:
 - if backend involved, load `.github/instructions/backend.instructions.md`
-- if frontend involved, load `.github/instructions/blazor.instructions.md`
 
 Always load:
 - `.github/wiki/architecture.md`
@@ -41,34 +40,14 @@ Determine if database migrations are required based on domain model changes and 
 - Identify which module(s) and domain models are affected
 - Migration name pattern: `{YYYYMMDD}_{DescriptiveName}` e.g. `20240615_AddDescriptionToRecipe`
 
-## Path format rules (must follow exactly)
-
-These formats are required by the scaffold script's path parsers — any deviation causes the file to be skipped as unsupported:
-
-| File type | Required path format |
-|-----------|---------------------|
-| API slice (command, handler, validator, endpoint) | `MyHomeRamen.Api\{Module}\Features\{Entity}\{Feature}\{TypeName}.cs` — exactly 5 segments after the project, **no extra subfolders** |
-| Integration test | `MyHomeRamen.IntegrationTests\{Module}Module\{Entity}\{TypeName}.cs` — `{Entity}` folder is mandatory |
-| Unit test | `MyHomeRamen.UnitTests\{Module}Module\{Entity}\{TypeName}.cs` — `{Entity}` folder is mandatory |
-| Contract request | `MyHomeRamen.Common.Contracts\{Module}\{Entity}\Requests\{TypeName}.cs` |
-| Contract response | `MyHomeRamen.Common.Contracts\{Module}\{Entity}\Responses\{TypeName}.cs` |
-
-> Validators belong in the **feature folder** (same level as the command/handler) — never in a `Policies/` subfolder.
-
-## Valid Modules
-
-The only valid module names are: `Identity`, `Menu`, `Orders`, `ShoppingCart`, `Reservations`, `Payments`.
-
 ## Plan Files Preparation Process
 
 ### Files location
 
 Naming conventions: 
 - Backend: `.github/plans/{feature}/backend-plan.md`
-- Frontend: `.github/plans/{feature}/frontend-plan.md`
 
-### Backend File Process ( if backend involved)
-
+### Backend File Process
 ```markdown
 # Plan: {Module} - {feature title}
 
@@ -76,37 +55,36 @@ Naming conventions:
 <What user wants, why, what already exists — 2-3 sentences max>
 
 ## 2. Files to create / modify
-| Path | Action | Type | Notes |
-|------|--------|------|-------|
-| <path> | create/modify/delete | <type> | <only non-obvious detail, otherwise leave blank> |
+| Action | Module | Aggregate | Feature Name | Endpoint Kind | Route | DB Query Options Required | Policies |
+|--------|--------|-----------|--------------|---------------|-------|---------------------------|----------|
+|--------|--------|-----------|--------------|---------------|-------|---------------------------|----------|
 
-Valid `Type` values (use for `create` rows only; leave blank for `modify`):
-- request, response — contracts under `MyHomeRamen.Common.Contracts\{Module}\{Entity}\Requests|Responses\`
-- command, command-void — command with / without response
-- query — query
-- command-handler, command-void-handler, query-handler — matching handlers
-- validator — FluentValidation validator
-- endpoint-get, endpoint-post, endpoint-put, endpoint-delete — endpoint by HTTP verb
-- unit-test, integration-test — test class stubs
-- (blank) — domain changes, persistence extensions and any file the scaffold cannot generate
+Valid `Action`: Create, Modify, Delete 
+Valid `Module`: Identity, Menu, Orders, ShoppingCart, Reservations, Payments
+Valid `Aggregate`: Required Aggregate name, does not have to match domain model
+Valid `Endpoint Kind`: Command, Query
 
-Valid `Action` values: Create, Modify, Delete 
+## 2.1 Constructors
 
-- **Required rows**: 
-The §2 table must always include rows for every file that will be changed, deleted or created so implementation agent will not get confused.
+Constructors Request, Response and their DTOs, one line constructor following formats::
+Request: public sealed record {FeatureName}Request({parameters})
+Response: public sealed record {FeatureName}Response({parameters})
+DTO: public sealed record {DtoName}({parameters})
+
 
 ## 3. Domain changes
 - <Implementation details>
 - Migration needed: yes / no
 
-## 4. Persistance extensions
-- <new repository method / query — name only>
+## 4. Persistance
+- define implementation of I{Aggregate}Repository.Specification.{Method} or I{Aggregate}Repository.Query().{Method} or point to existing methods
 
 ## 5. API details
 <Events details> (if any)
 <Request details>
 <Response details>
 <Command/Query details>
+<Authorization policy details>
 <Validator details>
 <Endpoint handler details>
 <Endpoint details>
@@ -114,11 +92,6 @@ The §2 table must always include rows for every file that will be changed, dele
 ## 6. Tests
 <Unit tests details>
 <Integration tests details>
-
-## 7. Risks / decisions for human approval
-- <only open questions or deviations from standard patterns>
-
-## 8. Out of scope
 ```
 
 ## Plan Validation
