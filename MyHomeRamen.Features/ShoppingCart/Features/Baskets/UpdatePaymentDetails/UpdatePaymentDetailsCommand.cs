@@ -1,9 +1,9 @@
 using FluentValidation;
-using MyHomeRamen.Common.Contracts.Payments;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Payments.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 

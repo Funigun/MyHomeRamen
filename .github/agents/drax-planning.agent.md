@@ -121,32 +121,7 @@ The §2 table must always include rows for every file that will be changed, dele
 ## 8. Out of scope
 ```
 
-### Frontend File Process (if frontend involved)
-
-```markdown
-# Plan: {Module} - {feature title}
-
-## 1. Problem
-<What user wants, why, what already exists - up to 5 setnences>
-
-## 2. Proposed solution
-<One paragraph describing area and which patterns to apply>
-
-## 3. Files to create / modify
-| Path | Action | Rationale |
-|------|--------|-----------|
-| <path> | create/modify | <reason> |
-
-## 4. Models
-- New models / fields / methods
-- Mapping details (if needed)
-
-## 5. Components and pages
-- Page layout (if needed to specify)
-- New components / modifications to existing components
-```
-
-## Plan Validation (backend only)
+## Plan Validation
 
 Once a backend plan file has been written, **execute** the lint script against it using the `run_command` tool (do NOT read or interpret the script file manually):
 

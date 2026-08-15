@@ -1,5 +1,4 @@
 using FluentValidation;
-using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
@@ -7,6 +6,7 @@ using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 

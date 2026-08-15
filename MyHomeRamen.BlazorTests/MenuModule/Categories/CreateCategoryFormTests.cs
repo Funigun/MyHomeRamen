@@ -6,9 +6,9 @@ using MudBlazor.Services;
 using MyHomeRamen.Blazor.Features.Menu.Categories.Components;
 using MyHomeRamen.Blazor.Features.Menu.Common.Models;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services;
+using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Requests;
+using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses;
 using MyHomeRamen.BlazorTests.Common.Helpers;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Responses;
 
 namespace MyHomeRamen.BlazorTests.MenuModule.Categories;
 

@@ -1,7 +1,7 @@
 ﻿using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.PaymentDetails;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Responses;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout;
 

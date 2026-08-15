@@ -1,5 +1,5 @@
 using MyHomeRamen.Blazor.Features.Menu.Common.Models;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Requests;
+using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Requests;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Categories.Components;
 

@@ -1,6 +1,6 @@
-using MyHomeRamen.Common.Contracts.Menu;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Menu.Services;

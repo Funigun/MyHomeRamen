@@ -1,4 +1,4 @@
-using MyHomeRamen.Common.Contracts.Menu.Ingredients.DTOs;
+using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Ingredients.DTOs;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.Components;
 

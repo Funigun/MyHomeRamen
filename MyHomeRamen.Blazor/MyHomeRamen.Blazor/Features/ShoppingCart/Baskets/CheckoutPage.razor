@@ -1,15 +1,15 @@
 ﻿@page "/checkout"
 
+@using MyHomeRamen.Blazor.Features.Payments.Common.Services
+@using MyHomeRamen.Blazor.Features.Payments.Common.Services.Contracts.PaymentMethods.Responses
+@using MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.PaymentDetails
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.Summary
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
-@using MyHomeRamen.Blazor.Features.Payments.Common.Services
-@using MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models
-@using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses
-@using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Responses
 
 @inject PaymentApiClient PaymentApiClient
 @inject ShoppingCartApiClient ShoppingCartApiClient

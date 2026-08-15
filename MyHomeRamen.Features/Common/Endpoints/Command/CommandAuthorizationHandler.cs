@@ -15,3 +15,17 @@ public sealed class CommandAuthorizationHandler<TCommand>(IAuthorizationPolicy<T
         await next.Handle(command, cancellationToken);
     }
 }
+
+public sealed class CommandAuthorizationHandler<TCommand, TResponse>(IAuthorizationPolicy<TCommand> policy, ICommandHandler<TCommand, TResponse> next) : ICommandHandler<TCommand, TResponse>
+              where TCommand : ICommand<TResponse>
+{
+    public async Task<TResponse> Handle(TCommand command, CancellationToken cancellationToken)
+    {
+        if (!await policy.Authorize(command, cancellationToken))
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        return await next.Handle(command, cancellationToken);
+    }
+}

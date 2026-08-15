@@ -1,4 +1,4 @@
-using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.Responses;
+using MyHomeRamen.Blazor.Features.Payments.Common.Services.Contracts.PaymentMethods.Responses;
 
 namespace MyHomeRamen.Blazor.Features.Payments.Common.Services;
 

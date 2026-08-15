@@ -1,7 +1,7 @@
-﻿using MyHomeRamen.Common.Contracts.Menu;
-using MyHomeRamen.Common.Contracts.Payments;
-using MyHomeRamen.Features.Common.Configurations;
+﻿using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Menu.Services;
+using MyHomeRamen.Features.Payments.ExternalApi;
 using MyHomeRamen.Features.Payments.Services;
 using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Persistance;

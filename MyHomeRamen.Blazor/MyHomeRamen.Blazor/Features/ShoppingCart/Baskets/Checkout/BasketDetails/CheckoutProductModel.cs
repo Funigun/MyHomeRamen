@@ -1,4 +1,4 @@
-﻿using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
+﻿using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.DTOs;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails;
 

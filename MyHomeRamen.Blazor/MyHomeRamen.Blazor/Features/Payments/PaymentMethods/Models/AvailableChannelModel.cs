@@ -1,4 +1,4 @@
-using MyHomeRamen.Common.Contracts.Payments.PaymentMethods.DTOs;
+using MyHomeRamen.Blazor.Features.Payments.Common.Services.Contracts.PaymentMethods.DTOs;
 
 namespace MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models;
 

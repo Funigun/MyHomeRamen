@@ -1,5 +1,5 @@
-using MyHomeRamen.Common.Contracts.Payments;
 using MyHomeRamen.Domain.Payments.PaymentMethods;
+using MyHomeRamen.Features.Payments.ExternalApi;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Payments.Services;

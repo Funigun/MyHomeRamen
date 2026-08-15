@@ -76,6 +76,7 @@ public static class DependencyInjection
         {
             Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == noResponseHandlerOpenType);
             services.AddScoped(interfaceType, type);
+            services.Decorate(interfaceType, typeof(CommandAuthorizationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
             services.Decorate(interfaceType, typeof(CommandValidationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
         }
 
@@ -87,6 +88,7 @@ public static class DependencyInjection
         {
             Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == withResponseHandlerOpenType);
             services.AddScoped(interfaceType, type);
+            services.Decorate(interfaceType, typeof(CommandAuthorizationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
             services.Decorate(interfaceType, typeof(CommandValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
         }
 
@@ -118,6 +120,7 @@ public static class DependencyInjection
             Type queryType = interfaceType.GetGenericArguments()[0];
             if (validatedQueryTypes.Contains(queryType))
             {
+                services.Decorate(interfaceType, typeof(QueryAuthorizationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
                 services.Decorate(interfaceType, typeof(QueryValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
             }
         }

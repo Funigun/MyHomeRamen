@@ -1,6 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Blazor.Common.Models;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Validators;
+using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Validators;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization;
 

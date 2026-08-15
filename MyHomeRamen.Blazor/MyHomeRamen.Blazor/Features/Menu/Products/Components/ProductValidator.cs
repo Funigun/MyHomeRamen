@@ -1,6 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Blazor.Common.Models;
-using MyHomeRamen.Common.Contracts.Menu.Products.Validators;
+using MyHomeRamen.Blazor.Features.Menu.Products.Components.Validators;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Products.Components;
 

@@ -3,17 +3,17 @@
 
 @attribute [Authorize(Roles = MenuRoleConstants.Admin)]
 
-@using MyHomeRamen.Blazor.Features.Menu.Categories
+@using MyHomeRamen.Blazor.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Categories.Components
 @using MyHomeRamen.Blazor.Features.Menu.Common.Constants
-@using MyHomeRamen.Common.Contracts.Menu.Categories.DTOs
-@using MyHomeRamen.Common.Contracts.Menu.Categories.Requests
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.DTOs
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Requests
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Ingredients.Responses
 @using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
-@using MyHomeRamen.Common.Contracts.Menu.Ingredients.Responses
-@using MyHomeRamen.Blazor.Common.Models
-@using MyHomeRamen.Common.Contracts.Menu.Categories.Responses
+
 
 @inject MenuApiClient MenuApiClient
 @inject MenuNavigationService MenuNavigation

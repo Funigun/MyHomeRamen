@@ -1,5 +1,5 @@
 using MyHomeRamen.Blazor.Common.Models;
-using MyHomeRamen.Common.Contracts.Menu.Categories.Validators;
+using MyHomeRamen.Blazor.Features.Menu.Categories.Components.Validators;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Categories.Components;
 

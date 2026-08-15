@@ -1,6 +1,6 @@
 using MyHomeRamen.Blazor.Features.Menu.Common.Models;
-using MyHomeRamen.Common.Contracts.Menu.Products.Requests;
-using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
+using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.Requests;
+using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.Responses;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Products.Components;
 

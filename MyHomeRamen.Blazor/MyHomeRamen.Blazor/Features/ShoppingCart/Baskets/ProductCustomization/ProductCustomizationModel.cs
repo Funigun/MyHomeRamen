@@ -1,6 +1,6 @@
+using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.Responses;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails;
-using MyHomeRamen.Common.Contracts.Menu.Products.Responses;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
+using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Requests;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization;
 

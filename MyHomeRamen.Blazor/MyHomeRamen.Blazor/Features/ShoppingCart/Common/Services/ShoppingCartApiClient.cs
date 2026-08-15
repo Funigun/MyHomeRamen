@@ -1,8 +1,8 @@
 using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.PaymentDetails;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.DTOs;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Requests;
-using MyHomeRamen.Common.Contracts.ShoppingCart.Baskets.Responses;
+using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.DTOs;
+using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Requests;
+using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Responses;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services;
 

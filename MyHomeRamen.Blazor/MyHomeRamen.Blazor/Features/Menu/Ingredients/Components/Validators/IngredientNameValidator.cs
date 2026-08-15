@@ -1,0 +1,18 @@
+using FluentValidation;
+
+namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.Components.Validators;
+
+public sealed class IngredientNameValidator : AbstractValidator<string>
+{
+    public const int MinLength = 5;
+
+    public const int MaxLength = 50;
+
+    public IngredientNameValidator()
+    {
+        RuleFor(x => x)
+            .NotEmpty().WithMessage("Ingredient name cannot be empty.")
+            .MinimumLength(MinLength).WithMessage($"Ingredient name minimum length is {MinLength}.")
+            .MaximumLength(MaxLength).WithMessage($"Ingredient name maximum length is {MaxLength}.");
+    }
+}
