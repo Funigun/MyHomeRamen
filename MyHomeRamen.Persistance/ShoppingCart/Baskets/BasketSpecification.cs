@@ -9,25 +9,25 @@ public partial class BasketRepository : IBasketSpecification
 {
     public async Task<Basket> GetForUserTrackedAsync(UserId userId, CancellationToken cancellationToken)
         => await shoppingCartDbContext.ShoppingCarts
-            .Where(b => b.User.Id == userId && b.Status == BasketStatus.Active)
+            .Where(b => b.UserId == userId && b.Status == BasketStatus.Active)
             .Include(b => b.Items)
             .FirstAsync(cancellationToken);
 
     public async Task<Basket> GetByIdForUserTrackedAsync(BasketId basketId, UserId userId, CancellationToken cancellationToken)
         => await shoppingCartDbContext.ShoppingCarts
-            .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active)
+            .Where(b => b.Id == basketId && b.UserId == userId && b.Status == BasketStatus.Active)
             .Include(b => b.Items)
             .FirstAsync(cancellationToken);
 
     public async Task<Basket> GetByIdForUserWithPaymentTrackedAsync(BasketId basketId, UserId userId, CancellationToken cancellationToken)
         => await shoppingCartDbContext.ShoppingCarts
-            .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active)
+            .Where(b => b.Id == basketId && b.UserId == userId && b.Status == BasketStatus.Active)
             .Include(b => b.PaymentDetails)
             .FirstAsync(cancellationToken);
 
     public async Task<Basket> GetByIdForUserWithShippingTrackedAsync(BasketId basketId, UserId userId, CancellationToken cancellationToken)
         => await shoppingCartDbContext.ShoppingCarts
-            .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active)
+            .Where(b => b.Id == basketId && b.UserId == userId && b.Status == BasketStatus.Active)
             .Include(b => b.ShippingDetails)
             .FirstAsync(cancellationToken);
 }

@@ -4,17 +4,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Reservations.Bookings;
-using MyHomeRamen.Domain.Reservations.Permissions;
-using MyHomeRamen.Domain.Reservations.Roles;
 using MyHomeRamen.Domain.Reservations.Tables;
 using MyHomeRamen.Domain.Reservations.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Reservations.Features.Abstractions;
 using MyHomeRamen.Features.Reservations.Features.Bookings.Common;
-using MyHomeRamen.Features.Reservations.Features.Permissions.Common;
-using MyHomeRamen.Features.Reservations.Features.Roles.Common;
 using MyHomeRamen.Features.Reservations.Features.Tables.Common;
-using MyHomeRamen.Features.Reservations.Features.Users.Common;
 using MyHomeRamen.Persistance.Reservations.Converters;
 
 namespace MyHomeRamen.Persistance.Reservations;
@@ -39,21 +34,9 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
 
     public DbSet<Table> Tables { get; set; }
 
-    public DbSet<User> Users { get; set; }
-
-    public DbSet<Role> Roles { get; set; }
-
-    public DbSet<Permission> Permissions { get; set; }
-
     public IBookingRepository Booking => _serviceProvider.GetService<IBookingRepository>() ?? throw new InvalidOperationException("BookingRepository is not registered in the service provider.");
 
     public ITableRepository Table => _serviceProvider.GetService<ITableRepository>() ?? throw new InvalidOperationException("TableRepository is not registered in the service provider.");
-
-    public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
-
-    public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
-
-    public IPermissionRepository Permission => _serviceProvider.GetService<IPermissionRepository>() ?? throw new InvalidOperationException("PermissionRepository is not registered in the service provider.");
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -104,42 +87,6 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
         }
     }
 
-    public async Task Seed(CancellationToken cancellationToken)
-    {
-        IEnumerable<string> roles = RoleConstants.AvailableRoles;
-        IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
-
-        HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
-
-        IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Domain.Reservations.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
-                                                              .ToList();
-
-        if (permissionsToAdd.Any())
-        {
-            await Permissions.AddRangeAsync(permissionsToAdd, cancellationToken);
-            await SaveChangesAsync(cancellationToken);
-        }
-
-        existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
-        HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
-        IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Domain.Reservations.Roles.Role.CreateForSeed
-                                                        (
-                                                            new RoleId(Guid.NewGuid()),
-                                                            role,
-                                                            existingPermissions.Where(p => RoleConstants.DefaultPermissions[role].Contains(p.Name))
-                                                                               .ToList()
-                                                        )
-                                                   );
-
-        if (rolesToAdd.Any())
-        {
-            await Roles.AddRangeAsync(rolesToAdd, cancellationToken);
-            await SaveChangesAsync(cancellationToken);
-        }
-    }
-
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
     {
         return await Database.ExecuteSqlInterpolatedAsync(sql, cancellationToken);
@@ -156,7 +103,5 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
         configurationBuilder.Properties<BookingId>().HaveConversion<BookingIdConverter>();
         configurationBuilder.Properties<TableId>().HaveConversion<TableIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
-        configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
-        configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
     }
 }

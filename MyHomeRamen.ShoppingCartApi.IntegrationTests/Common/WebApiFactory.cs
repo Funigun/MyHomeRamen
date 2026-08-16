@@ -10,10 +10,7 @@ using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.BasketItems.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Ingredients.Common;
-using MyHomeRamen.Features.ShoppingCart.Features.Permissions.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Products.Common;
-using MyHomeRamen.Features.ShoppingCart.Features.Roles.Common;
-using MyHomeRamen.Features.ShoppingCart.Features.Users.Common;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
@@ -49,17 +46,12 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         services.AddScoped<IBasketItemRepository, BasktetItemRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IIngredientRepository, IngredientRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddCacheService();
 
         _seedServiceProvider = services.BuildServiceProvider();
         _seedScope = _seedServiceProvider.CreateScope();
 
         ShoppingCartDbContext = _seedScope.ServiceProvider.GetRequiredService<IShoppingCartDbContext>();
-
-        await DataSeeder.SeedDatabase(ShoppingCartDbContext);
 
         HttpClient = CreateClient();
     }
@@ -128,11 +120,11 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
                 List<Guid> customIngredientIds = callInfo.ArgAt<List<Guid>>(2);
 
                 IReadOnlyList<MenuIngredientResult> baseIngredients = baseIngredientIds
-                    .Select((Guid id, int index) => new MenuIngredientResult(id, $"Base Ingredient {index}", "Base ingredient", 1m))
+                    .Select((id, index) => new MenuIngredientResult(id, $"Base Ingredient {index}", "Base ingredient", 1m))
                     .ToList();
 
                 IReadOnlyList<MenuIngredientResult> customIngredients = customIngredientIds
-                    .Select((Guid id, int index) => new MenuIngredientResult(id, $"Custom Ingredient {index}", "Custom ingredient", 1m))
+                    .Select((id, index) => new MenuIngredientResult(id, $"Custom Ingredient {index}", "Custom ingredient", 1m))
                     .ToList();
 
                 return Task.FromResult<MenuProductResult?>(new MenuProductResult(

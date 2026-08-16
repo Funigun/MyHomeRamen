@@ -72,9 +72,6 @@ public static class DependencyInjection
         services.AddScoped<IBasketItemRepository, BasktetItemRepository>();
         services.AddScoped<IProductRepository, ShoppingCart.ProductRepository>();
         services.AddScoped<Features.ShoppingCart.Features.Ingredients.Common.IIngredientRepository, ShoppingCart.IngredientRepository>();
-        services.AddScoped<Features.ShoppingCart.Features.Users.Common.IUserRepository, ShoppingCart.UserRepository>();
-        services.AddScoped<Features.ShoppingCart.Features.Roles.Common.IRoleRepository, ShoppingCart.RoleRepository>();
-        services.AddScoped<Features.ShoppingCart.Features.Permissions.Common.IPermissionRepository, ShoppingCart.PermissionRepository>();
 
         return services;
     }
@@ -117,9 +114,6 @@ public static class DependencyInjection
         services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<ITableRepository, TableRepository>();
-        services.AddScoped<Features.Reservations.Features.Users.Common.IUserRepository, Reservations.UserRepository>();
-        services.AddScoped<Features.Reservations.Features.Roles.Common.IRoleRepository, Reservations.RoleRepository>();
-        services.AddScoped<Features.Reservations.Features.Permissions.Common.IPermissionRepository, Reservations.PermissionRepository>();
 
         return services;
     }

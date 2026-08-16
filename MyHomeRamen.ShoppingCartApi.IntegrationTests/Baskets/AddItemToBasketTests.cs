@@ -24,13 +24,11 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
     public async ValueTask InitializeAsync()
     {
-        Guid guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
-        Guid customerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
-        User? guestUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(guestId, TestContext.Current.CancellationToken);
-        User? customerUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(customerId, TestContext.Current.CancellationToken);
+        Guid guestId = Guid.CreateVersion7();
+        Guid customerId = Guid.CreateVersion7();
 
-        _guestBasket = DataGenerator.CreateBasket([], guestUser!);
-        _customerBasket = DataGenerator.CreateBasket([], customerUser!);
+        _guestBasket = DataGenerator.CreateBasket([], guestId);
+        _customerBasket = DataGenerator.CreateBasket([], customerId);
 
         apiFactory.ShoppingCartDbContext.Basket.Add(_guestBasket);
         apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
@@ -52,7 +50,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.AddAuthorizationHeader(UserRoles.Customer, _customerBasket.User.Id.Value.ToString());
+        httpRequest.AddAuthorizationHeader(UserRoles.Customer, _customerBasket.UserId.Value.ToString());
         httpRequest.WithJsonContent(request);
 
         // Act
@@ -78,7 +76,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.WithGuestCookie(_guestBasket.User.Id.Value.ToString());
+        httpRequest.WithGuestCookie(_guestBasket.UserId.Value.ToString());
         httpRequest.WithJsonContent(request);
 
         // Act
@@ -98,7 +96,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenRequestIsInvalid(AddItemToBasketRequest request)
     {
         // Arrange
-        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        UserId userId = new(Guid.CreateVersion7());
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
@@ -144,7 +142,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenProductDoesNotExist()
     {
         // Arrange
-        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        UserId userId = new(Guid.CreateVersion7());
 
         AddItemToBasketRequest request = new(
             Guid.NewGuid(),

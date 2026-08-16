@@ -7,9 +7,7 @@ using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
-using MyHomeRamen.Domain.ShoppingCart.Permissions;
 using MyHomeRamen.Domain.ShoppingCart.Products;
-using MyHomeRamen.Domain.ShoppingCart.Roles;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
@@ -17,10 +15,7 @@ using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.BasketItems.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Ingredients.Common;
-using MyHomeRamen.Features.ShoppingCart.Features.Permissions.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Products.Common;
-using MyHomeRamen.Features.ShoppingCart.Features.Roles.Common;
-using MyHomeRamen.Features.ShoppingCart.Features.Users.Common;
 using MyHomeRamen.Persistance.ShoppingCart.Converters;
 
 namespace MyHomeRamen.Persistance.ShoppingCart;
@@ -49,12 +44,6 @@ public sealed class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext
 
     public DbSet<Ingredient> Ingredients { get; set; }
 
-    public DbSet<User> Users { get; set; }
-
-    public DbSet<Role> Roles { get; set; }
-
-    public DbSet<Permission> Permissions { get; set; }
-
     public DbSet<PaymentDetails> PaymentDetailEntries { get; set; }
 
     public DbSet<ShippingDetails> ShippingDetailEntries { get; set; }
@@ -66,12 +55,6 @@ public sealed class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext
     public IProductRepository Product => _serviceProvider.GetService<IProductRepository>() ?? throw new InvalidOperationException("ProductRepository is not registered in the service provider.");
 
     public IIngredientRepository Ingredient => _serviceProvider.GetService<IIngredientRepository>() ?? throw new InvalidOperationException("IngredientRepository is not registered in the service provider.");
-
-    public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
-
-    public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
-
-    public IPermissionRepository Permission => _serviceProvider.GetService<IPermissionRepository>() ?? throw new InvalidOperationException("PermissionRepository is not registered in the service provider.");
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
     {
@@ -122,42 +105,6 @@ public sealed class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext
         }
     }
 
-    public async Task Seed(CancellationToken cancellationToken)
-    {
-        IEnumerable<string> roles = RoleConstants.AvailableRoles;
-        IEnumerable<string> permissions = PermissionConstants.AvailablePermissions;
-
-        HashSet<Permission> existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
-
-        IEnumerable<Permission> permissionsToAdd = permissions.Except(existingPermissions.Select(p => p.Name))
-                                                              .Select(permission => Domain.ShoppingCart.Permissions.Permission.CreateForSeed(new PermissionId(Guid.NewGuid()), permission))
-                                                              .ToList();
-
-        if (permissionsToAdd.Any())
-        {
-            await Permissions.AddRangeAsync(permissionsToAdd, cancellationToken);
-            await SaveChangesAsync(cancellationToken);
-        }
-
-        existingPermissions = await Permissions.ToHashSetAsync(cancellationToken);
-        HashSet<string> existingRoles = await Roles.AsNoTracking().Select(role => role.Name).ToHashSetAsync(cancellationToken);
-        IEnumerable<Role> rolesToAdd = roles.Except(existingRoles)
-                                            .Select(role => Domain.ShoppingCart.Roles.Role.CreateForSeed
-                                                        (
-                                                            new RoleId(Guid.NewGuid()),
-                                                            role,
-                                                            existingPermissions.Where(p => RoleConstants.DefaultPermissions[role].Contains(p.Name))
-                                                                               .ToList()
-                                                        )
-                                                   );
-
-        if (rolesToAdd.Any())
-        {
-            await Roles.AddRangeAsync(rolesToAdd, cancellationToken);
-            await SaveChangesAsync(cancellationToken);
-        }
-    }
-
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)
     {
         return await Database.ExecuteSqlInterpolatedAsync(sql, cancellationToken);
@@ -176,7 +123,5 @@ public sealed class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext
         configurationBuilder.Properties<ProductId>().HaveConversion<ProductIdConverter>();
         configurationBuilder.Properties<IngredientId>().HaveConversion<IngredientIdConverter>();
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
-        configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
-        configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
     }
 }

@@ -1,6 +1,4 @@
-using MyHomeRamen.Domain.ShoppingCart.Permissions;
-
-namespace MyHomeRamen.Domain.ShoppingCart.Roles;
+namespace MyHomeRamen.Domain.ShoppingCart.Users;
 
 public static class RoleConstants
 {

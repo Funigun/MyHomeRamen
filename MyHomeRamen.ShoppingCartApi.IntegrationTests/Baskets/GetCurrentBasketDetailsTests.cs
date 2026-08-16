@@ -23,18 +23,16 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
 
     public async ValueTask InitializeAsync()
     {
-        Guid guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
-        Guid customerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
-        User? guestUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(guestId, TestContext.Current.CancellationToken);
-        User? customerUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(customerId, TestContext.Current.CancellationToken);
+        Guid guestId = Guid.CreateVersion7();
+        Guid customerId = Guid.CreateVersion7();
 
         Product guestProduct = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
         Product customerProduct = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], [DataGenerator.CreateIngredient()]);  
         _guestBasketItem = DataGenerator.CreateBasketItem(guestProduct);
         _customerBasketItem = DataGenerator.CreateBasketItem(customerProduct);
 
-        _guestBasket = DataGenerator.CreateBasket([_guestBasketItem], guestUser!);
-        _customerBasket = DataGenerator.CreateBasket([_customerBasketItem], customerUser!);
+        _guestBasket = DataGenerator.CreateBasket([_guestBasketItem], guestId);
+        _customerBasket = DataGenerator.CreateBasket([_customerBasketItem], customerId);
 
         apiFactory.ShoppingCartDbContext.Basket.Add(_guestBasket);
         apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
@@ -52,7 +50,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketDetails_ShouldReturnOk_WhenAuthenticatedUserHasActiveBasket()
     {
         // Arrange
-        UserId userId = _customerBasket.User.Id;
+        UserId userId = _customerBasket.UserId;
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
@@ -82,7 +80,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketDetails_ShouldReturnOk_WhenGuestHasActiveBasket()
     {
         // Arrange
-        UserId guestId = _guestBasket.User.Id;
+        UserId guestId = _guestBasket.UserId;
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
@@ -104,13 +102,13 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketDetails_ShouldReturnNotFound_WhenUserHasNoActiveBasket()
     {
         // Arrange
-        User userWithoutBasket = User.Create(new UserId(Guid.CreateVersion7()), [], [], isGuest: false);
-        apiFactory.ShoppingCartDbContext.User.Add(userWithoutBasket);
+        UserId userWithoutBasketId = new(Guid.CreateVersion7());
+
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
-        request.AddAuthorizationHeader(UserRoles.Customer, userWithoutBasket.Id.Value.ToString());
+        request.AddAuthorizationHeader(UserRoles.Customer, userWithoutBasketId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -144,7 +142,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
-        request.AddAuthorizationHeader(UserRoles.Customer, _customerBasket.User.Id.Value.ToString());
+        request.AddAuthorizationHeader(UserRoles.Customer, _customerBasket.UserId.Value.ToString());
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);

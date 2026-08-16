@@ -16,11 +16,9 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
 
     public async ValueTask InitializeAsync()
     {
-        Guid customerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
-
-        User? customerUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(customerId, TestContext.Current.CancellationToken);
+        Guid customerId = Guid.CreateVersion7();
  
-        _customerBasket = DataGenerator.CreateBasket([], customerUser!);
+        _customerBasket = DataGenerator.CreateBasket([], customerId);
 
         apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -32,7 +30,7 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
     public async Task ClearBasket_ShouldReturnNoContent_ForValidRequest()
     {
         // Arrange
-        UserId userId = _customerBasket.User.Id;
+        UserId userId = _customerBasket.UserId;
         string endpoint = $"{EndpointBase}/{_customerBasket.Id.Value}";
 
         using HttpClient client = apiFactory.CreateClient();
@@ -50,7 +48,7 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
     public async Task ClearBasket_ShouldReturnBadRequest_ForNonExistentBasket()
     {
         // Arrange
-        UserId userId = _customerBasket.User.Id;
+        UserId userId = _customerBasket.UserId;
         string endpoint = $"{EndpointBase}/{Guid.NewGuid()}";
 
         using HttpClient client = apiFactory.CreateClient();

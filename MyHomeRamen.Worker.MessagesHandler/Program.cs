@@ -7,8 +7,6 @@ using MyHomeRamen.ServiceDefaults;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler;
 using MyHomeRamen.Worker.MessagesHandler.Common;
-using MyHomeRamen.Worker.MessagesHandler.Reservations;
-using MyHomeRamen.Worker.MessagesHandler.ShoppingCart;
 using Serilog;
 using MyHomeRamen.Infrastructure.Cache;
 
@@ -49,11 +47,6 @@ try
     builder.Services.AddMessagingService();
 
     // Register handlers
-    builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, ShoppingCartUserRegisteredHandler>();
-    builder.Services.AddScoped<IIntegrationEventHandler<UserRegisteredIntegrationEvent>, ReservationsUserRegisteredHandler>();
-
-    builder.Services.AddScoped<IIntegrationEventHandler<GuestUserCreatedIntegrationEvent>, ShoppingCartGuestRegisteredHandler>();
-
     builder.Services.AddHostedService<UserRegistrationHandler>();
     builder.Services.AddHostedService<GuestRegistrationHandler>();
 

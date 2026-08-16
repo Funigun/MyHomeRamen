@@ -1,4 +1,4 @@
-namespace MyHomeRamen.Domain.ShoppingCart.Permissions;
+namespace MyHomeRamen.Domain.ShoppingCart.Users;
 
 public static class PermissionConstants
 {

@@ -23,18 +23,16 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
 
     public async ValueTask InitializeAsync()
     {
-        Guid guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
-        Guid customerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
-        User? guestUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(guestId, TestContext.Current.CancellationToken);
-        User? customerUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(customerId, TestContext.Current.CancellationToken);
+        Guid guestId = Guid.CreateVersion7();
+        Guid customerId = Guid.CreateVersion7();    
 
         Ingredient ingredient = DataGenerator.CreateIngredient();
         Product product = DataGenerator.CreateProduct([ingredient], []);
         _guestBasketItem = DataGenerator.CreateBasketItem(product);
         _customerBasketItem = DataGenerator.CreateBasketItem(product);
 
-        _guestBasket = DataGenerator.CreateBasket([_guestBasketItem], guestUser!);
-        _customerBasket = DataGenerator.CreateBasket([_customerBasketItem], customerUser!);
+        _guestBasket = DataGenerator.CreateBasket([_guestBasketItem], new UserId(guestId));
+        _customerBasket = DataGenerator.CreateBasket([_customerBasketItem], new UserId(customerId));
 
         apiFactory.ShoppingCartDbContext.Basket.Add(_guestBasket);
         apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
@@ -55,7 +53,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketSummary_ShouldReturnOk_ForAnyAuthenticatedRole(UserRoles role)
     {
         // Arrange
-        UserId userId = _customerBasket.User.Id;
+        UserId userId = _customerBasket.UserId;
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
@@ -80,7 +78,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketSummary_ShouldReturnBasketWithCorrectItems_ForAnyAuthenticatedRole(UserRoles role)
     {
         // Arrange
-        UserId userId = _customerBasket.User.Id;
+        UserId userId = _customerBasket.UserId;
         Basket expectedBasket = _customerBasket;
         BasketItem expectedItem = expectedBasket.Items.First();
 
@@ -108,7 +106,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketSummary_ShouldReturnOk_ForGuest()
     {
         // Arrange
-        UserId guestId = _guestBasket.User.Id;
+        UserId guestId = _guestBasket.UserId;
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
@@ -130,7 +128,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketSummary_ShouldReturnBasketWithCorrectItems_ForGuest()
     {
         // Arrange
-        UserId guestId = _guestBasket.User.Id;
+        UserId guestId = _guestBasket.UserId;
         Basket expectedBasket = _guestBasket;
         BasketItem expectedItem = expectedBasket.Items.First();
 

@@ -11,7 +11,7 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
     public BasketId Id { get; private set; }
 
-    public User User { get; private set; }
+    public UserId UserId { get; private set; }
 
     public BasketStatus Status { get; private set; }
 
@@ -23,16 +23,16 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
     private Basket() { }
 
-    private Basket(BasketId id, User user)
+    private Basket(BasketId id, UserId userId)
     {
         Id = id;
-        User = user;
+        UserId = userId;
         Status = BasketStatus.Active;
     }
 
-    public static Basket Create(BasketId id, User user)
+    public static Basket Create(BasketId id, UserId userId)
     {
-        Basket basket = new(id, user);
+        Basket basket = new(id, userId);
 
         BasketValidator.Validate(basket);
 

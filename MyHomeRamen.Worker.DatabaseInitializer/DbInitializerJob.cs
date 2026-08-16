@@ -48,7 +48,6 @@ internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbCo
                                        cancellationToken);
 
             await dbContext.Migrate(cancellationToken);
-            await dbContext.Seed(cancellationToken);
 
             if (!dbExists)
             {

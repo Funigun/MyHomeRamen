@@ -65,14 +65,11 @@ public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICu
     {
         UserId userId = new(currentUser.UserId);
 
-        User? user = await dbContext.User.Query().FindByIdAsync(userId, cancellationToken)
-                  ?? throw new InvalidOperationException($"User {userId.Value} was not found.");
-
         Basket? basket = await dbContext.Basket.Specification().GetForUserTrackedAsync(userId, cancellationToken);
 
         if (basket is null)
         {
-            basket = Basket.Create(new BasketId(Guid.CreateVersion7()), user);
+            basket = Basket.Create(new BasketId(Guid.CreateVersion7()), userId);
             dbContext.Basket.Add(basket);
         }
 

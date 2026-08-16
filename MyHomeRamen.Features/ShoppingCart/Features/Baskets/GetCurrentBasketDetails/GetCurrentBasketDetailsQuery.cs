@@ -16,7 +16,7 @@ public sealed record GetCurrentBasketDetailsQueryOptions(UserId UserId)
     (
         new()
         {
-            Filter = basket => basket.User.Id == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.UserId == UserId && basket.Status == BasketStatus.Active,
             Selector = basket => new CurrentBasketDetailsDto(
                 basket.Id.Value,
                 basket.Items.Select(item => new BasketDetailsItemDto(

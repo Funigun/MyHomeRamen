@@ -10,8 +10,7 @@ public class BasketConfiguration : IEntityTypeConfiguration<Basket>
     {
         builder.HasKey(x => x.Id);
 
-        builder.HasOne(x => x.User)
-               .WithMany()
+        builder.Property(x => x.UserId)
                .IsRequired();
 
         builder.HasMany(x => x.Items)

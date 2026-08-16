@@ -11,7 +11,7 @@ internal static class BasketValidator
 
     private static void CheckUser(Basket basket)
     {
-        if (basket.User is null)
+        if (basket.UserId.Value == Guid.Empty)
         {
             throw BasketErrors.BasketUserRequired();
         }

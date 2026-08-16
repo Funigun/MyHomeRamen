@@ -26,7 +26,7 @@ public sealed record GetPaymentDetailsQueryOptions(BasketId BasketId, UserId Use
     (
         new()
         {
-            Filter = basket => basket.Id == BasketId && basket.User.Id == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.Id == BasketId && basket.UserId == UserId && basket.Status == BasketStatus.Active,
             Selector = basket => new PaymentDetailsDto(basket.PaymentDetails.PaymentMethodId, basket.PaymentDetails.PaymentChannelId)
         }
     );

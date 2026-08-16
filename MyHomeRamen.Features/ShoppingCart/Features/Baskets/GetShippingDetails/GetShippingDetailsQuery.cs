@@ -26,7 +26,7 @@ public sealed record GetShippingDetailsQueryOptions(BasketId BasketId, UserId Us
     (
         new()
         {
-            Filter = basket => basket.Id == BasketId && basket.User.Id == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.Id == BasketId && basket.UserId == UserId && basket.Status == BasketStatus.Active,
             Selector = basket => MapToShippingDetailsDto(basket.ShippingDetails)
         }
     )
