@@ -1,4 +1,4 @@
-namespace MyHomeRamen.Domain.Payments.Permissions;
+namespace MyHomeRamen.Domain.Payments.Users;
 
 public static class PermissionConstants
 {

@@ -1,6 +1,4 @@
-﻿using MyHomeRamen.Domain.Orders.Permissions;
-
-namespace MyHomeRamen.Domain.Orders.Roles;
+﻿namespace MyHomeRamen.Domain.Orders.Users;
 
 public static class RoleConstants
 {

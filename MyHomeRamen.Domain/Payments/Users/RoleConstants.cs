@@ -1,6 +1,4 @@
-using MyHomeRamen.Domain.Payments.Permissions;
-
-namespace MyHomeRamen.Domain.Payments.Roles;
+namespace MyHomeRamen.Domain.Payments.Users;
 
 public static class RoleConstants
 {

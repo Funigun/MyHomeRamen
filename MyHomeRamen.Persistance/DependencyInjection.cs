@@ -144,9 +144,6 @@ public static class DependencyInjection
         services.AddScoped<IPaymentChannelRepository, PaymentChannelRepository>();
         services.AddScoped<IPaymentGatewayRepository, PaymentGatewayRepository>();
         services.AddScoped<Features.Payments.Features.Orders.Common.IOrderRepository, Payments.OrderRepository>();
-        services.AddScoped<Features.Payments.Features.Users.Common.IUserRepository, Payments.UserRepository>();
-        services.AddScoped<Features.Payments.Features.Roles.Common.IRoleRepository, Payments.RoleRepository>();
-        services.AddScoped<Features.Payments.Features.Permissions.Common.IPermissionRepository, Payments.PermissionRepository>();
 
         return services;
     }

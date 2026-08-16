@@ -23,7 +23,7 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public decimal TotalCalculatedAmount { get; private set; }
 
-    public User User { get; private set; }
+    public UserId UserId { get; private set; }
 
     public OrderAddress DeliveryAddress { get; private set; }
 
