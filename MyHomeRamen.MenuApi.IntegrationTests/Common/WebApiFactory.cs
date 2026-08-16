@@ -35,7 +35,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         ServiceCollection services = new();
         services.AddSingleton(options);
         services.AddSingleton<ICurrentUser>(user);
-        services.AddScoped<MenuDbContext>(provider => new MenuDbContext(options, user, provider));
+        services.AddScoped(provider => new MenuDbContext(options, user, provider));
         services.AddScoped<IMenuDbContext>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
@@ -45,6 +45,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         _seedServiceProvider = services.BuildServiceProvider();
         _seedScope = _seedServiceProvider.CreateScope();
         MenuDbContext = _seedScope.ServiceProvider.GetRequiredService<IMenuDbContext>();
+        await MenuDbContext.Migrate(TestContext.Current.CancellationToken);
 
         HttpClient = CreateClient();
     }

@@ -76,11 +76,6 @@ public sealed class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbC
         return await base.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task Seed(CancellationToken cancellationToken)
-    {
-
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("menu");

@@ -52,6 +52,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         _seedScope = _seedServiceProvider.CreateScope();
 
         ShoppingCartDbContext = _seedScope.ServiceProvider.GetRequiredService<IShoppingCartDbContext>();
+        await ShoppingCartDbContext.Migrate(TestContext.Current.CancellationToken);
 
         HttpClient = CreateClient();
     }
