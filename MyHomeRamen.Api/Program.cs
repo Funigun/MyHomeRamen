@@ -72,7 +72,8 @@ try
                     .AddOrdersModule(databaseConfigurationProvider)
                     .AddReservationsModule(databaseConfigurationProvider)
                     .AddPaymentsModule(databaseConfigurationProvider)
-                    .AddUsersModule(databaseConfigurationProvider, builder.Configuration);
+                    .AddUsersModule(databaseConfigurationProvider, builder.Configuration)
+                    .AddRestaurantsModule(databaseConfigurationProvider);
 
     builder.Services.ConfigureAuthentication(authorizationConfiguration)
                     .ConfigureAuthorizationPolicies();

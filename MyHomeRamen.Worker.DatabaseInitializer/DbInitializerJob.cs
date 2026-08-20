@@ -5,6 +5,7 @@ using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Orders.Features.Abstractions;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
 using MyHomeRamen.Features.Reservations.Features.Abstractions;
+using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Worker.DatabaseInitializer.Config;
 using Quartz;
@@ -12,7 +13,7 @@ using Quartz;
 namespace MyHomeRamen.Worker.DatabaseInitializer;
 
 internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
-                                IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext,
+                                IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext, IRestaurantDbContext restaurantDbContext,
                                 IPaymentsDbContext paymentsDbContext, IConfiguration configuration,
                                 ILogger<DbInitializerJob> logger)
              : IJob
@@ -26,6 +27,7 @@ internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbCo
         Dictionary<IUnitOfWork, DatabaseUserConfig> unitOfWorkContexts = new()
         {
             { userContext, DatabaseUserConfig.Create("Identity", configuration) },
+            { restaurantDbContext, DatabaseUserConfig.Create("Restaurants", configuration) },
             { menuDbContext, DatabaseUserConfig.Create("Menu", configuration) },
             { shoppingCartDbContext, DatabaseUserConfig.Create("ShoppingCart", configuration) },
             { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) },

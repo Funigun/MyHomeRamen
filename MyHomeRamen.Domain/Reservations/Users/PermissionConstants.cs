@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Domain.Reservations.Permissions;
+﻿namespace MyHomeRamen.Domain.Reservations.Users;
 
 public static class PermissionConstants
 {

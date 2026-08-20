@@ -1,6 +1,4 @@
-﻿using MyHomeRamen.Domain.Reservations.Permissions;
-
-namespace MyHomeRamen.Domain.Reservations.Roles;
+﻿namespace MyHomeRamen.Domain.Reservations.Users;
 
 public static class RoleConstants
 {

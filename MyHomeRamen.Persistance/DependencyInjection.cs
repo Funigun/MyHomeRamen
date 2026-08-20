@@ -24,6 +24,10 @@ using MyHomeRamen.Persistance.Identity;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MenuModule = MyHomeRamen.Features.Menu.Features;
 using MyHomeRamen.Features.ShoppingCart.Features.Products.Common;
+using MyHomeRamen.Persistance.Restaurants;
+using MyHomeRamen.Features.Restaurants.Features.Abstractions;
+using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
+using MyHomeRamen.Features.Restaurants.Features.Companies.Common;
 
 namespace MyHomeRamen.Persistance;
 
@@ -159,8 +163,30 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IIdentityDbContext, IdentityDbContext>();
-        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository, Identity.UserRepository>();
-        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository, Identity.RoleRepository>();
+        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository, UserRepository>();
+        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository, RoleRepository>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddRestaurantsPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
+    {
+        services.AddDbContext<RestaurantsDbContext>(options =>
+        {
+            string? connectionString = configurationProvider.RestaurantsConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "restaurants");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                }
+            );
+        });
+
+        services.AddScoped<IRestaurantDbContext, RestaurantsDbContext>();
+        services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
 
         return services;
     }

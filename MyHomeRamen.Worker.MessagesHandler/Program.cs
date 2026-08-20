@@ -1,6 +1,5 @@
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
-using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.ServiceDefaults;

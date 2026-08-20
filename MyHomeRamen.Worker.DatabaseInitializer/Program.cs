@@ -44,6 +44,7 @@ try
     builder.Services.AddScoped<ICurrentUser, WorkerUser>();
 
     builder.Services.AddIdentityPersistance(databaseConfigurationProvider);
+    builder.Services.AddRestaurantsPersistance(databaseConfigurationProvider);
     builder.Services.AddMenuPersistance(databaseConfigurationProvider);
     builder.Services.AddBasketPersistance(databaseConfigurationProvider);
     builder.Services.AddOrdersPersistance(databaseConfigurationProvider);

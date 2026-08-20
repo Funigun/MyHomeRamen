@@ -1,7 +1,5 @@
 ﻿using Bogus;
 using Bogus.Premium;
-using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
