@@ -10,5 +10,5 @@ public sealed partial class PaymentChannelRepository(PaymentsDbContext paymentsD
 {
     public IPaymentChannelQuery Query() => this;
 
-    public IPaymentChannelSpecification Specification() => this;
+    public IPaymentChannelLoader Load() => this;
 }

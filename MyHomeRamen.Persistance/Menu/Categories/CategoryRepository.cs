@@ -1,4 +1,4 @@
-﻿using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Persistance.Common;
 using MyHomeRamen.Features.Common.Cache;
@@ -9,5 +9,5 @@ public sealed partial class CategoryRepository(MenuDbContext menuDbContext, ICac
 {
     public ICategoryQuery Query() => this;
 
-    public ICategorySpecification Specification() => this;
+    public ICategoryLoader Load() => this;
 }

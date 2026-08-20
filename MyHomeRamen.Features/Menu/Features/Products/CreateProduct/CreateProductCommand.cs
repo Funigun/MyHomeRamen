@@ -47,11 +47,11 @@ public sealed class CreateProductHandler(IMenuDbContext dbContext) : ICommandHan
 {
     public async Task<CreateProductResponse> Handle(CreateProductCommand command, CancellationToken cancellationToken)
     {
-        Category category = await dbContext.Category.Specification().ById((CategoryId)command.CreateProductRequest.CategoryId, cancellationToken);
+        Category category = await dbContext.Category.Load().ById((CategoryId)command.CreateProductRequest.CategoryId, cancellationToken);
 
-        IEnumerable<Ingredient> ingredients = await dbContext.Ingredient.Specification().ByIds(command.CreateProductRequest.IngredientIds.Select(id => (IngredientId)id), cancellationToken);
+        IEnumerable<Ingredient> ingredients = await dbContext.Ingredient.Load().ByIds(command.CreateProductRequest.IngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
-        IEnumerable<Ingredient> customIngredients = await dbContext.Ingredient.Specification().ByIds(command.CreateProductRequest.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
+        IEnumerable<Ingredient> customIngredients = await dbContext.Ingredient.Load().ByIds(command.CreateProductRequest.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
         Product product = command.CreateProductRequest.ToDomain(category, ingredients, customIngredients);
 

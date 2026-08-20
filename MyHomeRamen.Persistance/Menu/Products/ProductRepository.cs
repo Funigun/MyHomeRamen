@@ -9,5 +9,5 @@ public sealed partial class ProductRepository(MenuDbContext menuDbContext, ICach
 {
     IProductQuery IProductRepository.Query() => this;
 
-    IProductSpecification IProductRepository.Specification() => this;
+    IProductLoader IProductRepository.Load() => this;
 }

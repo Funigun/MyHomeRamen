@@ -10,5 +10,5 @@ public sealed partial class PaymentRepository(OrdersDbContext ordersDbContext, I
 {
     public IPaymentQuery Query() => this;
 
-    public IPaymentSpecification Specification() => this;
+    public IPaymentLoader Load() => this;
 }

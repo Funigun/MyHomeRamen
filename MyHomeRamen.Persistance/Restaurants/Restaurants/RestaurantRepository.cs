@@ -9,5 +9,5 @@ public sealed partial class RestaurantRepository(RestaurantsDbContext restaurant
 {
     public IRestaurantQuery Query() => this;
 
-    public IRestaurantSpecification Specification() => this;
+    public IRestaurantLoader Load() => this;
 }

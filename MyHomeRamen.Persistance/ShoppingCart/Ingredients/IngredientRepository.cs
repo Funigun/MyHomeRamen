@@ -9,5 +9,5 @@ public sealed partial class IngredientRepository(ShoppingCartDbContext shoppingC
 {
     IIngredientQuery IIngredientRepository.Query() => this;
 
-    IIngredientSpecification IIngredientRepository.Specification() => this;
+    IIngredientLoader IIngredientRepository.Load() => this;
 }

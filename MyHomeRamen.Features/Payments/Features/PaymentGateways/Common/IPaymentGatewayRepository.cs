@@ -7,5 +7,5 @@ public interface IPaymentGatewayRepository : IRepository<PaymentGateway, Payment
 {
     IPaymentGatewayQuery Query();
 
-    IPaymentGatewaySpecification Specification();
+    IPaymentGatewayLoader Load();
 }

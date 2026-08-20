@@ -11,7 +11,7 @@ public sealed class DeleteAddressHandler(IIdentityDbContext dbContext, ICurrentU
 {
     public async Task Handle(DeleteAddressCommand command, CancellationToken cancellationToken)
     {
-        User user = await dbContext.User.Specification().ById(new UserId(currentUser.UserId), cancellationToken);
+        User user = await dbContext.User.Load().ById(new UserId(currentUser.UserId), cancellationToken);
 
         user.RemoveAddress(command.Id);
 

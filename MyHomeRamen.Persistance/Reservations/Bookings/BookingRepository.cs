@@ -10,5 +10,5 @@ public sealed partial class BookingRepository(ReservationsDbContext reservations
 {
     public IBookingQuery Query() => this;
 
-    public IBookingSpecification Specification() => this;
+    public IBookingLoader Load() => this;
 }

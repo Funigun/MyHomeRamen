@@ -33,7 +33,7 @@ public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : ICo
         UpdateCategoriesOrderRequest request = command.Request;
         IEnumerable<CategoryId> ids = request.Items.Select(i => (CategoryId)i.Id);
 
-        IEnumerable<Category> categories = await dbContext.Category.Specification().ByIds(ids, cancellationToken);
+        IEnumerable<Category> categories = await dbContext.Category.Load().ByIds(ids, cancellationToken);
 
         await ReorderCategories(categories, request, cancellationToken);
     }

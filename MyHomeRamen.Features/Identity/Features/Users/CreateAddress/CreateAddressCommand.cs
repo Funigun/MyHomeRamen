@@ -11,7 +11,7 @@ public sealed class CreateAddressHandler(IIdentityDbContext dbContext, ICurrentU
 {
     public async Task<CreateAddressResponse> Handle(CreateAddressCommand command, CancellationToken cancellationToken)
     {
-        User? user = await dbContext.User.Specification().ById(currentUser.UserId, cancellationToken);
+        User? user = await dbContext.User.Load().ById(currentUser.UserId, cancellationToken);
 
         Address address = command.Request.ToAddress();
 

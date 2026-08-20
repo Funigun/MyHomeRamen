@@ -9,5 +9,5 @@ public sealed partial class IngredientRepository(MenuDbContext menuDbContext, IC
 {
     IIngredientQuery IIngredientRepository.Query() => this;
 
-    IIngredientSpecification IIngredientRepository.Specification() => this;
+    IIngredientLoader IIngredientRepository.Load() => this;
 }

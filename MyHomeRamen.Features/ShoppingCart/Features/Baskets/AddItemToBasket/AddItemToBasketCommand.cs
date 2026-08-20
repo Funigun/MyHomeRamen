@@ -65,7 +65,7 @@ public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICu
     {
         UserId userId = new(currentUser.UserId);
 
-        Basket? basket = await dbContext.Basket.Specification().GetForUserTrackedAsync(userId, cancellationToken);
+        Basket? basket = await dbContext.Basket.Load().GetForUserTrackedAsync(userId, cancellationToken);
 
         if (basket is null)
         {

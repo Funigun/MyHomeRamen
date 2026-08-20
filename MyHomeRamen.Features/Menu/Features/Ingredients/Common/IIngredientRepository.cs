@@ -7,5 +7,5 @@ public interface IIngredientRepository : IRepository<Ingredient, IngredientId>
 {
     IIngredientQuery Query();
 
-    IIngredientSpecification Specification();
+    IIngredientLoader Load();
 }

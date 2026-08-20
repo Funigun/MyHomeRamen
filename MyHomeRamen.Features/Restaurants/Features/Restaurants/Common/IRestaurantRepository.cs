@@ -7,5 +7,5 @@ public interface IRestaurantRepository : IRepository<Restaurant, RestaurantId>
 {
     IRestaurantQuery Query();
 
-    IRestaurantSpecification Specification();
+    IRestaurantLoader Load();
 }

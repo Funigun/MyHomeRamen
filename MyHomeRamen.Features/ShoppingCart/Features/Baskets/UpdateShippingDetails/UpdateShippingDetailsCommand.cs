@@ -52,7 +52,7 @@ public sealed class UpdateShippingDetailsHandler(IShoppingCartDbContext dbContex
 {
     public async Task Handle(UpdateShippingDetailsCommand request, CancellationToken cancellationToken)
     {
-        Basket basket = await dbContext.Basket.Specification()
+        Basket basket = await dbContext.Basket.Load()
                                        .GetByIdForUserWithShippingTrackedAsync(request.BasketId, request.UserId, cancellationToken)
                                        ?? throw new InvalidOperationException("Basket was not found.");
 

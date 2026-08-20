@@ -9,5 +9,5 @@ public sealed partial class BasktetItemRepository(ShoppingCartDbContext shopping
 {
     IBasketItemQuery IBasketItemRepository.Query() => this;
 
-    IBasketItemSpecification IBasketItemRepository.Specification() => this;
+    IBasketItemLoader IBasketItemRepository.Load() => this;
 }

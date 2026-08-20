@@ -24,7 +24,7 @@ public sealed class DeleteIngredientHandler(IMenuDbContext dbContext) : ICommand
 {
     public async Task Handle(DeleteIngredientCommand id, CancellationToken cancellationToken)
     {
-        Ingredient ingredient = await dbContext.Ingredient.Specification().ById((IngredientId)id.Id, cancellationToken);
+        Ingredient ingredient = await dbContext.Ingredient.Load().ById((IngredientId)id.Id, cancellationToken);
 
         dbContext.Ingredient.Delete(ingredient);
 

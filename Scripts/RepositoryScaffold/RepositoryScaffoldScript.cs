@@ -18,7 +18,7 @@ public interface I{Aggregate}Repository : IRepository<{Aggregate}, {Aggregate}Id
 {
     I{Aggregate}Query Query();
 
-    I{Aggregate}Specification Specification();
+    I{Aggregate}Loader Load();
 }
 
 """;
@@ -36,13 +36,13 @@ public interface I{Aggregate}Query
 
 """;
 
-const string featureSpecificationTemplate =
+const string featureLoadTemplate =
 """
 using MyHomeRamen.Domain.{Module}.{AggregatePath};
 
 namespace MyHomeRamen.Features.{Module}.Features.{AggregatePath}.Common;
 
-public interface I{Aggregate}Specification
+public interface I{Aggregate}Loader
 {
 
 }
@@ -64,7 +64,7 @@ public partial class {Aggregate}Repository : I{Aggregate}Repository
 {
     I{Aggregate}Query I{Aggregate}Repository.Query() => this;
 
-    I{Aggregate}Specification I{Aggregate}Repository.Specification() => this;
+    I{Aggregate}Loader I{Aggregate}Repository.Load() => this;
 }
 """;
 
@@ -83,7 +83,7 @@ public partial class {Aggregate}Repository : I{Aggregate}Query
 
 """;
 
-const string persistanceSpecificationTemplate =
+const string persIstanceLoaderTemplate =
 """
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.{Module}.{AggregatePath};
@@ -91,14 +91,14 @@ using MyHomeRamen.Features.{Module}.Features.{AggregatePath}.Common;
 
 namespace MyHomeRamen.Persistance.{Module};
 
-public partial class {Aggregate}Repository : I{Aggregate}Specification
+public partial class {Aggregate}Repository : I{Aggregate}Loader
 {
 
 }
 
 """;
 
-IEnumerable<string> fileTypes = ["Repository", "Query", "Specification"];
+IEnumerable<string> fileTypes = ["Repository", "Query", "Load"];
 
 
 string PrepareFilePath(string templatePath, string type)
@@ -126,7 +126,7 @@ foreach (var fileType in fileTypes)
     {
         "Repository" => featureRepositoryTemplate,
         "Query" => featureQueryTemplate,
-        "Specification" => featureSpecificationTemplate,
+        "Load" => featureLoadTemplate,
         _ => throw new InvalidOperationException($"Unknown file type: {fileType}")
     };
 
@@ -134,7 +134,7 @@ foreach (var fileType in fileTypes)
     {
         "Repository" => persistanceRepositoryTemplate,
         "Query" => persistanceQueryTemplate,
-        "Specification" => persistanceSpecificationTemplate,
+        "Load" => persIstanceLoaderTemplate,
         _ => throw new InvalidOperationException($"Unknown file type: {fileType}")
     };
 

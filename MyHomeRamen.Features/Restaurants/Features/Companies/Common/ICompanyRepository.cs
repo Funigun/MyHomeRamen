@@ -7,5 +7,5 @@ public interface ICompanyRepository : IRepository<CompanyDetails, CompanyDetails
 {
     ICompanyQuery Query();
 
-    ICompanySpecification Specification();
+    ICompanyLoader Load();
 }

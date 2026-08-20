@@ -23,11 +23,11 @@ public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : ICommandHa
 {
     public async Task Handle(DeleteCategoryCommand command, CancellationToken cancellationToken)
     {
-        Category category = await dbContext.Category.Specification().ById((CategoryId)command.Request.Id, cancellationToken);
+        Category category = await dbContext.Category.Load().ById((CategoryId)command.Request.Id, cancellationToken);
 
         dbContext.Category.Delete(category);
 
-        List<Category> remaining = (await dbContext.Category.Specification().GetRemainingForResequencing(category.CategoryType, category.Id, cancellationToken)).ToList();
+        List<Category> remaining = (await dbContext.Category.Load().GetRemainingForResequencing(category.CategoryType, category.Id, cancellationToken)).ToList();
 
         for (int i = 0; i < remaining.Count; i++)
         {

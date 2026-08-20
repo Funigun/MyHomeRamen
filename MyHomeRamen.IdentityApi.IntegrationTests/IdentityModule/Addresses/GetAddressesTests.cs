@@ -48,7 +48,7 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
     public async Task GetAddresses_ShouldReturnEmptyList_WhenUserHasNoAddresses()
     {
         // Arrange
-        Role role = await apiFixture.ApiFactory.IdentityDbContext.Role.Specification().ByName("Customer", TestContext.Current.CancellationToken);
+        Role role = await apiFixture.ApiFactory.IdentityDbContext.Role.Load().ByName("Customer", TestContext.Current.CancellationToken);
 
         User newUser = User.Create(
             keycloakUserId: "test-no-addresses-user",

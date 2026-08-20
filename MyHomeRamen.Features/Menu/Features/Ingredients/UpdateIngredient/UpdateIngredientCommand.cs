@@ -40,9 +40,9 @@ public sealed class UpdateIngredientHandler(IMenuDbContext dbContext) : ICommand
 {
     public async Task<UpdateIngredientResponse> Handle(UpdateIngredientCommand request, CancellationToken cancellationToken)
     {
-        Ingredient ingredient = await dbContext.Ingredient.Specification().ById(request.Id, cancellationToken);
+        Ingredient ingredient = await dbContext.Ingredient.Load().ById(request.Id, cancellationToken);
 
-        IEnumerable<Category> categories = await dbContext.Category.Specification().ByIds(request.UpdateIngredientRequest.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
+        IEnumerable<Category> categories = await dbContext.Category.Load().ByIds(request.UpdateIngredientRequest.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
 
         ingredient.Update(request.UpdateIngredientRequest.Name, request.UpdateIngredientRequest.Description, request.UpdateIngredientRequest.Price, categories);
 

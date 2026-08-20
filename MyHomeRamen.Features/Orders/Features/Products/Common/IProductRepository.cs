@@ -7,5 +7,5 @@ public interface IProductRepository : IRepository<Product, ProductId>
 {
     IProductQuery Query();
 
-    IProductSpecification Specification();
+    IProductLoader Load();
 }

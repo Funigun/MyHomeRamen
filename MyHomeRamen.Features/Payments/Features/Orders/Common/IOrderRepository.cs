@@ -7,5 +7,5 @@ public interface IOrderRepository : IRepository<Order, OrderId>
 {
     IOrderQuery Query();
 
-    IOrderSpecification Specification();
+    IOrderLoader Load();
 }

@@ -7,5 +7,5 @@ public interface IBasketRepository : IRepository<Basket, BasketId>
 {
     IBasketQuery Query();
 
-    IBasketSpecification Specification();
+    IBasketLoader Load();
 }

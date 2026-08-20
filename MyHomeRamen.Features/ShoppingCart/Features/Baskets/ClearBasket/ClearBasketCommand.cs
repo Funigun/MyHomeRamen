@@ -24,7 +24,7 @@ public sealed class ClearBasketHandler(IShoppingCartDbContext dbContext) : IComm
 {
     public async Task Handle(ClearBasketCommand command, CancellationToken cancellationToken)
     {
-        Basket basket = await dbContext.Basket.Specification()
+        Basket basket = await dbContext.Basket.Load()
             .GetByIdForUserTrackedAsync(command.BasketId, command.UserId, cancellationToken);
 
         basket.Clear();

@@ -10,5 +10,5 @@ public sealed partial class ProductRepository(OrdersDbContext ordersDbContext, I
 {
     public IProductQuery Query() => this;
 
-    public IProductSpecification Specification() => this;
+    public IProductLoader Load() => this;
 }

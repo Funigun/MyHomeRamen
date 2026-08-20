@@ -25,7 +25,7 @@ public sealed class DeleteBasketItemValidationPolicy : AbstractValidator<DeleteB
             .MustAsync(async (command, basketItemId, ct) =>
             {
                 UserId userId = new(currentUser.UserId);
-                Basket? basket = await dbContext.Basket.Specification().GetByIdForUserTrackedAsync(command.BasketId, userId, ct);
+                Basket? basket = await dbContext.Basket.Load().GetByIdForUserTrackedAsync(command.BasketId, userId, ct);
                 return basket?.Items.Any(item => item.Id == basketItemId) ?? false;
             })
             .WithMessage("Basket item was not found in the specified basket.");
@@ -39,7 +39,7 @@ public sealed class DeleteBasketItemHandler(IShoppingCartDbContext dbContext, IC
     {
         UserId userId = new(currentUser.UserId);
 
-        Basket basket = await dbContext.Basket.Specification()
+        Basket basket = await dbContext.Basket.Load()
             .GetByIdForUserTrackedAsync(command.BasketId, userId, cancellationToken)
             ?? throw new InvalidOperationException("Basket was not found.");
 

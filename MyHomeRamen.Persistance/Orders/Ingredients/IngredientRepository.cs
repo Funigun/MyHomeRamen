@@ -10,5 +10,5 @@ public sealed partial class IngredientRepository(OrdersDbContext ordersDbContext
 {
     public IIngredientQuery Query() => this;
 
-    public IIngredientSpecification Specification() => this;
+    public IIngredientLoader Load() => this;
 }

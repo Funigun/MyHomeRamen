@@ -11,7 +11,7 @@ public sealed class UpdateAddressHandler(IIdentityDbContext dbContext, ICurrentU
 {
     public async Task<UpdateAddressResponse> Handle(UpdateAddressCommand command, CancellationToken cancellationToken)
     {
-        User? user = await dbContext.User.Specification().ByExternalId(currentUser.Id, cancellationToken);
+        User? user = await dbContext.User.Load().ByExternalId(currentUser.Id, cancellationToken);
 
         user!.UpdateAddress(
             command.Id,

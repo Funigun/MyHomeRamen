@@ -7,5 +7,5 @@ public interface IPaymentRepository : IRepository<Payment, PaymentId>
 {
     IPaymentQuery Query();
 
-    IPaymentSpecification Specification();
+    IPaymentLoader Load();
 }

@@ -9,5 +9,5 @@ public sealed partial class CompanyRepository(RestaurantsDbContext restaurantsDb
 {
     public ICompanyQuery Query() => this;
 
-    public ICompanySpecification Specification() => this;
+    public ICompanyLoader Load() => this;
 }

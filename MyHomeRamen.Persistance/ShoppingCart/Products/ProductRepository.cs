@@ -9,5 +9,5 @@ public sealed partial class ProductRepository(ShoppingCartDbContext shoppingCart
 {
     IProductQuery IProductRepository.Query() => this;
 
-    IProductSpecification IProductRepository.Specification() => this;
+    IProductLoader IProductRepository.Load() => this;
 }

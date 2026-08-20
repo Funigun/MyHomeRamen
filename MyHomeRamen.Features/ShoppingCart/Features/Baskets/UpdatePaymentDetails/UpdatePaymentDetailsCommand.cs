@@ -51,7 +51,7 @@ public sealed class UpdatePaymentDetailsHandler(IShoppingCartDbContext dbContext
 {
     public async Task Handle(UpdatePaymentDetailsCommand request, CancellationToken cancellationToken)
     {
-        Basket basket = await dbContext.Basket.Specification()
+        Basket basket = await dbContext.Basket.Load()
                                         .GetByIdForUserWithPaymentTrackedAsync(request.BasketId, request.UserId, cancellationToken)
                                         ?? throw new InvalidOperationException("Basket was not found.");
 

@@ -7,5 +7,5 @@ public interface IRoleRepository : IRepository<Role, RoleId>
 {
     IRoleQuery Query();
 
-    IRoleSpecification Specification();
+    IRoleLoader Load();
 }

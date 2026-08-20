@@ -19,7 +19,7 @@ public class MenuService(IMenuDbContext dbContext) : IMenuService
             return false;
         }
 
-        Product? product = await dbContext.Product.Specification().ById(new ProductId(productId), cancellationToken);
+        Product? product = await dbContext.Product.Load().ById(new ProductId(productId), cancellationToken);
 
         if (product is null)
         {
@@ -38,7 +38,7 @@ public class MenuService(IMenuDbContext dbContext) : IMenuService
         List<Guid> selectedCustomIngredientIds,
         CancellationToken cancellationToken)
     {
-        Product? product = await dbContext.Product.Specification().ById(new ProductId(productId), cancellationToken);
+        Product? product = await dbContext.Product.Load().ById(new ProductId(productId), cancellationToken);
 
         if (product is null)
         {

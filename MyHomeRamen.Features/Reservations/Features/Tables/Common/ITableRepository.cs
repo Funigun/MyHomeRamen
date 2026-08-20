@@ -7,5 +7,5 @@ public interface ITableRepository : IRepository<Table, TableId>
 {
     ITableQuery Query();
 
-    ITableSpecification Specification();
+    ITableLoader Load();
 }

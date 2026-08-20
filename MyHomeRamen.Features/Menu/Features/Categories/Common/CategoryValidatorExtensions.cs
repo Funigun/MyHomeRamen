@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
@@ -21,7 +21,7 @@ internal static class CategoryValidatorExtensions
     {
         return ruleBuilder.MustAsync(async (categoryId, cancellationToken) =>
                            {
-                               Category category = await dbContext.Category.Specification().ById(new CategoryId(categoryId), cancellationToken);
+                               Category category = await dbContext.Category.Load().ById(new CategoryId(categoryId), cancellationToken);
 
                                return category.CategoryType == CategoryType.Product
                                    ? !await dbContext.Category.Query().IsUsedByProducts(new CategoryId(categoryId), cancellationToken)

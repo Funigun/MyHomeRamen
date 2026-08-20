@@ -7,5 +7,5 @@ public interface IBookingRepository : IRepository<Booking, BookingId>
 {
     IBookingQuery Query();
 
-    IBookingSpecification Specification();
+    IBookingLoader Load();
 }
