@@ -6,4 +6,5 @@ public static class AuthorizationPolicies
     public const string RestaurantEmployeePolicy = "RestaurantEmployee";
     public const string RestaurantManagerPolicy = "RestaurantManager";
     public const string AnyAuthenticatedPolicy = "AnyAuthenticated";
+    public const string AuthenticatedUserPolicy = "AuthenticatedUser";
 }

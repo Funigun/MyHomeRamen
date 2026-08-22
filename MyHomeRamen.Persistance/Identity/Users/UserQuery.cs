@@ -34,4 +34,11 @@ public partial class UserRepository : IUserQuery
                   .Include(u => u.Addresses)
                   .Where(u => u.Id == new UserId(userId))
                   .Select(u => u.Addresses.Count).FirstAsync(cancellationToken);
+
+    public async Task<User> SystemAccount(CancellationToken cancellationToken)
+    {
+        string systemAccountName = "System";
+        return await identityDbContext.Users.AsNoTracking()
+                                            .FirstAsync(u => u.FirstName == systemAccountName, cancellationToken);
+    }
 }

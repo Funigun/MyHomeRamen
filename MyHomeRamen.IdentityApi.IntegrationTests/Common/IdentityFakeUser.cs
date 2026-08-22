@@ -6,7 +6,7 @@ namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;
 
 internal sealed class IdentityFakeUser(DataSeeder dataSeeder) : ICurrentUser
 {
-    public string Id { get; init; } = dataSeeder.SeededUserKeycloakId;
+    public string IdentityId { get; init; } = dataSeeder.SeededUserKeycloakId;
 
     public Guid UserId { get; init; } = Guid.Empty;
 

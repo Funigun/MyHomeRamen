@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.DeleteAddress;
@@ -15,8 +14,7 @@ public sealed class DeleteAddressEndpoint : IEndpoint
         endpointBuilder.MapStandardDelete("api/account/me/addresses/{id}", HandleAsync)
                        .WithName("DeleteAddressEndpoint")
                        .WithTags("account")
-                       .WithDescription("Deletes an address from the authenticated user's profile.")
-                       .RequireAuthorization(AuthorizationPolicies.AnyAuthenticatedPolicy);
+                       .WithDescription("Deletes an address from the authenticated user's profile.");
     }
 
     private static async Task<IResult> HandleAsync(
@@ -30,4 +28,3 @@ public sealed class DeleteAddressEndpoint : IEndpoint
         return TypedResults.NoContent();
     }
 }
-

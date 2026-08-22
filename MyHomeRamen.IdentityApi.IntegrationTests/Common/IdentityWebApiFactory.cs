@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Identity.Features.Roles.Common;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Features.Identity.Services;
@@ -12,6 +14,7 @@ using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Persistance.Identity;
+using MyHomeRamen.IntegrationTests.Identity;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;
 
@@ -43,6 +46,7 @@ public sealed class IdentityWebApiFactory(DbContainerFixture dbContainerFixture,
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddCacheService();
+        services.AddPermissionCatalogServices();
 
         _seedServiceProvider = services.BuildServiceProvider();
         _seedScope = _seedServiceProvider.CreateScope();
@@ -51,6 +55,9 @@ public sealed class IdentityWebApiFactory(DbContainerFixture dbContainerFixture,
         await seedDbContext.Database.MigrateAsync();
         IdentityDbContext = _seedScope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
 
+        IPermissionCatalogSynchronizer permissionCatalogSynchronizer = _seedScope.ServiceProvider.GetRequiredService<IPermissionCatalogSynchronizer>();
+        await permissionCatalogSynchronizer.Synchronize(TestContext.Current.CancellationToken);
+        await IdentityTestData.SeedAsync(_seedScope);
         await DataSeeder.SeedIdentityModule(IdentityDbContext);
 
         HttpClient = CreateClient();

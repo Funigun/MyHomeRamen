@@ -13,4 +13,6 @@ public interface IUserQuery
     Task<int> GetNumberOfAddresses(Guid userId, CancellationToken cancellationToken);
 
     Task<Guid?> GetIdByKeycloakId(string userId, CancellationToken cancellationToken);
+
+    Task<User> SystemAccount(CancellationToken cancellationToken);
 }

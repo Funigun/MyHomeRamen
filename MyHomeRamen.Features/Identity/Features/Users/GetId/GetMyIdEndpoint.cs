@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
@@ -18,8 +17,7 @@ public sealed class GetMyIdEndpoint : IEndpoint
         endpointBuilder.MapStandardGet<GetMyIdResponse>("api/account/me/id", HandleAsync)
                        .WithName("GetMyIdEndpoint")
                        .WithTags("account")
-                       .WithDescription("Returns the authenticated user's internal ID.")
-                       .RequireAuthorization(AuthorizationPolicies.AnyAuthenticatedPolicy);
+                       .WithDescription("Returns the authenticated user's internal ID.");
     }
 
     private static async Task<Results<Ok<GetMyIdResponse>, NotFound>> HandleAsync(
@@ -32,4 +30,3 @@ public sealed class GetMyIdEndpoint : IEndpoint
         return TypedResults.Ok(response);
     }
 }
-

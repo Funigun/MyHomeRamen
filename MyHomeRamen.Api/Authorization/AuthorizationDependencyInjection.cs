@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
 using Scalar.AspNetCore;
 
@@ -46,6 +47,10 @@ internal static class AuthorizationDependencyInjection
 
                 .AddPolicy(AnyAuthenticatedPolicy, policy =>
                     policy.AddAuthenticationSchemes(RestaurantCustomerPolicy, RestaurantEmployeePolicy, RestaurantManagerPolicy)
+                          .RequireAuthenticatedUser())
+
+                .AddPolicy(AuthorizationPolicies.AuthenticatedUserPolicy, policy =>
+                    policy.AddAuthenticationSchemes(AuthorizationPolicies.AuthenticatedUserPolicy)
                           .RequireAuthenticatedUser());
 
         return services;

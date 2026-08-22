@@ -35,6 +35,7 @@ public static class HttpClientExtensions
             (string token, string scheme) = userRole switch
             {
                 UserRoles.Admin => (JwtTokenFactory.GenerateAdminToken(userId), ManagerScheme),
+                UserRoles.Manager => (JwtTokenFactory.GenerateManagerToken(userId), ManagerScheme),
                 UserRoles.Employee => (JwtTokenFactory.GenerateEmployeeToken(userId), EmployeeScheme),
                 _ => (JwtTokenFactory.GenerateCustomerToken(userId), CustomerScheme)
             };

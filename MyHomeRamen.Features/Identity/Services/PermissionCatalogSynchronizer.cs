@@ -44,8 +44,9 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
 
                 if (!existingPermissionsByKey.ContainsKey(key))
                 {
-                    permissions.Add(Permission.Create(definition.Name, definition.Description, provider.ModuleName));
-                    identityDbContext.Permission.Add(Permission.Create(definition.Name, definition.Description, provider.ModuleName));
+                    Permission permission = Permission.Create(definition.Name, definition.Description, provider.ModuleName);
+                    permissions.Add(permission);
+                    identityDbContext.Permission.Add(permission);
                 }
             }
         }

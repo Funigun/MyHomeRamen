@@ -1,3 +1,4 @@
+using MyHomeRamen.Domain.Identity.Permissions;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
@@ -20,7 +21,15 @@ public class DataSeeder
 
     internal async Task SeedIdentityModule(IIdentityDbContext dbContext)
     {
-        Role role = Role.Create("customer", "Customer role for testing purposes");
+        IReadOnlyCollection<Permission> permissions = await dbContext.Permission.Query().All(TestContext.Current.CancellationToken);
+        PermissionId[] profilePermissionIds =
+        [
+            permissions.Single(permission => permission.Name == PermissionConstants.CanViewUserProfile).Id,
+            permissions.Single(permission => permission.Name == PermissionConstants.CanUpdateUserProfile).Id,
+            permissions.Single(permission => permission.Name == PermissionConstants.CanDeleteUserProfile).Id
+        ];
+
+        Role role = Role.Create("customer", "Customer role for testing purposes", profilePermissionIds);
 
         User user = User.Create(
             keycloakUserId: SeededUserKeycloakId,

@@ -55,7 +55,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.CreatedBy = _currentUser.Id;
+                    entry.Entity.CreatedBy = _currentUser.UserId.ToString();
                     break;
             }
         }

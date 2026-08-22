@@ -1,5 +1,10 @@
 using System.Reflection;
 using FluentValidation;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using MyHomeRamen.Api.Authorization;
+using MyHomeRamen.Api.DependencyInjection;
+using MyHomeRamen.Api.Middlewares;
+using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Features;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Infrastructure.Cache;
@@ -7,10 +12,6 @@ using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.ServiceDefaults;
 using Scalar.AspNetCore;
 using Serilog;
-using MyHomeRamen.Api.DependencyInjection;
-using MyHomeRamen.Api.Authorization;
-using MyHomeRamen.Api.Middlewares;
-using MyHomeRamen.Api.WebPresentation;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

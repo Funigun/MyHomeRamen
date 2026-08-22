@@ -62,12 +62,12 @@ public sealed partial class OrdersDbContext(DbContextOptions<OrdersDbContext> op
             switch (entry.State)
             {
                 case EntityState.Added:
-                    entry.Entity.CreatedBy = _currentUser.Id.ToString();
+                    entry.Entity.CreatedBy = _currentUser.UserId.ToString();
                     entry.Entity.CreatedOn = currentDateTime;
                     break;
 
                 case EntityState.Modified:
-                    entry.Entity.ModifiedBy = _currentUser.Id.ToString();
+                    entry.Entity.ModifiedBy = _currentUser.UserId.ToString();
                     entry.Entity.ModifiedOn = currentDateTime;
                     break;
             }

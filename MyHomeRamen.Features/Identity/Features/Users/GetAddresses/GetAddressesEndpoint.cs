@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetAddresses;
@@ -20,8 +19,7 @@ public sealed class GetAddressesEndpoint : IEndpoint
         endpointBuilder.MapStandardGet<GetAddressesResponse>("api/account/me/addresses", HandleAsync)
                        .WithName("GetAddressesEndpoint")
                        .WithTags("account")
-                       .WithDescription("Returns all addresses for the authenticated user.")
-                       .RequireAuthorization(AuthorizationPolicies.AnyAuthenticatedPolicy);
+                       .WithDescription("Returns all addresses for the authenticated user.");
     }
 
     private static async Task<Results<Ok<GetAddressesResponse>, NotFound>> HandleAsync(
@@ -34,4 +32,3 @@ public sealed class GetAddressesEndpoint : IEndpoint
         return TypedResults.Ok(response);
     }
 }
-

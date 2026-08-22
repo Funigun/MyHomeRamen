@@ -71,6 +71,17 @@ public class User : AuditableEntity, IEntity<UserId>
         return user;
     }
 
+    public static User CreateSystem()
+    {
+        return new()
+        {
+            Id = Guid.CreateVersion7(),
+            UserName = "System",
+            FirstName = "System",
+            LastName = "Account",
+        };
+    }
+
     public void AddRole(Role role)
     {
         _roles.Add(role);

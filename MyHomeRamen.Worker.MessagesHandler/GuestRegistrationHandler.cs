@@ -1,4 +1,5 @@
 ﻿using MyHomeRamen.Common.Contracts.Messaging;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Worker.Common;
 
@@ -11,6 +12,10 @@ internal partial class GuestRegistrationHandler(ILogger<GuestRegistrationHandler
         logger.LogInformation("Background messages worker starting at: {Time}", DateTimeOffset.Now);
 
         using IServiceScope scope = serviceScopeFactory.CreateScope();
+        
+        IAuthorizationService authorizationService = scope.ServiceProvider.GetRequiredService<IAuthorizationService>();
+        await authorizationService.ImpersonateSystemAccount(stoppingToken);
+
         IMessagesService messagesService = scope.ServiceProvider.GetRequiredService<IMessagesService>();
 
         await messagesService.ConsumeAsync<GuestUserCreatedIntegrationEvent>

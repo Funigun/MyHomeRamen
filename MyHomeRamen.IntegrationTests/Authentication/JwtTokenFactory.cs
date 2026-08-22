@@ -48,6 +48,13 @@ public static class JwtTokenFactory
         return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
     }
 
+    public static string GenerateManagerToken(string userId = "")
+    {
+        IEnumerable<Claim> claims = GenerateClaimsForRole(UserRoles.Manager, userId);
+
+        return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
+    }
+
     private static List<Claim> GenerateClaimsForRole(UserRoles role, string userId)
     {
         List<Claim> claims = [];
@@ -63,6 +70,11 @@ public static class JwtTokenFactory
                 claims.Add(new Claim(ClaimTypes.Role, "Employee"));
                 claims.Add(new Claim(ClaimTypes.Role, "MenuEmployee"));
                 claims.Add(new Claim(ClaimTypes.Role, "ShoppingCartEmployee"));
+                break;
+            case UserRoles.Manager:
+                claims.Add(new Claim(ClaimTypes.Role, "Manager"));
+                claims.Add(new Claim(ClaimTypes.Role, "MenuManager"));
+                claims.Add(new Claim(ClaimTypes.Role, "ShoppingCartManager"));
                 break;
             default:
                 claims.Add(new Claim(ClaimTypes.Role, "Customer"));

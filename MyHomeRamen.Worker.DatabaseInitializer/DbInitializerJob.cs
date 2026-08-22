@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using MyHomeRamen.Domain.Identity.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.ExternalApi;
@@ -70,6 +72,12 @@ internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbCo
             }
 
             logger.LogInformation("{Comment}", $"Schema {userConfig.Schema} configured successfully.");
+        }
+
+        if (!await userContext.User.Exists(user => user.FirstName == "System", cancellationToken))
+        {
+            userContext.User.Add(User.CreateSystem());
+            await userContext.SaveChangesAsync(cancellationToken);
         }
 
         await permissionCatalogSynchronizer.Synchronize(cancellationToken);

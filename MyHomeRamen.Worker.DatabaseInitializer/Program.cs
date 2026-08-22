@@ -43,8 +43,7 @@ try
         );
     });
 
-    builder.Services.AddScoped<ICurrentUser, WorkerUser>();
-
+    builder.Services.AddSharedServices();
     builder.Services.AddIdentityPersistance(databaseConfigurationProvider);
     builder.Services.AddRestaurantsPersistance(databaseConfigurationProvider);
     builder.Services.AddMenuPersistance(databaseConfigurationProvider);

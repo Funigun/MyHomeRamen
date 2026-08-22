@@ -4,7 +4,7 @@ namespace MyHomeRamen.Features.Common.Authorization;
 
 public sealed record CurrentUser : ICurrentUser
 {
-    public required string Id { get; init; }
+    public required string IdentityId { get; init; }
 
     public required Guid UserId { get; init; }
 
@@ -18,7 +18,7 @@ public sealed record CurrentUser : ICurrentUser
 
     public static CurrentUser Anonymous { get; } = new()
     {
-        Id = string.Empty,
+        IdentityId = string.Empty,
         UserId = Guid.Empty,
         IsAuthenticated = false,
         IsGuest = true,

@@ -5,7 +5,7 @@ namespace MyHomeRamen.IntegrationTests.Authentication;
 
 public class FakeUser : ICurrentUser
 {
-    public string Id { get; init; } = "Fake_User";
+    public string IdentityId { get; init; } = "Fake_User";
 
     public Guid UserId { get; init; } = Guid.Empty;
 

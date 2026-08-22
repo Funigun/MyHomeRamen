@@ -31,3 +31,13 @@ public class RegisterGuestHandler(IIdentityDbContext dbContext, IMessagesService
     }
 }
 
+internal static class Mappings
+{
+    extension(User user)
+    {
+        internal RegisterGuestResponse ToRegisterGuestResponse()
+        {
+            return new RegisterGuestResponse(user.GuestId!.Value);
+        }
+    }
+}

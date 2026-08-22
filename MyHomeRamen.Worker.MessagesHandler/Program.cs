@@ -8,6 +8,7 @@ using MyHomeRamen.Worker.MessagesHandler;
 using MyHomeRamen.Worker.MessagesHandler.Common;
 using Serilog;
 using MyHomeRamen.Infrastructure.Cache;
+using MyHomeRamen.Features;
 
 HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
@@ -29,10 +30,8 @@ try
 
     builder.AddWorkerServiceDefaults();
 
-    // Add current user mock for DB contexts that require AuditableEntity updates
-    builder.Services.AddScoped<ICurrentUser, WorkerUser>();
-
     // Add required database persistence
+    builder.Services.AddSharedServices();
     builder.Services.AddIdentityPersistance(databaseConfigurationProvider);
     builder.Services.AddMenuPersistance(databaseConfigurationProvider);
     builder.Services.AddBasketPersistance(databaseConfigurationProvider);
