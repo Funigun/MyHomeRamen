@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.CreateAddress;
@@ -26,8 +25,7 @@ public sealed class CreateAddressEndpoint : IEndpoint
         endpointBuilder.MapStandardPost<CreateAddressResponse>("api/account/me/addresses", HandleAsync)
                        .WithName("CreateAddressEndpoint")
                        .WithTags("account")
-                       .WithDescription("Adds a new address to the authenticated user's profile.")
-                       .RequireAuthorization(AuthorizationPolicies.AnyAuthenticatedPolicy);
+                       .WithDescription("Adds a new address to the authenticated user's profile.");
     }
 
     private static async Task<Results<Created<CreateAddressResponse>, BadRequest>> HandleAsync(
@@ -41,4 +39,3 @@ public sealed class CreateAddressEndpoint : IEndpoint
         return TypedResults.Created($"/api/account/me/addresses/{response.Id}", response);
     }
 }
-

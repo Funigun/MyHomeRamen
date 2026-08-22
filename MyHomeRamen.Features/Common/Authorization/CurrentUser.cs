@@ -1,42 +1,26 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
 namespace MyHomeRamen.Features.Common.Authorization;
 
-public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
+public sealed record CurrentUser : ICurrentUser
 {
-    public string Id => GetIdentityId();
+    public required string Id { get; init; }
 
-    public Guid UserId => TryGetUserId() ?? TryGetGuestId() ?? Guid.Empty;
+    public required Guid UserId { get; init; }
 
-    public IEnumerable<Claim> Claims { get; init; } = httpContextAccessor.HttpContext?.User?.Claims ?? [];
+    public IEnumerable<Claim> Claims { get; init; } = [];
 
-    private string GetIdentityId()
+    public required bool IsAuthenticated { get; init; }
+
+    public required bool IsGuest { get; init; }
+
+    public IReadOnlyCollection<string> Permissions { get; init; } = [];
+
+    public static CurrentUser Anonymous { get; } = new()
     {
-        return httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.KeycloakIdClaim)?.Value
-               ?? string.Empty;
-    }
-
-    private Guid? TryGetUserId()
-    {
-        Claim? domainIdClaim = httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.DomainIdClaim);
-
-        return Guid.TryParse(domainIdClaim?.Value, out Guid userId)
-             ? userId
-             : null;
-    }
-
-    private Guid? TryGetGuestId()
-    {
-        if (httpContextAccessor.HttpContext is null)
-        {
-            return null;
-        }
-
-        return
-            httpContextAccessor.HttpContext.Request.Cookies.TryGetValue("guest_id", out string? guestIdString)
-            && Guid.TryParse(guestIdString, out Guid parsedId)
-            ? parsedId
-            : null;
-    }
+        Id = string.Empty,
+        UserId = Guid.Empty,
+        IsAuthenticated = false,
+        IsGuest = true,
+    };
 }

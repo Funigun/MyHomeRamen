@@ -11,4 +11,16 @@ public static class PermissionConstants
     public const string RestaurantWorkingHoursEdit = "RestaurantDetails.WorkingHours.Edit";
     public const string RestaurantContactDetailsEdit = "RestaurantDetails.ContactDetails.Edit";
     public const string RestaurantClosingPeriodsEdit = "RestaurantDetails.ClosingPeriods.Edit";
+
+    public static IEnumerable<string> AvailablePermissions =>
+    [
+        CompanyDetailsEdit,
+        CompanySocialMediaEdit,
+        CompanyBusinessDetailsEdit,
+        RestaurantDetailsEdit,
+        RestaurantBankDetailsEdit,
+        RestaurantWorkingHoursEdit,
+        RestaurantContactDetailsEdit,
+        RestaurantClosingPeriodsEdit
+    ];
 }

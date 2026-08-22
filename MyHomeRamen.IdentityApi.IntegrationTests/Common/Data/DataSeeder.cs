@@ -20,7 +20,7 @@ public class DataSeeder
 
     internal async Task SeedIdentityModule(IIdentityDbContext dbContext)
     {
-        Role role = Role.CreateForSeed("customer", "Customer role for testing purposes");
+        Role role = Role.Create("customer", "Customer role for testing purposes");
 
         User user = User.Create(
             keycloakUserId: SeededUserKeycloakId,

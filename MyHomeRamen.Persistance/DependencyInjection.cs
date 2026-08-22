@@ -165,6 +165,7 @@ public static class DependencyInjection
         services.AddScoped<IIdentityDbContext, IdentityDbContext>();
         services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository, UserRepository>();
         services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository, RoleRepository>();
+        services.AddScoped<Features.Identity.Features.Permissions.Common.IPermissionRepository, PermissionRepository>();
 
         return services;
     }

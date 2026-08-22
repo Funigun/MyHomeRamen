@@ -3,11 +3,14 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
+using MyHomeRamen.Domain.Identity.Permissions;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.Features.Roles.Common;
+using MyHomeRamen.Features.Identity.Features.Permissions.Common;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Persistance.Identity.Converters;
+using MyHomeRamen.Domain.Abstractions;
 
 namespace MyHomeRamen.Persistance.Identity;
 
@@ -20,8 +23,13 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
 
     public DbSet<Role> Roles { get; set; }
 
+    public DbSet<Permission> Permissions { get; set; }
+
+    public DbSet<RolePermission> RolePermissions { get; set; }
+
     public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
     public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
+    public IPermissionRepository Permission => _serviceProvider.GetService<IPermissionRepository>() ?? throw new InvalidOperationException("PermissionRepository is not registered in the service provider.");
 
     public IdentityDbContext(DbContextOptions<IdentityDbContext> options, ICurrentUser currentUser) : this(options)
     {
@@ -42,17 +50,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
 
     private void UpdateEntities()
     {
-        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<User> entry in ChangeTracker.Entries<User>())
-        {
-            switch (entry.State)
-            {
-                case EntityState.Added:
-                    entry.Entity.CreatedBy = _currentUser.Id;
-                    break;
-            }
-        }
-
-        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<Role> entry in ChangeTracker.Entries<Role>())
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
         {
             switch (entry.State)
             {
@@ -96,6 +94,29 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             b.ToTable("Roles");
             b.HasKey(u => u.Id);
             b.Property(u => u.Id).ValueGeneratedNever();
+            b.HasMany(role => role.RolePermissions)
+             .WithOne();
+        });
+
+        modelBuilder.Entity<Permission>(b =>
+        {
+            b.ToTable("Permissions");
+            b.HasKey(permission => permission.Id);
+            b.Property(permission => permission.Id).ValueGeneratedNever();
+            b.Property(permission => permission.Name).IsRequired();
+            b.Property(permission => permission.Description).IsRequired();
+            b.Property(permission => permission.Module).IsRequired();
+            b.Property(permission => permission.IsResourceScoped).IsRequired();
+            b.HasIndex(permission => new { permission.Module, permission.Name }).IsUnique();
+            b.HasMany(permission => permission.RolePermissions)
+             .WithOne();
+        });
+
+        modelBuilder.Entity<RolePermission>(b =>
+        {
+            b.ToTable("RolePermissions");
+            b.HasKey(rp => rp.Id);
+            b.Property(rp => rp.Id).ValueGeneratedNever();;
         });
     }
 
@@ -103,6 +124,8 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     { 
         configurationBuilder.Properties<UserId>().HaveConversion<UserIdConverter>();
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
+        configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
+        configurationBuilder.Properties<RolePermissionId>().HaveConversion<RolePermissionIdConverter>();
     }
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
@@ -131,7 +154,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     {
         if (!await Roles.AnyAsync(cancellationToken))
         {
-            IEnumerable<Role> roles = RoleConstants.AvailableRoles.Select(roleName => Domain.Identity.Roles.Role.CreateForSeed(roleName, $"{roleName} role"));
+            IEnumerable<Role> roles = RoleConstants.AvailableRoles.Select(roleName => Domain.Identity.Roles.Role.Create(roleName, $"{roleName} role"));
 
             await Roles.AddRangeAsync(roles, cancellationToken);
             await SaveChangesAsync(cancellationToken);

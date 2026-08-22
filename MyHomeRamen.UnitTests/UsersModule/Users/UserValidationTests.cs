@@ -11,7 +11,7 @@ public class UserValidationTests
     private const string ValidLastName = "User";
     private const string ValidEmail = "test@example.com";
     private const string ValidPhoneNumber = "123456789";
-    private static readonly Role ValidRole = Role.CreateForTest("customer");
+    private static readonly Role ValidRole = Role.Create("customer", "customer role");
 
     [Fact]
     public void Create_Should_SetEmail_When_DataIsValid()

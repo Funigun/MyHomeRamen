@@ -10,4 +10,7 @@ public class FakeUser : ICurrentUser
     public Guid UserId { get; init; } = Guid.Empty;
 
     public IEnumerable<Claim> Claims { get; init; } = [];
+    public bool IsAuthenticated { get; init; }
+    public bool IsGuest { get; init; }
+    public IReadOnlyCollection<string> Permissions { get; init; } = [];
 }

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Orders.Features.Abstractions;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
@@ -15,6 +16,7 @@ namespace MyHomeRamen.Worker.DatabaseInitializer;
 internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbContext menuDbContext, IShoppingCartDbContext shoppingCartDbContext,
                                 IOrdersDbContext ordersDbContext, IReservationsDbContext reservationsDbContext, IRestaurantDbContext restaurantDbContext,
                                 IPaymentsDbContext paymentsDbContext, IConfiguration configuration,
+                                IPermissionCatalogSynchronizer permissionCatalogSynchronizer,
                                 ILogger<DbInitializerJob> logger)
              : IJob
 {
@@ -69,5 +71,7 @@ internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbCo
 
             logger.LogInformation("{Comment}", $"Schema {userConfig.Schema} configured successfully.");
         }
+
+        await permissionCatalogSynchronizer.Synchronize(cancellationToken);
     }
 }

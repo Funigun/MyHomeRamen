@@ -9,8 +9,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Identity\Extensions\" />
-		<Folder Include="Identity\Features\Employees\" />
 		<Folder Include="Restaurants\" />
 		<Folder Include="Reservations\" />
 	</ItemGroup>

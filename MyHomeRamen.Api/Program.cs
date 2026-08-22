@@ -61,6 +61,7 @@ try
                     .AddProblemDetails();
 
     builder.Services.AddSharedServices()
+                    .AddPermissionCatalogServices()
                     .AddEndpoints(featuresAssembly)
                     .AddCommandHandlers(featuresAssembly)
                     .AddQueryHandlers(featuresAssembly)
@@ -105,6 +106,7 @@ try
 
     app.UseHttpsRedirection();
     app.UseAuthentication();
+    app.UseMiddleware<UserLoginMiddleware>();
     app.UseSerilogRequestLogging();
     app.MapDefaultEndpoints();
     app.MapEndpoints();

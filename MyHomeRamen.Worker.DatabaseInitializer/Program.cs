@@ -1,5 +1,6 @@
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.Worker.Common;
@@ -27,6 +28,7 @@ try
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
     builder.AddWorkerServiceDefaults();
+    builder.Services.AddPermissionCatalogServices();
 
     builder.Services.AddQuartzServices(q =>
     {

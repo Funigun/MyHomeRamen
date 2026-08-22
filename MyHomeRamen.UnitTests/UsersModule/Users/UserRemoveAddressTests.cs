@@ -78,7 +78,7 @@ public sealed class UserRemoveAddressTests
             lastName: "User",
             email: "test@example.com",
             phoneNumber: "123456789",
-            role: Role.CreateForTest("customer"));
+            role: Role.Create("customer", "customer role"));
     }
 
     private static Address CreateAddress(bool isDefault = false)
