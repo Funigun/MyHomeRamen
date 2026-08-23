@@ -8,9 +8,9 @@ namespace MyHomeRamen.Persistance.Identity;
 
 public sealed partial class PermissionRepository : IPermissionQuery
 {
-    public async Task<IReadOnlyCollection<Permission>> All(CancellationToken cancellationToken)
+    async Task<IReadOnlyCollection<Permission>> IPermissionQuery.All(CancellationToken cancellationToken)
         => await identityDbContext.Permissions.AsNoTracking().ToArrayAsync(cancellationToken);
-
+     
     public async Task<IReadOnlyCollection<Permission>> ByUserId(Guid userId, CancellationToken cancellationToken)
     {
         List<RoleId> roleIds = await identityDbContext.Users.AsNoTracking()

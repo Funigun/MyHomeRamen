@@ -80,7 +80,6 @@ public sealed class AddressUpdateTests
     private static Address CreateAddress(bool isDefault = false)
     {
         return Address.Create(
-            id: DefaultId,
             street: DefaultStreet,
             building: DefaultBuilding,
             apartment: DefaultApartment,

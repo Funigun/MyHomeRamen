@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Builder;
-using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetAddresses;
 
@@ -19,7 +20,8 @@ public sealed class GetAddressesEndpoint : IEndpoint
         endpointBuilder.MapStandardGet<GetAddressesResponse>("api/account/me/addresses", HandleAsync)
                        .WithName("GetAddressesEndpoint")
                        .WithTags("account")
-                       .WithDescription("Returns all addresses for the authenticated user.");
+                       .WithDescription("Returns all addresses for the authenticated user.")
+                       .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<Results<Ok<GetAddressesResponse>, NotFound>> HandleAsync(

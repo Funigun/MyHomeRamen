@@ -40,11 +40,11 @@ public class DataSeeder
             phoneNumber: "123456789",
             role: role);
 
-        Address seededAddress = Address.Create(Guid.NewGuid(), "Seeded Street", "1A", string.Empty, "Warsaw", "00-001", isDefault: true);
+        Address seededAddress = Address.Create("Seeded Street", "1A", string.Empty, "Warsaw", "00-001", isDefault: true);
         SeededAddressId = seededAddress.Id;
         user.AddAddress(seededAddress);
 
-        Address seededSecondAddress = Address.Create(Guid.NewGuid(), "Second Street", "2B", string.Empty, "Warsaw", "00-002", isDefault: false);
+        Address seededSecondAddress = Address.Create("Second Street", "2B", string.Empty, "Warsaw", "00-002", isDefault: false);
         SeededSecondAddressId = seededSecondAddress.Id;
         user.AddAddress(seededSecondAddress);
 
@@ -59,7 +59,7 @@ public class DataSeeder
             phoneNumber: "111222333",
             role: role);
 
-        Address anotherUserAddress = Address.Create(Guid.NewGuid(), "Another Street", "2B", string.Empty, "Krakow", "31-001", isDefault: true);
+        Address anotherUserAddress = Address.Create("Another Street", "2B", string.Empty, "Krakow", "31-001", isDefault: true);
         AnotherUserAddressId = anotherUserAddress.Id;
         anotherUser.AddAddress(anotherUserAddress);
 
@@ -77,7 +77,6 @@ public class DataSeeder
         for (int i = 0; i < 5; i++)
         {
             Address address = Address.Create(
-                Guid.NewGuid(),
                 $"Street {i + 1}",
                 $"Building{i + 1}",
                 string.Empty,

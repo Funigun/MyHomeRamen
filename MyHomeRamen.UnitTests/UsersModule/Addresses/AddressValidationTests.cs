@@ -6,7 +6,6 @@ namespace MyHomeRamen.UnitTests.UsersModule.Addresses;
 
 public sealed class AddressValidationTests
 {
-    private static readonly Guid DefaultId = Guid.NewGuid();
     private const string DefaultStreet = "Main Street";
     private const string DefaultBuilding = "10A";
     private const string DefaultApartment = "5";
@@ -20,7 +19,6 @@ public sealed class AddressValidationTests
         Address address = CreateAddress();
 
         // Assert
-        Assert.Equal(DefaultId, address.Id);
         Assert.Equal(DefaultStreet, address.Street);
         Assert.Equal(DefaultBuilding, address.Building);
         Assert.Equal(DefaultApartment, address.Apartment);
@@ -144,7 +142,6 @@ public sealed class AddressValidationTests
         bool isDefault = false)
     {
         return Address.Create(
-            DefaultId,
             street ?? DefaultStreet,
             building ?? DefaultBuilding,
             apartment ?? DefaultApartment,

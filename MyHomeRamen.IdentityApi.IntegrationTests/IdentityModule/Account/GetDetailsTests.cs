@@ -2,11 +2,12 @@ using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Features.Identity.Features.Users.GetDetails;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Account;
 
-public sealed class GetDetailsTests(IdentityApiFixture apiFixture) : IClassFixture<IdentityApiFixture>
+public sealed class GetDetailsTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>
 {
     private const string Endpoint = "/api/account/me";
 
@@ -15,10 +16,10 @@ public sealed class GetDetailsTests(IdentityApiFixture apiFixture) : IClassFixtu
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
-        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+        httpRequest.AddAuthorizationHeader(UserRoles.Customer);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -39,7 +40,7 @@ public sealed class GetDetailsTests(IdentityApiFixture apiFixture) : IClassFixtu
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);

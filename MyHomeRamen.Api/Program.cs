@@ -1,6 +1,5 @@
 using System.Reflection;
 using FluentValidation;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Api.Authorization;
 using MyHomeRamen.Api.DependencyInjection;
 using MyHomeRamen.Api.Middlewares;

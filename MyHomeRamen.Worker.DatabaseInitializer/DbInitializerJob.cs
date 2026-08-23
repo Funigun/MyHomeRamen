@@ -1,6 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using MyHomeRamen.Domain.Identity.Users;
-using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.ExternalApi;

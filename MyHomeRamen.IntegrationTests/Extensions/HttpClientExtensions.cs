@@ -34,15 +34,24 @@ public static class HttpClientExtensions
         {
             (string token, string scheme) = userRole switch
             {
-                UserRoles.Admin => (JwtTokenFactory.GenerateAdminToken(userId), ManagerScheme),
-                UserRoles.Manager => (JwtTokenFactory.GenerateManagerToken(userId), ManagerScheme),
-                UserRoles.Employee => (JwtTokenFactory.GenerateEmployeeToken(userId), EmployeeScheme),
-                _ => (JwtTokenFactory.GenerateCustomerToken(userId), CustomerScheme)
+                UserRoles.Admin => (JwtTokenFactory.GenerateAdminToken(), ManagerScheme),
+                UserRoles.Manager => (JwtTokenFactory.GenerateManagerToken(), ManagerScheme),
+                UserRoles.Employee => (JwtTokenFactory.GenerateEmployeeToken(), EmployeeScheme),
+                _ => (JwtTokenFactory.GenerateCustomerToken(), CustomerScheme)
             };
 
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             httpRequest.Headers.Add(SchemeHeader, scheme);
 
+            return httpRequest;
+        }
+
+        public HttpRequestMessage AddAuthorizationHeader((string keycloakUserId, Guid userId) user)
+        {
+            string token = JwtTokenFactory.GenerateToken(user.userId, user.keycloakUserId);
+
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            httpRequest.Headers.Add(SchemeHeader, "AuthenticatedUser");
             return httpRequest;
         }
 

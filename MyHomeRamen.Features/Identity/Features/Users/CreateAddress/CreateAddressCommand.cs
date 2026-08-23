@@ -70,7 +70,6 @@ internal static class Mappings
         internal Address ToAddress()
         {
             return Address.Create(
-                Guid.CreateVersion7(),
                 request.Street,
                 request.Building,
                 request.Apartment ?? string.Empty,

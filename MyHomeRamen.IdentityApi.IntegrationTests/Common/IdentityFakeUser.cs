@@ -1,12 +1,11 @@
 using System.Security.Claims;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;
 
-internal sealed class IdentityFakeUser(DataSeeder dataSeeder) : ICurrentUser
+internal sealed class IdentityFakeUser : ICurrentUser
 {
-    public string IdentityId { get; init; } = dataSeeder.SeededUserKeycloakId;
+    public string IdentityId { get; init; } = Guid.CreateVersion7().ToString();
 
     public Guid UserId { get; init; } = Guid.Empty;
 

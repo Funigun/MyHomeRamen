@@ -1,13 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
+using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Features.Users.CreateAddress;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
+using MyHomeRamen.IntegrationTests.Extensions;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
 
-public sealed class AddAddressTests(IdentityApiFixture apiFixture) : IClassFixture<IdentityApiFixture>
+public sealed class AddAddressTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>
 {
     [Fact]
     public async Task AddAddress_ShouldReturn201_WithNewAddress()
@@ -19,10 +20,10 @@ public sealed class AddAddressTests(IdentityApiFixture apiFixture) : IClassFixtu
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.CustomerUser);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         await response.AssertStatusCode(expectedStatusCode);
@@ -38,14 +39,23 @@ public sealed class AddAddressTests(IdentityApiFixture apiFixture) : IClassFixtu
     public async Task AddAddress_ShouldReturn400_WhenUserHas5Addresses()
     {
         // Arrange
+        User user = await apiFactory.IdentityDbContext.User.Load().ById(new UserId(apiFactory.IdentityTestData.ManagerUser.UserId), TestContext.Current.CancellationToken);
+
+        for (int i = 0; i < 5; i++)
+        {
+            user.AddAddress(Address.Create($"Street {i}", $"Building {i}", $"Apartment {i}", $"City {i}", $"ZipCode {i}", isDefault: false));
+        }
+
+        await apiFactory.IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
         CreateAddressRequest request = DataGenerator.GenerateValidAddAddressRequest();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.FullAddressesUserKeycloakId);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.ManagerUser);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         await response.AssertStatusCode(HttpStatusCode.BadRequest);
@@ -61,7 +71,7 @@ public sealed class AddAddressTests(IdentityApiFixture apiFixture) : IClassFixtu
         httpRequest.WithJsonContent(request);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         await response.AssertStatusCode(HttpStatusCode.Unauthorized);
@@ -74,10 +84,10 @@ public sealed class AddAddressTests(IdentityApiFixture apiFixture) : IClassFixtu
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.CustomerUser);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         await response.AssertStatusCode(HttpStatusCode.BadRequest);

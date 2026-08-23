@@ -1,12 +1,13 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.Features.Identity.Services;
 
-internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbContext identityDbContext) : IAuthorizationService
+internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbContext identityDbContext, ILogger<AuthorizationService> logger) : IAuthorizationService
 {
     private const string GuestIdCookieName = "guest_id";
 
@@ -14,43 +15,34 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
     {
         IReadOnlyCollection<Claim> claims = context.User.Claims.ToArray();
 
-        string id = claims.FirstOrDefault(claim => claim.Type == ClaimConstants.KeycloakIdClaim)?.Value ?? string.Empty;
-        bool isAuthenticated = !string.IsNullOrEmpty(id);
+        string identityId = claims.FirstOrDefault(claim => claim.Type == ClaimConstants.KeycloakIdClaim)?.Value ?? string.Empty;
+        bool isAuthenticated = !string.IsNullOrEmpty(identityId);
 
         Guid? domainUserId = TryGetDomainUserId(claims);
-        Guid userId = domainUserId ?? TryGetGuestId(context) ?? Guid.Empty;
+        Guid guestId = domainUserId ?? TryGetGuestId(context) ?? Guid.Empty;
+
+        User? user = await identityDbContext.User.Query().ById(guestId, cancellationToken);
+
+        ValidateUser(identityId, guestId, domainUserId, user);
 
         IReadOnlyCollection<string> permissions = domainUserId is not null
                                                 ? (await identityDbContext.Permission.Query().ByUserId(domainUserId.Value, context.RequestAborted)).Select(p => p.Name).ToArray()
                                                 : [];
 
-#pragma warning disable S1854 // Unused assignments should be removed
-        // CurrentUser is scoped service, so we can assign it here and it will be available for the rest of the request
-        currentUser = new CurrentUser
-        {
-            IdentityId = id,
-            UserId = userId,
-            Claims = claims,
-            IsAuthenticated = isAuthenticated,
-            IsGuest = !isAuthenticated,
-            Permissions = permissions,
-        };
-#pragma warning restore S1854 // Unused assignments should be removed
+        currentUser.Update(identityId, guestId, claims, isAuthenticated, !isAuthenticated, permissions);
     }
 
     public async Task<ICurrentUser> ImpersonateSystemAccount(CancellationToken cancellationToken)
     {
         User user = await identityDbContext.User.Query().SystemAccount(cancellationToken);
 
-        currentUser = new CurrentUser
-        {
-            IdentityId = user.KeycloakUserId ?? string.Empty,
-            UserId = user.Id.Value,
-            Claims = [],
-            IsAuthenticated = true,
-            IsGuest = false,
-            Permissions = [],
-        };
+        currentUser.Update(
+            user.KeycloakUserId ?? string.Empty,
+            user.Id.Value,
+            [],
+            true,
+            false,
+            []);
 
         return currentUser;
     }
@@ -68,5 +60,14 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
                && Guid.TryParse(guestIdString, out Guid parsedId)
                ? parsedId
                : null;
+    }
+
+    private void ValidateUser(string identityId, Guid? guestId, Guid? domainUserId, User? user)
+    {
+        if (!string.IsNullOrEmpty(identityId) && identityId != user?.KeycloakUserId)
+        {
+            logger.LogCritical("User identity mismatch between Keycloak and domain user.");
+            throw new UnauthorizedAccessException();
+        }
     }
 }

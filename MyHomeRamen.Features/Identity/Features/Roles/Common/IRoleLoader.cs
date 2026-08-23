@@ -4,5 +4,5 @@ namespace MyHomeRamen.Features.Identity.Features.Roles.Common;
 
 public interface IRoleLoader
 {
-    Task<Role> ByName(string roleName, CancellationToken cancellationToken);
+    Task<Role?> ByName(string roleName, CancellationToken cancellationToken);
 }

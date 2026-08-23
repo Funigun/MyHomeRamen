@@ -11,7 +11,7 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
 {
     public async Task Synchronize(CancellationToken cancellationToken)
     {
-        IReadOnlyCollection<Permission> existingPermissions = await identityDbContext.Permission.Query().All(cancellationToken);
+        IEnumerable<Permission> existingPermissions = await identityDbContext.Permission.Load().All(cancellationToken);
         
         Dictionary<(string Module, string Name), Permission> existingPermissionsByKey = existingPermissions.ToDictionary(permission => (permission.Module, permission.Name));
         
@@ -19,7 +19,7 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
                                                                .ToHashSet(StringComparer.Ordinal);
 
         IEnumerable<Permission> addedPermissions = AddMissingPermissions(existingPermissionsByKey);
-        IEnumerable<Permission> removedPermissions = RemoveOldPermissions(existingPermissions, modules, addedPermissions);
+        IEnumerable<Permission> removedPermissions = RemoveOldPermissions(existingPermissions, modules);
 
         await identityDbContext.SaveChangesAsync(cancellationToken);
 
@@ -54,9 +54,11 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
         return permissions;
     }
 
-    private IEnumerable<Permission> RemoveOldPermissions(IEnumerable<Permission> existingPermissions, HashSet<string> modules, IEnumerable<Permission> addedPermissions)
+    private IEnumerable<Permission> RemoveOldPermissions(IEnumerable<Permission> existingPermissions, HashSet<string> modules)
     {
-        HashSet<(string Module, string Name)> definedKeys = addedPermissions.Select(p => (p.Module, p.Name)).ToHashSet();
+        HashSet<(string Module, string Name)> definedKeys = permissionDefinitionProviders.SelectMany(provider => provider.Permissions
+                                                                                                          .Select(permission => (provider.ModuleName, permission.Name)))
+                                                                                             .ToHashSet();
 
         IEnumerable<Permission> removedPermissions = existingPermissions.Where(permission => modules.Contains(permission.Module) && !definedKeys.Contains((permission.Module, permission.Name)));
 
@@ -72,11 +74,11 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
     {
         IEnumerable<PermissionId> allPermissionIds = allPermissions.Select(p => p.Id);
 
-        Role adminRole = await identityDbContext.Role.Load().ByName(RoleConstants.Admin, cancellationToken) ?? Role.CreateAdmin(allPermissionIds);
+        Role? adminRole = await identityDbContext.Role.Load().ByName(RoleConstants.Admin, cancellationToken);
 
-        if (adminRole.Id.Value == Guid.Empty)
+        if (adminRole is null)
         {
-            identityDbContext.Role.Add(adminRole);
+            identityDbContext.Role.Add(Role.CreateAdmin(allPermissionIds));
         }
         else
         {
@@ -92,11 +94,11 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
         IEnumerable<PermissionId> guestPermissionIds = allCurrentPermissions.Where(p => guestPermissions.Any(gp => gp.Name == p.Name && gp.Module == p.Module))
                                                                             .Select(p => p.Id);
 
-        Role guestRole = await identityDbContext.Role.Load().ByName(RoleConstants.Guest, cancellationToken) ?? Role.CreateGuest(guestPermissionIds);
+        Role? guestRole = await identityDbContext.Role.Load().ByName(RoleConstants.Guest, cancellationToken);
 
-        if (guestRole.Id.Value == Guid.Empty)
+        if (guestRole is null)
         {
-            identityDbContext.Role.Add(guestRole);
+            identityDbContext.Role.Add(Role.CreateGuest(guestPermissionIds));
         }
         else
         {

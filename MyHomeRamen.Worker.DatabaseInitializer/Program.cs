@@ -1,11 +1,9 @@
-using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.DatabaseInitializer;
-using MyHomeRamen.Worker.DatabaseInitializer.Config;
 using Quartz;
 using Serilog;
 

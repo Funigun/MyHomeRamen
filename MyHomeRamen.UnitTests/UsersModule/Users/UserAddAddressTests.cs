@@ -102,7 +102,6 @@ public sealed class UserAddAddressTests
     private static Address CreateAddress(bool isDefault = false)
     {
         return Address.Create(
-            id: Guid.NewGuid(),
             street: "Main Street",
             building: "10A",
             apartment: "5",

@@ -91,6 +91,16 @@ internal static class AuthorizationDependencyInjection
                         ValidIssuers = validIssuers,
                     };
                 })
+                .AddJwtBearer(AuthorizationPolicies.AuthenticatedUserPolicy, options =>
+                {
+                    options.Authority = authConfig.Authority;
+                    options.Audience = authConfig.Audience;
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuers = validIssuers,
+                    };
+                })
                 .AddPolicyScheme(JwtBearerDefaults.AuthenticationScheme, null, options =>
                 {
                     options.ForwardDefaultSelector = context =>

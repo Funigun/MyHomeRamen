@@ -1,11 +1,9 @@
-using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.ServiceDefaults;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.MessagesHandler;
-using MyHomeRamen.Worker.MessagesHandler.Common;
 using Serilog;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Features;

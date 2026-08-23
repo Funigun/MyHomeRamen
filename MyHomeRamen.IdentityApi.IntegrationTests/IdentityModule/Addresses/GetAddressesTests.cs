@@ -1,14 +1,16 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Features.Identity.Features.Users.GetAddresses;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
-using MyHomeRamen.IdentityApi.IntegrationTests.Common.Configuration;
+using MyHomeRamen.IntegrationTests.Extensions;
+using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
 
-public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFixture<IdentityApiFixture>
+public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>
 {
     private const string Endpoint = "/api/account/me/addresses";
 
@@ -16,11 +18,22 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
     public async Task GetAddresses_ShouldReturn200_WithAddressList()
     {
         // Arrange
+        Address defaultAddress = Address.Create("123 Main St", "Building A", "Apt 1", "Cityville", "12345", isDefault: true);
+        Address address = Address.Create("123 Main St", "Building A", "Apt 1", "Cityville", "12345", isDefault: false);
+
+        using IServiceScope scope = apiFactory.CreateSeedScope();
+        IIdentityDbContext dbContext = scope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
+        User user = await dbContext.User.Load().ById(apiFactory.IdentityTestData.EmployeeUser.UserId, TestContext.Current.CancellationToken);
+        user.AddAddress(defaultAddress);
+        user.AddAddress(address);
+
+        await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
-        httpRequest.AddIdentityAuthorizationHeader(apiFixture.ApiFactory.DataSeeder.SeededUserKeycloakId);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.EmployeeUser);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -38,7 +51,7 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -48,7 +61,8 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
     public async Task GetAddresses_ShouldReturnEmptyList_WhenUserHasNoAddresses()
     {
         // Arrange
-        Role role = await apiFixture.ApiFactory.IdentityDbContext.Role.Load().ByName("Customer", TestContext.Current.CancellationToken);
+        
+        Role role = await apiFactory.IdentityDbContext.Role.Load().ByName("Customer", TestContext.Current.CancellationToken);
 
         User newUser = User.Create(
             keycloakUserId: "test-no-addresses-user",
@@ -59,14 +73,14 @@ public sealed class GetAddressesTests(IdentityApiFixture apiFixture) : IClassFix
             phoneNumber: "000000000",
             role: role);
 
-        apiFixture.ApiFactory.IdentityDbContext.User.Add(newUser);
-        await apiFixture.ApiFactory.IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        apiFactory.IdentityDbContext.User.Add(newUser);
+        await apiFactory.IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
-        httpRequest.AddIdentityAuthorizationHeader("test-no-addresses-user");
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.CustomerUser);
 
         // Act
-        HttpResponseMessage response = await apiFixture.ApiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

@@ -62,8 +62,11 @@ public class User : AuditableEntity, IEntity<UserId>
         {
             Id = Guid.CreateVersion7(),
             GuestId = Guid.CreateVersion7(),
+            UserName = "Guest",
             FirstName = "Guest",
             LastName = "User",
+            Email = "guest@example.com",
+            PhoneNumber = "000-000-000",
             Role = "Guest"
         };
 
@@ -79,6 +82,8 @@ public class User : AuditableEntity, IEntity<UserId>
             UserName = "System",
             FirstName = "System",
             LastName = "Account",
+            Email = "system@example.com",
+            PhoneNumber = "000-000-000",
         };
     }
 

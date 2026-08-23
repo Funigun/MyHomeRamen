@@ -9,9 +9,9 @@ public sealed record GetMyIdQuery : IQuery<GetMyIdResponse>;
 
 public sealed class GetMyIdAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetMyIdQuery>
 {
-    public Task<bool> Authorize(GetMyIdQuery request, CancellationToken cancellationToken)
+    public async Task<bool> Authorize(GetMyIdQuery request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(currentUser.CanViewUserProfile());
+        return currentUser.CanViewUserProfile();
     }
 }
 

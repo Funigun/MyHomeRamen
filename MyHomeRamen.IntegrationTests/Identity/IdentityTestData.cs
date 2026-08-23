@@ -7,23 +7,19 @@ using MyHomeRamen.Features.Identity.ExternalApi;
 
 namespace MyHomeRamen.IntegrationTests.Identity;
 
-public static class IdentityTestData
+public class IdentityTestData
 {
-    public static Guid AdminUserId { get; private set; }
+    public (string KeycloakUserId, Guid UserId) AdminUser { get; private set;  }
+    public (string KeycloakUserId, Guid UserId) GuestUser { get; private set; }
+    public (string KeycloakUserId, Guid UserId) EmployeeUser { get; private set; }
+    public (string KeycloakUserId, Guid UserId) ManagerUser { get; private set; }
+    public (string KeycloakUserId, Guid UserId) CustomerUser { get; private set; }
 
-    public static Guid GuestUserId { get; private set; }
+    private IIdentityDbContext identityDbContext = null!;
 
-    public static Guid GuestId { get; private set; }
-
-    public static Guid EmployeeUserId { get; private set; }
-
-    public static Guid ManagerUserId { get; private set; }
-
-    public static Guid CustomerUserId { get; private set; }
-
-    public static async Task SeedAsync(IServiceScope seedScope)
+    public async Task SeedAsync(IServiceScope seedScope)
     {
-        IIdentityDbContext identityDbContext = seedScope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
+        identityDbContext = seedScope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
 
         IPermissionCatalogSynchronizer permissionCatalogSynchronizer = seedScope.ServiceProvider.GetRequiredService<IPermissionCatalogSynchronizer>();
         await permissionCatalogSynchronizer.Synchronize(TestContext.Current.CancellationToken);
@@ -43,16 +39,15 @@ public static class IdentityTestData
         User customerUser = CreateUser("customer", "Customer", customerRole);
         User guestUser = User.CreateGuest();
 
-        identityDbContext.Role.AddRange([adminRole, guestRole, employeeRole, managerRole, customerRole]);
+        identityDbContext.Role.AddRange([employeeRole, managerRole, customerRole]);
         identityDbContext.User.AddRange([adminUser, guestUser, employeeUser, managerUser, customerUser]);
         await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        AdminUserId = adminUser.Id;
-        GuestUserId = guestUser.Id;
-        GuestId = guestUser.GuestId!.Value;
-        EmployeeUserId = employeeUser.Id;
-        ManagerUserId = managerUser.Id;
-        CustomerUserId = customerUser.Id;
+        AdminUser = (adminUser.KeycloakUserId!, adminUser.Id);
+        GuestUser = (guestUser.KeycloakUserId!, guestUser.Id);
+        EmployeeUser = (employeeUser.KeycloakUserId!, employeeUser.Id);
+        ManagerUser = (managerUser.KeycloakUserId!, managerUser.Id);
+        CustomerUser = (customerUser.KeycloakUserId!, customerUser.Id);
     }
 
     private static User CreateUser(string userName, string name, Role role)
@@ -67,7 +62,7 @@ public static class IdentityTestData
             role);
     }
 
-    private static IEnumerable<PermissionId> GetProfilePermissionIds(IEnumerable<Permission> permissions)
+    private IEnumerable<PermissionId> GetProfilePermissionIds(IEnumerable<Permission> permissions)
     {
         string[] profilePermissions =
         [
@@ -79,5 +74,22 @@ public static class IdentityTestData
         return permissions.Where(permission => profilePermissions.Contains(permission.Name))
                           .Select(permission => permission.Id)
                           .ToArray();
+    }
+
+    public async Task<(string KeycloakId, Guid UserId)> SeedUser(IEnumerable<string> permissions, string module)
+    {
+        IEnumerable<Permission> permissionEntities = permissions.Select(p => Permission.Create(p, "Test permission", module));
+        Role role = Role.Create($"TestRole-{Guid.NewGuid()}", "Test role for testing purposes", permissionEntities.Select(p => p.Id));
+
+        string keycloakUserId = $"test-keycloak-{Guid.NewGuid()}";
+
+        User user = User.Create(keycloakUserId, "test", "test", "user", "test@example.com", "123456789", role);
+
+        identityDbContext.Permission.AddRange(permissionEntities);
+        identityDbContext.Role.Add(role);
+        identityDbContext.User.Add(user);
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        return (keycloakUserId, user.Id);
     }
 }

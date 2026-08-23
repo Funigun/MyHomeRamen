@@ -22,7 +22,7 @@ public static class ApiConfigExtensions
 
     public static IServiceCollection ReconfigureTokenOptions(this IServiceCollection services)
     {
-        foreach (string scheme in new[] { CustomerScheme, EmployeeScheme, ManagerScheme })
+        foreach (string scheme in new[] { CustomerScheme, EmployeeScheme, ManagerScheme, "AuthenticatedUser" })
         {
             services.Configure<JwtBearerOptions>(scheme, options =>
             {
