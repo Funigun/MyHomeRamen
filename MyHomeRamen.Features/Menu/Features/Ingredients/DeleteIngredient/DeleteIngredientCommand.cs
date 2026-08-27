@@ -1,12 +1,22 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.DeleteIngredient;
 
 public record DeleteIngredientCommand(Guid Id) : ICommand;
+
+public sealed class DeleteIngredientAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<DeleteIngredientCommand>
+{
+    public async Task<bool> Authorize(DeleteIngredientCommand request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageIngredients() && currentUser.CanDeleteIngredient();
+    }
+}
 
 public sealed class DeleteIngredientValidator : AbstractValidator<DeleteIngredientCommand>
 {
@@ -31,4 +41,3 @@ public sealed class DeleteIngredientHandler(IMenuDbContext dbContext) : ICommand
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
-

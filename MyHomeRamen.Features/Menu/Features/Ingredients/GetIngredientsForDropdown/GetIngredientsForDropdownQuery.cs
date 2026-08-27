@@ -1,4 +1,6 @@
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
@@ -16,6 +18,17 @@ public sealed record GetIngredientsForDropdownQueryOptions() : DbQueryOptions<In
         Selector = ingredient => new IngredientForDropdownDto(ingredient.Id.Value, ingredient.Name)
     }
 );
+
+public sealed class GetIngredientsForDropdownAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetIngredientsForDropdownQuery>
+{
+    public async Task<bool> Authorize(GetIngredientsForDropdownQuery request, CancellationToken cancellationToken)
+    {
+        bool canManageIngredients = currentUser.CanManageIngredients() && currentUser.CanEditIngredient();
+        bool canManageProducts = currentUser.CanManageProducts() && currentUser.CanEditProduct();
+
+        return canManageIngredients || canManageProducts;
+    }
+}
 
 public sealed class GetIngredientsForDropdownHandler(IMenuDbContext dbContext): IQueryHandler<GetIngredientsForDropdownQuery, GetIngredientsForDropdownResponse>
 {

@@ -4,11 +4,21 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using FluentValidation;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 
 public sealed record UpdateIngredientCommand(IngredientId Id, UpdateIngredientRequest UpdateIngredientRequest)
                    : ICommand<UpdateIngredientResponse>;
+
+public sealed class UpdateIngredientAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<UpdateIngredientCommand>
+{
+    public async Task<bool> Authorize(UpdateIngredientCommand request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageIngredients() && currentUser.CanEditIngredient();
+    }
+}
 
 public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredientCommand>
 {

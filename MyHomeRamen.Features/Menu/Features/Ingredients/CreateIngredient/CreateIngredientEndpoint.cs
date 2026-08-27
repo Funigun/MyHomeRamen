@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.CreateIngredient;
 
@@ -23,7 +24,7 @@ public sealed class CreateIngredientEndpoint : IEndpoint
                        .WithName("CreateIngredientEndpoint")
                        .WithTags("Ingredients")
                        .WithDescription("Handles Create Ingredient operations.")
-                       .RequireAuthorization("RestaurantManager");
+                       .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

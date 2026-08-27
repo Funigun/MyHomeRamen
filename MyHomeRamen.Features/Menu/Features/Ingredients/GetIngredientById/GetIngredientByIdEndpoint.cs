@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientById;
 
@@ -30,7 +31,7 @@ public sealed class GetIngredientByIdEndpoint : IEndpoint
             .WithName("GetIngredientByIdEndpoint")
             .WithTags("Ingredients")
             .WithDescription("Returns the full details of a single ingredient by its ID.")
-            .RequireAuthorization("RestaurantManager");
+            .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

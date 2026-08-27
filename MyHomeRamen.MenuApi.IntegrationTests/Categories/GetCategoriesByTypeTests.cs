@@ -42,7 +42,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Ingredient}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -59,7 +59,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -91,7 +91,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}");
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -105,7 +105,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType=999");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

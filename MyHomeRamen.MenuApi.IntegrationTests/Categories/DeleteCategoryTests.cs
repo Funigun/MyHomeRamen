@@ -58,7 +58,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         Guid idToDelete = cat2.Id;
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{idToDelete}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -71,7 +71,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
 
         // Assert — ALL remaining categories of the same type have contiguous sort orders starting from 1
         using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}");
-        assertRequest.AddAuthorizationHeader(UserRoles.Admin);
+        assertRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         HttpResponseMessage assertResponse = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
 
@@ -96,7 +96,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         Guid nonExistentId = Guid.NewGuid();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{nonExistentId}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -109,7 +109,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_productCategory.Id.Value}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -123,7 +123,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange — derive category from a tracked generated ingredient so the reference is guaranteed
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_ingredientcategory.Id.Value}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -152,7 +152,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_productCategory.Id.Value}");
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -165,7 +165,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{Guid.Empty}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 

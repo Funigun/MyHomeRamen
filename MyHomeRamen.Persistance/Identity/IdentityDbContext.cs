@@ -95,7 +95,8 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             b.HasKey(u => u.Id);
             b.Property(u => u.Id).ValueGeneratedNever();
             b.HasMany(role => role.RolePermissions)
-             .WithOne();
+             .WithOne()
+             .HasForeignKey(rolePermission => rolePermission.RoleId);
         });
 
         modelBuilder.Entity<Permission>(b =>
@@ -108,15 +109,18 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             b.Property(permission => permission.Module).IsRequired();
             b.Property(permission => permission.IsResourceScoped).IsRequired();
             b.HasIndex(permission => new { permission.Module, permission.Name }).IsUnique();
-            b.HasMany(permission => permission.RolePermissions)
-             .WithOne();
         });
 
         modelBuilder.Entity<RolePermission>(b =>
         {
             b.ToTable("RolePermissions");
             b.HasKey(rp => rp.Id);
-            b.Property(rp => rp.Id).ValueGeneratedNever();;
+            b.Property(rp => rp.Id).ValueGeneratedNever();
+            b.Property(rp => rp.RoleId).IsRequired();
+            b.Property(rp => rp.PermissionId).IsRequired();
+            b.HasOne<Permission>()
+             .WithMany()
+             .HasForeignKey(rp => rp.PermissionId);
         });
     }
 

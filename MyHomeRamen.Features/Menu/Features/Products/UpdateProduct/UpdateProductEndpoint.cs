@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
 
@@ -27,7 +28,7 @@ public sealed class UpdateProductEndpoint : IEndpoint
             .WithName("UpdateProductEndpoint")
             .WithTags("Products")
             .WithDescription("Updates the name, description, price, category, and ingredients of an existing product.")
-            .RequireAuthorization("RestaurantManager");
+            .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

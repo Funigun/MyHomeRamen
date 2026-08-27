@@ -2,13 +2,23 @@ using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
 
 public sealed record UpdateProductCommand(ProductId Id, UpdateProductRequest UpdateProductRequest) : ICommand<UpdateProductResponse>;
+
+public sealed class UpdateProductAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<UpdateProductCommand>
+{
+    public async Task<bool> Authorize(UpdateProductCommand request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageProducts() && currentUser.CanEditProduct();
+    }
+}
 
 public sealed class UpdateProductValidator : AbstractValidator<UpdateProductCommand>
 {

@@ -196,7 +196,7 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.RolePermission", b =>
                 {
                     b.HasOne("MyHomeRamen.Domain.Identity.Permissions.Permission", null)
-                        .WithMany("RolePermissions")
+                        .WithMany()
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -266,11 +266,6 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Permissions.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.Role", b =>

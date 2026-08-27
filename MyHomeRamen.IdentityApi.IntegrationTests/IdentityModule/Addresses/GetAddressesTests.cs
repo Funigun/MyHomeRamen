@@ -1,18 +1,29 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.Extensions.DependencyInjection;
-using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Features.Identity.Features.Users.GetAddresses;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Extensions;
-using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Domain.Identity.Permissions;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
 
-public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>
+public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>, IAsyncLifetime
 {
     private const string Endpoint = "/api/account/me/addresses";
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanViewUserProfile];
+
+    private (string KeycloakId, Guid UserId) _userId;
+
+    public async ValueTask InitializeAsync()
+    {
+        _userId = await apiFactory.IdentityTestData.SeedUser(("Customer", _requiredPermissions), "CustomerA", "Test");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await apiFactory.IdentityDbContext.User.ExecuteDelete(u => u.Id == new UserId(_userId.UserId), TestContext.Current.CancellationToken);
+    }
 
     [Fact]
     public async Task GetAddresses_ShouldReturn200_WithAddressList()
@@ -21,16 +32,15 @@ public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory) : IClass
         Address defaultAddress = Address.Create("123 Main St", "Building A", "Apt 1", "Cityville", "12345", isDefault: true);
         Address address = Address.Create("123 Main St", "Building A", "Apt 1", "Cityville", "12345", isDefault: false);
 
-        using IServiceScope scope = apiFactory.CreateSeedScope();
-        IIdentityDbContext dbContext = scope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
-        User user = await dbContext.User.Load().ById(apiFactory.IdentityTestData.EmployeeUser.UserId, TestContext.Current.CancellationToken);
+        User user = await apiFactory.IdentityDbContext.User.Load().ById(_userId.UserId, TestContext.Current.CancellationToken);
         user.AddAddress(defaultAddress);
         user.AddAddress(address);
 
-        await dbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        apiFactory.IdentityDbContext.User.Update(user);
+        await apiFactory.IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.EmployeeUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -60,24 +70,9 @@ public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory) : IClass
     [Fact]
     public async Task GetAddresses_ShouldReturnEmptyList_WhenUserHasNoAddresses()
     {
-        // Arrange
-        
-        Role role = await apiFactory.IdentityDbContext.Role.Load().ByName("Customer", TestContext.Current.CancellationToken);
-
-        User newUser = User.Create(
-            keycloakUserId: "test-no-addresses-user",
-            userName: "noaddressesuser",
-            firstName: "No",
-            lastName: "Addresses",
-            email: "noaddresses@example.com",
-            phoneNumber: "000000000",
-            role: role);
-
-        apiFactory.IdentityDbContext.User.Add(newUser);
-        await apiFactory.IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
-
+        // Arrange        
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.CustomerUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

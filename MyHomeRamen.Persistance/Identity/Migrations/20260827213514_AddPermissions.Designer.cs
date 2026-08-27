@@ -12,7 +12,7 @@ using MyHomeRamen.Persistance.Identity;
 namespace MyHomeRamen.Persistance.Identity.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20260822093540_AddPermissions")]
+    [Migration("20260827213514_AddPermissions")]
     partial class AddPermissions
     {
         /// <inheritdoc />
@@ -199,7 +199,7 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.RolePermission", b =>
                 {
                     b.HasOne("MyHomeRamen.Domain.Identity.Permissions.Permission", null)
-                        .WithMany("RolePermissions")
+                        .WithMany()
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -269,11 +269,6 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Permissions.Permission", b =>
-                {
-                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.Role", b =>

@@ -1,12 +1,9 @@
 ﻿using MyHomeRamen.Domain.Abstractions;
-using MyHomeRamen.Domain.Identity.Roles;
 
 namespace MyHomeRamen.Domain.Identity.Permissions;
 
 public sealed class Permission : Aggregate<PermissionId>
 {
-    private readonly List<RolePermission> _roles = [];
-
     public string Name { get; private set; } = default!;
 
     public string Description { get; private set; } = default!;
@@ -14,8 +11,6 @@ public sealed class Permission : Aggregate<PermissionId>
     public string Module { get; private set; } = default!;
 
     public bool IsResourceScoped { get; private set; }
-
-    public IReadOnlyCollection<RolePermission> RolePermissions => _roles.ToList();
 
     private Permission() { }
 

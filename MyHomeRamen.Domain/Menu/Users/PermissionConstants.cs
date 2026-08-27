@@ -4,37 +4,46 @@ public static class PermissionConstants
 {
     public const string CanManageFavourites = "CanManageFavourites";
 
-    public const string CanViewProductsManagementView = "CanViewProductsManagementView";
-    public const string CanAddProduct = "CanAddProduct";
-    public const string CanEditProduct = "CanEditProduct";
-    public const string CanDeleteProduct = "CanDeleteProduct";
-    public const string CanEditProductsRecipes = "CanEditProductsRecipes";
+    public const string CanManageProducts = "Product.Manage";
+    public const string CanAddProduct = "Product.Add";
+    public const string CanEditProduct = "Product.Edit";
+    public const string CanDeleteProduct = "Product.Delete";
+    public const string CanEditProductsRecipes = "Product.EditRecipes";
 
-    public const string CanViewCategoriesManagementView = "CanViewCategoriesManagementView";
-    public const string CanAddCategory = "CanAddCategory";
-    public const string CanEditCategory = "CanEditCategory";
-    public const string CanDeleteCategory = "CanDeleteCategory";
+    public const string CanManageCategories = "Category.Manage";
+    public const string CanAddCategory = "Category.Add";
+    public const string CanEditCategory = "Category.Edit";
+    public const string CanDeleteCategory = "Category.Delete";
 
-    public const string CanViewIngredientsManagementView = "CanViewIngredientsManagementView";
-    public const string CanAddIngredient = "CanAddIngredient";
-    public const string CanEditIngredient = "CanEditIngredient";
-    public const string CanDeleteIngredient = "CanDeleteIngredient";
+    public const string CanManageIngredients = "Ingredient.Manage";
+    public const string CanAddIngredient = "Ingredient.Add";
+    public const string CanEditIngredient = "Ingredient.Edit";
+    public const string CanDeleteIngredient = "Ingredient.Delete";
+
+    public const string CanManageMenu = "Menu.Manage";
+    public const string CanCreateMenu = "Menu.Create";
+    public const string CanEditMenu = "Menu.Edit";
+    public const string CanDeleteMenu = "Menu.Delete";
 
     public static IEnumerable<string> AvailablePermissions =>
      [
         CanManageFavourites,
-        CanViewProductsManagementView,
+        CanManageProducts,
         CanAddProduct,
         CanEditProduct,
         CanDeleteProduct,
         CanEditProductsRecipes,
-        CanViewCategoriesManagementView,
+        CanManageCategories,
         CanAddCategory,
         CanEditCategory,
         CanDeleteCategory,
-        CanViewIngredientsManagementView,
+        CanManageIngredients,
         CanAddIngredient,
         CanEditIngredient,
-        CanDeleteIngredient
+        CanDeleteIngredient,
+        CanManageMenu,
+        CanCreateMenu,
+        CanEditMenu,
+        CanDeleteMenu
      ];
 }

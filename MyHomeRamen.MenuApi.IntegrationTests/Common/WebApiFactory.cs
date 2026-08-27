@@ -12,6 +12,7 @@ using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Fixtures;
+using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Persistance.Menu;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -21,6 +22,10 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
     public IMenuDbContext MenuDbContext { get; private set; } = default!;
 
     public HttpClient HttpClient { get; private set; } = default!;
+
+    private MyHomeRamen.IntegrationTests.Identity.IdentityTestData SharedIdentityTestData { get; } = new();
+
+    public IdentityTestData IdentityTestData { get; private set; } = default!;
 
     internal readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Random.Shared.Next(1, 10000)};", StringComparison.OrdinalIgnoreCase);
 
@@ -44,8 +49,13 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
         _seedServiceProvider = services.BuildServiceProvider();
         _seedScope = _seedServiceProvider.CreateScope();
+        
         MenuDbContext = _seedScope.ServiceProvider.GetRequiredService<IMenuDbContext>();
         await MenuDbContext.Migrate(TestContext.Current.CancellationToken);
+
+        await SharedIdentityTestData.SetIdentityService(_seedScope.ServiceProvider.GetRequiredService<ICurrentUser>(), _connectionString);
+        IdentityTestData = new IdentityTestData(SharedIdentityTestData);
+        await IdentityTestData.SeedAsync();
 
         HttpClient = CreateClient();
     }

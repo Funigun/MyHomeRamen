@@ -2,7 +2,9 @@ using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Models;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
@@ -34,6 +36,14 @@ public sealed record GetProductsForManageQueryOptions(GetProductsForManageReques
             Selector = product => new ProductForManageDto(product.Id.Value, product.Name, product.Description, product.Price)
         }
     );
+
+public sealed class GetProductsForManageAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetProductsForManageQuery>
+{
+    public async Task<bool> Authorize(GetProductsForManageQuery request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageProducts();
+    }
+}
 
 public sealed class GetProductsForManageValidator : AbstractValidator<GetProductsForManageQuery>
 {

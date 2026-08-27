@@ -55,7 +55,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredient.Id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -69,7 +69,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         // Assert — updated fields persisted
         using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/{_ingredient.Id.Value}");
-        assertRequest.AddAuthorizationHeader(UserRoles.Admin);
+        assertRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
         GetIngredientByIdResponse? assertResult = await responseMessage.Content.ReadFromJsonAsync<GetIngredientByIdResponse>(TestContext.Current.CancellationToken);
@@ -104,7 +104,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredient.Id}");
         httpRequest.WithJsonContent(_ingredient.ToUpdateIngredientRequest());
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -121,7 +121,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{nonExistentId}");
         httpRequest.WithJsonContent(_ingredient.ToUpdateIngredientRequest());
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -139,7 +139,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -176,7 +176,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredientA.Id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -198,7 +198,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{ingredient.Id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

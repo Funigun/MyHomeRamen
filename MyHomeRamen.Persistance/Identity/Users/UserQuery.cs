@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Identity.Users;
+using MyHomeRamen.Features.Common.Cache;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
+using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Identity;
 
@@ -16,6 +19,19 @@ public partial class UserRepository : IUserQuery
         => await identityDbContext.Users.AsNoTracking()
                       .Include(user => user.Addresses)
                       .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
+
+    public async Task<User?> ByGuestId(Guid guestId, CancellationToken cancellationToken)
+    {
+        CachePolicy cachePolicy = CachePolicy.LocalCache<IdentityCacheModule>("UserByGuestId_" + guestId, TimeSpan.FromMinutes(10), ["User"]);
+
+        DbQueryOptions<User, User> options = new()
+        {
+            Filter = user => user.GuestId == guestId,
+            Selector = user => user 
+        };
+
+        return await QueryFirstOrDefault(identityDbContext.Users, options, cachePolicy, cancellationToken);
+    }
 
     public async Task<Guid?> GetGuestIdByGuestIdAsync(Guid guestId, CancellationToken cancellationToken)
         => await identityDbContext.Users.AsNoTracking()

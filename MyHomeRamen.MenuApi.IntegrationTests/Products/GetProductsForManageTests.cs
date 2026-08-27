@@ -41,7 +41,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -73,7 +73,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -89,7 +89,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
         string partialName = _product.Name[..5];
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{Endpoint}?name={Uri.EscapeDataString(partialName)}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -111,7 +111,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
                                                         .Select(p => p.Id.Value);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{Endpoint}?categoryIds={categoryId}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -131,7 +131,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
         Guid ingredientId = _product.BaseIngredients[0].Id.Value;
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{Endpoint}?ingredientIds={ingredientId}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -152,7 +152,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
         decimal priceTo = _product.Price + 1m;
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{Endpoint}?priceFrom={priceFrom}&priceTo={priceTo}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -173,7 +173,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{Endpoint}?pageSize=1");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

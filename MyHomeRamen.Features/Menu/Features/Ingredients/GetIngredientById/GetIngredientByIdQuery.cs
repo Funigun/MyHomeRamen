@@ -1,5 +1,7 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
@@ -23,6 +25,14 @@ public sealed record GetIngredientByIdQueryOptions(IngredientId IngredientId)
                                ingredient.Categories.Select(category => category.Id.Value))
                        }
                    );
+
+public sealed class GetIngredientByIdAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetIngredientByIdQuery>
+{
+    public async Task<bool> Authorize(GetIngredientByIdQuery request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageIngredients() && currentUser.CanEditIngredient();
+    }
+}
 
 public sealed class GetIngredientByIdValidator : AbstractValidator<GetIngredientByIdQuery>
 {

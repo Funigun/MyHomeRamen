@@ -19,9 +19,14 @@ public sealed partial class PermissionRepository : IPermissionQuery
                       .ToListAsync(cancellationToken);
 
         return await identityDbContext.RolePermissions.AsNoTracking()
-                      .Where(rolePermission => roleIds.Contains(rolePermission.RoleId))
-                      .Join(identityDbContext.Permissions, rolePermission => rolePermission.PermissionId, permission => permission.Id, (rolePermission, permission) => permission)
-                      .Distinct()
-                      .ToArrayAsync(cancellationToken);
+                                                      .Where(rolePermission => roleIds.Contains(rolePermission.RoleId))
+                                                      .Join(
+                                                                identityDbContext.Permissions, 
+                                                                rolePermission => rolePermission.PermissionId, 
+                                                                permission => permission.Id, 
+                                                                (rolePermission, permission) => permission
+                                                            )
+                                                      .Distinct()
+                                                      .ToArrayAsync(cancellationToken);
     }
 }

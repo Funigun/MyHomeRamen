@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using MyHomeRamen.Domain.Identity.Permissions;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Features.Users.CreateAddress;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
@@ -8,8 +9,21 @@ using MyHomeRamen.IntegrationTests.Extensions;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
 
-public sealed class AddAddressTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>
+public sealed class AddAddressTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>, IAsyncLifetime
 {
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanViewUserProfile, PermissionConstants.CanUpdateUserProfile];
+    private (string KeycloakId, Guid UserId) _userId;
+
+    public async ValueTask InitializeAsync()
+    {
+        _userId = await apiFactory.IdentityTestData.SeedUser(("Customer", _requiredPermissions), "CustomerA", "Test");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await apiFactory.IdentityDbContext.User.ExecuteDelete(u => u.Id == new UserId(_userId.UserId), TestContext.Current.CancellationToken);
+    }
+
     [Fact]
     public async Task AddAddress_ShouldReturn201_WithNewAddress()
     {
@@ -20,7 +34,7 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory) : IClassFi
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.CustomerUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -39,7 +53,7 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory) : IClassFi
     public async Task AddAddress_ShouldReturn400_WhenUserHas5Addresses()
     {
         // Arrange
-        User user = await apiFactory.IdentityDbContext.User.Load().ById(new UserId(apiFactory.IdentityTestData.ManagerUser.UserId), TestContext.Current.CancellationToken);
+        User user = await apiFactory.IdentityDbContext.User.Load().ById(new UserId(_userId.UserId), TestContext.Current.CancellationToken);
 
         for (int i = 0; i < 5; i++)
         {
@@ -52,7 +66,7 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory) : IClassFi
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.ManagerUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -84,12 +98,12 @@ public sealed class AddAddressTests(IdentityWebApiFactory apiFactory) : IClassFi
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/account/me/addresses");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.CustomerUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
-        // Assert
+        // Assertwait, 
         await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

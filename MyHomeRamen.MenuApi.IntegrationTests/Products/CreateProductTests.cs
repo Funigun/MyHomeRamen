@@ -48,7 +48,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -88,7 +88,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -106,7 +106,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

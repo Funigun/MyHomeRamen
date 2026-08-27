@@ -111,12 +111,13 @@ public static class DependencyInjection
         {
             Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == noResponseHandlerOpenType);
             services.AddScoped(interfaceType, type);
+
+            services.Decorate(interfaceType, typeof(CommandValidationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
+
             if (HasAuthorizationPolicy(assembly, interfaceType.GetGenericArguments()[0]))
             {
                 services.Decorate(interfaceType, typeof(CommandAuthorizationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
             }
-
-            services.Decorate(interfaceType, typeof(CommandValidationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
         }
 
         List<Type> withResponseHandlers = assembly.GetExportedTypes()
@@ -127,12 +128,13 @@ public static class DependencyInjection
         {
             Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == withResponseHandlerOpenType);
             services.AddScoped(interfaceType, type);
+
+            services.Decorate(interfaceType, typeof(CommandValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
+
             if (HasAuthorizationPolicy(assembly, interfaceType.GetGenericArguments()[0]))
             {
                 services.Decorate(interfaceType, typeof(CommandAuthorizationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
             }
-
-            services.Decorate(interfaceType, typeof(CommandValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
         }
 
         return services;
@@ -161,14 +163,15 @@ public static class DependencyInjection
             services.AddScoped(interfaceType, type);
 
             Type queryType = interfaceType.GetGenericArguments()[0];
-            if (HasAuthorizationPolicy(assembly, queryType))
-            {
-                services.Decorate(interfaceType, typeof(QueryAuthorizationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
-            }
 
             if (validatedQueryTypes.Contains(queryType))
             {
                 services.Decorate(interfaceType, typeof(QueryValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
+            }
+
+            if (HasAuthorizationPolicy(assembly, queryType))
+            {
+                services.Decorate(interfaceType, typeof(QueryAuthorizationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
             }
         }
 

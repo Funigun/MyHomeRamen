@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 
@@ -20,7 +21,7 @@ public sealed class CreateCategoryEndpoint : IEndpoint
                        .WithName("CreateCategoryEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Handles Create Category operations.")
-                       .RequireAuthorization("RestaurantManager");
+                       .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

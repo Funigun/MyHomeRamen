@@ -30,6 +30,7 @@ public static class HttpClientExtensions
 
         public static HttpRequestMessage CreatePutMessage(string url) => new(HttpMethod.Put, url);
 
+        [Obsolete("Use AddAuthorizationHeader((string keycloakUserId, Guid userId) user) instead.")]
         public HttpRequestMessage AddAuthorizationHeader(UserRoles userRole, string userId = "")
         {
             (string token, string scheme) = userRole switch
@@ -50,6 +51,7 @@ public static class HttpClientExtensions
         {
             string token = JwtTokenFactory.GenerateToken(user.userId, user.keycloakUserId);
 
+            httpRequest.Headers.Remove("Authorization");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             httpRequest.Headers.Add(SchemeHeader, "AuthenticatedUser");
             return httpRequest;

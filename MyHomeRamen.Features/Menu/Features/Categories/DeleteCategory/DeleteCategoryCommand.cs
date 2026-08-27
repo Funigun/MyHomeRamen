@@ -1,12 +1,22 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.DeleteCategory;
 
 public record DeleteCategoryCommand(DeleteCategoryRequest Request) : ICommand;
+
+public sealed class DeleteCategoryAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<DeleteCategoryCommand>
+{
+    public async Task<bool> Authorize(DeleteCategoryCommand request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanDeleteCategory();
+    }
+}
 
 public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCommand>
 {

@@ -59,12 +59,9 @@ public sealed class IdentityWebApiFactory(DbContainerFixture dbContainerFixture)
 
         _seedServiceProvider = services.BuildServiceProvider();
         _seedScope = _seedServiceProvider.CreateScope();
-
-        IdentityDbContext seedDbContext = _seedScope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        await seedDbContext.Database.MigrateAsync();
+      
         IdentityDbContext = _seedScope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
-
-        await IdentityTestData.SeedAsync(_seedScope);
+        await IdentityTestData.SetIdentityService(_seedScope.ServiceProvider.GetRequiredService<ICurrentUser>(), _connectionString);
 
         HttpClient = CreateClient();
     }
