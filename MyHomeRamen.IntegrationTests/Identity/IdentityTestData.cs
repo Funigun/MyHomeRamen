@@ -22,8 +22,11 @@ public class IdentityTestData
 
     private ServiceCollection? _serviceCollection = null;
 
+    private string _connectionString = string.Empty;
+
     public async Task SetIdentityService(ICurrentUser user, string connectionString)
     {
+        _connectionString = connectionString;
         DbContextOptions<IdentityDbContext> options = new DbContextOptionsBuilder<IdentityDbContext>()
                                                           .UseSqlServer(connectionString)
                                                           .Options;
@@ -80,5 +83,21 @@ public class IdentityTestData
         IEnumerable<Permission> userPermissions = await IdentityDbContext.Permission.Query().ByUserId(user.Id.Value, TestContext.Current.CancellationToken);
 
         return (keycloakUserId, user.Id);
+    }
+
+    public async Task DeleteUser(Guid userId)
+    {
+        if (_serviceCollection is null || string.IsNullOrEmpty(_connectionString))
+        {
+            throw new InvalidOperationException("Identity test data has not been initialized.");
+        }
+
+        ServiceProvider serviceProvider = _serviceCollection.BuildServiceProvider();
+        using (serviceProvider)
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            IIdentityDbContext identityDbContext = scope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
+            await identityDbContext.User.ExecuteDelete(u => u.Id == new UserId(userId), TestContext.Current.CancellationToken);
+        }
     }
 }

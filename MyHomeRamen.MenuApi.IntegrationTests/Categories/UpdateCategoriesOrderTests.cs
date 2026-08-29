@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Domain.Common.Category;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 using MyHomeRamen.Features.Menu.Features.Categories.UpdateCategoriesOrder;
 using MyHomeRamen.IntegrationTests.Authentication;
@@ -11,8 +12,21 @@ using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Categories;
 
-public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
+public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanEditCategory];
+    private (string KeycloakUserId, Guid UserId) _userId;
+
+    public async ValueTask InitializeAsync()
+    {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "update-categories-user");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
+    }
+
     [Fact]
     public async Task UpdateCategoriesOrder_ShouldReturnNoContent_ForValidRequest()
     {
@@ -26,7 +40,7 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -35,7 +49,7 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
         await responseMessage.AssertStatusCode(HttpStatusCode.NoContent);
 
         using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}");
-        assertRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        assertRequest.AddAuthorizationHeader(_userId);
 
         HttpResponseMessage assertResponse = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
         GetCategoriesByTypeResponse? updatedCategories = await assertResponse.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(TestContext.Current.CancellationToken);
@@ -93,7 +107,7 @@ public sealed class UpdateCategoriesOrderTests(WebApiFactory apiFactory) : IClas
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage("/api/menu/categories/order");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

@@ -5,6 +5,7 @@ using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -17,9 +18,12 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
     private Product _product = default!;
     private static Guid _productCategoryId = Guid.Empty;
     private static Guid _productIngredientId = Guid.Empty;
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageProducts, PermissionConstants.CanAddProduct];
 
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "create-product-user");
         Category ingredientCategory = DataGenerator.CreateIngredientCategory();
         Category productCategory = DataGenerator.CreateProductCategory();
         Ingredient ingredient = DataGenerator.CreateIngredient(ingredientCategory);
@@ -35,6 +39,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
 
     public async ValueTask DisposeAsync()
     {
+        await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
@@ -48,7 +53,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -106,7 +111,7 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage("/api/menu/products");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

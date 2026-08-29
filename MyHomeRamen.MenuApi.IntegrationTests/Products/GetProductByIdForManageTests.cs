@@ -4,6 +4,7 @@ using MyHomeRamen.Features.Menu.Features.Products.GetProductByIdForManage;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -15,9 +16,12 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
 {
     private const string EndpointBase = "/api/menu/products";
     private Product _product = default!;
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageProducts, PermissionConstants.CanEditProduct];
 
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "get-product-manage-user");
         Category ingredientCategory = DataGenerator.CreateIngredientCategory();
         Category productCategory = DataGenerator.CreateProductCategory();
         Ingredient ingredient = DataGenerator.CreateIngredient(ingredientCategory);
@@ -29,14 +33,14 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync() => await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
 
     [Fact]
     public async Task GetProductByIdForManage_ShouldReturnOk_ForAuthenticatedAdmin()
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage");
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -85,7 +89,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}/manage");
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -102,7 +106,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
         IEnumerable<Guid> expectedIngredientIds = _product.BaseIngredients.Select(i => i.Id.Value);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{_product.Id.Value}/manage");
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

@@ -5,6 +5,7 @@ using MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 using MyHomeRamen.Domain.Common.Ingredient;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -19,9 +20,12 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
     private Ingredient _ingredientA = default!;
     private Ingredient _ingredientB = default!;
     private Category _ingredientCategory = default!;
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageIngredients, PermissionConstants.CanEditIngredient];
 
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "update-ingredient-user");
         _ingredientCategory = DataGenerator.CreateIngredientCategory();
         _ingredient = DataGenerator.CreateIngredient(_ingredientCategory, "Ingredient");
 
@@ -37,6 +41,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
     public async ValueTask DisposeAsync()
     {
+        await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
         apiFactory.MenuDbContext.Ingredient.Delete(_ingredient);
         apiFactory.MenuDbContext.Ingredient.Delete(_ingredientA);
         apiFactory.MenuDbContext.Ingredient.Delete(_ingredientB);
@@ -55,7 +60,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredient.Id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -69,7 +74,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         // Assert — updated fields persisted
         using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/{_ingredient.Id.Value}");
-        assertRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        assertRequest.AddAuthorizationHeader(_userId);
 
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
         GetIngredientByIdResponse? assertResult = await responseMessage.Content.ReadFromJsonAsync<GetIngredientByIdResponse>(TestContext.Current.CancellationToken);
@@ -121,7 +126,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{nonExistentId}");
         httpRequest.WithJsonContent(_ingredient.ToUpdateIngredientRequest());
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -139,7 +144,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -176,7 +181,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredientA.Id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -198,7 +203,7 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{ingredient.Id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

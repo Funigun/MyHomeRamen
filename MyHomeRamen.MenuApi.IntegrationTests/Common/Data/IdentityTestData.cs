@@ -6,8 +6,6 @@ namespace MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 
 public sealed class IdentityTestData(SharedIdentityTestData sharedIdentityTestData)
 {
-    internal (string KeycloakUserId, Guid UserId) AdminUser { get; private set; }
-
     internal (string KeycloakUserId, Guid UserId) CustomerUser { get; private set; }
 
     internal (string KeycloakUserId, Guid UserId) EmployeeUser { get; private set; }
@@ -17,16 +15,11 @@ public sealed class IdentityTestData(SharedIdentityTestData sharedIdentityTestDa
         {
             UserRoles.Customer => CustomerUser,
             UserRoles.Employee => EmployeeUser,
-            _ => AdminUser
+            _ => throw new ArgumentOutOfRangeException(nameof(role), role, "Only forbidden roles are supported.")
         };
 
     internal async Task SeedAsync()
     {
-        AdminUser = await sharedIdentityTestData.SeedUser(
-            ("Menu Admin", PermissionConstants.AvailablePermissions),
-            "menu-admin",
-            "Admin");
-
         CustomerUser = await sharedIdentityTestData.SeedUser(
             ("Customer", []),
             "menu-customer",
@@ -37,4 +30,10 @@ public sealed class IdentityTestData(SharedIdentityTestData sharedIdentityTestDa
              "menu-employee",
              "Employee");
     }
+
+    internal Task<(string KeycloakUserId, Guid UserId)> SeedUser(IEnumerable<string> permissions, string userName)
+        => sharedIdentityTestData.SeedUser(("Menu Test User", permissions), userName, "Test");
+
+    internal Task DeleteUser(Guid userId)
+        => sharedIdentityTestData.DeleteUser(userId);
 }

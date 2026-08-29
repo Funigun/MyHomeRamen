@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
@@ -14,6 +15,7 @@ using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Fixtures;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Persistance.Menu;
+using MyHomeRamen.Persistance.Identity;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Common;
 
@@ -82,7 +84,9 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         builder.ConfigureServices(services =>
         {
             services.AddScoped<IMenuDbContext>(provider => provider.GetRequiredService<MenuDbContext>());
+            services.AddScoped<IIdentityDbContext>(provider => provider.GetRequiredService<IdentityDbContext>());
             services.ReconfigureDbContext<MenuDbContext>(_connectionString);
+            services.ReconfigureDbContext<IdentityDbContext>(_connectionString);
             services.ReconfigureCache(redisFixture.ConnectionString);
             services.ReconfigureTokenOptions();
             services.ReconfigureClaimsTransformation();

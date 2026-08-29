@@ -117,8 +117,6 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}");
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
-
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 

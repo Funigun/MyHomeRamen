@@ -6,6 +6,7 @@ using MyHomeRamen.Domain.Common.Product;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -20,9 +21,12 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
     private static Product _productB = default!;
     private static Category _productCategory = default!;
     private static Ingredient _ingredient = default!;
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageProducts, PermissionConstants.CanEditProduct];
 
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "update-product-user");
         _productCategory = DataGenerator.CreateProductCategory();
         Category ingredientCategory = DataGenerator.CreateIngredientCategory();
         _ingredient = DataGenerator.CreateIngredient(ingredientCategory);
@@ -36,7 +40,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync() => await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
 
     [Fact]
     public async Task UpdateProduct_ShouldReturnOk_ForValidRequest()
@@ -52,7 +56,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_product.Id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -81,7 +85,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{nonExistentId}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -131,7 +135,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{_productA.Id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -149,7 +153,7 @@ public sealed class UpdateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/products/{id}");
         httpRequest.WithJsonContent(request);
-        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.AdminUser);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
