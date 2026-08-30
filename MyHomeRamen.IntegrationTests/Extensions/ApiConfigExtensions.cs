@@ -16,13 +16,11 @@ namespace MyHomeRamen.IntegrationTests.Extensions;
 public static class ApiConfigExtensions
 {
     // Mirror the scheme names registered in AuthorizationConfiguration
-    private const string CustomerScheme = "RestaurantCustomer";
-    private const string EmployeeScheme = "RestaurantEmployee";
-    private const string ManagerScheme = "RestaurantManager";
+    private const string AuthenticatedUserScheme = "AuthenticatedUser";
 
     public static IServiceCollection ReconfigureTokenOptions(this IServiceCollection services)
     {
-        foreach (string scheme in new[] { CustomerScheme, EmployeeScheme, ManagerScheme, "AuthenticatedUser" })
+        foreach (string scheme in new[] { AuthenticatedUserScheme })
         {
             services.Configure<JwtBearerOptions>(scheme, options =>
             {

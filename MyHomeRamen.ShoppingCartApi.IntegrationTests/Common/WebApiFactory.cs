@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Payments.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
@@ -15,6 +16,7 @@ using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.Persistance.ShoppingCart;
+using MyHomeRamen.Persistance.Identity;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Fixtures;
 using NSubstitute;
@@ -26,6 +28,8 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
     public IShoppingCartDbContext ShoppingCartDbContext { get; private set; } = default!;
 
     public HttpClient HttpClient { get; private set; } = default!;
+
+    public  MyHomeRamen.IntegrationTests.Identity.IdentityTestData IdentityTestData { get; init; } = new();
 
     private readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Guid.NewGuid()};", StringComparison.OrdinalIgnoreCase);
 
@@ -54,6 +58,8 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         ShoppingCartDbContext = _seedScope.ServiceProvider.GetRequiredService<IShoppingCartDbContext>();
         await ShoppingCartDbContext.Migrate(TestContext.Current.CancellationToken);
 
+        await IdentityTestData.SetIdentityService(_seedScope.ServiceProvider.GetRequiredService<ICurrentUser>(), _connectionString);
+
         HttpClient = CreateClient();
     }
 
@@ -79,7 +85,9 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         builder.ConfigureServices(services =>
         {
             services.AddScoped<IShoppingCartDbContext>(provider => provider.GetRequiredService<ShoppingCartDbContext>());
+            services.AddScoped<IIdentityDbContext>(provider => provider.GetRequiredService<IdentityDbContext>());
             services.ReconfigureDbContext<ShoppingCartDbContext>(_connectionString);
+            services.ReconfigureDbContext<IdentityDbContext>(_connectionString);
             services.ReconfigureCache(redisFixture.ConnectionString);
             services.ReconfigureTokenOptions();
             services.ReconfigureClaimsTransformation();

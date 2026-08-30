@@ -12,7 +12,7 @@ public static class HttpClientExtensions
     private const string CustomerScheme = "RestaurantCustomer";
     private const string EmployeeScheme = "RestaurantEmployee";
     private const string ManagerScheme = "RestaurantManager";
-
+    private const string AuthenticatedUserScheme = "AuthenticatedUser";
     private const string SchemeHeader = "x-scheme";
 
     private static JsonSerializerOptions JsonOptions { get; } = new()
@@ -30,30 +30,21 @@ public static class HttpClientExtensions
 
         public static HttpRequestMessage CreatePutMessage(string url) => new(HttpMethod.Put, url);
 
-        [Obsolete("Use AddAuthorizationHeader((string keycloakUserId, Guid userId) user) instead.")]
-        public HttpRequestMessage AddAuthorizationHeader(UserRoles userRole, string userId = "")
-        {
-            (string token, string scheme) = userRole switch
-            {
-                UserRoles.Admin => (JwtTokenFactory.GenerateAdminToken(), ManagerScheme),
-                UserRoles.Manager => (JwtTokenFactory.GenerateManagerToken(), ManagerScheme),
-                UserRoles.Employee => (JwtTokenFactory.GenerateEmployeeToken(), EmployeeScheme),
-                _ => (JwtTokenFactory.GenerateCustomerToken(), CustomerScheme)
-            };
-
-            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            httpRequest.Headers.Add(SchemeHeader, scheme);
-
-            return httpRequest;
-        }
-
         public HttpRequestMessage AddAuthorizationHeader((string keycloakUserId, Guid userId) user)
         {
             string token = JwtTokenFactory.GenerateToken(user.userId, user.keycloakUserId);
 
             httpRequest.Headers.Remove("Authorization");
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            httpRequest.Headers.Add(SchemeHeader, "AuthenticatedUser");
+            return httpRequest;
+        }
+
+        public HttpRequestMessage AddAuthorizationHeader((Guid userId, Guid guestId) guest)
+        {
+            string token = JwtTokenFactory.GenerateGuestToken(guest.guestId);
+
+            httpRequest.Headers.Remove("Authorization");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
             return httpRequest;
         }
 

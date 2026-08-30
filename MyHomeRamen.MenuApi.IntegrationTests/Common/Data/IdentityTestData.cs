@@ -1,4 +1,3 @@
-using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using SharedIdentityTestData = MyHomeRamen.IntegrationTests.Identity.IdentityTestData;
 

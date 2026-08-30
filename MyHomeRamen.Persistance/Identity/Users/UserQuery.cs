@@ -21,17 +21,8 @@ public partial class UserRepository : IUserQuery
                       .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
 
     public async Task<User?> ByGuestId(Guid guestId, CancellationToken cancellationToken)
-    {
-        CachePolicy cachePolicy = CachePolicy.LocalCache<IdentityCacheModule>("UserByGuestId_" + guestId, TimeSpan.FromMinutes(10), ["User"]);
-
-        DbQueryOptions<User, User> options = new()
-        {
-            Filter = user => user.GuestId == guestId,
-            Selector = user => user 
-        };
-
-        return await QueryFirstOrDefault(identityDbContext.Users, options, cachePolicy, cancellationToken);
-    }
+        => await identityDbContext.Users.AsNoTracking()
+                                       .FirstOrDefaultAsync(user => user.GuestId == guestId, cancellationToken);
 
     public async Task<Guid?> GetGuestIdByGuestIdAsync(Guid guestId, CancellationToken cancellationToken)
         => await identityDbContext.Users.AsNoTracking()

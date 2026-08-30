@@ -5,9 +5,7 @@ using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.Products;
-using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
-using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
@@ -21,14 +19,16 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     private Basket _customerBasket = default!;
     private BasketItem _guestBasketItem = default!;
     private BasketItem _customerBasketItem = default!;
+    private (Guid UserId, Guid GuestId) _guest;
+    private (Guid UserId, Guid GuestId) _customer;
 
     public async ValueTask InitializeAsync()
     {
-        Guid guestId = Guid.CreateVersion7();
-        Guid customerId = Guid.CreateVersion7();
+        _guest = await apiFactory.IdentityTestData.SeedGuest();
+        _customer = await apiFactory.IdentityTestData.SeedGuest();
 
-        _guestBasket = DataGenerator.CreateBasket([], guestId);
-        _customerBasket = DataGenerator.CreateBasket([], customerId);
+        _guestBasket = DataGenerator.CreateBasket([], _guest.UserId);
+        _customerBasket = DataGenerator.CreateBasket([], _customer.UserId);
 
         apiFactory.ShoppingCartDbContext.Basket.Add(_guestBasket);
         apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
@@ -50,7 +50,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.AddAuthorizationHeader(UserRoles.Customer, _customerBasket.UserId.Value.ToString());
+        httpRequest.AddAuthorizationHeader(_customer);
         httpRequest.WithJsonContent(request);
 
         // Act
@@ -76,7 +76,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.WithGuestCookie(_guestBasket.UserId.Value.ToString());
+        httpRequest.WithGuestCookie(_guest.GuestId.ToString());
         httpRequest.WithJsonContent(request);
 
         // Act
@@ -96,11 +96,11 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenRequestIsInvalid(AddItemToBasketRequest request)
     {
         // Arrange
-        UserId userId = new(Guid.CreateVersion7());
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest();
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        httpRequest.AddAuthorizationHeader(user);
         httpRequest.WithJsonContent(request);
 
         // Act
@@ -142,7 +142,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenProductDoesNotExist()
     {
         // Arrange
-        UserId userId = new(Guid.CreateVersion7());
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest();
 
         AddItemToBasketRequest request = new(
             Guid.NewGuid(),
@@ -153,7 +153,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        httpRequest.AddAuthorizationHeader(user);
         httpRequest.WithJsonContent(request);
 
         // Act

@@ -85,6 +85,19 @@ public class IdentityTestData
         return (keycloakUserId, user.Id);
     }
 
+    public async Task<(Guid UserId, Guid GuestId)> SeedGuest()
+    {
+        ServiceProvider serviceProvider = _serviceCollection!.BuildServiceProvider();
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IdentityDbContext = scope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
+
+        User guest = User.CreateGuest();
+        IdentityDbContext.User.Add(guest);
+        await IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        return (guest.Id.Value, guest.GuestId!.Value);
+    }
+
     public async Task DeleteUser(Guid userId)
     {
         if (_serviceCollection is null || string.IsNullOrEmpty(_connectionString))

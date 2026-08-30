@@ -35,6 +35,13 @@ public static class JwtTokenFactory
         return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
     }
 
+    public static string GenerateGuestToken(Guid guestId)
+    {
+        IEnumerable<Claim> claims = [new Claim(ClaimConstants.GuestIdClaim, guestId.ToString())];
+
+        return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
+    }
+
     public static string GenerateAdminToken()
     {
         IEnumerable<Claim> claims = [];

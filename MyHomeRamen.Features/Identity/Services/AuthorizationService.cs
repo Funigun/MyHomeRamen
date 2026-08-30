@@ -19,17 +19,21 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
         bool isAuthenticated = !string.IsNullOrEmpty(identityId);
 
         Guid? domainUserId = TryGetDomainUserId(claims);
-        Guid guestId = domainUserId ?? TryGetGuestId(context) ?? Guid.Empty;
+        Guid? guestId = TryGetGuestId(claims, context);
 
-        User? user = await identityDbContext.User.Query().ById(guestId, cancellationToken);
+        User? user = domainUserId is not null
+                   ? await identityDbContext.User.Query().ById(domainUserId.Value, cancellationToken)
+                   : guestId is not null
+                       ? await identityDbContext.User.Query().ByGuestId(guestId.Value, cancellationToken)
+                       : null;
 
-        ValidateUser(identityId, guestId, domainUserId, user);
+        ValidateUser(identityId, user);
 
         IReadOnlyCollection<string> permissions = domainUserId is not null
                                                 ? (await identityDbContext.Permission.Query().ByUserId(domainUserId.Value, context.RequestAborted)).Select(p => p.Name).ToArray()
                                                 : [];
 
-        currentUser.Update(identityId, guestId, claims, isAuthenticated, !isAuthenticated, permissions);
+        currentUser.Update(identityId, user?.Id.Value ?? Guid.Empty, claims, isAuthenticated, !isAuthenticated, permissions);
     }
 
     public async Task<ICurrentUser> ImpersonateSystemAccount(CancellationToken cancellationToken)
@@ -54,15 +58,22 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
         return Guid.TryParse(domainIdClaim?.Value, out Guid userId) ? userId : null;
     }
 
-    private static Guid? TryGetGuestId(HttpContext context)
+    private static Guid? TryGetGuestId(IReadOnlyCollection<Claim> claims, HttpContext context)
     {
-        return context.Request.Cookies.TryGetValue(GuestIdCookieName, out string? guestIdString)
-               && Guid.TryParse(guestIdString, out Guid parsedId)
-               ? parsedId
+        string? guestIdValue = claims.FirstOrDefault(claim => claim.Type == ClaimConstants.GuestIdClaim)?.Value;
+
+        if (Guid.TryParse(guestIdValue, out Guid guestId))
+        {
+            return guestId;
+        }
+
+        return context.Request.Cookies.TryGetValue(GuestIdCookieName, out guestIdValue)
+               && Guid.TryParse(guestIdValue, out guestId)
+               ? guestId
                : null;
     }
 
-    private void ValidateUser(string identityId, Guid? guestId, Guid? domainUserId, User? user)
+    private void ValidateUser(string identityId, User? user)
     {
         if (!string.IsNullOrEmpty(identityId) && identityId != user?.KeycloakUserId)
         {
