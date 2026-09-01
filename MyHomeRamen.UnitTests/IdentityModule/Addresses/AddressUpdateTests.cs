@@ -2,11 +2,10 @@ using MyHomeRamen.Domain.Common;
 using MyHomeRamen.Domain.Common.Address;
 using MyHomeRamen.Domain.Identity.Users;
 
-namespace MyHomeRamen.UnitTests.UsersModule.Addresses;
+namespace MyHomeRamen.UnitTests.IdentityModule.Addresses;
 
 public sealed class AddressUpdateTests
 {
-    private static readonly Guid DefaultId = Guid.NewGuid();
     private const string DefaultStreet = "Main Street";
     private const string DefaultBuilding = "10A";
     private const string DefaultApartment = "5";

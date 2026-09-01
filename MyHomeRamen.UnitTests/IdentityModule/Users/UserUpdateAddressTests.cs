@@ -3,7 +3,7 @@ using MyHomeRamen.Domain.Common.Address;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 
-namespace MyHomeRamen.UnitTests.UsersModule.Users;
+namespace MyHomeRamen.UnitTests.IdentityModule.Users;
 
 public sealed class UserUpdateAddressTests
 {
