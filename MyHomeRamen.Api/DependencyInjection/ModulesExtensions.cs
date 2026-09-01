@@ -54,5 +54,12 @@ internal static class ModulesExtensions
             
             return services;
         }
+
+        internal IServiceCollection AddRestaurantsModule(DatabaseConfigurationProvider configurationProvider)
+        {
+            services.AddRestaurantsPersistance(configurationProvider);
+
+            return services;
+        }
     }
 }

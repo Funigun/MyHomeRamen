@@ -2,7 +2,9 @@ using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Payments.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
@@ -10,6 +12,14 @@ using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdatePaymentDetails;
 
 public record UpdatePaymentDetailsCommand(BasketId BasketId, UserId UserId, UpdatePaymentDetailsRequest Request) : ICommand;
+
+public sealed class UpdatePaymentDetailsAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<UpdatePaymentDetailsCommand>
+{
+    public async Task<bool> Authorize(UpdatePaymentDetailsCommand request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanCheckout());
+    }
+}
 
 public sealed class UpdatePaymentDetailsValidationPolicy : AbstractValidator<UpdatePaymentDetailsCommand>
 {
@@ -51,7 +61,7 @@ public sealed class UpdatePaymentDetailsHandler(IShoppingCartDbContext dbContext
 {
     public async Task Handle(UpdatePaymentDetailsCommand request, CancellationToken cancellationToken)
     {
-        Basket basket = await dbContext.Basket.Specification()
+        Basket basket = await dbContext.Basket.Load()
                                         .GetByIdForUserWithPaymentTrackedAsync(request.BasketId, request.UserId, cancellationToken)
                                         ?? throw new InvalidOperationException("Basket was not found.");
 
@@ -61,4 +71,3 @@ public sealed class UpdatePaymentDetailsHandler(IShoppingCartDbContext dbContext
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
-

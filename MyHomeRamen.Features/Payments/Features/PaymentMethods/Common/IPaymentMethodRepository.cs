@@ -7,5 +7,5 @@ public interface IPaymentMethodRepository : IRepository<PaymentMethod, PaymentMe
 {
     IPaymentMethodQuery Query();
 
-    IPaymentMethodSpecification Specification();
+    IPaymentMethodLoader Load();
 }

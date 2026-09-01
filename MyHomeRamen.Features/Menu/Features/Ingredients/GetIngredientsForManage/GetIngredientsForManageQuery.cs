@@ -1,7 +1,9 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Models;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
@@ -26,6 +28,14 @@ public sealed record GetIngredientsForManageQueryOptions(string? Name, IEnumerab
                             Selector = ingredient => new IngredientForManageDto(ingredient.Id.Value, ingredient.Name, ingredient.Description)
                         }
                     );
+
+public sealed class GetIngredientsForManageAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetIngredientsForManageQuery>
+{
+    public async Task<bool> Authorize(GetIngredientsForManageQuery request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageIngredients();
+    }
+}
 
 public sealed class GetIngredientsForManageValidator : AbstractValidator<GetIngredientsForManageQuery>
 {

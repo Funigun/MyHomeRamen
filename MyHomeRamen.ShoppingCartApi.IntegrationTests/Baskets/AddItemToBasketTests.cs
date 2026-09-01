@@ -7,7 +7,6 @@ using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
-using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
@@ -21,16 +20,16 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     private Basket _customerBasket = default!;
     private BasketItem _guestBasketItem = default!;
     private BasketItem _customerBasketItem = default!;
+    private (Guid UserId, Guid GuestId) _guest;
+    private (Guid UserId, Guid GuestId) _customer;
 
     public async ValueTask InitializeAsync()
     {
-        Guid guestId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
-        Guid customerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
-        User? guestUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(guestId, TestContext.Current.CancellationToken);
-        User? customerUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(customerId, TestContext.Current.CancellationToken);
+        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
 
-        _guestBasket = DataGenerator.CreateBasket([], guestUser!);
-        _customerBasket = DataGenerator.CreateBasket([], customerUser!);
+        _guestBasket = DataGenerator.CreateBasket([], _guest.UserId);
+        _customerBasket = DataGenerator.CreateBasket([], _customer.UserId);
 
         apiFactory.ShoppingCartDbContext.Basket.Add(_guestBasket);
         apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
@@ -52,7 +51,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.AddAuthorizationHeader(UserRoles.Customer, _customerBasket.User.Id.Value.ToString());
+        httpRequest.AddAuthorizationHeader(_customer);
         httpRequest.WithJsonContent(request);
 
         // Act
@@ -78,7 +77,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.WithGuestCookie(_guestBasket.User.Id.Value.ToString());
+        httpRequest.WithGuestCookie(_guest.GuestId.ToString());
         httpRequest.WithJsonContent(request);
 
         // Act
@@ -98,11 +97,11 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenRequestIsInvalid(AddItemToBasketRequest request)
     {
         // Arrange
-        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        httpRequest.AddAuthorizationHeader(user);
         httpRequest.WithJsonContent(request);
 
         // Act
@@ -144,7 +143,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenProductDoesNotExist()
     {
         // Arrange
-        UserId userId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(true, TestContext.Current.CancellationToken);
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
 
         AddItemToBasketRequest request = new(
             Guid.NewGuid(),
@@ -155,7 +154,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
-        httpRequest.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        httpRequest.AddAuthorizationHeader(user);
         httpRequest.WithJsonContent(request);
 
         // Act

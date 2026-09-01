@@ -1,42 +1,42 @@
 using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 
 namespace MyHomeRamen.Features.Common.Authorization;
 
-public sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
+public sealed record CurrentUser : ICurrentUser
 {
-    public string Id => GetIdentityId();
+    public string IdentityId { get; private set; } = default!;
 
-    public Guid UserId => TryGetUserId() ?? TryGetGuestId() ?? Guid.Empty;
+    public Guid UserId { get; private set; } = Guid.Empty;
 
-    public IEnumerable<Claim> Claims { get; init; } = httpContextAccessor.HttpContext?.User?.Claims ?? [];
+    public IEnumerable<Claim> Claims { get; private set; } = [];
 
-    private string GetIdentityId()
+    public bool IsAuthenticated { get; private set; }
+
+    public bool IsGuest { get; private set; }
+
+    public IReadOnlyCollection<string> Permissions { get; private set; } = [];
+
+    internal void Update(
+        string identityId,
+        Guid userId,
+        IEnumerable<Claim> claims,
+        bool isAuthenticated,
+        bool isGuest,
+        IReadOnlyCollection<string> permissions)
     {
-        return httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.KeycloakIdClaim)?.Value
-               ?? string.Empty;
+        IdentityId = identityId;
+        UserId = userId;
+        Claims = claims;
+        IsAuthenticated = isAuthenticated;
+        IsGuest = isGuest;
+        Permissions = permissions;
     }
 
-    private Guid? TryGetUserId()
+    public static CurrentUser Anonymous { get; } = new()
     {
-        Claim? domainIdClaim = httpContextAccessor.HttpContext?.User?.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.DomainIdClaim);
-
-        return Guid.TryParse(domainIdClaim?.Value, out Guid userId)
-             ? userId
-             : null;
-    }
-
-    private Guid? TryGetGuestId()
-    {
-        if (httpContextAccessor.HttpContext is null)
-        {
-            return null;
-        }
-
-        return
-            httpContextAccessor.HttpContext.Request.Cookies.TryGetValue("guest_id", out string? guestIdString)
-            && Guid.TryParse(guestIdString, out Guid parsedId)
-            ? parsedId
-            : null;
-    }
+        IdentityId = string.Empty,
+        UserId = Guid.Empty,
+        IsAuthenticated = false,
+        IsGuest = true,
+    };
 }

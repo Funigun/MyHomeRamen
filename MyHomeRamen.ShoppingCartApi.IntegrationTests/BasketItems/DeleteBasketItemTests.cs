@@ -13,7 +13,7 @@ public sealed class DeleteBasketItemTests(WebApiFactory apiFactory)
         // Arrange
         Basket basket = DataGenerator.GeneratedBaskets.First();
         BasketItem item = basket.Items.First();
-        UserId userId = basket.User.Id;
+        UserId userId = basket.UserId;
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions
@@ -52,7 +52,7 @@ public sealed class DeleteBasketItemTests(WebApiFactory apiFactory)
     {
         // Arrange
         Basket basket = DataGenerator.GeneratedBaskets.First();
-        UserId userId = basket.User.Id;
+        UserId userId = basket.UserId;
         Guid nonExistentItemId = Guid.NewGuid();
 
         using HttpClient client = apiFactory.CreateClient();
@@ -73,7 +73,7 @@ public sealed class DeleteBasketItemTests(WebApiFactory apiFactory)
         // Arrange
         Basket basket = DataGenerator.GeneratedBaskets.First();
         BasketItem item = basket.Items.First();
-        UserId userId = basket.User.Id;
+        UserId userId = basket.UserId;
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions
@@ -92,7 +92,7 @@ public sealed class DeleteBasketItemTests(WebApiFactory apiFactory)
     {
         // Arrange
         Basket basket = DataGenerator.GeneratedBaskets.First();
-        UserId userId = basket.User.Id;
+        UserId userId = basket.UserId;
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions

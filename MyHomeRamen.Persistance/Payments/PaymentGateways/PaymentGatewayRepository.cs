@@ -10,5 +10,5 @@ public sealed partial class PaymentGatewayRepository(PaymentsDbContext paymentsD
 {
     public IPaymentGatewayQuery Query() => this;
 
-    public IPaymentGatewaySpecification Specification() => this;
+    public IPaymentGatewayLoader Load() => this;
 }

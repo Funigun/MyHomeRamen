@@ -2,15 +2,15 @@
 
 public sealed class OrderAddress
 {
-    public string Street { get; private set; }
+    public string Street { get; private set; } = default!;
 
-    public string Building { get; private set; }
+    public string Building { get; private set; } = default!;
 
-    public string Apartment { get; private set; }
+    public string Apartment { get; private set; } = default!;
 
-    public string City { get; private set; }
+    public string City { get; private set; } = default!;
 
-    public string ZipCode { get; private set; }
+    public string ZipCode { get; private set; } = default!;
 
     private OrderAddress()
     {

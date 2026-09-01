@@ -8,5 +8,5 @@ public readonly record struct PaymentGatewayId(Guid Value) : IEntityId
 
     public static implicit operator PaymentGatewayId(Guid value) => new(value);
 
-    public override string ToString() => Value.ToString();
+    public override readonly string ToString() => Value.ToString();
 }

@@ -1,11 +1,11 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Builder;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Endpoints.Query;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
 
@@ -19,7 +19,7 @@ public sealed class GetMyIdEndpoint : IEndpoint
                        .WithName("GetMyIdEndpoint")
                        .WithTags("account")
                        .WithDescription("Returns the authenticated user's internal ID.")
-                       .RequireAuthorization(AuthorizationPolicies.AnyAuthenticatedPolicy);
+                       .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<Results<Ok<GetMyIdResponse>, NotFound>> HandleAsync(
@@ -32,4 +32,3 @@ public sealed class GetMyIdEndpoint : IEndpoint
         return TypedResults.Ok(response);
     }
 }
-

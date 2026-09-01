@@ -4,11 +4,21 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using FluentValidation;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 
 public sealed record UpdateIngredientCommand(IngredientId Id, UpdateIngredientRequest UpdateIngredientRequest)
                    : ICommand<UpdateIngredientResponse>;
+
+public sealed class UpdateIngredientAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<UpdateIngredientCommand>
+{
+    public async Task<bool> Authorize(UpdateIngredientCommand request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageIngredients() && currentUser.CanEditIngredient();
+    }
+}
 
 public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredientCommand>
 {
@@ -40,9 +50,9 @@ public sealed class UpdateIngredientHandler(IMenuDbContext dbContext) : ICommand
 {
     public async Task<UpdateIngredientResponse> Handle(UpdateIngredientCommand request, CancellationToken cancellationToken)
     {
-        Ingredient ingredient = await dbContext.Ingredient.Specification().ById(request.Id, cancellationToken);
+        Ingredient ingredient = await dbContext.Ingredient.Load().ById(request.Id, cancellationToken);
 
-        IEnumerable<Category> categories = await dbContext.Category.Specification().ByIds(request.UpdateIngredientRequest.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
+        IEnumerable<Category> categories = await dbContext.Category.Load().ByIds(request.UpdateIngredientRequest.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
 
         ingredient.Update(request.UpdateIngredientRequest.Name, request.UpdateIngredientRequest.Description, request.UpdateIngredientRequest.Price, categories);
 

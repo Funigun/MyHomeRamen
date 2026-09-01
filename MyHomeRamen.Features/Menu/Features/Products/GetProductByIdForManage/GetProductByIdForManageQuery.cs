@@ -1,5 +1,7 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
@@ -25,6 +27,14 @@ public sealed record GetProductByIdForManageQueryOptions(ProductId ProductId)
                 product.CustomIngredients.Select(ingredient => ingredient.Id.Value).ToList())
         }
     );
+
+public sealed class GetProductByIdForManageAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetProductByIdForManageQuery>
+{
+    public async Task<bool> Authorize(GetProductByIdForManageQuery request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageProducts() && currentUser.CanEditProduct();
+    }
+}
 
 public sealed class GetProductByIdForManageValidator : AbstractValidator<GetProductByIdForManageQuery>
 {

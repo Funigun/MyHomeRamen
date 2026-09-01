@@ -1,7 +1,6 @@
 using System.Net;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
@@ -13,14 +12,13 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
     private const string EndpointBase = "/api/shoppingcart/baskets";
   
     private Basket _customerBasket = default!;
+    private (Guid UserId, Guid GuestId) _customer;
 
     public async ValueTask InitializeAsync()
     {
-        Guid customerId = await apiFactory.ShoppingCartDbContext.User.Query().GetUserIdAsync(false, TestContext.Current.CancellationToken);
-
-        User? customerUser = await apiFactory.ShoppingCartDbContext.User.Specification().ByIdAsync(customerId, TestContext.Current.CancellationToken);
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanRemoveProduct]);
  
-        _customerBasket = DataGenerator.CreateBasket([], customerUser!);
+        _customerBasket = DataGenerator.CreateBasket([], _customer.UserId);
 
         apiFactory.ShoppingCartDbContext.Basket.Add(_customerBasket);
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
@@ -32,12 +30,11 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
     public async Task ClearBasket_ShouldReturnNoContent_ForValidRequest()
     {
         // Arrange
-        UserId userId = _customerBasket.User.Id;
         string endpoint = $"{EndpointBase}/{_customerBasket.Id.Value}";
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint);
-        request.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        request.AddAuthorizationHeader(_customer);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -50,12 +47,11 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
     public async Task ClearBasket_ShouldReturnBadRequest_ForNonExistentBasket()
     {
         // Arrange
-        UserId userId = _customerBasket.User.Id;
         string endpoint = $"{EndpointBase}/{Guid.NewGuid()}";
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint);
-        request.AddAuthorizationHeader(UserRoles.Customer, userId.Value.ToString());
+        request.AddAuthorizationHeader(_customer);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
@@ -68,12 +64,12 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
     public async Task ClearBasket_ShouldReturnBadRequest_ForBasketBelongingToDifferentUser()
     {
         // Arrange
-        UserId differentUserId = new(Guid.NewGuid());
+        (Guid UserId, Guid GuestId) differentUser = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanRemoveProduct]);
         string endpoint = $"{EndpointBase}/{_customerBasket.Id.Value}";
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(endpoint);
-        request.AddAuthorizationHeader(UserRoles.Customer, differentUserId.Value.ToString());
+        request.AddAuthorizationHeader(differentUser);
 
         // Act
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);

@@ -7,15 +7,15 @@ public sealed class PaymentChannel : AuditableEntity, IEntity<PaymentChannelId>
 {
     public PaymentChannelId Id { get; private set; }
 
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
 
-    public string ImageUrl { get; private set; }
+    public string ImageUrl { get; private set; } = default!;
 
     public bool IsActive { get; private set; }
 
     public int DisplayOrder { get; private set; }
 
-    public PaymentGateway PaymentGateway { get; private set; }
+    public PaymentGateway PaymentGateway { get; private set; } = default!;
 
     private PaymentChannel() { }
 

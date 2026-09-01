@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Identity.Users;
+using MyHomeRamen.Features.Common.Cache;
+using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
+using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Identity;
 
@@ -16,6 +19,10 @@ public partial class UserRepository : IUserQuery
         => await identityDbContext.Users.AsNoTracking()
                       .Include(user => user.Addresses)
                       .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
+
+    public async Task<User?> ByGuestId(Guid guestId, CancellationToken cancellationToken)
+        => await identityDbContext.Users.AsNoTracking()
+                                       .FirstOrDefaultAsync(user => user.GuestId == guestId, cancellationToken);
 
     public async Task<Guid?> GetGuestIdByGuestIdAsync(Guid guestId, CancellationToken cancellationToken)
         => await identityDbContext.Users.AsNoTracking()
@@ -34,4 +41,11 @@ public partial class UserRepository : IUserQuery
                   .Include(u => u.Addresses)
                   .Where(u => u.Id == new UserId(userId))
                   .Select(u => u.Addresses.Count).FirstAsync(cancellationToken);
+
+    public async Task<User> SystemAccount(CancellationToken cancellationToken)
+    {
+        string systemAccountName = "System";
+        return await identityDbContext.Users.AsNoTracking()
+                                            .FirstAsync(u => u.FirstName == systemAccountName, cancellationToken);
+    }
 }

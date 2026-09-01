@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.DeleteIngredient;
 
@@ -15,7 +16,7 @@ public sealed class DeleteIngredientEndpoint : IEndpoint
                        .WithName("DeleteIngredientEndpoint")
                        .WithTags("Ingredients")
                        .WithDescription("Deletes an ingredient by its ID. Validates that the ingredient exists and is not used by any product.")
-                       .RequireAuthorization("RestaurantManager");
+                       .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

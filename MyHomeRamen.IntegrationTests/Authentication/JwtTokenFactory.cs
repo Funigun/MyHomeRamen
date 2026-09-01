@@ -27,56 +27,46 @@ public static class JwtTokenFactory
         SigningCredentials = new SigningCredentials(SecurityKey, SecurityAlgorithms.HmacSha256);
     }
 
-    public static string GenerateAdminToken(string userId = "")
+    public static string GenerateToken(Guid userId, string keycloakUserId)
     {
-        IEnumerable<Claim> claims = GenerateClaimsForRole(UserRoles.Admin, userId);
+        IEnumerable<Claim> claims = [new Claim(ClaimConstants.DomainIdClaim, userId.ToString()),
+                                                    new Claim(ClaimConstants.KeycloakIdClaim, keycloakUserId)];
 
         return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
     }
 
-    public static string GenerateEmployeeToken(string userId = "")
+    public static string GenerateGuestToken(Guid guestId)
     {
-        IEnumerable<Claim> claims = GenerateClaimsForRole(UserRoles.Employee, userId);
+        IEnumerable<Claim> claims = [new Claim(ClaimConstants.GuestIdClaim, guestId.ToString())];
 
         return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
     }
 
-    public static string GenerateCustomerToken(string userId = "")
+    public static string GenerateAdminToken()
     {
-        IEnumerable<Claim> claims = GenerateClaimsForRole(UserRoles.Customer, userId);
+        IEnumerable<Claim> claims = [];
 
         return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
     }
 
-    private static List<Claim> GenerateClaimsForRole(UserRoles role, string userId)
+    public static string GenerateEmployeeToken()
     {
-        List<Claim> claims = [];
+        IEnumerable<Claim> claims = [];
 
-        switch (role)
-        {
-            case UserRoles.Admin:
-                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-                claims.Add(new Claim(ClaimTypes.Role, "MenuAdmin"));
-                claims.Add(new Claim(ClaimTypes.Role, "ShoppingCartAdmin"));
-                break;
-            case UserRoles.Employee:
-                claims.Add(new Claim(ClaimTypes.Role, "Employee"));
-                claims.Add(new Claim(ClaimTypes.Role, "MenuEmployee"));
-                claims.Add(new Claim(ClaimTypes.Role, "ShoppingCartEmployee"));
-                break;
-            default:
-                claims.Add(new Claim(ClaimTypes.Role, "Customer"));
-                claims.Add(new Claim(ClaimTypes.Role, "MenuCustomer"));
-                claims.Add(new Claim(ClaimTypes.Role, "ShoppingCartCustomer"));
-                break;
-        }
+        return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
+    }
 
-        if (!string.IsNullOrEmpty(userId))
-        {
-            claims.Add(new Claim(ClaimConstants.DomainIdClaim, userId));
-            claims.Add(new Claim(ClaimConstants.KeycloakIdClaim, userId));
-        }
+    public static string GenerateCustomerToken()
+    {
+        IEnumerable<Claim> claims = [];
 
-        return claims;
+        return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
+    }
+
+    public static string GenerateManagerToken()
+    {
+        IEnumerable<Claim> claims = [];
+
+        return TokenHandler.WriteToken(new JwtSecurityToken(Issuer, Audience, claims, null, DateTime.UtcNow.AddMinutes(20), SigningCredentials));
     }
 }

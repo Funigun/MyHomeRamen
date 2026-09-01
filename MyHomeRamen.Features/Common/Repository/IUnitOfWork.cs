@@ -8,7 +8,5 @@ public interface IUnitOfWork
 
     Task Migrate(CancellationToken cancellationToken);
 
-    Task Seed(CancellationToken cancellationToken);
-
     Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken);
 }

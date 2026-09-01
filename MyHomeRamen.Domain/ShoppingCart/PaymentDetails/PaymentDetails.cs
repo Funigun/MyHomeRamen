@@ -2,9 +2,9 @@ namespace MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
 
 public sealed class PaymentDetails
 {
-    public string PaymentMethodId { get; private set; }
+    public string PaymentMethodId { get; private set; } = default!;
 
-    public string PaymentChannelId { get; private set; }
+    public string PaymentChannelId { get; private set; } = default!;
 
     private PaymentDetails() { }
 

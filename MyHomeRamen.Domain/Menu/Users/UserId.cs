@@ -8,5 +8,5 @@ public readonly record struct UserId(Guid Value) : IEntityId
 
     public static implicit operator UserId(Guid value) => new(value);
 
-    public override string ToString() => Value.ToString();
+    public override readonly string ToString() => Value.ToString();
 }

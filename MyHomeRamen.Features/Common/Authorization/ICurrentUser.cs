@@ -4,9 +4,15 @@ namespace MyHomeRamen.Features.Common.Authorization;
 
 public interface ICurrentUser
 {
-    string Id { get; }
+    string IdentityId { get; }
 
     Guid UserId { get; }
 
-    IEnumerable<Claim> Claims { get; init; }
+    IEnumerable<Claim> Claims { get; }
+
+    bool IsAuthenticated { get; }
+
+    bool IsGuest { get; }
+
+    IReadOnlyCollection<string> Permissions { get; }
 }

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 using MyHomeRamen.Domain.Menu.Categories;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -13,9 +14,12 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
 {
     private const string EndpointBase = "/api/menu/categories/by-type";
     private IEnumerable<Category> _categories = [];
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageCategories];
 
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "get-categories-user");
         Category productCategory = DataGenerator.CreateProductCategory();
         Category secondProductCategory = DataGenerator.CreateProductCategory();
         Category prodcutCategoryDuplicateCheck = DataGenerator.CreateProductCategory();
@@ -29,6 +33,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
 
     public async ValueTask DisposeAsync()
     {
+        await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
         foreach (Category category in _categories)
         {
             apiFactory.MenuDbContext.Category.Delete(category);
@@ -42,7 +47,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Ingredient}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -59,7 +64,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -91,7 +96,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}");
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -105,7 +110,7 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType=999");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

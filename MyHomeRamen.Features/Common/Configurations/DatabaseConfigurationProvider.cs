@@ -18,6 +18,8 @@ public class DatabaseConfigurationProvider(IConfiguration configuration)
 
     public string? PaymentsConnectionString => GetConnectionString("PaymentConnectionString");
 
+    public string? RestaurantsConnectionString => GetConnectionString("RestaurantsConnectionString");
+
     public string? WorkerConnectionString => GetConnectionString("WorkerConnectionString");
 
     private string? GetConnectionString(string key)

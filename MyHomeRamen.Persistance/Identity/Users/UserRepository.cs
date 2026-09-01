@@ -9,5 +9,5 @@ public sealed partial class UserRepository(IdentityDbContext identityDbContext, 
 {
     public IUserQuery Query() => this;
 
-    public IUserSpecification Specification() => this;
+    public IUserLoader Load() => this;
 }

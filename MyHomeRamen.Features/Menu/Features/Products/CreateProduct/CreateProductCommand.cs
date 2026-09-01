@@ -3,13 +3,23 @@ using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.CreateProduct;
 
 public sealed record CreateProductCommand(CreateProductRequest CreateProductRequest) : ICommand<CreateProductResponse>;
+
+public sealed class CreateProductAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<CreateProductCommand>
+{
+    public async Task<bool> Authorize(CreateProductCommand request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageProducts() && currentUser.CanAddProduct();
+    }
+}
 
 public sealed class CreateProductValidator : AbstractValidator<CreateProductCommand>
 {
@@ -47,11 +57,11 @@ public sealed class CreateProductHandler(IMenuDbContext dbContext) : ICommandHan
 {
     public async Task<CreateProductResponse> Handle(CreateProductCommand command, CancellationToken cancellationToken)
     {
-        Category category = await dbContext.Category.Specification().ById((CategoryId)command.CreateProductRequest.CategoryId, cancellationToken);
+        Category category = await dbContext.Category.Load().ById((CategoryId)command.CreateProductRequest.CategoryId, cancellationToken);
 
-        IEnumerable<Ingredient> ingredients = await dbContext.Ingredient.Specification().ByIds(command.CreateProductRequest.IngredientIds.Select(id => (IngredientId)id), cancellationToken);
+        IEnumerable<Ingredient> ingredients = await dbContext.Ingredient.Load().ByIds(command.CreateProductRequest.IngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
-        IEnumerable<Ingredient> customIngredients = await dbContext.Ingredient.Specification().ByIds(command.CreateProductRequest.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
+        IEnumerable<Ingredient> customIngredients = await dbContext.Ingredient.Load().ByIds(command.CreateProductRequest.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
         Product product = command.CreateProductRequest.ToDomain(category, ingredients, customIngredients);
 

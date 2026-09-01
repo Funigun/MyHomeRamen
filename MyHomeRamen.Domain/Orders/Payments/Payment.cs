@@ -14,7 +14,7 @@ public sealed class Payment : AuditableEntity, IEntity<PaymentId>
 
     public decimal Amount { get; private set; }
 
-    public Order Order { get; private set; }
+    public Order Order { get; private set; } = default!;
 
     public IReadOnlyList<Product> Products => _productIds.ToList();
 

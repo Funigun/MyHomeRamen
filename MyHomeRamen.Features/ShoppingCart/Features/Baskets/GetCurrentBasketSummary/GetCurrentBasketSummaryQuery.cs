@@ -3,6 +3,7 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
@@ -10,12 +11,20 @@ namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSum
 
 public sealed record GetCurrentBasketSummaryQuery : IQuery<GetCurrentBasketSummaryResponse>;
 
+public sealed class GetCurrentBasketSummaryAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetCurrentBasketSummaryQuery>
+{
+    public async Task<bool> Authorize(GetCurrentBasketSummaryQuery request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanViewBasket());
+    }
+}
+
 public sealed record GetCurrentBasketSummaryQueryOptions(UserId UserId)
     : DbQueryOptions<Basket, CurrentBasketSummaryDto>
     (
         new()
         {
-            Filter = basket => basket.User.Id == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.UserId == UserId && basket.Status == BasketStatus.Active,
             Selector = basket => new CurrentBasketSummaryDto(
                 basket.Id.Value,
                 basket.Items.Select(item => new BasketSummaryItemDto(
@@ -33,16 +42,6 @@ public sealed class GetCurrentBasketSummaryHandler(IShoppingCartDbContext dbCont
     public async Task<GetCurrentBasketSummaryResponse> Handle(GetCurrentBasketSummaryQuery request, CancellationToken cancellationToken)
     {
         UserId userId = new(currentUser.UserId);
-
-        User? user = await dbContext.User.Query().FindByIdAsync(userId, cancellationToken);
-
-        if (user is null ||
-             (user.IsGuest && !string.IsNullOrEmpty(currentUser.Id))
-              || (!user.IsGuest && string.IsNullOrEmpty(currentUser.Id))
-            )
-        {
-            throw new UnauthorizedAccessException("User is not authorized to access the current basket summary.");
-        }
 
         CurrentBasketSummaryDto? basket = await dbContext.Basket.Query().GetCurrentBasketSummaryAsync(new GetCurrentBasketSummaryQueryOptions(userId), cancellationToken);
 

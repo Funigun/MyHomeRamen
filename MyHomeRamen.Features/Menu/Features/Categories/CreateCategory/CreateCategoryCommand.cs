@@ -14,7 +14,7 @@ public sealed class CreateCategoryAuthorizationPolicy(ICurrentUser currentUser) 
 {
     public async Task<bool> Authorize(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
-        return currentUser.Claims.Any(c => c.Type == "role" && c.Value == "admin");
+        return currentUser.CanAddCategory();
     }
 }
 

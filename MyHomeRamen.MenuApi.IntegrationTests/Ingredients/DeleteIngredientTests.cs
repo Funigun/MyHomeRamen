@@ -2,6 +2,7 @@ using System.Net;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -15,9 +16,12 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixt
     private Ingredient _productIngredient = default!;
     private Ingredient _customIngredient = default!;
     private Category _ingredientCategory = default!;
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageIngredients, PermissionConstants.CanDeleteIngredient];
 
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "delete-ingredient-user");
         _ingredientCategory = DataGenerator.CreateIngredientCategory();
         _standaloneIngredient = DataGenerator.CreateIngredient(_ingredientCategory);
         _productIngredient = DataGenerator.CreateIngredient(_ingredientCategory);
@@ -32,14 +36,14 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixt
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync() => await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
 
     [Fact]
     public async Task DeleteIngredient_ShouldReturnNoContent_ForValidId()
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{_standaloneIngredient.Id}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -72,7 +76,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixt
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{_standaloneIngredient.Id.Value}");
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -88,7 +92,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixt
         Guid nonExistentId = Guid.NewGuid();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{nonExistentId}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -102,7 +106,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixt
     {
         // Arrange — derive ingredient from a tracked generated product so the reference is guaranteed
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{_productIngredient.Id.Value}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -116,7 +120,7 @@ public sealed class DeleteIngredientTests(WebApiFactory apiFactory) : IClassFixt
     {
         // Arrange — derive ingredient from a tracked generated product so the reference is guaranteed
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/ingredients/{_customIngredient.Id.Value}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

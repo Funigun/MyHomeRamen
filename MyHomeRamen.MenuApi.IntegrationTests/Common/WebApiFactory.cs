@@ -4,19 +4,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
-using MyHomeRamen.Features.Menu.Features.Permissions.Common;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
-using MyHomeRamen.Features.Menu.Features.Roles;
-using MyHomeRamen.Features.Menu.Features.Users.Common;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Fixtures;
+using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Persistance.Menu;
+using MyHomeRamen.Persistance.Identity;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Common;
 
@@ -25,6 +24,10 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
     public IMenuDbContext MenuDbContext { get; private set; } = default!;
 
     public HttpClient HttpClient { get; private set; } = default!;
+
+    private MyHomeRamen.IntegrationTests.Identity.IdentityTestData SharedIdentityTestData { get; } = new();
+
+    public IdentityTestData IdentityTestData { get; private set; } = default!;
 
     internal readonly string _connectionString = dbFixture.ConnectionString.Replace("Database=master;", $"Database = testdb_{Random.Shared.Next(1, 10000)};", StringComparison.OrdinalIgnoreCase);
 
@@ -39,21 +42,22 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         ServiceCollection services = new();
         services.AddSingleton(options);
         services.AddSingleton<ICurrentUser>(user);
-        services.AddScoped<MenuDbContext>(provider => new MenuDbContext(options, user, provider));
+        services.AddScoped(provider => new MenuDbContext(options, user, provider));
         services.AddScoped<IMenuDbContext>(provider => provider.GetRequiredService<MenuDbContext>());
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IIngredientRepository, IngredientRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IRoleRepository, RoleRepository>();
-        services.AddScoped<IPermissionRepository, PermissionRepository>();
         services.AddCacheService();
 
         _seedServiceProvider = services.BuildServiceProvider();
         _seedScope = _seedServiceProvider.CreateScope();
+        
         MenuDbContext = _seedScope.ServiceProvider.GetRequiredService<IMenuDbContext>();
+        await MenuDbContext.Migrate(TestContext.Current.CancellationToken);
 
-        await DataSeeder.SeedMenuModule(MenuDbContext);
+        await SharedIdentityTestData.SetIdentityService(_seedScope.ServiceProvider.GetRequiredService<ICurrentUser>(), _connectionString);
+        IdentityTestData = new IdentityTestData(SharedIdentityTestData);
+        await IdentityTestData.SeedAsync();
 
         HttpClient = CreateClient();
     }
@@ -80,7 +84,9 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
         builder.ConfigureServices(services =>
         {
             services.AddScoped<IMenuDbContext>(provider => provider.GetRequiredService<MenuDbContext>());
+            services.AddScoped<IIdentityDbContext>(provider => provider.GetRequiredService<IdentityDbContext>());
             services.ReconfigureDbContext<MenuDbContext>(_connectionString);
+            services.ReconfigureDbContext<IdentityDbContext>(_connectionString);
             services.ReconfigureCache(redisFixture.ConnectionString);
             services.ReconfigureTokenOptions();
             services.ReconfigureClaimsTransformation();

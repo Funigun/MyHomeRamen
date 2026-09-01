@@ -10,5 +10,5 @@ public sealed partial class PaymentMethodRepository(PaymentsDbContext paymentsDb
 {
     public IPaymentMethodQuery Query() => this;
 
-    public IPaymentMethodSpecification Specification() => this;
+    public IPaymentMethodLoader Load() => this;
 }

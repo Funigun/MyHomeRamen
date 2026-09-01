@@ -10,5 +10,5 @@ public sealed partial class TableRepository(ReservationsDbContext reservationsDb
 {
     public ITableQuery Query() => this;
 
-    public ITableSpecification Specification() => this;
+    public ITableLoader Load() => this;
 }

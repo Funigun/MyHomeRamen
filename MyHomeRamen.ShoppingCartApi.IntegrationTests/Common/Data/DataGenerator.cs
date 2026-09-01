@@ -1,11 +1,11 @@
 ﻿using Bogus;
-using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
@@ -71,7 +71,7 @@ internal sealed class DataGenerator
        .CustomInstantiator(f => BasketItem.Create(Guid.NewGuid(), product, 1, ""))
        .Generate();
 
-    internal static Basket CreateBasket(IEnumerable<BasketItem> basketItems, User user, ShippingDetails? shippingDetails = null, PaymentDetails? paymentDetails = null)
+    internal static Basket CreateBasket(IEnumerable<BasketItem> basketItems, UserId user, ShippingDetails? shippingDetails = null, PaymentDetails? paymentDetails = null)
         => new Faker<Basket>()
            .CustomInstantiator(f =>
            {

@@ -4,20 +4,28 @@ using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
-using MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
 public sealed record GetCurrentBasketDetailsQuery : IQuery<GetCurrentBasketDetailsResponse?>;
+
+public sealed class GetCurrentBasketDetailsAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetCurrentBasketDetailsQuery>
+{
+    public async Task<bool> Authorize(GetCurrentBasketDetailsQuery request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanViewBasket());
+    }
+}
 
 public sealed record GetCurrentBasketDetailsQueryOptions(UserId UserId)
     : DbQueryOptions<Basket, CurrentBasketDetailsDto>
     (
         new()
         {
-            Filter = basket => basket.User.Id == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.UserId == UserId && basket.Status == BasketStatus.Active,
             Selector = basket => new CurrentBasketDetailsDto(
                 basket.Id.Value,
                 basket.Items.Select(item => new BasketDetailsItemDto(
@@ -74,4 +82,3 @@ internal static class Mappings
             product.BaseIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name, i.Description, i.Price)),
             product.CustomIngredients.Select(i => new BasketDetailsIngredientDto(i.Id.Value, i.Name, i.Description, i.Price)));
 }
-

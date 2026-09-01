@@ -7,7 +7,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Api\MyHomeRamen.Api.csproj" />
     <ProjectReference Include="..\MyHomeRamen.AppHost\MyHomeRamen.AppHost.csproj" />
-    <ProjectReference Include="..\MyHomeRamen.Common.Contracts\MyHomeRamen.Common.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,12 +4,21 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.DeleteBasketItem;
 
 public sealed record DeleteBasketItemCommand(BasketId BasketId, BasketItemId BasketItemId) : ICommand;
+
+public sealed class DeleteBasketItemAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<DeleteBasketItemCommand>
+{
+    public async Task<bool> Authorize(DeleteBasketItemCommand request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanRemoveProduct());
+    }
+}
 
 public sealed class DeleteBasketItemValidationPolicy : AbstractValidator<DeleteBasketItemCommand>
 {
@@ -25,7 +34,7 @@ public sealed class DeleteBasketItemValidationPolicy : AbstractValidator<DeleteB
             .MustAsync(async (command, basketItemId, ct) =>
             {
                 UserId userId = new(currentUser.UserId);
-                Basket? basket = await dbContext.Basket.Specification().GetByIdForUserTrackedAsync(command.BasketId, userId, ct);
+                Basket? basket = await dbContext.Basket.Load().GetByIdForUserTrackedAsync(command.BasketId, userId, ct);
                 return basket?.Items.Any(item => item.Id == basketItemId) ?? false;
             })
             .WithMessage("Basket item was not found in the specified basket.");
@@ -39,7 +48,7 @@ public sealed class DeleteBasketItemHandler(IShoppingCartDbContext dbContext, IC
     {
         UserId userId = new(currentUser.UserId);
 
-        Basket basket = await dbContext.Basket.Specification()
+        Basket basket = await dbContext.Basket.Load()
             .GetByIdForUserTrackedAsync(command.BasketId, userId, cancellationToken)
             ?? throw new InvalidOperationException("Basket was not found.");
 
@@ -48,4 +57,3 @@ public sealed class DeleteBasketItemHandler(IShoppingCartDbContext dbContext, IC
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
-

@@ -10,5 +10,5 @@ public sealed partial class RoleRepository(IdentityDbContext identityDbContext, 
 {
     public IRoleQuery Query() => this;
 
-    public IRoleSpecification Specification() => this;
+    public IRoleLoader Load() => this;
 }

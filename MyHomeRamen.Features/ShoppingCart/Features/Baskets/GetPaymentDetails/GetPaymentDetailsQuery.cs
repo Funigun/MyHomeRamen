@@ -2,13 +2,23 @@ using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetPaymentDetails;
 
 public sealed record GetPaymentDetailsQuery(BasketId BasketId, UserId UserId) : IQuery<PaymentDetailsResponse>;
+
+public sealed class GetPaymentDetailsAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetPaymentDetailsQuery>
+{
+    public async Task<bool> Authorize(GetPaymentDetailsQuery request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanCheckout());
+    }
+}
 
 public sealed class GetPaymentDetailsValidationPolicy : AbstractValidator<GetPaymentDetailsQuery>
 {
@@ -26,7 +36,7 @@ public sealed record GetPaymentDetailsQueryOptions(BasketId BasketId, UserId Use
     (
         new()
         {
-            Filter = basket => basket.Id == BasketId && basket.User.Id == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.Id == BasketId && basket.UserId == UserId && basket.Status == BasketStatus.Active,
             Selector = basket => new PaymentDetailsDto(basket.PaymentDetails.PaymentMethodId, basket.PaymentDetails.PaymentChannelId)
         }
     );

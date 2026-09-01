@@ -20,11 +20,11 @@ public class Address
     {
     }
 
-    public static Address Create(Guid id, string street, string building, string apartment, string city, string zipCode, bool isDefault)
+    public static Address Create(string street, string building, string apartment, string city, string zipCode, bool isDefault)
     {
         Address address = new()
         {
-            Id = id,
+            Id = Guid.CreateVersion7(),
             Street = street,
             Building = building,
             Apartment = apartment,

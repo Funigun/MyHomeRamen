@@ -1,16 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <Compile Remove="Reservations\Authorization\**" />
+    <Compile Remove="ShoppingCart\Database\**" />
     <EmbeddedResource Remove="Reservations\Authorization\**" />
+    <EmbeddedResource Remove="ShoppingCart\Database\**" />
     <None Remove="Reservations\Authorization\**" />
+    <None Remove="ShoppingCart\Database\**" />
   </ItemGroup>
  
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="ShoppingCart\Database\" />
   </ItemGroup>
 
 </Project>

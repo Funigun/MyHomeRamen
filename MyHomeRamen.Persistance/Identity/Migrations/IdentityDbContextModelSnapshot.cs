@@ -23,6 +23,47 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Permissions.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsResourceScoped")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Module", "Name")
+                        .IsUnique();
+
+                    b.ToTable("Permissions", "identity");
+                });
+
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -39,6 +80,12 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsEditable")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRemovable")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -52,6 +99,26 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles", "identity");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.RolePermission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PermissionId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RolePermissions", "identity");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.User", b =>
@@ -126,6 +193,21 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.ToTable("UserRoles", "identity");
                 });
 
+            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.RolePermission", b =>
+                {
+                    b.HasOne("MyHomeRamen.Domain.Identity.Permissions.Permission", null)
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyHomeRamen.Domain.Identity.Roles.Role", null)
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.User", b =>
                 {
                     b.OwnsMany("MyHomeRamen.Domain.Identity.Users.Address", "Addresses", b1 =>
@@ -184,6 +266,11 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.Role", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 #pragma warning restore 612, 618
         }

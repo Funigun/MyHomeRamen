@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForDropdown;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -12,8 +13,12 @@ namespace MyHomeRamen.MenuApi.IntegrationTests.Ingredients;
 
 public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageIngredients, PermissionConstants.CanEditIngredient];
+
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "get-ingredients-dropdown-user");
         Category category = DataGenerator.CreateIngredientCategory();
         Ingredient ingredient = DataGenerator.CreateIngredient(category);
 
@@ -21,14 +26,14 @@ public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory) : I
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync() => await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
 
     [Fact]
     public async Task GetIngredientsForDropdown_ShouldReturnOkWithList_ForAuthenticatedManager()
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/dropdown");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -60,7 +65,7 @@ public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory) : I
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/dropdown");
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

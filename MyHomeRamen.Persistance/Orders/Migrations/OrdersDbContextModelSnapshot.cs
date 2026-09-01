@@ -134,8 +134,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Orders", "orders");
                 });
 
@@ -172,38 +170,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     b.HasIndex("OrderId");
 
                     b.ToTable("Payments", "orders");
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.Orders.Permissions.Permission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions", "orders");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Orders.Products.Product", b =>
@@ -253,81 +219,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     b.ToTable("Products", "orders");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Orders.Roles.Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles", "orders");
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.Orders.Users.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users", "orders");
-                });
-
             modelBuilder.Entity("PaymentProduct", b =>
                 {
                     b.Property<Guid>("PaymentId")
@@ -341,51 +232,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     b.HasIndex("ProductsId");
 
                     b.ToTable("PaymentProducts", "orders");
-                });
-
-            modelBuilder.Entity("PermissionRole", b =>
-                {
-                    b.Property<Guid>("PermissionsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("PermissionsId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("PermissionRole", "orders");
-                });
-
-            modelBuilder.Entity("PermissionUser", b =>
-                {
-                    b.Property<Guid>("PermissionsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("PermissionsId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PermissionUser", "orders");
-                });
-
-            modelBuilder.Entity("RoleUser", b =>
-                {
-                    b.Property<Guid>("RolesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("RolesId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RoleUser", "orders");
                 });
 
             modelBuilder.Entity("IngredientProduct", b =>
@@ -420,12 +266,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
 
             modelBuilder.Entity("MyHomeRamen.Domain.Orders.Orders.Order", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Orders.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.OwnsOne("MyHomeRamen.Domain.Orders.Orders.OrderAddress", "DeliveryAddress", b1 =>
                         {
                             b1.Property<Guid>("OrderId")
@@ -461,8 +301,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
 
                     b.Navigation("DeliveryAddress")
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Orders.Payments.Payment", b =>
@@ -496,51 +334,6 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     b.HasOne("MyHomeRamen.Domain.Orders.Products.Product", null)
                         .WithMany()
                         .HasForeignKey("ProductsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PermissionRole", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.Orders.Permissions.Permission", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyHomeRamen.Domain.Orders.Roles.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PermissionUser", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.Orders.Permissions.Permission", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyHomeRamen.Domain.Orders.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("RoleUser", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.Orders.Roles.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RolesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyHomeRamen.Domain.Orders.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

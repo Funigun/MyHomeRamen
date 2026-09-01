@@ -8,8 +8,4 @@
     <ProjectReference Include="..\MyHomeRamen.Features\MyHomeRamen.Features.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Orders\Users\" />
-  </ItemGroup>
-
 </Project>

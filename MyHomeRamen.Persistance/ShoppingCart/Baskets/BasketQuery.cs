@@ -49,6 +49,6 @@ public partial class BasketRepository : IBasketQuery
 
     public async Task<Basket?> GetByIdForUserAsync(BasketId basketId, UserId userId, CancellationToken cancellationToken)
         => await shoppingCartDbContext.ShoppingCarts
-            .Where(b => b.Id == basketId && b.User.Id == userId && b.Status == BasketStatus.Active)
+            .Where(b => b.Id == basketId && b.UserId == userId && b.Status == BasketStatus.Active)
             .FirstOrDefaultAsync(cancellationToken);
 }

@@ -7,5 +7,5 @@ public interface IPaymentChannelRepository : IRepository<PaymentChannel, Payment
 {
     IPaymentChannelQuery Query();
 
-    IPaymentChannelSpecification Specification();
+    IPaymentChannelLoader Load();
 }

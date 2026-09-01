@@ -13,8 +13,8 @@ public sealed class BasketClearTests
     public void Clear_ShouldRemoveAllItems_WhenBasketHasItems()
     {
         // Arrange
-        User user = CreateUser();
-        Basket basket = Basket.Create(DefaultBasketId, user);
+        UserId userId = new(Guid.NewGuid());
+        Basket basket = Basket.Create(DefaultBasketId, userId);
         basket.AddItem(CreateBasketItem());
         basket.AddItem(CreateBasketItem());
 
@@ -29,8 +29,8 @@ public sealed class BasketClearTests
     public void Clear_ShouldDoNothing_WhenBasketIsEmpty()
     {
         // Arrange
-        User user = CreateUser();
-        Basket basket = Basket.Create(DefaultBasketId, user);
+        UserId userId = new(Guid.NewGuid());
+        Basket basket = Basket.Create(DefaultBasketId, userId);
 
         // Act
         basket.Clear();
@@ -38,9 +38,6 @@ public sealed class BasketClearTests
         // Assert
         Assert.Empty(basket.Items);
     }
-
-    private static User CreateUser()
-        => User.Create(new UserId(Guid.NewGuid()), [], []);
 
     private static BasketItem CreateBasketItem()
     {

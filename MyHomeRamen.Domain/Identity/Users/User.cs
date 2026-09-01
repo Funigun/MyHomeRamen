@@ -38,7 +38,7 @@ public class User : AuditableEntity, IEntity<UserId>
 
     public static User Create(string keycloakUserId, string userName, string firstName, string lastName, string email, string phoneNumber, Role role)
     {
-        User user = new User
+        User user = new ()
         {
             Id = Guid.CreateVersion7(),
             KeycloakUserId = keycloakUserId,
@@ -58,17 +58,33 @@ public class User : AuditableEntity, IEntity<UserId>
 
     public static User CreateGuest()
     {
-        User user = new User
+        User user = new()
         {
             Id = Guid.CreateVersion7(),
             GuestId = Guid.CreateVersion7(),
+            UserName = "Guest",
             FirstName = "Guest",
             LastName = "User",
+            Email = "guest@example.com",
+            PhoneNumber = "000-000-000",
             Role = "Guest"
         };
 
         UserValidator.ValidateUser(user);
         return user;
+    }
+
+    public static User CreateSystem()
+    {
+        return new()
+        {
+            Id = Guid.CreateVersion7(),
+            UserName = "System",
+            FirstName = "System",
+            LastName = "Account",
+            Email = "system@example.com",
+            PhoneNumber = "000-000-000",
+        };
     }
 
     public void AddRole(Role role)
@@ -98,13 +114,9 @@ public class User : AuditableEntity, IEntity<UserId>
 
     public void UpdateAddress(Guid addressId, string street, string building, string apartment, string city, string zipCode, bool isDefault)
     {
-        Address? address = _addresses.FirstOrDefault(a => a.Id == addressId);
-
-        if (address is null)
-        {
-            throw AddressErrors.AddressNotFound();
-        }
-
+        Address? address = _addresses.FirstOrDefault(a => a.Id == addressId)
+                        ?? throw AddressErrors.AddressNotFound();
+        
         address.Update(street, building, apartment, city, zipCode);
 
         if (isDefault && !address.IsDefault)
@@ -121,12 +133,8 @@ public class User : AuditableEntity, IEntity<UserId>
 
     public void RemoveAddress(Guid addressId)
     {
-        Address? address = _addresses.FirstOrDefault(a => a.Id == addressId);
-
-        if (address is null)
-        {
-            throw AddressErrors.AddressNotFound();
-        }
+        Address? address = _addresses.FirstOrDefault(a => a.Id == addressId)
+                        ?? throw AddressErrors.AddressNotFound();
 
         _addresses.Remove(address);
     }

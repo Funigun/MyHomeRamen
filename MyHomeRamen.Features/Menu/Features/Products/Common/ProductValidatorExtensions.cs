@@ -100,7 +100,7 @@ internal static class ProductValidatorExtensions
                                }
 
                                IEnumerable<IngredientId> customIngredientIds = ids.Distinct().Select(id => (IngredientId)id);
-                               IEnumerable<Ingredient> found = await dbContext.Ingredient.Specification().ByIds(customIngredientIds, cancellationToken);
+                               IEnumerable<Ingredient> found = await dbContext.Ingredient.Load().ByIds(customIngredientIds, cancellationToken);
 
                                return found.Count() == ids.Distinct().Count();
                            })

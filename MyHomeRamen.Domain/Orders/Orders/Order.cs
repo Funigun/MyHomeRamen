@@ -5,13 +5,10 @@ using MyHomeRamen.Domain.Orders.Users;
 
 namespace MyHomeRamen.Domain.Orders.Orders;
 
-public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
+public sealed class Order : Aggregate<OrderId>
 {
     private readonly List<Product> _productIds = [];
     private readonly List<Payment> _payments = [];
-    private readonly List<IDomainEvent> _events = [];
-
-    public OrderId Id { get; private set; }
 
     public Guid ReferenceNumber { get; private set; }
 
@@ -23,15 +20,13 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
 
     public decimal TotalCalculatedAmount { get; private set; }
 
-    public User User { get; private set; }
+    public UserId UserId { get; private set; } = default!;
 
-    public OrderAddress DeliveryAddress { get; private set; }
+    public OrderAddress DeliveryAddress { get; private set; } = default!;
 
     public IReadOnlyList<Product> Products => _productIds.ToList();
 
     public IReadOnlyList<Payment> Payments => _payments.ToList();
-
-    public IReadOnlyList<IDomainEvent> Events => _events.ToList();
 
     private Order()
     {
@@ -80,15 +75,5 @@ public sealed class Order : AuditableEntity, IEntity<OrderId>, IEventProducer
         OrderValidator.Validate(order);
 
         return order;
-    }
-
-    public void AddDomainEvent(IDomainEvent domainEvent)
-    {
-        _events.Add(domainEvent);
-    }
-
-    public void ClearDomainEvents()
-    {
-        _events.Clear();
     }
 }

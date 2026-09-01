@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductByIdForManage;
 
@@ -34,7 +35,7 @@ public sealed class GetProductByIdForManageEndpoint : IEndpoint
             .WithName("GetProductByIdForManageEndpoint")
             .WithTags("Products")
             .WithDescription("Returns the full details of a single product by its ID for the management view using the /manage route.")
-            .RequireAuthorization("RestaurantManager");
+            .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 
@@ -23,7 +24,7 @@ public sealed class GetCategoriesByTypeEndpoint : IEndpoint
             .WithName("GetCategoriesByTypeEndpoint")
             .WithTags("Categories")
             .WithDescription("Returns a filtered and ordered list of categories for the specified category type.")
-            .RequireAuthorization("RestaurantManager");
+            .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<Results<Ok<GetCategoriesByTypeResponse>, ForbidHttpResult>> HandleAsync(

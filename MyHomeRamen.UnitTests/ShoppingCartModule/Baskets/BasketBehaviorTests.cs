@@ -15,8 +15,8 @@ public class BasketBehaviorTests
     public void AddItem_ShouldAddItemToBasket_WhenValidItem()
     {
         // Arrange
-        User user = CreateUser();
-        Basket basket = Basket.Create(DefaultBasketId, user);
+        UserId userId = new(Guid.NewGuid());
+        Basket basket = Basket.Create(DefaultBasketId, userId);
         BasketItem item = CreateBasketItem();
 
         // Act
@@ -31,8 +31,8 @@ public class BasketBehaviorTests
     public void AddItem_ShouldThrowDomainException_WhenItemIsNull()
     {
         // Arrange
-        User user = CreateUser();
-        Basket basket = Basket.Create(DefaultBasketId, user);
+        UserId userId = new(Guid.NewGuid());
+        Basket basket = Basket.Create(DefaultBasketId, userId);
 
         // Act & Assert
         DomainException exception = Assert.Throws<DomainException>(() => basket.AddItem(null!));
@@ -43,8 +43,8 @@ public class BasketBehaviorTests
     public void AddItem_ShouldThrowDomainException_WhenItemsLimitReached()
     {
         // Arrange
-        User user = CreateUser();
-        Basket basket = Basket.Create(DefaultBasketId, user);
+        UserId userId = new(Guid.NewGuid());
+        Basket basket = Basket.Create(DefaultBasketId, userId);
 
         for (int i = 0; i < BasketConstants.MaxProductsCount; i++)
         {
@@ -55,9 +55,6 @@ public class BasketBehaviorTests
         DomainException exception = Assert.Throws<DomainException>(() => basket.AddItem(CreateBasketItem()));
         Assert.Equal(BasketErrors.BasketItemsLimitReached().Message, exception.Message);
     }
-
-    private static User CreateUser()
-        => User.Create(new UserId(Guid.NewGuid()), [], []);
 
     private static BasketItem CreateBasketItem()
     {

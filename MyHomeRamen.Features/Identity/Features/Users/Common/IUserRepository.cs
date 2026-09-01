@@ -7,5 +7,5 @@ public interface IUserRepository : IRepository<User, UserId>
 {
     IUserQuery Query();
 
-    IUserSpecification Specification();
+    IUserLoader Load();
 }

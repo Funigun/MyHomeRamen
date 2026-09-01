@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Models;
+using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
 
@@ -29,7 +30,7 @@ public sealed class GetProductsForManageEndpoint : IEndpoint
             .WithName("GetProductsForManageEndpoint")
             .WithTags("Products")
             .WithDescription("Returns a filtered, sorted, and paged list of products for the admin management view.")
-            .RequireAuthorization("RestaurantManager");
+            .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync(

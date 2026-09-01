@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 
@@ -17,7 +18,7 @@ public sealed class DeleteCategoryEndpoint : IEndpoint
                        .WithName("DeleteCategoryEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Handles Delete Category operations.")
-                       .RequireAuthorization("RestaurantManager");
+                       .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync([AsParameters] DeleteCategoryRequest request, [FromServices] ICommandHandler<DeleteCategoryCommand> handler, CancellationToken cancellationToken)

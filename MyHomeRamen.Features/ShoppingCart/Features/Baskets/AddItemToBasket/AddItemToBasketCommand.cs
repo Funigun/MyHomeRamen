@@ -6,6 +6,7 @@ using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
@@ -13,6 +14,14 @@ using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 
 public sealed record AddItemToBasketCommand(AddItemToBasketRequest AddItemToBasketRequest) : ICommand<AddItemToBasketResponse>;
+
+public sealed class AddItemToBasketAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<AddItemToBasketCommand>
+{
+    public async Task<bool> Authorize(AddItemToBasketCommand request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanAddProduct());
+    }
+}
 
 public sealed class AddItemToBasketValidator : AbstractValidator<AddItemToBasketCommand>
 {
@@ -65,14 +74,11 @@ public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICu
     {
         UserId userId = new(currentUser.UserId);
 
-        User? user = await dbContext.User.Query().FindByIdAsync(userId, cancellationToken)
-                  ?? throw new InvalidOperationException($"User {userId.Value} was not found.");
-
-        Basket? basket = await dbContext.Basket.Specification().GetForUserTrackedAsync(userId, cancellationToken);
+        Basket? basket = await dbContext.Basket.Load().GetForUserTrackedAsync(userId, cancellationToken);
 
         if (basket is null)
         {
-            basket = Basket.Create(new BasketId(Guid.CreateVersion7()), user);
+            basket = Basket.Create(new BasketId(Guid.CreateVersion7()), userId);
             dbContext.Basket.Add(basket);
         }
 

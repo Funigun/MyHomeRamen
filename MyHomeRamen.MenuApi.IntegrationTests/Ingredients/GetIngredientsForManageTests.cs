@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForManage;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
@@ -14,9 +15,12 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
 {
     private IEnumerable<Ingredient> _ingredients = default!;
     private IEnumerable<Category> _categories = [];
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageIngredients];
 
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "get-ingredients-manage-user");
         _categories = DataGenerator.CreateIngredientCategories();
         Ingredient firstIngredient = DataGenerator.CreateIngredient(_categories.First());
         Ingredient secondIngredient = DataGenerator.CreateIngredient(_categories.Skip(1).First());
@@ -28,14 +32,14 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    public async ValueTask DisposeAsync() => await Task.CompletedTask;
+    public async ValueTask DisposeAsync() => await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
 
     [Fact]
     public async Task GetIngredientsForManage_ShouldReturnOk_ForAuthenticatedAdmin()
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/manage");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -67,7 +71,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/manage");
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -83,7 +87,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
         string partialName = _ingredients.First().Name[..5];
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/manage?name={Uri.EscapeDataString(partialName)}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -105,7 +109,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
                                                               .Select(i => i.Id.Value);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/manage?categoryIds={categoryId}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -123,7 +127,7 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/ingredients/manage?name={Guid.NewGuid()}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);

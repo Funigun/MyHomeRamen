@@ -1,10 +1,9 @@
-using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.Worker.Common;
 using MyHomeRamen.Worker.DatabaseInitializer;
-using MyHomeRamen.Worker.DatabaseInitializer.Config;
 using Quartz;
 using Serilog;
 
@@ -27,6 +26,7 @@ try
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
 
     builder.AddWorkerServiceDefaults();
+    builder.Services.AddPermissionCatalogServices();
 
     builder.Services.AddQuartzServices(q =>
     {
@@ -41,9 +41,9 @@ try
         );
     });
 
-    builder.Services.AddScoped<ICurrentUser, WorkerUser>();
-
+    builder.Services.AddSharedServices();
     builder.Services.AddIdentityPersistance(databaseConfigurationProvider);
+    builder.Services.AddRestaurantsPersistance(databaseConfigurationProvider);
     builder.Services.AddMenuPersistance(databaseConfigurationProvider);
     builder.Services.AddBasketPersistance(databaseConfigurationProvider);
     builder.Services.AddOrdersPersistance(databaseConfigurationProvider);

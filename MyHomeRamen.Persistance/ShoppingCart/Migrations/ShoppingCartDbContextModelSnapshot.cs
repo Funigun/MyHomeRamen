@@ -123,8 +123,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("ShoppingCarts", "basket");
                 });
 
@@ -198,38 +196,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                     b.ToTable("PaymentDetails", "basket");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Permissions.Permission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Permissions", "basket");
-                });
-
             modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -278,38 +244,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                     b.ToTable("Products", "basket");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Roles.Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles", "basket");
-                });
-
             modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.ShippingDetails.ShippingDetails", b =>
                 {
                     b.Property<int>("Id")
@@ -333,79 +267,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                         .IsUnique();
 
                     b.ToTable("ShippingDetails", "basket");
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Users.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("IsGuest")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users", "basket");
-                });
-
-            modelBuilder.Entity("PermissionRole", b =>
-                {
-                    b.Property<Guid>("PermissionsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("PermissionsId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("PermissionRole", "basket");
-                });
-
-            modelBuilder.Entity("PermissionUser", b =>
-                {
-                    b.Property<Guid>("PermissionsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("PermissionsId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PermissionUser", "basket");
-                });
-
-            modelBuilder.Entity("RoleUser", b =>
-                {
-                    b.Property<Guid>("RolesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("RolesId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RoleUser", "basket");
                 });
 
             modelBuilder.Entity("IngredientProduct", b =>
@@ -451,17 +312,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Baskets.Basket", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.PaymentDetails.PaymentDetails", b =>
@@ -520,51 +370,6 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                         });
 
                     b.Navigation("ShippingAddress");
-                });
-
-            modelBuilder.Entity("PermissionRole", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Permissions.Permission", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Roles.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("PermissionUser", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Permissions.Permission", null)
-                        .WithMany()
-                        .HasForeignKey("PermissionsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("RoleUser", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Roles.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RolesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyHomeRamen.Domain.ShoppingCart.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.ShoppingCart.Baskets.Basket", b =>

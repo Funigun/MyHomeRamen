@@ -1,6 +1,4 @@
-﻿using MyHomeRamen.Common.Contracts.Messaging;
-
-namespace MyHomeRamen.Infrastructure.Messaging.Configuration;
+﻿namespace MyHomeRamen.Infrastructure.Messaging.Configuration;
 
 public static class QueueConfigurationFactory
 {
@@ -22,8 +20,6 @@ public static class QueueConfigurationFactory
 
         return messageType.Name switch
         {
-            nameof(UserRegisteredIntegrationEvent) => MessagesConstants.UserEventsQueue,
-            nameof(GuestUserCreatedIntegrationEvent) => MessagesConstants.GuestRegisteredQueue,
             _ => throw new ArgumentException($"Message type '{messageType.Name}' is not recognized.")
         };
     }

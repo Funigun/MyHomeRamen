@@ -1,39 +1,102 @@
+using FluentValidation;
+using MyHomeRamen.Domain.Identity.Roles;
+using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Common.Contracts.Messaging;
-using MyHomeRamen.Features.Common.Messaging;
+using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Features.Identity.Services;
 using MyHomeRamen.Features.Identity.Services.Dto;
-using MyHomeRamen.Domain.Identity.Users;
-using MyHomeRamen.Domain.Identity.Roles;
-using MyHomeRamen.Features.Identity.Abstractions;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.Register;
 
 public sealed record RegisterCommand(RegisterRequest Request) : ICommand;
 
-public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdentityDbContext usersDbContext, IMessagesService messagesService) : ICommandHandler<RegisterCommand>
+public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand>
+{
+    public RegisterCommandValidator()
+    {
+        RuleFor(x => x.Request.UserName)
+            .ValidUserName();
+
+        RuleFor(x => x.Request.FirstName)
+            .ValidName();
+
+        RuleFor(x => x.Request.LastName)
+            .ValidName();
+
+        RuleFor(x => x.Request.Email)
+            .NotEmpty()
+            .EmailAddress();
+
+        RuleFor(x => x.Request.PhoneNumber)
+            .NotEmpty();
+
+        RuleFor(x => x.Request.Password)
+            .ValidPassword();
+
+        RuleFor(x => x.Request.ConfirmPassword)
+            .NotEmpty()
+            .Equal(x => x.Request.Password)
+            .WithMessage("Passwords do not match.");
+    }
+}
+
+public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdentityDbContext usersDbContext) : ICommandHandler<RegisterCommand>
 {
     public async Task Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
         KeycloakUserDto keycloakUser = command.Request.ToKeycloakUserDto();
 
-        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Customer, cancellationToken);
+        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, cancellationToken);
 
-        Role role = await usersDbContext.Role.Specification().ByName(RoleConstants.Customer, cancellationToken);
+        Role role = await usersDbContext.Role.Load().ByName(RoleConstants.Customer, cancellationToken)
+                    ?? throw new InvalidOperationException("Customer role was not found.");
         User user = command.Request.ToUserDto(keycloakUserId, role);
 
         usersDbContext.User.Add(user);
         await usersDbContext.SaveChangesAsync(cancellationToken);
-
-        UserRegisteredIntegrationEvent integrationEvent = new(
-            user.Id,
-            user.FirstName,
-            user.LastName,
-            user.PhoneNumber,
-            user.Email,
-            user.Role);
-
-        await messagesService.PublishAsync(integrationEvent, cancellationToken);
     }
 }
 
+internal static class Mappings
+{
+    extension(RegisterRequest request)
+    {
+        internal KeycloakUserDto ToKeycloakUserDto()
+        {
+            return new KeycloakUserDto
+            {
+                Username = request.UserName,
+                Email = request.Email,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Enabled = true,
+                Credentials =
+                [
+                    new KeycloakCredentialDto
+                    {
+                        Type = "password",
+                        Value = request.Password,
+                        Temporary = false,
+                    }
+                ]
+            };
+        }
+    }
+
+    extension(RegisterRequest request)
+    {
+        internal User ToUserDto(string keycloakUserId, Role role)
+        {
+            return User.Create(
+                keycloakUserId,
+                request.UserName,
+                request.FirstName,
+                request.LastName,
+                request.Email,
+                request.PhoneNumber,
+                role
+            );
+        }
+    }
+}

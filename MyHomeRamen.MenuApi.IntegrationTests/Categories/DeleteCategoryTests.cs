@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Domain.Menu.Users;
 using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
@@ -17,9 +18,12 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     private Category _ingredientcategory = default!;
     private Ingredient _ingredient = default!;
     private Product _product = default!;
+    private (string KeycloakUserId, Guid UserId) _userId;
+    private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanDeleteCategory];
 
     public async ValueTask InitializeAsync()
     {
+        _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "delete-category-user");
         _ingredientcategory = DataGenerator.CreateIngredientCategory();
         _productCategory = DataGenerator.CreateProductCategory();
         _ingredient = DataGenerator.CreateIngredient(_ingredientcategory);
@@ -33,6 +37,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
 
     public async ValueTask DisposeAsync()
     {
+        await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
         apiFactory.MenuDbContext.Product.Delete(_product);
         apiFactory.MenuDbContext.Ingredient.Delete(_ingredient);
         apiFactory.MenuDbContext.Category.Delete(_ingredientcategory);
@@ -58,7 +63,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         Guid idToDelete = cat2.Id;
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{idToDelete}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -71,7 +76,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
 
         // Assert — ALL remaining categories of the same type have contiguous sort orders starting from 1
         using HttpRequestMessage assertRequest = HttpClientExtensions.CreateGetMessage($"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}");
-        assertRequest.AddAuthorizationHeader(UserRoles.Admin);
+        assertRequest.AddAuthorizationHeader(_userId);
 
         HttpResponseMessage assertResponse = await apiFactory.HttpClient.SendAsync(assertRequest, TestContext.Current.CancellationToken);
 
@@ -96,7 +101,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         Guid nonExistentId = Guid.NewGuid();
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{nonExistentId}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -109,7 +114,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_productCategory.Id.Value}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -123,7 +128,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange — derive category from a tracked generated ingredient so the reference is guaranteed
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_ingredientcategory.Id.Value}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
@@ -152,7 +157,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{_productCategory.Id.Value}");
-        httpRequest.AddAuthorizationHeader(role);
+        httpRequest.AddAuthorizationHeader(apiFactory.IdentityTestData.GetUser(role));
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 
@@ -165,7 +170,7 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateDeleteMessage($"/api/menu/categories/{Guid.Empty}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
+        httpRequest.AddAuthorizationHeader(_userId);
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 

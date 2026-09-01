@@ -15,8 +15,8 @@ public sealed class BasketRemoveItemTests
     public void RemoveItem_ShouldRemoveItem_WhenItemExists()
     {
         // Arrange
-        User user = CreateUser();
-        Basket basket = Basket.Create(DefaultBasketId, user);
+        UserId userId = new(Guid.NewGuid());
+        Basket basket = Basket.Create(DefaultBasketId, userId);
         BasketItem item = CreateBasketItem();
         basket.AddItem(item);
 
@@ -31,17 +31,14 @@ public sealed class BasketRemoveItemTests
     public void RemoveItem_ShouldThrowDomainException_WhenItemNotFound()
     {
         // Arrange
-        User user = CreateUser();
-        Basket basket = Basket.Create(DefaultBasketId, user);
+        UserId userId = new(Guid.NewGuid());
+        Basket basket = Basket.Create(DefaultBasketId, userId);
         BasketItemId nonExistentId = new(Guid.NewGuid());
 
         // Act & Assert
         DomainException exception = Assert.Throws<DomainException>(() => basket.RemoveItem(nonExistentId));
         Assert.Equal(BasketErrors.ItemNotFound().Message, exception.Message);
     }
-
-    private static User CreateUser()
-        => User.Create(new UserId(Guid.NewGuid()), [], []);
 
     private static BasketItem CreateBasketItem()
     {

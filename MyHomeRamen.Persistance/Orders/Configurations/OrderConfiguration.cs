@@ -28,8 +28,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.OwnsOne(x => x.DeliveryAddress);
 
-        builder.HasOne(x => x.User)
-               .WithMany()
+        builder.Property(x => x.UserId)
                .IsRequired();
 
         builder.HasMany(x => x.Products)

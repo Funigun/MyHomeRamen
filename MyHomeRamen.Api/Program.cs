@@ -1,5 +1,9 @@
 using System.Reflection;
 using FluentValidation;
+using MyHomeRamen.Api.Authorization;
+using MyHomeRamen.Api.DependencyInjection;
+using MyHomeRamen.Api.Middlewares;
+using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Features;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Infrastructure.Cache;
@@ -7,10 +11,6 @@ using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.ServiceDefaults;
 using Scalar.AspNetCore;
 using Serilog;
-using MyHomeRamen.Api.DependencyInjection;
-using MyHomeRamen.Api.Authorization;
-using MyHomeRamen.Api.Middlewares;
-using MyHomeRamen.Api.WebPresentation;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +61,7 @@ try
                     .AddProblemDetails();
 
     builder.Services.AddSharedServices()
+                    .AddPermissionCatalogServices()
                     .AddEndpoints(featuresAssembly)
                     .AddCommandHandlers(featuresAssembly)
                     .AddQueryHandlers(featuresAssembly)
@@ -72,7 +73,8 @@ try
                     .AddOrdersModule(databaseConfigurationProvider)
                     .AddReservationsModule(databaseConfigurationProvider)
                     .AddPaymentsModule(databaseConfigurationProvider)
-                    .AddUsersModule(databaseConfigurationProvider, builder.Configuration);
+                    .AddUsersModule(databaseConfigurationProvider, builder.Configuration)
+                    .AddRestaurantsModule(databaseConfigurationProvider);
 
     builder.Services.ConfigureAuthentication(authorizationConfiguration)
                     .ConfigureAuthorizationPolicies();
@@ -104,6 +106,7 @@ try
 
     app.UseHttpsRedirection();
     app.UseAuthentication();
+    app.UseMiddleware<UserLoginMiddleware>();
     app.UseSerilogRequestLogging();
     app.MapDefaultEndpoints();
     app.MapEndpoints();

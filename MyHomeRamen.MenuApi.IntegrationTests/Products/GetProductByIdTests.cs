@@ -4,7 +4,6 @@ using MyHomeRamen.Features.Menu.Features.Products.GetProductById;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
-using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
@@ -118,8 +117,6 @@ public sealed class GetProductByIdTests(WebApiFactory apiFactory) : IClassFixtur
     {
         // Arrange
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}/{Guid.NewGuid()}");
-        httpRequest.AddAuthorizationHeader(UserRoles.Admin);
-
         // Act
         HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
 

@@ -24,6 +24,10 @@ using MyHomeRamen.Persistance.Identity;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MenuModule = MyHomeRamen.Features.Menu.Features;
 using MyHomeRamen.Features.ShoppingCart.Features.Products.Common;
+using MyHomeRamen.Persistance.Restaurants;
+using MyHomeRamen.Features.Restaurants.Features.Abstractions;
+using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
+using MyHomeRamen.Features.Restaurants.Features.Companies.Common;
 
 namespace MyHomeRamen.Persistance;
 
@@ -48,9 +52,6 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<MenuModule.Products.Common.IProductRepository, Menu.ProductRepository>();
         services.AddScoped<MenuModule.Ingredients.Common.IIngredientRepository, Menu.IngredientRepository>();
-        services.AddScoped<MenuModule.Users.Common.IUserRepository, Menu.UserRepository>();
-        services.AddScoped<MenuModule.Roles.IRoleRepository, Menu.RoleRepository>();
-        services.AddScoped<MenuModule.Permissions.Common.IPermissionRepository, Menu.PermissionRepository>();
 
         return services;
     }
@@ -75,9 +76,6 @@ public static class DependencyInjection
         services.AddScoped<IBasketItemRepository, BasktetItemRepository>();
         services.AddScoped<IProductRepository, ShoppingCart.ProductRepository>();
         services.AddScoped<Features.ShoppingCart.Features.Ingredients.Common.IIngredientRepository, ShoppingCart.IngredientRepository>();
-        services.AddScoped<Features.ShoppingCart.Features.Users.Common.IUserRepository, ShoppingCart.UserRepository>();
-        services.AddScoped<Features.ShoppingCart.Features.Roles.Common.IRoleRepository, ShoppingCart.RoleRepository>();
-        services.AddScoped<Features.ShoppingCart.Features.Permissions.Common.IPermissionRepository, ShoppingCart.PermissionRepository>();
 
         return services;
     }
@@ -120,9 +118,6 @@ public static class DependencyInjection
         services.AddScoped<IReservationsDbContext, ReservationsDbContext>();
         services.AddScoped<IBookingRepository, BookingRepository>();
         services.AddScoped<ITableRepository, TableRepository>();
-        services.AddScoped<Features.Reservations.Features.Users.Common.IUserRepository, Reservations.UserRepository>();
-        services.AddScoped<Features.Reservations.Features.Roles.Common.IRoleRepository, Reservations.RoleRepository>();
-        services.AddScoped<Features.Reservations.Features.Permissions.Common.IPermissionRepository, Reservations.PermissionRepository>();
 
         return services;
     }
@@ -147,9 +142,6 @@ public static class DependencyInjection
         services.AddScoped<IPaymentChannelRepository, PaymentChannelRepository>();
         services.AddScoped<IPaymentGatewayRepository, PaymentGatewayRepository>();
         services.AddScoped<Features.Payments.Features.Orders.Common.IOrderRepository, Payments.OrderRepository>();
-        services.AddScoped<Features.Payments.Features.Users.Common.IUserRepository, Payments.UserRepository>();
-        services.AddScoped<Features.Payments.Features.Roles.Common.IRoleRepository, Payments.RoleRepository>();
-        services.AddScoped<Features.Payments.Features.Permissions.Common.IPermissionRepository, Payments.PermissionRepository>();
 
         return services;
     }
@@ -171,8 +163,31 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IIdentityDbContext, IdentityDbContext>();
-        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository, Identity.UserRepository>();
-        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository, Identity.RoleRepository>();
+        services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository, UserRepository>();
+        services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository, RoleRepository>();
+        services.AddScoped<Features.Identity.Features.Permissions.Common.IPermissionRepository, PermissionRepository>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddRestaurantsPersistance(this IServiceCollection services, DatabaseConfigurationProvider configurationProvider)
+    {
+        services.AddDbContext<RestaurantsDbContext>(options =>
+        {
+            string? connectionString = configurationProvider.RestaurantsConnectionString;
+            options.UseSqlServer(
+                connectionString,
+                serverOptions =>
+                {
+                    serverOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, "restaurants");
+                    serverOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                }
+            );
+        });
+
+        services.AddScoped<IRestaurantDbContext, RestaurantsDbContext>();
+        services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+        services.AddScoped<ICompanyRepository, CompanyRepository>();
 
         return services;
     }

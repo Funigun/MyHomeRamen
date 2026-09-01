@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 
@@ -19,7 +20,7 @@ public sealed class UpdateCategoriesOrderEndpoint : IEndpoint
                        .WithName("UpdateCategoriesOrderEndpoint")
                        .WithTags("Categories")
                        .WithDescription("Updates the sort order of multiple categories in a single batch operation.")
-                       .RequireAuthorization("RestaurantManager");
+                       .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
     private static async Task<IResult> HandleAsync([FromBody] UpdateCategoriesOrderRequest request, [FromServices] ICommandHandler<UpdateCategoriesOrderCommand> handler,  CancellationToken cancellationToken)

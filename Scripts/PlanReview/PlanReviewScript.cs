@@ -67,8 +67,11 @@ if(tableLines.Count() < 3)
 }
 else
 {
-    string[] headerCols = tableLines.First().Trim().Trim('|').Split('|').Select(c => c.Trim()).ToArray();
-    if (headerCols.Length < 4 || headerCols[0] != "Path" || headerCols[1] != "Action" || headerCols[2] != "Type")
+    IEnumerable<string> expectedColumns = ["Action", "Module", "Aggregate", "Feature Name", "Endpoint Kind", "Route", "DB Query Options Required", "Policies"];
+    int expectedColumnCount = expectedColumns.Count();
+
+    IEnumerable<string> headerCols = tableLines.First().Trim().Trim('|').Split('|').Select(c => c.Trim()).ToList();
+    if (headerCols.Count() < expectedColumnCount || !expectedColumns.SequenceEqual(headerCols))
     {
         issues.Add("[plan-verifier] #2 table header is malformed or missing required columns");
     }

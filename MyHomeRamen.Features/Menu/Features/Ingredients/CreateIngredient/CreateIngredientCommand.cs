@@ -2,13 +2,23 @@ using System.Collections.ObjectModel;
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.CreateIngredient;
 
 public sealed record CreateIngredientCommand(CreateIngredientRequest CreateIngredientRequest) : ICommand<CreateIngredientResponse>;
+
+public sealed class CreateIngredientAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<CreateIngredientCommand>
+{
+    public async Task<bool> Authorize(CreateIngredientCommand request, CancellationToken cancellationToken)
+    {
+        return currentUser.CanManageIngredients() && currentUser.CanAddIngredient();
+    }
+}
 
 public sealed class CreateIngredientValidator : AbstractValidator<CreateIngredientCommand>
 {
