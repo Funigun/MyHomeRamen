@@ -1,13 +1,23 @@
 using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateShippingDetails;
 
 public record UpdateShippingDetailsCommand(BasketId BasketId, UserId UserId, UpdateShippingDetailsRequest Request) : ICommand;
+
+public sealed class UpdateShippingDetailsAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<UpdateShippingDetailsCommand>
+{
+    public async Task<bool> Authorize(UpdateShippingDetailsCommand request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanCheckout());
+    }
+}
 
 public sealed class UpdateShippingDetailsValidationPolicy : AbstractValidator<UpdateShippingDetailsCommand>
 {
@@ -61,4 +71,3 @@ public sealed class UpdateShippingDetailsHandler(IShoppingCartDbContext dbContex
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
-

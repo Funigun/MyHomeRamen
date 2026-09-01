@@ -5,6 +5,7 @@ using MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
@@ -23,8 +24,8 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
 
     public async ValueTask InitializeAsync()
     {
-        _guest = await apiFactory.IdentityTestData.SeedGuest();
-        _customer = await apiFactory.IdentityTestData.SeedGuest();
+        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
 
         Product guestProduct = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
         Product customerProduct = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], [DataGenerator.CreateIngredient()]);  
@@ -98,7 +99,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketDetails_ShouldReturnNotFound_WhenUserHasNoActiveBasket()
     {
         // Arrange
-        (Guid UserId, Guid GuestId) userWithoutBasket = await apiFactory.IdentityTestData.SeedGuest();
+        (Guid UserId, Guid GuestId) userWithoutBasket = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
 
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
@@ -114,7 +115,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
     }
 
     [Fact]
-    public async Task GetCurrentBasketDetails_ShouldReturnNotFound_WhenUserIdIsEmpty()
+    public async Task GetCurrentBasketDetails_ShouldReturnForbidden_WhenUserIsMissing()
     {
         // Arrange
         using HttpClient client = apiFactory.CreateClient();
@@ -124,7 +125,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
-        await response.AssertStatusCode(HttpStatusCode.NotFound);
+        await response.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]

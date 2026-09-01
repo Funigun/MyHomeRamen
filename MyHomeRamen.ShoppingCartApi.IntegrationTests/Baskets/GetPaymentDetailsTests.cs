@@ -4,6 +4,7 @@ using MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetPaymentDetails;
 using MyHomeRamen.Domain.ShoppingCart.Products;
 using MyHomeRamen.Domain.ShoppingCart.PaymentDetails;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
@@ -20,7 +21,7 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnOk_ForBasketWithPaymentDetails()
     {
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest();
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
 
         PaymentDetails paymentDetails = ShoppingCartDataSet.CashPaymentDetails();
         Product product = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
@@ -47,7 +48,7 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnBadRequest_ForNonExistentBasket()
     {
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest();
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
 
         string url = string.Format(null, EndpointBase, Guid.NewGuid());
 
@@ -63,8 +64,8 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnBadRequest_ForBasketOfAnotherUser()
     {
-        (Guid UserId, Guid GuestId) customer = await apiFactory.IdentityTestData.SeedGuest();
-        (Guid UserId, Guid GuestId) otherUser = await apiFactory.IdentityTestData.SeedGuest();
+        (Guid UserId, Guid GuestId) customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
+        (Guid UserId, Guid GuestId) otherUser = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
 
         Ingredient ingredient = DataGenerator.CreateIngredient();
         Product product = DataGenerator.CreateProduct([ingredient], []);

@@ -1,5 +1,6 @@
 using System.Net;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
@@ -15,7 +16,7 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
 
     public async ValueTask InitializeAsync()
     {
-        _customer = await apiFactory.IdentityTestData.SeedGuest();
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanRemoveProduct]);
  
         _customerBasket = DataGenerator.CreateBasket([], _customer.UserId);
 
@@ -63,7 +64,7 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
     public async Task ClearBasket_ShouldReturnBadRequest_ForBasketBelongingToDifferentUser()
     {
         // Arrange
-        (Guid UserId, Guid GuestId) differentUser = await apiFactory.IdentityTestData.SeedGuest();
+        (Guid UserId, Guid GuestId) differentUser = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanRemoveProduct]);
         string endpoint = $"{EndpointBase}/{_customerBasket.Id.Value}";
 
         using HttpClient client = apiFactory.CreateClient();

@@ -16,7 +16,10 @@ internal static class PermissionCatalog
         .. CreateDefinitions("Restaurants", RestaurantsPermissionConstants.AvailablePermissions)
     ];
 
-    public static IReadOnlySet<(string Module, string Name)> GuestPermissions { get; } = new HashSet<(string Module, string Name)>();
+    public static IReadOnlySet<(string Module, string Name)> GuestPermissions { get; } =
+        ShoppingCartPermissionConstants.GuestPermissions
+            .Select(permission => ("ShoppingCart", permission))
+            .ToHashSet();
 
     private static IEnumerable<PermissionDefinition> CreateDefinitions(string moduleName, IEnumerable<string> permissions) 
         => permissions.Select(permission => new PermissionDefinition(moduleName, permission, permission));

@@ -5,6 +5,7 @@ using MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSummary
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
@@ -24,8 +25,8 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
 
     public async ValueTask InitializeAsync()
     {
-        _guest = await apiFactory.IdentityTestData.SeedGuest();
-        _customer = await apiFactory.IdentityTestData.SeedGuest();
+        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
 
         Ingredient ingredient = DataGenerator.CreateIngredient();
         Product product = DataGenerator.CreateProduct([ingredient], []);

@@ -1,13 +1,23 @@
 using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.ClearBasket;
 
 public sealed record ClearBasketCommand(BasketId BasketId, UserId UserId) : ICommand;
+
+public sealed class ClearBasketAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<ClearBasketCommand>
+{
+    public async Task<bool> Authorize(ClearBasketCommand request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanRemoveProduct());
+    }
+}
 
 public sealed class ClearBasketValidationPolicy : AbstractValidator<ClearBasketCommand>
 {
@@ -31,4 +41,3 @@ public sealed class ClearBasketHandler(IShoppingCartDbContext dbContext) : IComm
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
-

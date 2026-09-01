@@ -1,8 +1,10 @@
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Features.Common.Messaging;
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Features.Identity.Features.Roles.Common;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.RegisterGuest;
 
@@ -21,7 +23,11 @@ public class RegisterGuestHandler(IIdentityDbContext dbContext, IMessagesService
             }
         }
 
+        Role guestRole = await dbContext.Role.Load().ByName(RoleConstants.Guest, cancellationToken)
+                          ?? throw new InvalidOperationException("Guest role was not found.");
+
         User guest = User.CreateGuest();
+        guest.AddRole(guestRole);
         dbContext.User.Add(guest);
         await dbContext.SaveChangesAsync(cancellationToken);
 

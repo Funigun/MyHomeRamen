@@ -85,13 +85,22 @@ public class IdentityTestData
         return (keycloakUserId, user.Id);
     }
 
-    public async Task<(Guid UserId, Guid GuestId)> SeedGuest()
+    public async Task<(Guid UserId, Guid GuestId)> SeedGuest(IEnumerable<string> permissions)
     {
         ServiceProvider serviceProvider = _serviceCollection!.BuildServiceProvider();
         using IServiceScope scope = serviceProvider.CreateScope();
         IdentityDbContext = scope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
 
+        IReadOnlyCollection<PermissionId> permissionIds = (await IdentityDbContext.Permission.Load()
+                .All(TestContext.Current.CancellationToken))
+            .Where(permission => permissions.Contains(permission.Name))
+            .Select(permission => permission.Id)
+            .ToArray();
+
+        Role guestRole = Role.Create($"Guest Test User {Guid.CreateVersion7()}", "Guest role for testing purposes", permissionIds);
         User guest = User.CreateGuest();
+        guest.AddRole(guestRole);
+        IdentityDbContext.Role.Add(guestRole);
         IdentityDbContext.User.Add(guest);
         await IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

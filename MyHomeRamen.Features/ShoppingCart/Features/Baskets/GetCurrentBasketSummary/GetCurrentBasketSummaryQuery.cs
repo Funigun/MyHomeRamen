@@ -3,12 +3,21 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 
 public sealed record GetCurrentBasketSummaryQuery : IQuery<GetCurrentBasketSummaryResponse>;
+
+public sealed class GetCurrentBasketSummaryAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetCurrentBasketSummaryQuery>
+{
+    public async Task<bool> Authorize(GetCurrentBasketSummaryQuery request, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult(currentUser.CanViewBasket());
+    }
+}
 
 public sealed record GetCurrentBasketSummaryQueryOptions(UserId UserId)
     : DbQueryOptions<Basket, CurrentBasketSummaryDto>

@@ -29,8 +29,8 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
 
         ValidateUser(identityId, user);
 
-        IReadOnlyCollection<string> permissions = domainUserId is not null
-                                                ? (await identityDbContext.Permission.Query().ByUserId(domainUserId.Value, context.RequestAborted)).Select(p => p.Name).ToArray()
+        IReadOnlyCollection<string> permissions = user is not null
+                                                ? (await identityDbContext.Permission.Query().ByUserId(user.Id.Value, context.RequestAborted)).Select(p => p.Name).ToArray()
                                                 : [];
 
         currentUser.Update(identityId, user?.Id.Value ?? Guid.Empty, claims, isAuthenticated, !isAuthenticated, permissions);

@@ -5,6 +5,7 @@ using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Domain.ShoppingCart.Products;
+using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
@@ -24,8 +25,8 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
     public async ValueTask InitializeAsync()
     {
-        _guest = await apiFactory.IdentityTestData.SeedGuest();
-        _customer = await apiFactory.IdentityTestData.SeedGuest();
+        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
 
         _guestBasket = DataGenerator.CreateBasket([], _guest.UserId);
         _customerBasket = DataGenerator.CreateBasket([], _customer.UserId);
@@ -96,7 +97,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenRequestIsInvalid(AddItemToBasketRequest request)
     {
         // Arrange
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest();
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
@@ -142,7 +143,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenProductDoesNotExist()
     {
         // Arrange
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest();
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
 
         AddItemToBasketRequest request = new(
             Guid.NewGuid(),
