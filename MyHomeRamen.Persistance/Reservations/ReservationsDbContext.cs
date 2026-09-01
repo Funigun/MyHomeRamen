@@ -38,7 +38,7 @@ public partial class ReservationsDbContext(DbContextOptions<ReservationsDbContex
 
     public ITableRepository Table => _serviceProvider.GetService<ITableRepository>() ?? throw new InvalidOperationException("TableRepository is not registered in the service provider.");
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);

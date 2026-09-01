@@ -55,7 +55,7 @@ public abstract class BaseRepository<TEntity, TId>(DbContext dbContext, ICacheSe
            where TProjection : class
         => await query.AsNoTracking()
                       .Filtered(options.Filter)
-                      .OrderedBy(options.OrderBy, options.OrderDirection)     
+                      .OrderedBy(options.OrderBy, options.OrderDirection)
                       .Select(options.Selector!)
                       .FirstAsync(cancellationToken);
 
@@ -69,7 +69,7 @@ public abstract class BaseRepository<TEntity, TId>(DbContext dbContext, ICacheSe
                cancellationToken
            );
 
-    public async Task<TProjection?> QueryFirstOrDefault<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CancellationToken cancellationToken)
+    public async Task<TProjection> QueryFirstOrDefault<TModel, TProjection>(IQueryable<TModel> query, DbQueryOptions<TModel, TProjection> options, CancellationToken cancellationToken)
        where TModel : class
        where TProjection : class
     => await query.AsNoTracking()
@@ -116,9 +116,9 @@ public abstract class BaseRepository<TEntity, TId>(DbContext dbContext, ICacheSe
         int totalCount = await query.CountAsync(cancellationToken);
 
         List<TProjection> items = await query.OrderedBy(options.OrderBy, options.OrderDirection)
-                                             .Paged(options.PageNumber, options.PageSize)
-                                             .Select(options.Selector!)
-                                             .ToListAsync(cancellationToken);
+                                              .Paged(options.PageNumber, options.PageSize)
+                                              .Select(options.Selector!)
+                                              .ToListAsync(cancellationToken);
 
         return new PagedResult<TProjection>(totalCount, items);
     }

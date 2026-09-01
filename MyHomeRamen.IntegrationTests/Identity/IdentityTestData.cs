@@ -20,7 +20,7 @@ public class IdentityTestData
 {
     private IIdentityDbContext IdentityDbContext { get; set; } = null!;
 
-    private ServiceCollection? _serviceCollection = null;
+    private ServiceCollection? _serviceCollection;
 
     private string _connectionString = string.Empty;
 

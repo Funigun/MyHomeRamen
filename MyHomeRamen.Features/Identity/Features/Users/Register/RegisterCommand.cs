@@ -1,9 +1,7 @@
 using FluentValidation;
-using MyHomeRamen.Common.Contracts.Messaging;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Features.Identity.Services;
@@ -43,29 +41,20 @@ public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand
     }
 }
 
-public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdentityDbContext usersDbContext, IMessagesService messagesService) : ICommandHandler<RegisterCommand>
+public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdentityDbContext usersDbContext) : ICommandHandler<RegisterCommand>
 {
     public async Task Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
         KeycloakUserDto keycloakUser = command.Request.ToKeycloakUserDto();
 
-        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, RoleConstants.Customer, cancellationToken);
+        string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, cancellationToken);
 
-        Role role = await usersDbContext.Role.Load().ByName(RoleConstants.Customer, cancellationToken);
+        Role role = await usersDbContext.Role.Load().ByName(RoleConstants.Customer, cancellationToken)
+                    ?? throw new InvalidOperationException("Customer role was not found.");
         User user = command.Request.ToUserDto(keycloakUserId, role);
 
         usersDbContext.User.Add(user);
         await usersDbContext.SaveChangesAsync(cancellationToken);
-
-        UserRegisteredIntegrationEvent integrationEvent = new(
-            user.Id,
-            user.FirstName,
-            user.LastName,
-            user.PhoneNumber,
-            user.Email,
-            user.Role);
-
-        await messagesService.PublishAsync(integrationEvent, cancellationToken);
     }
 }
 

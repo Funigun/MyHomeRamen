@@ -12,7 +12,7 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
         // Arrange
         IEnumerable<string> shoppingCartApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.ShoppingCart");
         IEnumerable<string> menuApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Menu")
-                                                                             .Where(t => !t.Contains("ExternalApi"))
+                                                                             .Where(t => !t.Contains("ExternalApi", StringComparison.Ordinal))
                                                                              .ToList();
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(shoppingCartApi, menuApi, "ShoppingCart API type '{0}' should not depend on Menu API type '{1}'");
@@ -47,7 +47,7 @@ public sealed class ApiBoundariesTests(ArchitectureBuilder architectureBuilder) 
         IEnumerable<string> shoppingCartApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.ShoppingCart");
 
         IEnumerable<string> paymentsApi = ArchitectureBuilder.ApiFeaturesAssembly.TypesInNamespace("MyHomeRamen.Features.Payments")
-                                                                                 .Where(t => !t.Contains("ExternalApi"))
+                                                                                 .Where(t => !t.Contains("ExternalApi", StringComparison.Ordinal))
                                                                                  .ToList();
 
         IEnumerable<IArchRule> rules = GetForbiddenDependenciesRules(shoppingCartApi, paymentsApi, "ShoppingCart API type '{0}' should not depend on Payments API type '{1}'");

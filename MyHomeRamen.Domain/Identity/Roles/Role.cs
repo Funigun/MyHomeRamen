@@ -91,6 +91,25 @@ public class Role : AuditableEntity, IEntity<RoleId>
         return role;
     }
 
+    public static Role CreateCustomer(IEnumerable<PermissionId> permissions)
+    {
+        Role role = new()
+        {
+            Id = Guid.CreateVersion7(),
+            Name = RoleConstants.Customer,
+            Description = "Customer role with extended access to the system.",
+            IsRemovable = false,
+            IsEditable = false
+        };
+
+        foreach (PermissionId permission in permissions)
+        {
+            role._permissions.Add(RolePermission.Create(role.Id, permission));
+        }
+
+        return role;
+    }
+
     public void UpdateDescription(string description)
     {
         Description = description;

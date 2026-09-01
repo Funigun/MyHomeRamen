@@ -48,11 +48,8 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 
-    [Theory]
-    [InlineData(UserRoles.Customer)]
-    [InlineData(UserRoles.Employee)]
-    [InlineData(UserRoles.Admin)]
-    public async Task GetCurrentBasketSummary_ShouldReturnOk_ForAnyAuthenticatedRole(UserRoles role)
+    [Fact]
+    public async Task GetCurrentBasketSummary_ShouldReturnOk_ForAnyAuthenticatedRole()
     {
         // Arrange
         using HttpClient client = apiFactory.CreateClient();

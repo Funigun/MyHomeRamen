@@ -42,7 +42,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
         _serviceProvider = serviceProvider;
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);

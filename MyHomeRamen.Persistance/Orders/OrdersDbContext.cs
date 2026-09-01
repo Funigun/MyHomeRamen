@@ -47,7 +47,7 @@ public sealed partial class OrdersDbContext(DbContextOptions<OrdersDbContext> op
     public IIngredientRepository Ingredient => _serviceProvider.GetService<IIngredientRepository>() ?? throw new InvalidOperationException("IngredientRepository is not registered in the service provider.");
     public IPaymentRepository Payment => _serviceProvider.GetService<IPaymentRepository>() ?? throw new InvalidOperationException("PaymentRepository is not registered in the service provider.");
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);
@@ -99,10 +99,6 @@ public sealed partial class OrdersDbContext(DbContextOptions<OrdersDbContext> op
         {
             await Database.MigrateAsync(cancellationToken);
         }
-    }
-
-    public async Task Seed(CancellationToken cancellationToken)
-    {
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

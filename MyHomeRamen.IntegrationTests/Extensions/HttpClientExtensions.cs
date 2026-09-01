@@ -8,13 +8,6 @@ namespace MyHomeRamen.IntegrationTests.Extensions;
 
 public static class HttpClientExtensions
 {
-    // Mirror scheme names from AuthorizationConfiguration in the API project
-    private const string CustomerScheme = "RestaurantCustomer";
-    private const string EmployeeScheme = "RestaurantEmployee";
-    private const string ManagerScheme = "RestaurantManager";
-    private const string AuthenticatedUserScheme = "AuthenticatedUser";
-    private const string SchemeHeader = "x-scheme";
-
     private static JsonSerializerOptions JsonOptions { get; } = new()
     {
         PropertyNameCaseInsensitive = true

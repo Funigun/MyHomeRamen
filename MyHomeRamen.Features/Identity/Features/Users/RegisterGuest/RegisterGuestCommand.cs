@@ -1,16 +1,13 @@
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Common.Contracts.Messaging;
-using MyHomeRamen.Features.Common.Messaging;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
-using MyHomeRamen.Features.Identity.Features.Roles.Common;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.RegisterGuest;
 
 public sealed record RegisterGuestCommand(RegisterGuestRequest Request) : ICommand<RegisterGuestResponse>;
 
-public class RegisterGuestHandler(IIdentityDbContext dbContext, IMessagesService messagesService) : ICommandHandler<RegisterGuestCommand, RegisterGuestResponse>
+public class RegisterGuestHandler(IIdentityDbContext dbContext) : ICommandHandler<RegisterGuestCommand, RegisterGuestResponse>
 {
     public async Task<RegisterGuestResponse> Handle(RegisterGuestCommand command, CancellationToken cancellationToken)
     {
@@ -30,8 +27,6 @@ public class RegisterGuestHandler(IIdentityDbContext dbContext, IMessagesService
         guest.AddRole(guestRole);
         dbContext.User.Add(guest);
         await dbContext.SaveChangesAsync(cancellationToken);
-
-        await messagesService.PublishAsync(new GuestUserCreatedIntegrationEvent(guest.Id, guest.GuestId!.Value), cancellationToken);
 
         return guest.ToRegisterGuestResponse();
     }

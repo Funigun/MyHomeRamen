@@ -1,5 +1,5 @@
 ﻿namespace MyHomeRamen.Features.Identity.Features.Employees.Register;
 
-internal class RegisterEmployeeEndpoint
+internal sealed class RegisterEmployeeEndpoint
 {
 }

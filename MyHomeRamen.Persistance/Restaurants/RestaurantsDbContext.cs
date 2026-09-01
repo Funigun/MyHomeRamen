@@ -63,7 +63,7 @@ public sealed class RestaurantsDbContext(DbContextOptions<RestaurantsDbContext> 
         }
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);

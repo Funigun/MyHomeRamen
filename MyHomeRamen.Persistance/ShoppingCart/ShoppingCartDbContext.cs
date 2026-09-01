@@ -56,7 +56,7 @@ public sealed class ShoppingCartDbContext(DbContextOptions<ShoppingCartDbContext
 
     public IIngredientRepository Ingredient => _serviceProvider.GetService<IIngredientRepository>() ?? throw new InvalidOperationException("IngredientRepository is not registered in the service provider.");
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);

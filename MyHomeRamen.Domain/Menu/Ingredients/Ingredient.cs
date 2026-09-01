@@ -11,7 +11,7 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 
     public string Name { get; private set; } = string.Empty;
 
-    public string Description { get; private set; }
+    public string Description { get; private set; } = default!;
 
     public decimal Price { get; private set; }
 

@@ -3,7 +3,6 @@ using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.ServiceDefaults;
 using MyHomeRamen.Worker.Common;
-using MyHomeRamen.Worker.MessagesHandler;
 using Serilog;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Features;
@@ -43,8 +42,6 @@ try
     builder.Services.AddMessagingService();
 
     // Register handlers
-    builder.Services.AddHostedService<UserRegistrationHandler>();
-    builder.Services.AddHostedService<GuestRegistrationHandler>();
 
     IHost host = builder.Build();
     await host.RunAsync();

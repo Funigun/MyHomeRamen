@@ -3,7 +3,6 @@
     <UserSecretsId>dotnet-MyHomeRamen.Worker.MessagesHandler-8c8d29f3-89f5-4941-ae95-1d8cb5b18bf9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MyHomeRamen.Common.Contracts\MyHomeRamen.Common.Contracts.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Infrastructure\MyHomeRamen.Infrastructure.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Persistance\MyHomeRamen.Persistance.csproj" />

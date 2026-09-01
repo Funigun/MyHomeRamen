@@ -50,7 +50,7 @@ public sealed class PaymentsDbContext(DbContextOptions<PaymentsDbContext> option
 
     public IOrderRepository Order => _serviceProvider.GetService<IOrderRepository>() ?? throw new InvalidOperationException("OrderRepository is not registered in the service provider.");
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);
@@ -97,11 +97,6 @@ public sealed class PaymentsDbContext(DbContextOptions<PaymentsDbContext> option
         {
             await Database.MigrateAsync(cancellationToken);
         }
-    }
-
-    public async Task Seed(CancellationToken cancellationToken)
-    {
-
     }
 
     public async Task<int> ExecuteSql(FormattableString sql, CancellationToken cancellationToken)

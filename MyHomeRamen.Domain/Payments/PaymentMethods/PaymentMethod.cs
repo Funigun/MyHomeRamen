@@ -9,9 +9,9 @@ public sealed class PaymentMethod : AuditableEntity, IEntity<PaymentMethodId>
 
     public PaymentMethodId Id { get; private set; }
 
-    public string Name { get; private set; }
+    public string Name { get; private set; } = default!;
 
-    public string ImageUrl { get; private set; }
+    public string ImageUrl { get; private set; } = default!;
 
     public bool IsActive { get; private set; }
 

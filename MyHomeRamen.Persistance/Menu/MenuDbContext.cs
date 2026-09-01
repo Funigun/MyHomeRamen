@@ -70,7 +70,7 @@ public sealed class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbC
         }
     }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);

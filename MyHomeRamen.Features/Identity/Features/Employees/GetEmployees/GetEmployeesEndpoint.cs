@@ -1,5 +1,5 @@
 ﻿namespace MyHomeRamen.Features.Identity.Features.Employees.GetEmployees;
 
-internal class GetEmployeesEndpoint
+internal sealed class GetEmployeesEndpoint
 {
 }
