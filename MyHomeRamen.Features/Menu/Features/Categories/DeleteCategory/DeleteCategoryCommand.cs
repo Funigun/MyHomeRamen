@@ -1,10 +1,10 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.DeleteCategory;
 
@@ -29,9 +29,9 @@ public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCo
     }
 }
 
-public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : ICommandHandler<DeleteCategoryCommand>
+public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : IRequestHandler<DeleteCategoryCommand, Unit>
 {
-    public async Task Handle(DeleteCategoryCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeleteCategoryCommand command, CancellationToken cancellationToken)
     {
         Category category = await dbContext.Category.Load().ById((CategoryId)command.Request.Id, cancellationToken);
 
@@ -45,5 +45,6 @@ public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : ICommandHa
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        return Unit.Value;
     }
 }

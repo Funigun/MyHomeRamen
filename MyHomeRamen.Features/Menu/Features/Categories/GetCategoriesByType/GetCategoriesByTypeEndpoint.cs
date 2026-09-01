@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 
@@ -29,7 +30,7 @@ public sealed class GetCategoriesByTypeEndpoint : IEndpoint
 
     private static async Task<Results<Ok<GetCategoriesByTypeResponse>, ForbidHttpResult>> HandleAsync(
         [AsParameters] GetCategoriesByTypeRequest request,
-        [FromServices] IQueryHandler<GetCategoriesByTypeQuery, GetCategoriesByTypeResponse> handler,
+        [FromServices] IRequestHandler<GetCategoriesByTypeQuery, GetCategoriesByTypeResponse> handler,
         CancellationToken cancellationToken)
     {
         GetCategoriesByTypeQuery query = new(request);

@@ -2,10 +2,10 @@ using FluentValidation;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductByIdForManage;
 
@@ -45,7 +45,7 @@ public sealed class GetProductByIdForManageValidator : AbstractValidator<GetProd
     }
 }
 
-public sealed class GetProductByIdForManageHandler(IMenuDbContext dbContext) : IQueryHandler<GetProductByIdForManageQuery, GetProductByIdForManageResponse>
+public sealed class GetProductByIdForManageHandler(IMenuDbContext dbContext) : IRequestHandler<GetProductByIdForManageQuery, GetProductByIdForManageResponse>
 {
     public async Task<GetProductByIdForManageResponse> Handle(GetProductByIdForManageQuery query, CancellationToken cancellationToken)
     {

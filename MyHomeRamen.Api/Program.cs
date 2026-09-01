@@ -63,8 +63,7 @@ try
     builder.Services.AddSharedServices()
                     .AddPermissionCatalogServices()
                     .AddEndpoints(featuresAssembly)
-                    .AddCommandHandlers(featuresAssembly)
-                    .AddQueryHandlers(featuresAssembly)
+                    .AddHandlers(featuresAssembly)
                     .AddAuthorizationPolicies(featuresAssembly);
     builder.Services.AddValidatorsFromAssemblies([featuresAssembly]);
 

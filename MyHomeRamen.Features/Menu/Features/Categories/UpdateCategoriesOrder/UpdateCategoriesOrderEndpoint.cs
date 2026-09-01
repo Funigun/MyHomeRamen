@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.UpdateCategoriesOrder;
 
@@ -23,7 +24,7 @@ public sealed class UpdateCategoriesOrderEndpoint : IEndpoint
                        .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 
-    private static async Task<IResult> HandleAsync([FromBody] UpdateCategoriesOrderRequest request, [FromServices] ICommandHandler<UpdateCategoriesOrderCommand> handler,  CancellationToken cancellationToken)
+    private static async Task<IResult> HandleAsync([FromBody] UpdateCategoriesOrderRequest request, [FromServices] IRequestHandler<UpdateCategoriesOrderCommand, Unit> handler,  CancellationToken cancellationToken)
     {
         UpdateCategoriesOrderCommand command = new(request);
         await handler.Handle(command, cancellationToken);

@@ -5,10 +5,10 @@ using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
 
@@ -71,7 +71,7 @@ public sealed class GetProductsForManageValidator : AbstractValidator<GetProduct
     }
 }
 
-public sealed class GetProductsForManageHandler(IMenuDbContext dbContext) : IQueryHandler<GetProductsForManageQuery, GetProductsForManageResponse>
+public sealed class GetProductsForManageHandler(IMenuDbContext dbContext) : IRequestHandler<GetProductsForManageQuery, GetProductsForManageResponse>
 {
     public async Task<GetProductsForManageResponse> Handle(
         GetProductsForManageQuery query,
@@ -91,4 +91,3 @@ public sealed class GetProductsForManageHandler(IMenuDbContext dbContext) : IQue
             Products: pagedResult.Items);
     }
 }
-

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.Register;
 
@@ -30,7 +31,7 @@ public sealed class RegisterEndpoint : IEndpoint
 
     private static async Task<Results<Ok, BadRequest>> Handler(
         [FromBody] RegisterRequest request,
-        [FromServices] ICommandHandler<RegisterCommand> handler,
+        [FromServices] IRequestHandler<RegisterCommand, Unit> handler,
         CancellationToken cancellationToken)
     {
         RegisterCommand command = new(request);
@@ -39,4 +40,3 @@ public sealed class RegisterEndpoint : IEndpoint
         return TypedResults.Ok();
     }
 }
-

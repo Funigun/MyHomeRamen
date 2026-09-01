@@ -57,12 +57,12 @@ Instructions are applicable for all modules.
 
 ### 3.1) REPR + CQRS
 
-**Custom MediatR implementation (`...MyHomeRamen.Features\Common\Endpoints\`)**:
-- query: `IQuery<TQuery, TResponse>`, `IQueryHandler<TQuery, TResponse>` and  decorator
-- command: `ICommandHandler<TCommand>`, `ICommandHandler<TCommand, TResponse>` for commands
-- decorators: `QueryValidationHandler<TQuery, TResponse> : IQueryHandler<TQuery, TResponse>`, `CommandValidationHandler<TCommand> : ICommandHandler<TCommand>`, `CommandValidationHandler<TCommand, TResponse> : ICommandHandler<TCommand, TResponse>`
+**Unified request pipeline (`...MyHomeRamen.Features\Common\Endpoints\`)**:
+- requests: `IRequest<TResponse>`, `IRequestHandler<TRequest, TResponse>`
+- commands: `ICommand` uses `Unit`; `ICommand<TResponse>` carries response type; queries use `IQuery<TResponse>`
+- decorators: generic `ValidationHandler<TRequest, TResponse>` and `AuthorizationHandler<TRequest, TResponse>` implement unified handler interface
 
-DI handled by scrutor, manual registration not needed.
+DI handled by Scrutor, manual registration not needed.
 
 **Query rules** (GET):
 - Inject `I{Module}DbContext` to query handler

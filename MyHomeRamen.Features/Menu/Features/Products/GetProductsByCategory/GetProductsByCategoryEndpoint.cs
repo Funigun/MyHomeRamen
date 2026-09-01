@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsByCategory;
 
@@ -35,7 +36,7 @@ public sealed class GetProductsByCategoryEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [AsParameters] GetProductsByCategoryRequest request,
-        [FromServices] IQueryHandler<GetProductsByCategoryQuery, GetProductsByCategoryResponse> handler,
+        [FromServices] IRequestHandler<GetProductsByCategoryQuery, GetProductsByCategoryResponse> handler,
         CancellationToken cancellationToken)
     {
         GetProductsByCategoryQuery query = new(request);
@@ -44,4 +45,3 @@ public sealed class GetProductsByCategoryEndpoint : IEndpoint
         return Results.Ok(response);
     }
 }
-

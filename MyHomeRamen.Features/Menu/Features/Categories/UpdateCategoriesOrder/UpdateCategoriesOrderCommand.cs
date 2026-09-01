@@ -1,10 +1,10 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.UpdateCategoriesOrder;
 
@@ -36,9 +36,9 @@ public sealed class UpdateCategoriesOrderValidator : AbstractValidator<UpdateCat
     }
 }
 
-public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : ICommandHandler<UpdateCategoriesOrderCommand>
+public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateCategoriesOrderCommand, Unit>
 {
-    public async Task Handle(UpdateCategoriesOrderCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(UpdateCategoriesOrderCommand command, CancellationToken cancellationToken)
     {
         UpdateCategoriesOrderRequest request = command.Request;
         IEnumerable<CategoryId> ids = request.Items.Select(i => (CategoryId)i.Id);
@@ -46,6 +46,8 @@ public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : ICo
         IEnumerable<Category> categories = await dbContext.Category.Load().ByIds(ids, cancellationToken);
 
         await ReorderCategories(categories, request, cancellationToken);
+
+        return Unit.Value;
     }
 
     private async Task ReorderCategories(IEnumerable<Category> categories, UpdateCategoriesOrderRequest request, CancellationToken cancellationToken)

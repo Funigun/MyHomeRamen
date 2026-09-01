@@ -1,16 +1,15 @@
-﻿using System.Reflection;
+using System.Reflection;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Identity.Services;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features;
 
@@ -85,86 +84,52 @@ public static class DependencyInjection
                                             && @interface.GetGenericArguments()[0] == requestType));
     }
 
-    public static IServiceCollection AddCommandHandlers(this IServiceCollection services, Assembly assembly)
+    private static bool IsCommandRequest(Type requestType)
     {
-        Type noResponseHandlerOpenType = typeof(ICommandHandler<>);
-        Type withResponseHandlerOpenType = typeof(ICommandHandler<,>);
-
-        List<Type> noResponseHandlers = assembly.GetExportedTypes()
-                                                .Where(t => IsConcreteHandlerImplementation(t, noResponseHandlerOpenType))
-                                                .ToList();
-
-        foreach (Type type in noResponseHandlers)
-        {
-            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == noResponseHandlerOpenType);
-            services.AddScoped(interfaceType, type);
-
-            services.Decorate(interfaceType, typeof(CommandValidationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
-
-            if (HasAuthorizationPolicy(assembly, interfaceType.GetGenericArguments()[0]))
-            {
-                services.Decorate(interfaceType, typeof(CommandAuthorizationHandler<>).MakeGenericType(interfaceType.GetGenericArguments()));
-            }
-        }
-
-        List<Type> withResponseHandlers = assembly.GetExportedTypes()
-                                                   .Where(t => IsConcreteHandlerImplementation(t, withResponseHandlerOpenType))
-                                                   .ToList();
-
-        foreach (Type type in withResponseHandlers)
-        {
-            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == withResponseHandlerOpenType);
-            services.AddScoped(interfaceType, type);
-
-            services.Decorate(interfaceType, typeof(CommandValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
-
-            if (HasAuthorizationPolicy(assembly, interfaceType.GetGenericArguments()[0]))
-            {
-                services.Decorate(interfaceType, typeof(CommandAuthorizationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
-            }
-        }
-
-        return services;
+        return typeof(ICommand).IsAssignableFrom(requestType)
+            || requestType.GetInterfaces().Any(@interface => @interface.IsGenericType
+                && @interface.GetGenericTypeDefinition() == typeof(ICommand<>));
     }
 
-    public static IServiceCollection AddQueryHandlers(this IServiceCollection services, Assembly assembly)
+    public static IServiceCollection AddHandlers(this IServiceCollection services, Assembly assembly)
     {
-        Type queryHandlerOpenType = typeof(IQueryHandler<,>);
+        Type handlerOpenType = typeof(IRequestHandler<,>);
         Type validatorOpenType = typeof(IValidator<>);
 
-        HashSet<Type> validatedQueryTypes = assembly.GetExportedTypes()
-                                                    .Where(t => t.GetInterfaces()
-                                                                 .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == validatorOpenType))
-                                                    .SelectMany(t => t.GetInterfaces()
-                                                                      .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == validatorOpenType)
-                                                                      .Select(i => i.GetGenericArguments()[0]))
-                                                    .ToHashSet();
+        HashSet<Type> validatedRequestTypes = assembly.GetExportedTypes()
+                                                      .Where(t => t.GetInterfaces()
+                                                                       .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == validatorOpenType))
+                                                      .SelectMany(t => t.GetInterfaces()
+                                                                        .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == validatorOpenType)
+                                                                        .Select(i => i.GetGenericArguments()[0]))
+                                                      .ToHashSet();
 
-        List<Type> queryHandlers = assembly.GetExportedTypes()
-                                           .Where(t => IsConcreteHandlerImplementation(t, queryHandlerOpenType))
-                                           .ToList();
+        List<Type> handlers = assembly.GetExportedTypes()
+                                      .Where(t => IsConcreteHandlerImplementation(t, handlerOpenType))
+                                      .ToList();
 
-        foreach (Type type in queryHandlers)
+        foreach (Type type in handlers)
         {
-            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == queryHandlerOpenType);
+            Type interfaceType = type.GetInterfaces().First(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerOpenType);
             services.AddScoped(interfaceType, type);
 
-            Type queryType = interfaceType.GetGenericArguments()[0];
+            Type[] handlerArguments = interfaceType.GetGenericArguments();
+            Type requestType = handlerArguments[0];
+            bool isCommand = IsCommandRequest(requestType);
 
-            if (validatedQueryTypes.Contains(queryType))
+            if (isCommand || validatedRequestTypes.Contains(requestType))
             {
-                services.Decorate(interfaceType, typeof(QueryValidationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
+                services.Decorate(interfaceType, typeof(ValidationHandler<,>).MakeGenericType(handlerArguments));
             }
 
-            if (HasAuthorizationPolicy(assembly, queryType))
+            if (HasAuthorizationPolicy(assembly, requestType))
             {
-                services.Decorate(interfaceType, typeof(QueryAuthorizationHandler<,>).MakeGenericType(interfaceType.GetGenericArguments()));
+                services.Decorate(interfaceType, typeof(AuthorizationHandler<,>).MakeGenericType(handlerArguments));
             }
         }
 
         return services;
     }
-
     public static WebApplication MapEndpoints(this WebApplication app)
     {
         IEnumerable<IEndpoint> endpoints = app.Services.GetServices<IEndpoint>();

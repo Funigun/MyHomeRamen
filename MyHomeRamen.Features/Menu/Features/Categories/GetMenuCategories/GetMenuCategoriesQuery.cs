@@ -1,7 +1,7 @@
 using MyHomeRamen.Domain.Menu.Categories;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
 
@@ -18,7 +18,7 @@ public sealed record GetMenuCategoriesQueryOptions()
                    );
 
 public sealed class GetMenuCategoriesHandler(IMenuDbContext dbContext)
-                  : IQueryHandler<GetMenuCategoriesQuery, GetMenuCategoriesResponse>
+                  : IRequestHandler<GetMenuCategoriesQuery, GetMenuCategoriesResponse>
 {
     public async Task<GetMenuCategoriesResponse> Handle(GetMenuCategoriesQuery query, CancellationToken cancellationToken)
     {

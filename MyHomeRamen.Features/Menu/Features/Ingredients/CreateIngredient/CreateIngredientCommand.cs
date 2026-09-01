@@ -3,10 +3,10 @@ using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.CreateIngredient;
 
@@ -40,7 +40,7 @@ public sealed class CreateIngredientValidator : AbstractValidator<CreateIngredie
     }
 }
 
-public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : ICommandHandler<CreateIngredientCommand, CreateIngredientResponse>
+public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : IRequestHandler<CreateIngredientCommand, CreateIngredientResponse>
 {
     public async Task<CreateIngredientResponse> Handle(CreateIngredientCommand command, CancellationToken cancellationToken)
     {

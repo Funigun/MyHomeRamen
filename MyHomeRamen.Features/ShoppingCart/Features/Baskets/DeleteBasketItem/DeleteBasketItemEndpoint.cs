@@ -6,6 +6,7 @@ using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.DeleteBasketItem;
 
@@ -24,7 +25,7 @@ public sealed class DeleteBasketItemEndpoint : IEndpoint
     private static async Task<IResult> HandleAsync(
         [FromRoute] Guid basketId,
         [FromRoute] Guid basketItemId,
-        [FromServices] ICommandHandler<DeleteBasketItemCommand> handler,
+        [FromServices] IRequestHandler<DeleteBasketItemCommand, Unit> handler,
         CancellationToken cancellationToken)
     {
         DeleteBasketItemCommand command = new(new BasketId(basketId), new BasketItemId(basketItemId));
@@ -33,4 +34,3 @@ public sealed class DeleteBasketItemEndpoint : IEndpoint
         return Results.NoContent();
     }
 }
-

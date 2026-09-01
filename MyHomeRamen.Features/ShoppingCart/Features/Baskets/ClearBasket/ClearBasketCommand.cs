@@ -2,10 +2,10 @@ using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.ClearBasket;
 
@@ -30,14 +30,15 @@ public sealed class ClearBasketValidationPolicy : AbstractValidator<ClearBasketC
     }
 }
 
-public sealed class ClearBasketHandler(IShoppingCartDbContext dbContext) : ICommandHandler<ClearBasketCommand>
+public sealed class ClearBasketHandler(IShoppingCartDbContext dbContext) : IRequestHandler<ClearBasketCommand, Unit>
 {
-    public async Task Handle(ClearBasketCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(ClearBasketCommand command, CancellationToken cancellationToken)
     {
         Basket basket = await dbContext.Basket.Load()
             .GetByIdForUserTrackedAsync(command.BasketId, command.UserId, cancellationToken);
 
         basket.Clear();
         await dbContext.SaveChangesAsync(cancellationToken);
+        return Unit.Value;
     }
 }

@@ -2,10 +2,10 @@ using FluentValidation;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientById;
 
@@ -43,7 +43,7 @@ public sealed class GetIngredientByIdValidator : AbstractValidator<GetIngredient
     }
 }
 
-public sealed class GetIngredientByIdHandler(IMenuDbContext dbContext) : IQueryHandler<GetIngredientByIdQuery, GetIngredientByIdResponse>
+public sealed class GetIngredientByIdHandler(IMenuDbContext dbContext) : IRequestHandler<GetIngredientByIdQuery, GetIngredientByIdResponse>
 {
     public async Task<GetIngredientByIdResponse> Handle(GetIngredientByIdQuery request, CancellationToken cancellationToken)
     {
@@ -59,4 +59,3 @@ public sealed class GetIngredientByIdHandler(IMenuDbContext dbContext) : IQueryH
     private static GetIngredientByIdResponse ToResponse(IngredientByIdDto ingredient)
         => new(ingredient.Id, ingredient.Name, ingredient.Description, ingredient.Price, ingredient.CategoryIds);
 }
-

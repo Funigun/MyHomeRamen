@@ -1,11 +1,11 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Features.Identity.Services;
 using MyHomeRamen.Features.Identity.Services.Dto;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.Register;
 
@@ -41,9 +41,9 @@ public sealed class RegisterCommandValidator : AbstractValidator<RegisterCommand
     }
 }
 
-public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdentityDbContext usersDbContext) : ICommandHandler<RegisterCommand>
+public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdentityDbContext usersDbContext) : IRequestHandler<RegisterCommand, Unit>
 {
-    public async Task Handle(RegisterCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(RegisterCommand command, CancellationToken cancellationToken)
     {
         KeycloakUserDto keycloakUser = command.Request.ToKeycloakUserDto();
 
@@ -55,6 +55,7 @@ public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdenti
 
         usersDbContext.User.Add(user);
         await usersDbContext.SaveChangesAsync(cancellationToken);
+        return Unit.Value;
     }
 }
 

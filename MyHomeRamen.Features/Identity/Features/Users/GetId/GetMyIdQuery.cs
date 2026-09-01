@@ -1,7 +1,7 @@
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
 
@@ -15,7 +15,7 @@ public sealed class GetMyIdAuthorizationPolicy(ICurrentUser currentUser) : IAuth
     }
 }
 
-public sealed class GetMyIdHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : IQueryHandler<GetMyIdQuery, GetMyIdResponse>
+public sealed class GetMyIdHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetMyIdQuery, GetMyIdResponse>
 {
     public async Task<GetMyIdResponse> Handle(GetMyIdQuery query, CancellationToken cancellationToken)
     {

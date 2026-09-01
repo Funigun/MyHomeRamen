@@ -3,10 +3,10 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
 
@@ -60,7 +60,7 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
     }
 }
 
-public sealed class UpdateProductHandler(IMenuDbContext dbContext) : ICommandHandler<UpdateProductCommand, UpdateProductResponse>
+public sealed class UpdateProductHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateProductCommand, UpdateProductResponse>
 {
     public async Task<UpdateProductResponse> Handle(UpdateProductCommand command, CancellationToken cancellationToken)
     {

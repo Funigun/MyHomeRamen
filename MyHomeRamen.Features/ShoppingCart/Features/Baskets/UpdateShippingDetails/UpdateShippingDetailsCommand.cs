@@ -2,10 +2,10 @@ using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateShippingDetails;
 
@@ -58,9 +58,9 @@ public sealed class UpdateShippingDetailsValidationPolicy : AbstractValidator<Up
     }
 }
 
-public sealed class UpdateShippingDetailsHandler(IShoppingCartDbContext dbContext) : ICommandHandler<UpdateShippingDetailsCommand>
+public sealed class UpdateShippingDetailsHandler(IShoppingCartDbContext dbContext) : IRequestHandler<UpdateShippingDetailsCommand, Unit>
 {
-    public async Task Handle(UpdateShippingDetailsCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(UpdateShippingDetailsCommand request, CancellationToken cancellationToken)
     {
         Basket basket = await dbContext.Basket.Load()
                                        .GetByIdForUserWithShippingTrackedAsync(request.BasketId, request.UserId, cancellationToken)
@@ -69,5 +69,6 @@ public sealed class UpdateShippingDetailsHandler(IShoppingCartDbContext dbContex
         basket.UpdateShippingDetails(request.Request.ToDomain());
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        return Unit.Value;
     }
 }

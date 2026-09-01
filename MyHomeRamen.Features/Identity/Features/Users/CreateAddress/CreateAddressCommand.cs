@@ -2,10 +2,10 @@ using FluentValidation;
 using MyHomeRamen.Domain.Common.Address;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.CreateAddress;
 
@@ -48,7 +48,7 @@ public sealed class CreateAddressValidator : AbstractValidator<CreateAddressComm
     }
 }
 
-public sealed class CreateAddressHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : ICommandHandler<CreateAddressCommand, CreateAddressResponse>
+public sealed class CreateAddressHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<CreateAddressCommand, CreateAddressResponse>
 {
     public async Task<CreateAddressResponse> Handle(CreateAddressCommand command, CancellationToken cancellationToken)
     {

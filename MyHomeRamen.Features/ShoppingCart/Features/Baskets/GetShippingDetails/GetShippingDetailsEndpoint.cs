@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetShippingDetails;
 
@@ -31,7 +32,7 @@ public sealed class GetShippingDetailsEndpoint : IEndpoint
     private static async Task<Results<Ok<ShippingDetailsResponse>, NotFound>> HandleAsync(
         [FromRoute(Name = "id")] Guid id,
         [FromServices] ICurrentUser currentUser,
-        [FromServices] IQueryHandler<GetShippingDetailsQuery, ShippingDetailsResponse> handler,
+        [FromServices] IRequestHandler<GetShippingDetailsQuery, ShippingDetailsResponse> handler,
         CancellationToken cancellationToken)
     {
         GetShippingDetailsQuery query = new(new BasketId(id), new UserId(currentUser.UserId));
@@ -40,4 +41,3 @@ public sealed class GetShippingDetailsEndpoint : IEndpoint
         return TypedResults.Ok(response);
     }
 }
-

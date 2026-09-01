@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.Menu.Products;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
 
@@ -34,7 +35,7 @@ public sealed class UpdateProductEndpoint : IEndpoint
     private static async Task<IResult> HandleAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateProductRequest request,
-        [FromServices] ICommandHandler<UpdateProductCommand, UpdateProductResponse> handler,
+        [FromServices] IRequestHandler<UpdateProductCommand, UpdateProductResponse> handler,
         CancellationToken cancellationToken)
     {
         UpdateProductCommand command = new(new ProductId(id), request);
@@ -43,4 +44,3 @@ public sealed class UpdateProductEndpoint : IEndpoint
         return Results.Ok(response);
     }
 }
-

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.RegisterGuest;
 
@@ -24,7 +25,7 @@ public class RegisterGuestEndpoint : IEndpoint
 
     private static async Task<Results<Created<RegisterGuestResponse>, BadRequest>> Handler(
         [FromServices] IHttpContextAccessor httpContextAccessor,
-        [FromServices] ICommandHandler<RegisterGuestCommand, RegisterGuestResponse> handler)
+        [FromServices] IRequestHandler<RegisterGuestCommand, RegisterGuestResponse> handler)
     {
         HttpContext httpContext = httpContextAccessor.HttpContext!;
 
@@ -40,4 +41,3 @@ public class RegisterGuestEndpoint : IEndpoint
         return TypedResults.Created($"/account/guest/{response.GuestId}", response);
     }
 }
-

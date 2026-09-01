@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetDetails;
 
@@ -23,7 +24,7 @@ public sealed class GetDetailsEndpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<GetDetailsResponse>, NotFound>> HandleAsync(
-        [FromServices] IQueryHandler<GetDetailsQuery, GetDetailsResponse> handler,
+        [FromServices] IRequestHandler<GetDetailsQuery, GetDetailsResponse> handler,
         CancellationToken cancellationToken)
     {
         GetDetailsQuery query = new();

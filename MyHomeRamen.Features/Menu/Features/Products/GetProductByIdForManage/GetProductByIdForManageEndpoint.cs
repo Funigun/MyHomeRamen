@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductByIdForManage;
 
@@ -40,7 +41,7 @@ public sealed class GetProductByIdForManageEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromRoute] Guid id,
-        [FromServices] IQueryHandler<GetProductByIdForManageQuery, GetProductByIdForManageResponse> handler,
+        [FromServices] IRequestHandler<GetProductByIdForManageQuery, GetProductByIdForManageResponse> handler,
         CancellationToken cancellationToken)
     {
         GetProductByIdForManageQuery query = new(id);
@@ -49,4 +50,3 @@ public sealed class GetProductByIdForManageEndpoint : IEndpoint
         return Results.Ok(response);
     }
 }
-

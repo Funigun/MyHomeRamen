@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.CreateCategory;
 
@@ -26,7 +27,7 @@ public sealed class CreateCategoryEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromBody] CreateCategoryRequest request,
-        [FromServices] ICommandHandler<CreateCategoryCommand, CreateCategoryResponse> handler,
+        [FromServices] IRequestHandler<CreateCategoryCommand, CreateCategoryResponse> handler,
         CancellationToken cancellationToken)
     {
         CreateCategoryCommand command = new(request);

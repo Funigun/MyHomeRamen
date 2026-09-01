@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdatePaymentDetails;
 
@@ -26,7 +27,7 @@ internal sealed class UpdatePaymentDetailsEndpoint : IEndpoint
     internal static async Task<Results<Ok, BadRequest>> Handle(
             [FromRoute] Guid id,
             [FromBody] UpdatePaymentDetailsRequest request,
-            [FromServices] ICommandHandler<UpdatePaymentDetailsCommand> handler,
+            [FromServices] IRequestHandler<UpdatePaymentDetailsCommand, Unit> handler,
             [FromServices] ICurrentUser currentUser,
             CancellationToken cancellationToken)
     {
@@ -36,4 +37,3 @@ internal sealed class UpdatePaymentDetailsEndpoint : IEndpoint
         return TypedResults.Ok();
     }
 }
-

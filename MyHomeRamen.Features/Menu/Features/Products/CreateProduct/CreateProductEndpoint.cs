@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.CreateProduct;
 
@@ -31,7 +32,7 @@ public sealed class CreateProductEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromBody] CreateProductRequest request,
-        [FromServices] ICommandHandler<CreateProductCommand, CreateProductResponse> handler,
+        [FromServices] IRequestHandler<CreateProductCommand, CreateProductResponse> handler,
         CancellationToken cancellationToken)
     {
         CreateProductCommand command = new(request);
@@ -40,4 +41,3 @@ public sealed class CreateProductEndpoint : IEndpoint
         return Results.Created($"/api/menu/products/{response.Id}", response);
     }
 }
-

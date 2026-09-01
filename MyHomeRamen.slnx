@@ -57,7 +57,6 @@
     <Project Path="MyHomeRamen.IntegrationTests/MyHomeRamen.IntegrationTests.csproj" Id="81c45925-f5aa-4a1c-b28f-5882ed6bc05a" />
     <Project Path="MyHomeRamen.MenuApi.IntegrationTests/MyHomeRamen.MenuApi.IntegrationTests.csproj" Id="2289d418-c0d1-450b-993b-80150ba13713" />
     <Project Path="MyHomeRamen.ShoppingCartApi.IntegrationTests/MyHomeRamen.ShoppingCartApi.IntegrationTests.csproj" />
-    <Project Path="MyHomeRamen.SystemTests/MyHomeRamen.SystemTests.csproj" />
     <Project Path="MyHomeRamen.UnitTests/MyHomeRamen.UnitTests.csproj" Id="ba993bcd-664e-493f-90f5-ffc252488a1d" />
   </Folder>
   <Folder Name="/Web API/">

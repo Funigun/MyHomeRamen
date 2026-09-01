@@ -2,12 +2,12 @@ using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetShippingDetails;
 
@@ -67,7 +67,7 @@ public sealed record GetShippingDetailsQueryOptions(BasketId BasketId, UserId Us
     }
 }
 
-public sealed class GetShippingDetailsHandler(IShoppingCartDbContext dbContext) : IQueryHandler<GetShippingDetailsQuery, ShippingDetailsResponse>
+public sealed class GetShippingDetailsHandler(IShoppingCartDbContext dbContext) : IRequestHandler<GetShippingDetailsQuery, ShippingDetailsResponse>
 {
     public async Task<ShippingDetailsResponse> Handle(GetShippingDetailsQuery query, CancellationToken cancellationToken)
     {

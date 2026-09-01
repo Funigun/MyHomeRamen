@@ -1,13 +1,13 @@
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.RegisterGuest;
 
 public sealed record RegisterGuestCommand(RegisterGuestRequest Request) : ICommand<RegisterGuestResponse>;
 
-public class RegisterGuestHandler(IIdentityDbContext dbContext) : ICommandHandler<RegisterGuestCommand, RegisterGuestResponse>
+public class RegisterGuestHandler(IIdentityDbContext dbContext) : IRequestHandler<RegisterGuestCommand, RegisterGuestResponse>
 {
     public async Task<RegisterGuestResponse> Handle(RegisterGuestCommand command, CancellationToken cancellationToken)
     {

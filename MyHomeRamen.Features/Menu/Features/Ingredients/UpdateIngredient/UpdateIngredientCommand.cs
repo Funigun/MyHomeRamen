@@ -1,4 +1,3 @@
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
@@ -6,6 +5,7 @@ using FluentValidation;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 
@@ -46,7 +46,7 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
     }
 }
 
-public sealed class UpdateIngredientHandler(IMenuDbContext dbContext) : ICommandHandler<UpdateIngredientCommand, UpdateIngredientResponse>
+public sealed class UpdateIngredientHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateIngredientCommand, UpdateIngredientResponse>
 {
     public async Task<UpdateIngredientResponse> Handle(UpdateIngredientCommand request, CancellationToken cancellationToken)
     {

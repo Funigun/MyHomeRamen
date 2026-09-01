@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.UpdateAddress;
 
@@ -34,7 +35,7 @@ public sealed class UpdateAddressEndpoint : IEndpoint
     private static async Task<IResult> HandleAsync(
         [FromRoute] Guid id,
         [FromBody] UpdateAddressRequest request,
-        [FromServices] ICommandHandler<UpdateAddressCommand, UpdateAddressResponse> handler,
+        [FromServices] IRequestHandler<UpdateAddressCommand, UpdateAddressResponse> handler,
         CancellationToken cancellationToken)
     {
         UpdateAddressCommand command = new(id, request);

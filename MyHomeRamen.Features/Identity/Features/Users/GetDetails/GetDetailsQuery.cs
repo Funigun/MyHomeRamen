@@ -1,8 +1,8 @@
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetDetails;
 
@@ -16,7 +16,7 @@ public sealed class GetDetailsAuthorizationPolicy(ICurrentUser currentUser) : IA
     }
 }
 
-public sealed class GetDetailsHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : IQueryHandler<GetDetailsQuery, GetDetailsResponse>
+public sealed class GetDetailsHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetDetailsQuery, GetDetailsResponse>
 {
     public async Task<GetDetailsResponse> Handle(GetDetailsQuery query, CancellationToken cancellationToken)
     {

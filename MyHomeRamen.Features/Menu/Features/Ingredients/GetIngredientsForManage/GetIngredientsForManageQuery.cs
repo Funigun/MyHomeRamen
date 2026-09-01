@@ -4,10 +4,10 @@ using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Ingredients.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForManage;
 
@@ -49,7 +49,7 @@ public sealed class GetIngredientsForManageValidator : AbstractValidator<GetIngr
     }
 }
 
-public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext) : IQueryHandler<GetIngredientsForManageQuery, GetIngredientsForManageResponse>
+public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext) : IRequestHandler<GetIngredientsForManageQuery, GetIngredientsForManageResponse>
 {
     public async Task<GetIngredientsForManageResponse> Handle(GetIngredientsForManageQuery query, CancellationToken cancellationToken)
     {
@@ -68,4 +68,3 @@ public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext) : I
         );
     }
 }
-

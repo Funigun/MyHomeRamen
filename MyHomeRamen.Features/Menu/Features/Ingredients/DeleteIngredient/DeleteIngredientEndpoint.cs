@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.DeleteIngredient;
 
@@ -21,7 +22,7 @@ public sealed class DeleteIngredientEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromRoute] Guid id,
-        [FromServices] ICommandHandler<DeleteIngredientCommand> handler,
+        [FromServices] IRequestHandler<DeleteIngredientCommand, Unit> handler,
         CancellationToken cancellationToken)
     {
         DeleteIngredientCommand command = new(id);
@@ -30,4 +31,3 @@ public sealed class DeleteIngredientEndpoint : IEndpoint
         return TypedResults.NoContent();
     }
 }
-

@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.ClearBasket;
 
@@ -23,7 +24,7 @@ public sealed class ClearBasketEndpoint : IEndpoint
     private static async Task<Results<NoContent, NotFound, BadRequest>> HandleAsync(
         [FromRoute] Guid basketId,
         [FromServices] ICurrentUser currentUser,
-        [FromServices] ICommandHandler<ClearBasketCommand> handler,
+        [FromServices] IRequestHandler<ClearBasketCommand, Unit> handler,
         CancellationToken cancellationToken)
     {
         ClearBasketCommand command = new(basketId, currentUser.UserId);
@@ -32,4 +33,3 @@ public sealed class ClearBasketEndpoint : IEndpoint
         return TypedResults.NoContent();
     }
 }
-

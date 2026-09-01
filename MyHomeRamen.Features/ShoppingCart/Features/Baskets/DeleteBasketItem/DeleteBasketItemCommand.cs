@@ -3,10 +3,10 @@ using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.DeleteBasketItem;
 
@@ -42,9 +42,9 @@ public sealed class DeleteBasketItemValidationPolicy : AbstractValidator<DeleteB
 }
 
 public sealed class DeleteBasketItemHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser)
-    : ICommandHandler<DeleteBasketItemCommand>
+    : IRequestHandler<DeleteBasketItemCommand, Unit>
 {
-    public async Task Handle(DeleteBasketItemCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeleteBasketItemCommand command, CancellationToken cancellationToken)
     {
         UserId userId = new(currentUser.UserId);
 
@@ -55,5 +55,6 @@ public sealed class DeleteBasketItemHandler(IShoppingCartDbContext dbContext, IC
         basket.RemoveItem(command.BasketItemId);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        return Unit.Value;
     }
 }

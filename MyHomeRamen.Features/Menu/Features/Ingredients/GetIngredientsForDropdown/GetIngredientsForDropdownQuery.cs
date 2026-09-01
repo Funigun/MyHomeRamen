@@ -1,9 +1,9 @@
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForDropdown;
 
@@ -30,7 +30,7 @@ public sealed class GetIngredientsForDropdownAuthorizationPolicy(ICurrentUser cu
     }
 }
 
-public sealed class GetIngredientsForDropdownHandler(IMenuDbContext dbContext): IQueryHandler<GetIngredientsForDropdownQuery, GetIngredientsForDropdownResponse>
+public sealed class GetIngredientsForDropdownHandler(IMenuDbContext dbContext): IRequestHandler<GetIngredientsForDropdownQuery, GetIngredientsForDropdownResponse>
 {
     public async Task<GetIngredientsForDropdownResponse> Handle(GetIngredientsForDropdownQuery request, CancellationToken cancellationToken)
     {
@@ -39,4 +39,3 @@ public sealed class GetIngredientsForDropdownHandler(IMenuDbContext dbContext): 
         return new GetIngredientsForDropdownResponse(ingredients);
     }
 }
-

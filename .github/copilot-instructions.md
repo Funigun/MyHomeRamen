@@ -19,7 +19,6 @@ MyHomeRamen.slnx
 ├── MyHomeRamen.ServiceDefaults/            ← Shared Aspire service defaults (telemetry, health checks, global constants)
 ├── MyHomeRamen.Api/                        ← Main API project exposing REST endpoints
 ├── MyHomeRamen.Api.Common/                 ← Common utilities, extensions, and helpers for API
-├── MyHomeRamen.Common.Contracts/           ← Shared request/response DTOs and primitive validators (no Commands)
 ├── MyHomeRamen.Domain/                     ← Domain entities, value objects, and services
 ├── MyHomeRamen.Persistance/                ← Database contexts and EF Core configurations
 ├── MyHomeRamen.Infrastructure/             ← Infrastructure services (caching, messaging, email, keycloak)
@@ -29,11 +28,13 @@ MyHomeRamen.slnx
 ├── MyHomeRamen.Worker.MessagesHandler/     ← RabbitMQ message handler
 ├── MyHomeRamen.Blazor/                     ← Blazor Server frontend
 ├── MyHomeRamen.Blazor.Client/              ← Blazor WASM frontend
-├── MyHomeRamen.UnitTests/                      ← Unit tests (XUnit, NSubstitute)
-├── MyHomeRamen.IntegrationTests/               ← Integration tests (XUnit, TestContainers)
-├── MyHomeRamen.IdentityApi.IntegrationTests/   ← Identity integration tests
-├── MyHomeRamen.ArchitectureTests/              ← Architecture tests (XUnit, NetArchRules)
-└── MyHomeRamen.SystemTests/                    ← System tests (XUnit, Aspire.Hosting.Testing)
+├── MyHomeRamen.UnitTests/                         ← Unit tests (XUnit, NSubstitute)
+├── MyHomeRamen.IntegrationTests/                  ← Integration tests (XUnit, TestContainers)
+├── MyHomeRamen.IdentityApi.IntegrationTests/      ← Identity integration tests
+├── MyHomeRamen.MenuApi.IntegrationTests/          ← Menu integration tests
+├── MyHomeRamen.ShoppingCartApi.IntegrationTests/  ← Shopping Cart integration tests
+├── MyHomeRamen.ArchitectureTests/                 ← Architecture tests (XUnit, NetArchRules)
+└── MyHomeRamen.SystemTests/                       ← System tests (XUnit, Aspire.Hosting.Testing)
 ```
 
 ## Modules isolation

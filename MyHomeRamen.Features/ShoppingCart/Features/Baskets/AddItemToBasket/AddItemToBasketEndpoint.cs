@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 
@@ -32,7 +33,7 @@ public sealed class AddItemToBasketEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromBody] AddItemToBasketRequest request,
-        [FromServices] ICommandHandler<AddItemToBasketCommand, AddItemToBasketResponse> handler,
+        [FromServices] IRequestHandler<AddItemToBasketCommand, AddItemToBasketResponse> handler,
         CancellationToken cancellationToken)
     {
         AddItemToBasketCommand command = new(request);
@@ -41,4 +42,3 @@ public sealed class AddItemToBasketEndpoint : IEndpoint
         return Results.Created($"/api/shoppingcart/basket/items/{response.BasketItemId}", response);
     }
 }
-

@@ -1,9 +1,9 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Products;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductById;
 
@@ -34,7 +34,7 @@ public sealed class GetProductByIdValidator : AbstractValidator<GetProductByIdQu
 }
 
 public sealed class GetProductByIdHandler(IMenuDbContext dbContext)
-    : IQueryHandler<GetProductByIdQuery, GetProductByIdResponse>
+    : IRequestHandler<GetProductByIdQuery, GetProductByIdResponse>
 {
     public async Task<GetProductByIdResponse> Handle(GetProductByIdQuery query, CancellationToken cancellationToken)
     {
@@ -48,4 +48,3 @@ public sealed class GetProductByIdHandler(IMenuDbContext dbContext)
     private static GetProductByIdResponse ToResponse(ProductByIdDto product)
          => new(product.Id, product.Name, product.Description, product.BaseIngredients, product.CustomIngredients);
 }
-

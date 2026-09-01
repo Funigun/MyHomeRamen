@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.CreateIngredient;
 
@@ -29,7 +30,7 @@ public sealed class CreateIngredientEndpoint : IEndpoint
 
     private static async Task<IResult> HandleAsync(
         [FromBody] CreateIngredientRequest request,
-        [FromServices] ICommandHandler<CreateIngredientCommand, CreateIngredientResponse> handler,
+        [FromServices] IRequestHandler<CreateIngredientCommand, CreateIngredientResponse> handler,
         CancellationToken cancellationToken)
     {
         CreateIngredientCommand command = new(request);
@@ -38,4 +39,3 @@ public sealed class CreateIngredientEndpoint : IEndpoint
         return Results.Created($"/api/menu/ingredients/{response.Id}", response);
     }
 }
-

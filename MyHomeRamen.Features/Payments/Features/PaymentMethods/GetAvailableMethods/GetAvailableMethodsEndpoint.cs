@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Payments.Features.PaymentMethods.GetAvailableMethods;
 
@@ -24,7 +25,7 @@ public sealed class GetAvailableMethodsEndpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<IEnumerable<GetAvailableMethodsResponse>>, NotFound>> HandleAsync(
-        [FromServices] IQueryHandler<GetAvailableMethodsQuery, IEnumerable<GetAvailableMethodsResponse>> handler,
+        [FromServices] IRequestHandler<GetAvailableMethodsQuery, IEnumerable<GetAvailableMethodsResponse>> handler,
         CancellationToken cancellationToken)
     {
         GetAvailableMethodsQuery query = new();
@@ -33,4 +34,3 @@ public sealed class GetAvailableMethodsEndpoint : IEndpoint
         return TypedResults.Ok(response);
     }
 }
-

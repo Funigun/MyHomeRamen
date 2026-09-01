@@ -1,10 +1,10 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Products;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsByCategory;
 
@@ -39,7 +39,7 @@ public sealed class GetProductsByCategoryValidator : AbstractValidator<GetProduc
     }
 }
 
-public sealed class GetProductsByCategoryHandler(IMenuDbContext dbContext) : IQueryHandler<GetProductsByCategoryQuery, GetProductsByCategoryResponse>
+public sealed class GetProductsByCategoryHandler(IMenuDbContext dbContext) : IRequestHandler<GetProductsByCategoryQuery, GetProductsByCategoryResponse>
 {
     public async Task<GetProductsByCategoryResponse> Handle(GetProductsByCategoryQuery query, CancellationToken cancellationToken)
     {

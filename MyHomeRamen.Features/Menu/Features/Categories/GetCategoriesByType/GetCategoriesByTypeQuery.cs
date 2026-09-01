@@ -2,10 +2,10 @@ using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
 
@@ -41,7 +41,7 @@ public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategori
 }
 
 public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext)
-                  : IQueryHandler<GetCategoriesByTypeQuery, GetCategoriesByTypeResponse>
+                  : IRequestHandler<GetCategoriesByTypeQuery, GetCategoriesByTypeResponse>
 {
     public async Task<GetCategoriesByTypeResponse> Handle(GetCategoriesByTypeQuery query, CancellationToken cancellationToken)
     {

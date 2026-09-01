@@ -1,8 +1,8 @@
-using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetAddresses;
 
@@ -16,7 +16,7 @@ public sealed class GetAddressesAuthorizationPolicy(ICurrentUser currentUser) : 
     }
 }
 
-public sealed class GetAddressesHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : IQueryHandler<GetAddressesQuery, GetAddressesResponse>
+public sealed class GetAddressesHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetAddressesQuery, GetAddressesResponse>
 {
     public async Task<GetAddressesResponse> Handle(GetAddressesQuery query, CancellationToken cancellationToken)
     {

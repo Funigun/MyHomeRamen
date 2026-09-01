@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Ingredients.GetIngredientsForDropdown;
 
@@ -25,7 +26,7 @@ public sealed class GetIngredientsForDropdownEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromServices] IQueryHandler<GetIngredientsForDropdownQuery, GetIngredientsForDropdownResponse> handler,
+        [FromServices] IRequestHandler<GetIngredientsForDropdownQuery, GetIngredientsForDropdownResponse> handler,
         CancellationToken cancellationToken)
     {
         GetIngredientsForDropdownQuery query = new();
@@ -34,4 +35,3 @@ public sealed class GetIngredientsForDropdownEndpoint : IEndpoint
         return Results.Ok(response);
     }
 }
-

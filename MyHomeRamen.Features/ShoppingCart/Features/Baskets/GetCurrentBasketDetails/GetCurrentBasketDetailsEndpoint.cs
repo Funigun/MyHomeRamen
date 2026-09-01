@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
@@ -43,7 +44,7 @@ public sealed class GetCurrentBasketDetailsEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromServices] IQueryHandler<GetCurrentBasketDetailsQuery, GetCurrentBasketDetailsResponse?> handler,
+        [FromServices] IRequestHandler<GetCurrentBasketDetailsQuery, GetCurrentBasketDetailsResponse?> handler,
         CancellationToken cancellationToken)
     {
         GetCurrentBasketDetailsQuery query = new();
@@ -52,4 +53,3 @@ public sealed class GetCurrentBasketDetailsEndpoint : IEndpoint
         return response is null ? Results.NotFound() : Results.Ok(response);
     }
 }
-

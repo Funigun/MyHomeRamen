@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Query;
-using MyHomeRamen.Features.Common.Endpoints;
 using Microsoft.AspNetCore.Http.HttpResults;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
 
@@ -25,7 +26,7 @@ public sealed class GetMenuCategoriesEndpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<GetMenuCategoriesResponse>, BadRequest>> HandleAsync(
-        [FromServices] IQueryHandler<GetMenuCategoriesQuery, GetMenuCategoriesResponse> handler,
+        [FromServices] IRequestHandler<GetMenuCategoriesQuery, GetMenuCategoriesResponse> handler,
         CancellationToken cancellationToken)
     {
         GetMenuCategoriesQuery query = new();

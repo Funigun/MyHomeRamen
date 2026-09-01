@@ -61,16 +61,6 @@ MyHomeRamen.Api/
     │       └── {DomainModel}Group.cs
     ├── Services/						← Shared services for the module
     └── ExternalApis/					← Integration points exposed to other modules
-MyHomeRamen.Api.Common/                 ← Common utilities, extensions, and helpers for API
-MyHomeRamen.Common.Contracts/           ← Shared validators, messages objects
-├── Account/                            ← Reusable FluentValidation extension methods for account fields
-│   └── AccountValidationExtensions.cs ← e.g. ValidUserName, ValidName, ValidPassword rule builders
-├── Messaging/                          ← Integration event contracts shared between API and workers
-│   └── {EventName}IntegrationEvent.cs ← e.g. UserRegisteredIntegrationEvent
-├── {Module}/                           ← Module-scoped primitive validators (reused by API + Blazor)
-│   └── {DomainModel}/
-│       └── {Property}Validator.cs      ← AbstractValidator<string|decimal|int> with exported constants
-└── ICommonContractsAssemblyMarker.cs
 ```
 
 ## Blazor structure

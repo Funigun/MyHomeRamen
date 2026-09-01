@@ -2,8 +2,7 @@
 using ArchUnitNET.xUnitV3;
 using MyHomeRamen.ArchitectureTests.Common;
 using MyHomeRamen.Features.Common.Endpoints;
-using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Mediator;
 using Xunit.Sdk;
 using static ArchUnitNET.Fluent.ArchRuleDefinition;
 

@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints.Command;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.CreateAddress;
 
@@ -32,7 +33,7 @@ public sealed class CreateAddressEndpoint : IEndpoint
 
     private static async Task<Results<Created<CreateAddressResponse>, BadRequest>> HandleAsync(
         [FromBody] CreateAddressRequest request,
-        [FromServices] ICommandHandler<CreateAddressCommand, CreateAddressResponse> handler,
+        [FromServices] IRequestHandler<CreateAddressCommand, CreateAddressResponse> handler,
         CancellationToken cancellationToken)
     {
         CreateAddressCommand command = new(request);

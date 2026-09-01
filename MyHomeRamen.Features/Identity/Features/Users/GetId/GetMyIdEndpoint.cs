@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Query;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
 
@@ -23,7 +24,7 @@ public sealed class GetMyIdEndpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<GetMyIdResponse>, NotFound>> HandleAsync(
-        [FromServices] IQueryHandler<GetMyIdQuery, GetMyIdResponse> handler,
+        [FromServices] IRequestHandler<GetMyIdQuery, GetMyIdResponse> handler,
         CancellationToken cancellationToken)
     {
         GetMyIdQuery query = new();

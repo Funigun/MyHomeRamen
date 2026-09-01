@@ -8,8 +8,9 @@ using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Endpoints.Command;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateShippingDetails;
 
@@ -30,7 +31,7 @@ internal sealed class UpdateShippingDetailsEndpoint : IEndpoint
     internal static async Task<Results<Ok, BadRequest>> Handle(
         [FromRoute] Guid id,
         [FromBody] UpdateShippingDetailsRequest request,
-        [FromServices] ICommandHandler<UpdateShippingDetailsCommand> handler,
+        [FromServices] IRequestHandler<UpdateShippingDetailsCommand, Unit> handler,
         [FromServices] ICurrentUser currentUser,
         CancellationToken cancellationToken)
     {
@@ -62,4 +63,3 @@ public static class Mappings
         return ShippingDetails.CreateDelivery(address);
     }
 }
-
