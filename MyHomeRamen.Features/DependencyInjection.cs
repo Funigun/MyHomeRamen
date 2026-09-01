@@ -11,12 +11,6 @@ using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Endpoints.Query;
 using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Identity.Services;
-using MyHomeRamen.Features.Menu.ExternalApi;
-using MyHomeRamen.Features.Orders.ExternalApi;
-using MyHomeRamen.Features.Payments.ExternalApi;
-using MyHomeRamen.Features.Reservations.ExternalApi;
-using MyHomeRamen.Features.Restaurants.ExternalApi;
-using MyHomeRamen.Features.ShoppingCart.ExternalApi;
 
 namespace MyHomeRamen.Features;
 
@@ -24,13 +18,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddPermissionCatalogServices(this IServiceCollection services)
     {
-        services.AddScoped<IPermissionDefinitionProvider, IdentityPermissionDefinitionProvider>();
-        services.AddScoped<IPermissionDefinitionProvider, MenuPermissionDefinitionProvider>();
-        services.AddScoped<IPermissionDefinitionProvider, ShoppingCartPermissionDefinitionProvider>();
-        services.AddScoped<IPermissionDefinitionProvider, OrdersPermissionDefinitionProvider>();
-        services.AddScoped<IPermissionDefinitionProvider, ReservationsPermissionDefinitionProvider>();
-        services.AddScoped<IPermissionDefinitionProvider, PaymentsPermissionDefinitionProvider>();
-        services.AddScoped<IPermissionDefinitionProvider, RestaurantsPermissionDefinitionProvider>();
         services.AddScoped<IPermissionCatalogSynchronizer, PermissionCatalogSynchronizer>();
 
         return services;

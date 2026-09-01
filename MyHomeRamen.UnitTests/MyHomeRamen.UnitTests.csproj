@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MyHomeRamen.Common.Contracts\MyHomeRamen.Common.Contracts.csproj" />
     <ProjectReference Include="..\MyHomeRamen.Domain\MyHomeRamen.Domain.csproj" />
+    <ProjectReference Include="..\MyHomeRamen.Features\MyHomeRamen.Features.csproj" />
   </ItemGroup>
 
   <ItemGroup>
