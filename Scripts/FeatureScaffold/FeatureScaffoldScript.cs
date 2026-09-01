@@ -36,7 +36,7 @@ List<string> notHandled = [];
 List<string> removed = [];
 
 string repoRoot = $@"C:\Users\{Environment.UserName}\source\repos\MyHomeRamen";
-const string filePathTemplate = "MyHomeRamen.Features.{Module}.{Aggregate}.{Feature}.{TypeName}.cs";
+const string filePathTemplate = "MyHomeRamen.Features.{Module}.Features.{Aggregate}.{Feature}.{TypeName}.cs";
 
 foreach (string line in tableLines)
 {
@@ -48,7 +48,7 @@ foreach (string line in tableLines)
             HandleFeatureToCreate(feature, repoRoot, filePathTemplate, created, notHandled);
             break;
 
-        case "update":
+        case "modify":
             HandleFileToUpdate(feature, repoRoot, filePathTemplate, skipped, notHandled);
             break;
 
@@ -67,9 +67,13 @@ foreach (string line in tableLines)
 private static string GetSectionContent(string content, string sectionHeader, string nextSectionHeader)
 {
     int startIndex = content.IndexOf(sectionHeader);
-    int endIndex = content.IndexOf(nextSectionHeader, startIndex + sectionHeader.Length);
+    if (startIndex == -1)
+    {
+        return "";
+    }
 
-    if (startIndex == -1 || endIndex == -1)
+    int endIndex = content.IndexOf(nextSectionHeader, startIndex + sectionHeader.Length);
+    if (endIndex == -1)
     {
         return "";
     }
@@ -83,10 +87,10 @@ private static void HandleFeatureToCreate(FeatureDetails featureDetails, string 
     string endpointfilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint", repoRoot, filePathTemplate);
     string commandfilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}", repoRoot, filePathTemplate);
 
-    if (!File.Exists(endpointfilePath))
+    if (!File.Exists(endpointfilePath) && !File.Exists(commandfilePath))
     {
         string endpointContent = FileFactory.CreateEndpoint(featureDetails);
-        string commandContent = FileFactory.CreateCommand(featureDetails);
+        string commandContent = FileFactory.CreateCqrs(featureDetails);
 
         File.WriteAllText(endpointfilePath, endpointContent);
         File.WriteAllText(commandfilePath, commandContent);
@@ -101,9 +105,11 @@ private static void HandleFeatureToCreate(FeatureDetails featureDetails, string 
 
 private static void HandleFileToUpdate(FeatureDetails featureDetails, string repoRoot, string filePathTemplate, List<string> skippedFiles, List<string> notHandledFiles)
 {
-    string filePath = GenerateFilePath(featureDetails, featureDetails.Name, repoRoot, filePathTemplate);
+    string filePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}", repoRoot, filePathTemplate);
 
-    if (File.Exists(filePath))
+    string endpointFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint", repoRoot, filePathTemplate);
+
+    if (File.Exists(endpointFilePath) || File.Exists(filePath))
     {
         skippedFiles.Add(featureDetails.Name);
     }
@@ -115,11 +121,21 @@ private static void HandleFileToUpdate(FeatureDetails featureDetails, string rep
 
 private static void HandleFileToDelete(FeatureDetails featureDetails, string repoRoot, string filePathTemplate, List<string> removedFiles, List<string> notHandledFiles)
 {
-    string filePath = GenerateFilePath(featureDetails, featureDetails.Name, repoRoot, filePathTemplate);
+    string endpointFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint", repoRoot, filePathTemplate);
+    string cqrsFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}", repoRoot, filePathTemplate);
 
-    if (File.Exists(filePath))
+    if (File.Exists(endpointFilePath) || File.Exists(cqrsFilePath))
     {
-        File.Delete(filePath);
+        if (File.Exists(endpointFilePath))
+        {
+            File.Delete(endpointFilePath);
+        }
+
+        if (File.Exists(cqrsFilePath))
+        {
+            File.Delete(cqrsFilePath);
+        }
+
         removedFiles.Add(featureDetails.Name);
     }
     else

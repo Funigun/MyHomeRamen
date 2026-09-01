@@ -6,7 +6,7 @@ namespace MyHomeRamen.FeatureScaffold;
 
 public record EndpointDetails(string Type, string? Route);
 
-public record CommandDetails(string Type, bool HasDbQueryOptions, bool HasValidator, bool hasAuthPolicy);
+public record CommandDetails(string Type);
 
 public record FeatureDetails(
     string Action,
@@ -25,29 +25,24 @@ public record FeatureDetails(
             .Where(p => p.Length > 0)
             .ToArray();
 
-        if (parts.Length < 8)
+        if (parts.Length < 7)
         {
             throw new ArgumentException($"Invalid feature row: {tableLine}", nameof(tableLine));
         }
 
-        string action = parts[1];
+        string action = parts[1].ToLowerInvariant();
         string module = parts[2];
         string aggregate = parts[3];
         string featureName = parts[4];
         string endpointKind = parts[5];
         string route = parts[6];
-        string dbQueryOptionsRequired = parts[7];
-        HashSet<string> policies = parts.Length > 8 ? new HashSet<string>(parts[8].Split(',', StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim())) : new HashSet<string>();
+        string endpointType = endpointKind.Equals("query", StringComparison.OrdinalIgnoreCase) ? "Get" : "Post";
+        EndpointDetails endpoint = new(endpointType, string.IsNullOrWhiteSpace(route) ? null : route);
 
-        EndpointDetails endpoint = new(endpointKind,string.IsNullOrWhiteSpace(route) ? null : route);
-
-        IReadOnlyList<string> constructors = ParseConstructors(constructorsContent, featureName);
+        IReadOnlyList<string> constructors = ParseConstructors(constructorsContent);
 
         CommandDetails command = new(
-            endpointKind == "query" ? "Query" : "Command",
-            ParseBoolean(dbQueryOptionsRequired),
-            policies.Contains("ValidationPolicy"),
-            policies.Contains("AuthPolicy"));
+            endpointKind.Equals("query", StringComparison.OrdinalIgnoreCase) ? "Query" : "Command");
 
         return new FeatureDetails(
             action,
@@ -59,7 +54,7 @@ public record FeatureDetails(
             constructors);
     }
 
-    private static IReadOnlyList<string> ParseConstructors(string constructorsContent, string featureName)
+    private static IReadOnlyList<string> ParseConstructors(string constructorsContent)
     {
         if (string.IsNullOrWhiteSpace(constructorsContent))
         {
@@ -72,48 +67,17 @@ public record FeatureDetails(
         foreach (string line in lines)
         {
             string trimmed = line.Trim();
-            if (string.IsNullOrWhiteSpace(trimmed) || !trimmed.Contains(featureName, StringComparison.OrdinalIgnoreCase))
+            int declarationIndex = trimmed.IndexOf("public ", StringComparison.Ordinal);
+            if (declarationIndex < 0 || !trimmed.Contains("record ", StringComparison.Ordinal))
             {
                 continue;
             }
 
-            int openBracketIndex = trimmed.IndexOf('(');
-            int closeBracketIndex = trimmed.LastIndexOf(')');
-
-            if (openBracketIndex < 0 || closeBracketIndex <= openBracketIndex)
-            {
-                continue;
-            }
-
-            string signature = trimmed.Substring(openBracketIndex + 1, closeBracketIndex - openBracketIndex - 1);
-            
-            if (string.IsNullOrWhiteSpace(signature))
-            {
-                continue;
-            }
-
-            string[] parameters = signature.Split(',')
-                                           .Select(p => p.Trim())
-                                           .Where(p => !string.IsNullOrWhiteSpace(p))
-                                           .ToArray();
-
-            foreach (string parameter in parameters)
-            {
-                string[] parts = parameter.Split(':', 2, StringSplitOptions.TrimEntries);
-                if (parts.Length == 2)
-                {
-                    constructors.Add(parts[0].Trim());
-                }
-                else
-                {
-                    constructors.Add(parameter.Trim());
-                }
-            }
+            string declaration = trimmed[declarationIndex..];
+            constructors.Add(declaration);
         }
 
         return constructors;
     }
 
-    private static bool ParseBoolean(string value)
-        => bool.TryParse(value, out bool parsed) && parsed;
 }

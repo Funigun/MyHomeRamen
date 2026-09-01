@@ -67,7 +67,7 @@ if(tableLines.Count() < 3)
 }
 else
 {
-    IEnumerable<string> expectedColumns = ["Action", "Module", "Aggregate", "Feature Name", "Endpoint Kind", "Route", "DB Query Options Required", "Policies"];
+    IEnumerable<string> expectedColumns = ["Action", "Module", "Aggregate", "Feature Name", "Endpoint Kind", "Route"];
     int expectedColumnCount = expectedColumns.Count();
 
     IEnumerable<string> headerCols = tableLines.First().Trim().Trim('|').Split('|').Select(c => c.Trim()).ToList();
@@ -79,20 +79,14 @@ else
     for (int i = 2; i < tableLines.Count(); i++)
     {
         string[] cols = tableLines.ElementAt(i).Trim().Trim('|').Split('|').Select(c => c.Trim()).ToArray();
-        string pathColumn = cols[0].Trim('`');
-        string actionColumn = cols.Length > 1 ? cols[1].Trim() : string.Empty;
-        string typeColumn = cols.Length > 2 ? cols[2].Trim() : string.Empty;
-
-        if (string.IsNullOrWhiteSpace(pathColumn))
-        {
-            issues.Add($"[plan-verifier] #2 table row {i + 1} has empty file path");
-        }
+        string actionColumn = cols[0].Trim();
 
         if (string.IsNullOrWhiteSpace(actionColumn))
         {
             issues.Add($"[plan-verifier] #2 table row {i + 1} has empty action");
         }
-        else if (!Enum.TryParse<FileAction>(actionColumn, true, out _))
+
+        if (!Enum.TryParse<FileAction>(actionColumn, true, out _))
         {
             issues.Add($"[plan-verifier] #2 table row {i + 1} has invalid action '{actionColumn}'");
         }

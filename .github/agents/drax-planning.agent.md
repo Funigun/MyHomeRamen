@@ -55,9 +55,9 @@ Naming conventions:
 <What user wants, why, what already exists — 2-3 sentences max>
 
 ## 2. Files to create / modify
-| Action | Module | Aggregate | Feature Name | Endpoint Kind | Route | DB Query Options Required | Policies |
-|--------|--------|-----------|--------------|---------------|-------|---------------------------|----------|
-|--------|--------|-----------|--------------|---------------|-------|---------------------------|----------|
+| Action | Module | Aggregate | Feature Name | Endpoint Kind | Route |
+|--------|--------|-----------|--------------|---------------|-------|
+|--------|--------|-----------|--------------|---------------|-------|
 
 Valid `Action`: Create, Modify, Delete 
 Valid `Module`: Identity, Menu, Orders, ShoppingCart, Reservations, Payments

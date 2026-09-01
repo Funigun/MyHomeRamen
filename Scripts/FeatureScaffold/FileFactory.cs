@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using MyHomeRamen.Features.Common.Endpoints.{CQRS};
 using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace MyHomeRamen.Features.Menu.Features.{Aggregate}.{FEATURE};
+namespace MyHomeRamen.Features.{Module}.Features.{Aggregate}.{FEATURE};
 
 {REQUEST_CONTRACT}
 
@@ -29,7 +29,7 @@ public sealed class {FEATURE}Endpoint : IEndpoint
     }
 
     private static async Task<Results<Ok<{FEATURE}Response>, BadRequest>> HandleAsync(
-        [FromServices] I{CQRS}Handler<{FEATURE}{CQRS}, {FEATURE}Response> handler, 
+        [FromServices] IRequestHandler<{FEATURE}{CQRS}, {FEATURE}Response> handler,
         CancellationToken cancellationToken)
     {
         /*Todo: add request parameters and pass to {CQRS_LOWERCASE} if needed*/
@@ -41,59 +41,46 @@ public sealed class {FEATURE}Endpoint : IEndpoint
 }
 """;
 
-private const string _withoutResponseEndpointTemplate =
-"""
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
-using MyHomeRamen.Features.Common.Endpoints.{CQRS};
-using MyHomeRamen.Features.Common.Endpoints;
-using Microsoft.AspNetCore.Http.HttpResults;
-
-namespace MyHomeRamen.Features.Menu.Features.{Aggregate}.{FEATURE};
-
-{REQUEST_CONTRACT}
-
-public sealed class {FEATURE}Endpoint : IEndpoint
-{
-    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
-    {
-        endpointBuilder
-            .MapStandard{ENDPOINT_TYPE}<{FEATURE}Response>({ROUTE}, HandleAsync)
-            .WithName("{FEATURE}Endpoint")
-            .WithTags("/*ToDo: complete tags*/")
-            .WithDescription(/*ToDo: complete description*/)
-            .RequireAuthorization(); // .AllowAnonymous();
-    }
-
-    private static async Task<Results<Ok, BadRequest>> HandleAsync(
-        [FromServices] I{CQRS}Handler<{FEATURE}{CQRS}> handler,
-        CancellationToken cancellationToken)
-    {
-        /*Todo: add request parameters and pass to {CQRS_LOWERCASE} if needed*/
-        {FEATURE}{CQRS} {CQRS_LOWERCASE} = new();
-        await handler.Handle({CQRS_LOWERCASE}, cancellationToken);
-
-        return TypedResults.Ok();
-    }
-}
-""";
-
-private const string _cqrsHandlerWithResponseTemplate =
+private const string _cqrsTemplate =
 """
 using FluentValidation;
-using MyHomeRamen.Features.Common.Endpoints.{CQRS};
+using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.{Module}.Features.Abstractions;
 using MyHomeRamen.Features.{Module}.Features.{Aggregate}.Common;
 using MyHomeRamen.Features.Common.Repository;
+using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.{Module}.Features.{Aggregate}.{Feature};
 
 public sealed record {FEATURE}{CQRS}(/*ToDo: complete request shape*/);
 
-{DbQueryParams}{AUTH_POLICY}{VALIDATOR}
-public sealed class {FEATURE}Handler(I{Module}DbContext dbContext) : I{CQRS}Handler<{FEATURE}{CQRS}, {FEATURE}Response>
+public sealed record {FEATURE}Dto(/*ToDo: complete DTO shape*/);
+
+/*public sealed record {FEATURE}{CQRS}Options()
+                     : DbQueryOptions<TEntity, {FEATURE}Dto>
+(
+    //ToDo: complete query options including setting proper generic types for TEntity and projection
+);*/
+
+public sealed class {FEATURE}AuthorizationPolicy() : IAuthorizationPolicy<{FEATURE}{CQRS}>
+{
+    public async Task<bool> Authorize({FEATURE}{CQRS} {CQRS_LOWERCASE}, CancellationToken cancellationToken)
+    {
+        //ToDo: implement authorization logic
+        return false;
+    }
+}
+
+public sealed class {FEATURE}ValidationPolicy : AbstractValidator<{FEATURE}{CQRS}>
+{
+    public {FEATURE}ValidationPolicy(I{Module}DbContext dbContext)
+    {
+        //ToDo: implement validation rules
+    }
+}
+
+public sealed class {FEATURE}Handler(I{Module}DbContext dbContext)
+    : IRequestHandler<{FEATURE}{CQRS}, {FEATURE}Response>
 {
     public async Task<{FEATURE}Response> Handle({FEATURE}{CQRS} {CQRS_LOWERCASE}, CancellationToken cancellationToken)
     {
@@ -103,130 +90,33 @@ public sealed class {FEATURE}Handler(I{Module}DbContext dbContext) : I{CQRS}Hand
 }
 """;
 
-private const string _cqrsHandlerWithoutResponseTemplate =
-"""
-using FluentValidation;
-using MyHomeRamen.Features.Common.Endpoints.{CQRS};
-using MyHomeRamen.Features.{Module}.Features.Abstractions;
-using MyHomeRamen.Features.{Module}.Features.{Aggregate}.Common;
-using MyHomeRamen.Features.Common.Repository;
-
-namespace MyHomeRamen.Features.{Module}.Features.{Aggregate}.{Feature};
-
-public sealed record {FEATURE}{CQRS}(/*ToDo: complete request shape*/);
-
-{DbQueryParams}{AUTH_POLICY}{VALIDATOR}
-public sealed class {FEATURE}Handler(I{Module}DbContext dbContext) : I{CQRS}Handler<{FEATURE}{CQRS}>
-{
-    public async Task Handle({FEATURE}{CQRS} {CQRS_LOWERCASE}, CancellationToken cancellationToken)
-    {
-        //ToDo: implement handler logic
-    }
-}
-""";
-
-private const string _dbQueryParamsTemplate =
-"""
-/*public sealed record {FEATURE}QueryOptions()
-                     : DbQueryOptions<TEntity, TDto>
-(
-    //ToDo: complete query options including setting proper generic types for TEntity and TDto
-);*/
-
-""";
-
-private const string _validatorTemplate =
-"""
-public sealed class {FEATURE}Validator : AbstractValidator<{FEATURE}{CQRS}>
-{
-    //ToDo: implement validation rules
-    public {FEATURE}Validator()
-    {
-    }
-}
-
-""";
-
-
-private const string _cqrsAuthPolicyWithResponseTemplate =
-"""
-public sealed class {FEATURE}AuthorizationPolicy() : IAuthorizationPolicy<{FEATURE}{CQRS}, {FEATURE}Response>
-{
-    public async Task<bool> Authorize({FEATURE}{CQRS} {CQRS_LOWERCASE}, CancellationToken cancellationToken)
-    {
-        //ToDo: implement handler logic
-        return false;
-    }
-}
-
-""";
-
-private const string _cqrsAuthPolicyWithoutResponseTemplate =
-"""
-public sealed class {FEATURE}AuthorizationPolicy() : IAuthorizationPolicy<{FEATURE}{CQRS}>
-{
-    public async Task<bool> Authorize({FEATURE}{CQRS} {CQRS_LOWERCASE}, CancellationToken cancellationToken)
-    {
-        //ToDo: implement handler logic
-        return false;
-    }
-}
-
-""";
-
 public static string CreateEndpoint(FeatureDetails featureDetails)
 {
-    bool hasResponse = featureDetails.Endpoint.Type == "Get"
-                    || featureDetails.Endpoint.Type == "Post"
-                    || featureDetails.Constructors.Any(c => c.EndsWith("Response"));
-
-    string template = hasResponse ? _withResponseEndpointTemplate : _withoutResponseEndpointTemplate;
-
     string requestContract = CalculateRequestContractTemplate(featureDetails);
-    string responseContract = hasResponse ? CalculateResponseContractTemplate(featureDetails) : string.Empty;
+    string responseContract = CalculateResponseContractTemplate(featureDetails);
 
-    template = template.Replace("{REQUEST_CONTRACT}", requestContract)
-                       .Replace("{RESPONSE_CONTRACT}", responseContract);   
+    string template = _withResponseEndpointTemplate
+        .Replace("{REQUEST_CONTRACT}", requestContract)
+        .Replace("{RESPONSE_CONTRACT}", responseContract);
 
     return ReplacePlaceholders(template, featureDetails);
 }
 
-public static string CreateCommand(FeatureDetails featureDetails)
+public static string CreateCqrs(FeatureDetails featureDetails)
 {
-    bool hasResponse = featureDetails.Endpoint.Type == "Get"
-                    || featureDetails.Endpoint.Type == "Post"
-                    || featureDetails.Constructors.Any(c => c.EndsWith("Response"));
-
-    string template = hasResponse ? _cqrsHandlerWithResponseTemplate : _cqrsHandlerWithoutResponseTemplate;
-
-    string authPolicyTemplate = featureDetails.Command.hasAuthPolicy
-                              ? hasResponse ? _cqrsAuthPolicyWithResponseTemplate : _cqrsAuthPolicyWithoutResponseTemplate
-                              : string.Empty;
-
-    string dbQueryParamsTemplate = featureDetails.Command.hasDbQueryParams
-                                 ? _dbQueryParamsTemplate
-                                 : string.Empty;
-
-    string validatorTemplate = featureDetails.Command.hasValidator
-                              ? _validatorTemplate
-                              : string.Empty;
-
-    template = template.Replace("{DbQueryParams}", dbQueryParamsTemplate)
-                       .Replace("{AUTH_POLICY}", authPolicyTemplate)
-                       .Replace("{VALIDATOR}", validatorTemplate);
-
-    return ReplacePlaceholders(template, featureDetails);
+    return ReplacePlaceholders(_cqrsTemplate, featureDetails);
 }
 
 private static string CalculateRequestContractTemplate(FeatureDetails featureDetails)
 {
-    string? requestConstructor = featureDetails.Constructors.FirstOrDefault(c => c.EndsWith("Request"));
+    string? requestConstructor = featureDetails.Constructors.FirstOrDefault(
+        c => GetRecordName(c).Equals($"{featureDetails.Name}Request", StringComparison.Ordinal));
     
     List<string> requestDtos = [];
     
     if (requestConstructor != null)
     {
-        requestDtos = GetContractDtos(requestConstructor);
+        requestDtos = GetContractDtos(requestConstructor, featureDetails.Constructors);
         requestDtos.Add(requestConstructor);
     }
     else
@@ -239,13 +129,14 @@ private static string CalculateRequestContractTemplate(FeatureDetails featureDet
 
 private static string CalculateResponseContractTemplate(FeatureDetails featureDetails)
 {
-    string? responseConstructor = featureDetails.Constructors.FirstOrDefault(c => c.EndsWith("Response"));
+    string? responseConstructor = featureDetails.Constructors.FirstOrDefault(
+        c => GetRecordName(c).Equals($"{featureDetails.Name}Response", StringComparison.Ordinal));
 
     List<string> responseDtos = [];
 
     if (responseConstructor != null)
     {
-        responseDtos = GetContractDtos(responseConstructor);
+        responseDtos = GetContractDtos(responseConstructor, featureDetails.Constructors);
         responseDtos.Add(responseConstructor);
     }
     else
@@ -263,11 +154,15 @@ private static List<string> GetContractDtos(string contract, IEnumerable<string>
 
     foreach (string contractParameter in contractParameters)
     {
-        string? nestedDto = availableContracts.FirstOrDefault(c => c.Contains($"sealed record {contractParameter}"));
+        string parameterType = contractParameter
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault() ?? string.Empty;
+        string? nestedDto = availableContracts.FirstOrDefault(
+            c => GetRecordName(c).Equals(parameterType, StringComparison.Ordinal));
         
         if (nestedDto is not null)
         {
-            List<string> nestedDtos = GetContractDtos(nestedDto ?? string.Empty, availableContracts).ToList();
+            List<string> nestedDtos = GetContractDtos(nestedDto, availableContracts).ToList();
 
             if (nestedDtos.Any())
             {
@@ -278,7 +173,25 @@ private static List<string> GetContractDtos(string contract, IEnumerable<string>
         }
     }
 
-    return result.Distinct();
+    return result.Distinct().ToList();
+}
+
+private static string GetRecordName(string declaration)
+{
+    int recordIndex = declaration.IndexOf("record ", StringComparison.Ordinal);
+    if (recordIndex < 0)
+    {
+        return string.Empty;
+    }
+
+    int nameStart = recordIndex + "record ".Length;
+    int nameEnd = declaration.IndexOf('(', nameStart);
+    if (nameEnd < 0)
+    {
+        nameEnd = declaration.Length;
+    }
+
+    return declaration[nameStart..nameEnd].Trim();
 }
 
 private static List<string> ExtractContractParameters(string contract)
@@ -296,7 +209,7 @@ private static List<string> ExtractContractParameters(string contract)
 private static string ReplacePlaceholders(string template, FeatureDetails featureDetails)
 {
     return template.Replace("{ENDPOINT_TYPE}", featureDetails.Endpoint.Type)
-                   .Replace("{ROUTE}", featureDetails.Endpoint.Route);
+                   .Replace("{ROUTE}", featureDetails.Endpoint.Route ?? "\"/TODO\"")
                    .Replace("{FEATURE}", featureDetails.Name)
                    .Replace("{Aggregate}", featureDetails.Aggregate)
                    .Replace("{Module}", featureDetails.Module)
