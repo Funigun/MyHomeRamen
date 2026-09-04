@@ -10,8 +10,6 @@ public abstract class BaseArchitectureTest(ArchitectureBuilder architectureBuild
 
     protected IObjectProvider<IType> ApiLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiFeaturesAssembly).As("API Layer");
 
-    protected IObjectProvider<IType> ApiContractsLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiContractsAssembly).As("API Contracts Layer");
-
     protected IObjectProvider<IType> ApiCommonLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.ApiFeaturesAssembly).As("API Common Layer");
 
     protected IObjectProvider<IType> AppHostLayer { get; private set; } = Types().That().ResideInAssembly(architectureBuilder.AppHostAssembly).As("App Host Layer");

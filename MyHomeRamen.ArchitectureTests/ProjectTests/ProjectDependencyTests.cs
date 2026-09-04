@@ -34,8 +34,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
         IEnumerable<Assembly> allowedAssemblies =
         [
             ArchitectureBuilder.BlazorClientAssembly,
-            ArchitectureBuilder.ServiceDefaultsAssembly,
-            ArchitectureBuilder.ApiContractsAssembly
+            ArchitectureBuilder.ServiceDefaultsAssembly
         ];
 
         IEnumerable<IArchRule> blazorServerRules = PrepareProjectRules(ArchitectureBuilder.BlazorServerAssembly, allowedAssemblies);
@@ -55,8 +54,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
             ArchitectureBuilder.DomainAssembly,
             ArchitectureBuilder.InfrastructureAssembly,
             ArchitectureBuilder.PersistanceAssembly,
-            ArchitectureBuilder.ServiceDefaultsAssembly,
-            ArchitectureBuilder.ApiContractsAssembly
+            ArchitectureBuilder.ServiceDefaultsAssembly
         ];
 
         IEnumerable<IArchRule> apiRules = PrepareProjectRules(ArchitectureBuilder.ApiFeaturesAssembly, allowedAssemblies);
@@ -90,8 +88,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
         IEnumerable<Assembly> allowedAssemblies =
         [
             ArchitectureBuilder.DomainAssembly,
-            ArchitectureBuilder.ApiFeaturesAssembly,
-            ArchitectureBuilder.ApiContractsAssembly
+            ArchitectureBuilder.ApiFeaturesAssembly
         ];
 
         IEnumerable<IArchRule> persistanceRules = PrepareProjectRules(ArchitectureBuilder.PersistanceAssembly, allowedAssemblies);
@@ -132,8 +129,7 @@ public sealed class ProjectDependencyTests(ITestOutputHelper outputHelper, Archi
             ArchitectureBuilder.DomainAssembly,
             ArchitectureBuilder.InfrastructureAssembly,
             ArchitectureBuilder.PersistanceAssembly,
-            ArchitectureBuilder.ServiceDefaultsAssembly,
-            ArchitectureBuilder.ApiContractsAssembly
+            ArchitectureBuilder.ServiceDefaultsAssembly
         ];
 
         IEnumerable<IArchRule> workerMessagesHandlerRules = PrepareProjectRules(ArchitectureBuilder.WorkerMessagesHandlerAssembly, allowedAssemblies);

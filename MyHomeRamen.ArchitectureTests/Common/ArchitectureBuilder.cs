@@ -10,8 +10,6 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
 {
     public Architecture Architecture { get; private set; } = default!;
 
-    public System.Reflection.Assembly ApiContractsAssembly { get; private set; } = typeof(MyHomeRamen.Common.Contracts.ICommonContractsAssemblyMarker).Assembly;
-
     public System.Reflection.Assembly ApiFeaturesAssembly { get; private set; } = typeof(Features.IFeaturesAssemblyMarker).Assembly;
 
     public System.Reflection.Assembly AppHostAssembly { get; private set; } = typeof(AppHost.IAppHostAssemblyMarker).Assembly;
@@ -56,7 +54,6 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
     {
         AllAssemblies =
         [
-            ApiContractsAssembly,
             ApiFeaturesAssembly,
             AppHostAssembly,
             BlazorClientAssembly,

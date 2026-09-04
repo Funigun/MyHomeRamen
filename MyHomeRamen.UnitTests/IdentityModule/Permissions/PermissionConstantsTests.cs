@@ -1,10 +1,4 @@
 using System.Reflection;
-using MyHomeRamen.Domain.Menu.Users;
-using MyHomeRamen.Domain.Orders.Users;
-using MyHomeRamen.Domain.Payments.Users;
-using MyHomeRamen.Domain.Reservations.Users;
-using MyHomeRamen.Domain.Restaurants.Users;
-using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Identity.Permissions;
 
 namespace MyHomeRamen.UnitTests.IdentityModule.Permissions;

@@ -1,9 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Identity.Users;
-using MyHomeRamen.Features.Common.Cache;
-using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
-using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Identity;
 
