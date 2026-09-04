@@ -57,10 +57,10 @@ Naming conventions:
 ## 2. Files to create / modify
 | Action | Module | Aggregate | Feature Name | Endpoint Kind | Route |
 |--------|--------|-----------|--------------|---------------|-------|
-|--------|--------|-----------|--------------|---------------|-------|
+
 
 Valid `Action`: Create, Modify, Delete 
-Valid `Module`: Identity, Menu, Orders, ShoppingCart, Reservations, Payments
+Valid `Module`: Identity, Menu, Orders, ShoppingCart, Reservations, Payments, Restaurants
 Valid `Aggregate`: Required Aggregate name, does not have to match domain model
 Valid `Endpoint Kind`: Command, Query
 

@@ -1,6 +1,8 @@
 #:include FeatureDetails.cs
 
-private const string _withResponseEndpointTemplate =
+public static class FileFactory
+{
+    private const string _withResponseEndpointTemplate =
 """
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,10 +23,10 @@ public sealed class {FEATURE}Endpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandard{ENDPOINT_TYPE}<{FEATURE}Response>({ROUTE}, HandleAsync)
+            .MapStandard{ENDPOINT_TYPE}<{FEATURE}Response>($"{ROUTE}", HandleAsync)
             .WithName("{FEATURE}Endpoint")
             .WithTags("/*ToDo: complete tags*/")
-            .WithDescription(/*ToDo: complete description*/)
+            .WithDescription("ToDo: complete description")
             .RequireAuthorization(); // .AllowAnonymous();
     }
 
@@ -41,23 +43,22 @@ public sealed class {FEATURE}Endpoint : IEndpoint
 }
 """;
 
-private const string _cqrsTemplate =
+    private const string _cqrsTemplate =
 """
 using FluentValidation;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
-using MyHomeRamen.Features.{Module}.Features.Abstractions;
-using MyHomeRamen.Features.{Module}.Features.{Aggregate}.Common;
+using MyHomeRamen.Features.{Module}.Abstractions;
+using MyHomeRamen.Features.{Module}.{Aggregate}.Common;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Common.Mediator;
 
-namespace MyHomeRamen.Features.{Module}.Features.{Aggregate}.{Feature};
+namespace MyHomeRamen.Features.{Module}.Features.{Aggregate}.{FEATURE};
 
-public sealed record {FEATURE}{CQRS}(/*ToDo: complete request shape*/);
+{CQRS_CONTRACT}
 
 public sealed record {FEATURE}Dto(/*ToDo: complete DTO shape*/);
 
-/*public sealed record {FEATURE}{CQRS}Options()
-                     : DbQueryOptions<TEntity, {FEATURE}Dto>
+/*public sealed record {FEATURE}{CQRS}Options() : DbQueryOptions<TEntity, {FEATURE}Response>
 (
     //ToDo: complete query options including setting proper generic types for TEntity and projection
 );*/
@@ -79,8 +80,7 @@ public sealed class {FEATURE}ValidationPolicy : AbstractValidator<{FEATURE}{CQRS
     }
 }
 
-public sealed class {FEATURE}Handler(I{Module}DbContext dbContext)
-    : IRequestHandler<{FEATURE}{CQRS}, {FEATURE}Response>
+public sealed class {FEATURE}Handler(I{Module}DbContext dbContext) : IRequestHandler<{FEATURE}{CQRS}, {FEATURE}Response>
 {
     public async Task<{FEATURE}Response> Handle({FEATURE}{CQRS} {CQRS_LOWERCASE}, CancellationToken cancellationToken)
     {
@@ -90,129 +90,178 @@ public sealed class {FEATURE}Handler(I{Module}DbContext dbContext)
 }
 """;
 
-public static string CreateEndpoint(FeatureDetails featureDetails)
-{
-    string requestContract = CalculateRequestContractTemplate(featureDetails);
-    string responseContract = CalculateResponseContractTemplate(featureDetails);
-
-    string template = _withResponseEndpointTemplate
-        .Replace("{REQUEST_CONTRACT}", requestContract)
-        .Replace("{RESPONSE_CONTRACT}", responseContract);
-
-    return ReplacePlaceholders(template, featureDetails);
-}
-
-public static string CreateCqrs(FeatureDetails featureDetails)
-{
-    return ReplacePlaceholders(_cqrsTemplate, featureDetails);
-}
-
-private static string CalculateRequestContractTemplate(FeatureDetails featureDetails)
-{
-    string? requestConstructor = featureDetails.Constructors.FirstOrDefault(
-        c => GetRecordName(c).Equals($"{featureDetails.Name}Request", StringComparison.Ordinal));
-    
-    List<string> requestDtos = [];
-    
-    if (requestConstructor != null)
+    public static string CreateEndpoint(FeatureDetails featureDetails)
     {
-        requestDtos = GetContractDtos(requestConstructor, featureDetails.Constructors);
-        requestDtos.Add(requestConstructor);
-    }
-    else
-    {
-        requestDtos.Add("public sealed record {FEATURE}Request(/*ToDo: Complete feature request contract*/)");
-    }    
+        string requestContract = CalculateRequestContractTemplate(featureDetails);
+        string responseContract = CalculateResponseContractTemplate(featureDetails);
 
-    return string.Join(Environment.NewLine, requestDtos);
-}
+        string template = _withResponseEndpointTemplate
+            .Replace("{REQUEST_CONTRACT}", requestContract, StringComparison.Ordinal)
+            .Replace("{RESPONSE_CONTRACT}", responseContract, StringComparison.Ordinal);
 
-private static string CalculateResponseContractTemplate(FeatureDetails featureDetails)
-{
-    string? responseConstructor = featureDetails.Constructors.FirstOrDefault(
-        c => GetRecordName(c).Equals($"{featureDetails.Name}Response", StringComparison.Ordinal));
-
-    List<string> responseDtos = [];
-
-    if (responseConstructor != null)
-    {
-        responseDtos = GetContractDtos(responseConstructor, featureDetails.Constructors);
-        responseDtos.Add(responseConstructor);
-    }
-    else
-    {
-        responseDtos.Add("public sealed record {FEATURE}Response(/*ToDo: Complete feature response contract*/)");
+        return ReplacePlaceholders(template, featureDetails);
     }
 
-    return string.Join(Environment.NewLine, responseDtos);
-}
-
-private static List<string> GetContractDtos(string contract, IEnumerable<string> availableContracts)
-{
-    List<string> result = [];
-    List<string> contractParameters = ExtractContractParameters(contract);
-
-    foreach (string contractParameter in contractParameters)
+    public static string CreateCqrs(FeatureDetails featureDetails)
     {
-        string parameterType = contractParameter
-            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            .FirstOrDefault() ?? string.Empty;
-        string? nestedDto = availableContracts.FirstOrDefault(
-            c => GetRecordName(c).Equals(parameterType, StringComparison.Ordinal));
-        
-        if (nestedDto is not null)
+        string cqrsContract = CalculateCqrsContractTemplate(featureDetails);
+
+        string template = _cqrsTemplate.Replace(
+            "{CQRS_CONTRACT}",
+            cqrsContract,
+            StringComparison.Ordinal);
+
+        return ReplacePlaceholders(template, featureDetails);
+    }
+
+    private static string CalculateRequestContractTemplate(FeatureDetails featureDetails)
+    {
+        string? requestConstructor = featureDetails.Constructors.FirstOrDefault(c => GetRecordName(c).Equals($"{featureDetails.Name}Request", StringComparison.Ordinal));
+
+        List<string> requestDtos = [];
+
+        if (requestConstructor != null)
         {
-            List<string> nestedDtos = GetContractDtos(nestedDto, availableContracts).ToList();
+            requestDtos = GetContractDtos(requestConstructor, featureDetails.Constructors);
+            requestDtos.Add($"{requestConstructor};");
+        }
+        else
+        {
+            requestDtos.Add("public sealed record {FEATURE}Request(/*ToDo: Complete feature request contract*/);");
+        }
 
-            if (nestedDtos.Any())
+        return string.Join(Environment.NewLine, requestDtos);
+    }
+
+    private static string CalculateResponseContractTemplate(FeatureDetails featureDetails)
+    {
+        string? responseConstructor = featureDetails.Constructors.FirstOrDefault(c => GetRecordName(c).Equals($"{featureDetails.Name}Response", StringComparison.Ordinal));
+
+        List<string> responseDtos = [];
+
+        if (responseConstructor != null)
+        {
+            responseDtos = GetContractDtos(responseConstructor, featureDetails.Constructors).Select(dto => $"{dto};").ToList();
+            responseDtos.Add($"{responseConstructor};");
+        }
+        else
+        {
+            responseDtos.Add("public sealed record {FEATURE}Response(/*ToDo: Complete feature response contract*/);");
+        }
+
+        return string.Join(Environment.NewLine, responseDtos);
+    }
+
+    private static string CalculateCqrsContractTemplate(FeatureDetails featureDetails)
+    {
+        string cqrsName = $"{featureDetails.Name}{featureDetails.Command.Type}";
+
+        string? cqrsConstructor = featureDetails.Constructors.FirstOrDefault(constructor => GetRecordName(constructor).Equals(cqrsName, StringComparison.Ordinal));
+
+        return $"{cqrsConstructor ?? "public sealed record {FEATURE}{CQRS}(/*ToDo: complete request shape*/)"} : IRequest<{{FEATURE}}Response>;";
+    }
+
+    private static List<string> GetContractDtos(string contract,IEnumerable<string> availableContracts)
+    {
+        List<string> result = [];
+        List<string> contractParameters = ExtractContractParameters(contract);
+
+        foreach (string contractParameter in contractParameters)
+        {
+            string parameterType = contractParameter
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .FirstOrDefault() ?? string.Empty;
+
+            string? nestedDto = availableContracts.FirstOrDefault(
+                availableContract =>
+                {
+                    string recordName = GetRecordName(availableContract);
+
+                    return ExtractTypeNames(parameterType).Any(typeName => typeName.Equals(recordName, StringComparison.Ordinal));
+                });
+
+            if (nestedDto is null)
+            {
+                continue;
+            }
+
+            List<string> nestedDtos = GetContractDtos(
+                nestedDto,
+                availableContracts);
+
+            if (nestedDtos.Count > 0)
             {
                 result.AddRange(nestedDtos);
             }
 
             result.Add(nestedDto);
         }
+
+        return result.Distinct().ToList();
     }
 
-    return result.Distinct().ToList();
-}
-
-private static string GetRecordName(string declaration)
-{
-    int recordIndex = declaration.IndexOf("record ", StringComparison.Ordinal);
-    if (recordIndex < 0)
+    private static string GetRecordName(string declaration)
     {
-        return string.Empty;
+        int recordIndex = declaration.IndexOf("record ", StringComparison.Ordinal);
+        if (recordIndex < 0)
+        {
+            return string.Empty;
+        }
+
+        int nameStart = recordIndex + "record ".Length;
+        int nameEnd = declaration.IndexOf('(', nameStart, StringComparison.Ordinal);
+        if (nameEnd < 0)
+        {
+            nameEnd = declaration.Length;
+        }
+
+        return declaration[nameStart..nameEnd].Trim();
     }
 
-    int nameStart = recordIndex + "record ".Length;
-    int nameEnd = declaration.IndexOf('(', nameStart);
-    if (nameEnd < 0)
+    private static List<string> ExtractContractParameters(string contract)
     {
-        nameEnd = declaration.Length;
+        string sanitazedContract = contract.Replace("\n", " ", StringComparison.Ordinal);
+
+        return sanitazedContract[(sanitazedContract.IndexOf('(', StringComparison.Ordinal) + 1)..]
+                                .Replace(")", "", StringComparison.Ordinal)
+                                .Split(',')
+                                .Select(p => p.Trim())
+                                .Where(p => !string.IsNullOrEmpty(p))
+                                .ToList();
     }
 
-    return declaration[nameStart..nameEnd].Trim();
-}
+    private static string ReplacePlaceholders(string template, FeatureDetails featureDetails)
+    {
+        return template.Replace("{ENDPOINT_TYPE}", featureDetails.Endpoint.Type, StringComparison.Ordinal)
+                       .Replace("{ROUTE}", featureDetails.Endpoint.Route ?? "\"/TODO\"", StringComparison.Ordinal)
+                       .Replace("{FEATURE}", featureDetails.Name, StringComparison.Ordinal)
+                       .Replace("{Aggregate}", featureDetails.Aggregate, StringComparison.Ordinal)
+                       .Replace("{Module}", featureDetails.Module, StringComparison.Ordinal)
+                       .Replace("{CQRS}", featureDetails.Command.Type, StringComparison.Ordinal)
+                       .Replace("{CQRS_LOWERCASE}", featureDetails.Command.Type.ToLower(), StringComparison.Ordinal);
+    }
 
-private static List<string> ExtractContractParameters(string contract)
-{
-    string sanitazedContract = contract.Replace("\n", " ");
+    private static IEnumerable<string> ExtractTypeNames(string type)
+    {
+        int tokenStart = -1;
 
-    return sanitazedContract.Substring(sanitazedContract.IndexOf('(') + 1)
-                            .Replace(")", "")
-                            .Split(',')
-                            .Select(p => p.Trim())
-                            .Where(p => !string.IsNullOrEmpty(p))
-                            .ToList();
-}
+        for (int index = 0; index <= type.Length; index++)
+        {
+            bool isIdentifierCharacter =
+                index < type.Length &&
+                (char.IsLetterOrDigit(type[index]) || type[index] == '_');
 
-private static string ReplacePlaceholders(string template, FeatureDetails featureDetails)
-{
-    return template.Replace("{ENDPOINT_TYPE}", featureDetails.Endpoint.Type)
-                   .Replace("{ROUTE}", featureDetails.Endpoint.Route ?? "\"/TODO\"")
-                   .Replace("{FEATURE}", featureDetails.Name)
-                   .Replace("{Aggregate}", featureDetails.Aggregate)
-                   .Replace("{Module}", featureDetails.Module)
-                   .Replace("{CQRS}", featureDetails.Command.Type)
-                   .Replace("{CQRS_LOWERCASE}", featureDetails.Command.Type.ToLower());
+            if (isIdentifierCharacter)
+            {
+                tokenStart = tokenStart < 0 ? index : tokenStart;
+                continue;
+            }
+
+            if (tokenStart >= 0)
+            {
+                yield return type[tokenStart..index];
+                tokenStart = -1;
+            }
+        }
+    }
 }

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MyHomeRamen.FeatureScaffold;
-
 public record EndpointDetails(string Type, string? Route);
 
 public record CommandDetails(string Type);
@@ -25,17 +23,17 @@ public record FeatureDetails(
             .Where(p => p.Length > 0)
             .ToArray();
 
-        if (parts.Length < 7)
+        if (parts.Length < 6)
         {
             throw new ArgumentException($"Invalid feature row: {tableLine}", nameof(tableLine));
         }
 
-        string action = parts[1].ToLowerInvariant();
-        string module = parts[2];
-        string aggregate = parts[3];
-        string featureName = parts[4];
-        string endpointKind = parts[5];
-        string route = parts[6];
+        string action = parts[0].ToLowerInvariant();
+        string module = parts[1];
+        string aggregate = parts[2];
+        string featureName = parts[3];
+        string endpointKind = parts[4];
+        string route = parts[5];
         string endpointType = endpointKind.Equals("query", StringComparison.OrdinalIgnoreCase) ? "Get" : "Post";
         EndpointDetails endpoint = new(endpointType, string.IsNullOrWhiteSpace(route) ? null : route);
 

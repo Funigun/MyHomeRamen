@@ -79,14 +79,16 @@
     <File Path=".github/agents/drax-implementation.agent.md" />
     <File Path=".github/agents/drax-planning.agent.md" />
     <File Path=".github/agents/drax-reviewer.agent.md" />
+    <File Path=".github/agents/feature-plan-template.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/backend-tests.instructions.md" />
     <File Path=".github/instructions/backend.instructions.md" />
-    <File Path=".github/instructions/blazor.instructions.md" />
-    <File Path=".github/instructions/module-introduction.instructions.md" />
   </Folder>
   <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/skills/integration-testing/">
+    <File Path=".github/skills/integration-testing/SKILL.md" />
+  </Folder>
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
   </Folder>
