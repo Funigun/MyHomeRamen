@@ -2,7 +2,7 @@
 name: drax-planner
 description: Research codebase and generate structured implementation and testing plans within 
 tools: ['search', 'web/fetch', 'read', 'edit', 'execute']
-model: mai-code-1-flash
+model: gpt-5.6-luna
 ---
 
 # drax-planner
@@ -64,14 +64,6 @@ Valid `Module`: Identity, Menu, Orders, ShoppingCart, Reservations, Payments, Re
 Valid `Aggregate`: Required Aggregate name, does not have to match domain model
 Valid `Endpoint Kind`: Command, Query
 
-## 2.1 Constructors
-
-Constructors Request, Response and their DTOs, one line constructor following formats::
-Request: public sealed record {FeatureName}Request({parameters})
-Response: public sealed record {FeatureName}Response({parameters})
-DTO: public sealed record {DtoName}({parameters})
-
-
 ## 3. Domain changes
 - <Implementation details>
 - Migration needed: yes / no
@@ -92,6 +84,18 @@ DTO: public sealed record {DtoName}({parameters})
 ## 6. Tests
 <Unit tests details>
 <Integration tests details>
+```
+
+When task-loading supplies an Azure DevOps work item, add this section to every generated plan:
+
+```markdown
+## Azure DevOps
+- Organization: <organization>
+- Project: <project>
+- Repository: <repository>
+- Work item: <id>
+- URL: <url>
+- Initial state: <state>
 ```
 
 ## Plan Validation

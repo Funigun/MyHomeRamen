@@ -6,16 +6,9 @@ public record EndpointDetails(string Type, string? Route);
 
 public record CommandDetails(string Type);
 
-public record FeatureDetails(
-    string Action,
-    string Module,
-    string Aggregate,
-    string Name,
-    EndpointDetails Endpoint,
-    CommandDetails Command,
-    IReadOnlyList<string> Constructors)
+public record FeatureDetails(string Action, string Module,string Aggregate, string Name, EndpointDetails Endpoint, CommandDetails Command)
 {
-    public static FeatureDetails Create(string tableLine, string constructorsContent)
+    public static FeatureDetails Create(string tableLine)
     {
         string[] parts = tableLine
             .Split('|')
@@ -34,13 +27,10 @@ public record FeatureDetails(
         string featureName = parts[3];
         string endpointKind = parts[4];
         string route = parts[5];
-        string endpointType = endpointKind.Equals("query", StringComparison.OrdinalIgnoreCase) ? "Get" : "Post";
-        EndpointDetails endpoint = new(endpointType, string.IsNullOrWhiteSpace(route) ? null : route);
+        string endpointType = CalculateEndpointType(route, endpointKind);
+        EndpointDetails endpoint = new(endpointType, string.IsNullOrWhiteSpace(route) ? null : CalculateEndpointRoute(route, endpointKind));
 
-        IReadOnlyList<string> constructors = ParseConstructors(constructorsContent);
-
-        CommandDetails command = new(
-            endpointKind.Equals("query", StringComparison.OrdinalIgnoreCase) ? "Query" : "Command");
+        CommandDetails command = new(CalculateCommandType(endpointKind));
 
         return new FeatureDetails(
             action,
@@ -48,34 +38,24 @@ public record FeatureDetails(
             aggregate,
             featureName,
             endpoint,
-            command,
-            constructors);
+            command);
     }
 
-    private static IReadOnlyList<string> ParseConstructors(string constructorsContent)
+    private static string CalculateEndpointType(string route, string endpointKind) => endpointKind == "Query" || endpointKind == "Command" ? route.Split(":")[0].Trim() : string.Empty;
+    private static string CalculateEndpointRoute(string route, string endpointKind) => endpointKind == "Query" || endpointKind == "Command" ? route.Split(":")[1].Trim() : string.Empty;
+
+    private static string CalculateCommandType(string cqrsType) => cqrsType.ToLowerInvariant() switch
     {
-        if (string.IsNullOrWhiteSpace(constructorsContent))
-        {
-            return Array.Empty<string>();
-        }
 
-        List<string> constructors = [];
-        string[] lines = constructorsContent.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+       "query" => "Query",
+        "command" => "Command",
+        "integrationtest" => "IntegrationTest",
+        _ => throw new ArgumentException($"Invalid CQRS type: {cqrsType}", nameof(cqrsType)),
+    };
 
-        foreach (string line in lines)
-        {
-            string trimmed = line.Trim();
-            int declarationIndex = trimmed.IndexOf("public ", StringComparison.Ordinal);
-            if (declarationIndex < 0 || !trimmed.Contains("record ", StringComparison.Ordinal))
-            {
-                continue;
-            }
+    public bool IsQuery => Command.Type.Equals("Query", StringComparison.OrdinalIgnoreCase);
 
-            string declaration = trimmed[declarationIndex..];
-            constructors.Add(declaration);
-        }
+    public bool ScaffoldIntegrationTest => Command.Type.Equals("IntegrationTest", StringComparison.OrdinalIgnoreCase);
 
-        return constructors;
-    }
-
+    public bool RequireResponse => Endpoint.Type == "Get" || Endpoint.Type == "Post";
 }

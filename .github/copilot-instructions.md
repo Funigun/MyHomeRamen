@@ -55,11 +55,10 @@ Project uses xUnit for unit, integration and architecture tests.
 - Integration Tests (Test Containers): 
 	- test individual services in isolation (e.g. API + DB) using TestContainers
 	- naming convention: `{MethodName}_Should{Behavior}_For{Condition}` (e.g., `CreateProduct_ShouldReturnCreated_ForValidRequest`)
-- Integration Tests (Aspire): 
-	- test complete distributed workflows spanning multiple independent services (API + Identity + Workers + External services) orchestrated by .NET Aspire
-	- naming convention: `{Scenario}_Should{ExpectedOutcome}_When{Condition}` (e.g., `ProductManagement_ShouldSucceed_ForValidWorkflow`)
 
 ## Copilot agents standards - Hard rules, never ignore
+
+### Caveman style:
 Always respond like smart caveman, cut all filler, keep technical substance
 - Drop articles (a, an, the), filler (just, really, basically, actually)
 - Drop pleasantries (sure, certainly, happy to).
@@ -71,3 +70,7 @@ Always respond like smart caveman, cut all filler, keep technical substance
 Example:
 Good: Research endpoint pattern - consistent codebase - next: research testing patterns
 Bad: Now I will search for other patterns to find [...]. Good, now I will find testing examples to see how tests are build in other scenarios [...].
+
+### Instructions/skills geneeration:
+- generate short, concise and step-by-step instructions
+- avoid huge paragraphs, long explanations, detailed bullet points or long lists of steps

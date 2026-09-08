@@ -96,11 +96,11 @@ Produce `.github/plans/{feature}/code-review.md` with the following structure:
 
 #
 
-| # | Severity | File:Line | Rationale | Suggested fix |
-|---|----------|-----------|-----------|---------------|
-| 1 | blocking | MyHomeRamen.Api/Menu/GetMenuItems/GetMenuItemsEndpoint.cs:18 | Endpoint missing `RequireAuthorization` or `AllowAnonymous`. | Add the appropriate auth decorator. |
-| 2 | warning  | MyHomeRamen.Domain/Menu/MenuItem.cs:24 | Public setter on domain entity — business logic requires encapsulation. | Change to `private set` or `init`. |
-| 3 | info     | MyHomeRamen.UnitTests/Menu/GetMenuItemsHandlerTests.cs:40 | Could parameterize as `Theory` instead of 3 separate `Fact` tests. | Optional. |
+| # | Severity | Status | File:Line | Rationale | Suggested fix |
+|---|----------|--------|-----------|-----------|---------------|
+| 1 | blocking | open | MyHomeRamen.Api/Menu/GetMenuItems/GetMenuItemsEndpoint.cs:18 | Endpoint missing `RequireAuthorization` or `AllowAnonymous`. | Add the appropriate auth decorator. |
+| 2 | warning  | open | MyHomeRamen.Domain/Menu/MenuItem.cs:24 | Public setter on domain entity — business logic requires encapsulation. | Change to `private set` or `init`. |
+| 3 | info     | open | MyHomeRamen.UnitTests/Menu/GetMenuItemsHandlerTests.cs:40 | Could parameterize as `Theory` instead of 3 separate `Fact` tests. | Optional. |
 
 ## Verdict
 - 1 blocking → **REQUEST CHANGES**
@@ -109,6 +109,8 @@ or
 
 - 0 blocking, 2 warnings → **APPROVE WITH NITS**
 ```
+
+Finding numbers are stable identifiers. Add `Status` to each finding when known (`open`, `addressed`, `accepted`, or `not-applicable`); otherwise use `open`. `drax-feature-completion` requires a matching response for every finding in `.github/plans/{feature}/review-responses.md` before creating a PR.
 
 ### Hard rules for Phase 1
 

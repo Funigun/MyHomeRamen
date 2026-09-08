@@ -86,6 +86,15 @@
     <File Path=".github/instructions/backend.instructions.md" />
   </Folder>
   <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/skills/db-access/">
+    <File Path=".github/skills/db-access/SKILL.md" />
+  </Folder>
+  <Folder Name="/_github/skills/domain-preparation/">
+    <File Path=".github/skills/domain-preparation/SKILL.md" />
+  </Folder>
+  <Folder Name="/_github/skills/feature-implementation/">
+    <File Path=".github/skills/feature-implementation/SKILL.md" />
+  </Folder>
   <Folder Name="/_github/skills/integration-testing/">
     <File Path=".github/skills/integration-testing/SKILL.md" />
   </Folder>

@@ -10,13 +10,11 @@ if(!File.Exists(planPath))
 }
 
 const string tableHeader = "## 2. Files to create / modify";
-const string constructorsHeader = "## 2.1 Constructors";
 const string domainChangesHeader = "## 3. Domain changes";
 
 string fileContent = File.ReadAllText(planPath);
 
-string tableContent = GetSectionContent(fileContent, tableHeader, constructorsHeader);
-string constructorsContent = GetSectionContent(fileContent, constructorsHeader, domainChangesHeader);
+string tableContent = GetSectionContent(fileContent, tableHeader, domainChangesHeader);
 
 if (string.IsNullOrWhiteSpace(tableContent))
 {
@@ -34,25 +32,29 @@ List<string> skipped = [];
 List<string> notHandled = [];
 List<string> removed = [];
 
-string repoRoot = $@"C:\Users\{Environment.UserName}\source\repos\MyHomeRamen";
-const string filePathTemplate = "{Module}.Features.{Aggregate}.{Feature}.{TypeName}";
-
 foreach (string line in tableLines)
 {
-    FeatureDetails feature = FeatureDetails.Create(line, constructorsContent);
+    FeatureDetails feature = FeatureDetails.Create(line);
 
     switch (feature.Action)
     {
         case "create":
-            HandleFeatureToCreate(feature, repoRoot, filePathTemplate, created, notHandled);
+            if(feature.ScaffoldIntegrationTest)
+            {
+                HandleIntegrationTestScaffold(feature, created, notHandled);
+            }
+            else
+            {
+                HandleFeatureToCreate(feature, created, notHandled);
+            }
             break;
 
         case "modify":
-            HandleFileToUpdate(feature, repoRoot, filePathTemplate, skipped, notHandled);
+            HandleFileToUpdate(feature, skipped, notHandled);
             break;
 
         case "delete":
-            HandleFileToDelete(feature, repoRoot, filePathTemplate, removed, notHandled);
+            HandleFileToDelete(feature, removed, notHandled);
             break;
 
         default:
@@ -81,10 +83,10 @@ static string GetSectionContent(string content, string sectionHeader, string nex
     return sectionContent.Trim();
 }
 
-static void HandleFeatureToCreate(FeatureDetails featureDetails, string repoRoot, string filePathTemplate, List<string> createdFiles, List<string> notHandledFiles)
+static void HandleFeatureToCreate(FeatureDetails featureDetails, List<string> createdFiles, List<string> notHandledFiles)
 {
-    string endpointfilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint", repoRoot, filePathTemplate);
-    string commandfilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}", repoRoot, filePathTemplate);
+    string endpointfilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint");
+    string commandfilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}");
 
     if (!File.Exists(endpointfilePath) && !File.Exists(commandfilePath))
     {
@@ -104,11 +106,28 @@ static void HandleFeatureToCreate(FeatureDetails featureDetails, string repoRoot
     }
 }
 
-static void HandleFileToUpdate(FeatureDetails featureDetails, string repoRoot, string filePathTemplate, List<string> skippedFiles, List<string> notHandledFiles)
+static void HandleIntegrationTestScaffold(FeatureDetails featureDetails, List<string> createdFiles, List<string> notHandledFiles)
 {
-    string filePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}", repoRoot, filePathTemplate);
+    string integrationTestFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Tests");
+    
+    if (!File.Exists(integrationTestFilePath))
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(integrationTestFilePath));
+        string integrationTestContent = FileFactory.CreateIntegrationTest(featureDetails);
+        File.WriteAllText(integrationTestFilePath, integrationTestContent);
+        createdFiles.Add($"{featureDetails.Name}Tests");
+    }
+    else
+    {
+        notHandledFiles.Add(featureDetails.Name);
+    }
+}
 
-    string endpointFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint", repoRoot, filePathTemplate);
+static void HandleFileToUpdate(FeatureDetails featureDetails, List<string> skippedFiles, List<string> notHandledFiles)
+{
+    string filePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}");
+
+    string endpointFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint");
 
     if (File.Exists(endpointFilePath) || File.Exists(filePath))
     {
@@ -120,10 +139,10 @@ static void HandleFileToUpdate(FeatureDetails featureDetails, string repoRoot, s
     }
 }
 
-static void HandleFileToDelete(FeatureDetails featureDetails, string repoRoot, string filePathTemplate, List<string> removedFiles, List<string> notHandledFiles)
+static void HandleFileToDelete(FeatureDetails featureDetails, List<string> removedFiles, List<string> notHandledFiles)
 {
-    string endpointFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint", repoRoot, filePathTemplate);
-    string cqrsFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}", repoRoot, filePathTemplate);
+    string endpointFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}Endpoint");
+    string cqrsFilePath = GenerateFilePath(featureDetails, $"{featureDetails.Name}{featureDetails.Command.Type}");
 
     if (File.Exists(endpointFilePath) || File.Exists(cqrsFilePath))
     {
@@ -145,15 +164,53 @@ static void HandleFileToDelete(FeatureDetails featureDetails, string repoRoot, s
     }
 }
 
-static string GenerateFilePath(FeatureDetails featureDetails, string fileName, string repoRoot, string filePathTemplate)
+static string GenerateFilePath(FeatureDetails featureDetails, string fileName)
 {
+    string repoRoot = $@"C:\Users\{Environment.UserName}\source\repos\MyHomeRamen";
+    const string filePathTemplate = "{Module}.Features.{Aggregate}.{Feature}.{TypeName}";
+
+    if (featureDetails.ScaffoldIntegrationTest)
+    {
+        string integrationTestFolder = GetIntegrationTestFolderName(featureDetails.Aggregate);
+        string integrationTestFileName = $"{fileName}.cs";
+        string integrationTestProjectPath = $"MyHomeRamen.{featureDetails.Module}Api.IntegrationTests";
+
+        return Path.Combine(repoRoot, integrationTestProjectPath, integrationTestFolder, integrationTestFileName);
+    }
+
     string[] filePathParts = filePathTemplate.Replace("{Module}", featureDetails.Module, StringComparison.Ordinal)
-                                      .Replace("{Aggregate}", featureDetails.Aggregate, StringComparison.Ordinal)
-                                      .Replace("{Feature}", featureDetails.Name, StringComparison.Ordinal)
-                                      .Replace("{TypeName}", fileName, StringComparison.Ordinal)
-                                      .Split(".");
+                                         .Replace("{Aggregate}", featureDetails.Aggregate, StringComparison.Ordinal)
+                                         .Replace("{Feature}", featureDetails.Name, StringComparison.Ordinal)
+                                         .Replace("{TypeName}", fileName, StringComparison.Ordinal)
+                                         .Split(".");
 
     string filePath = Path.Combine(filePathParts) + ".cs";
 
-    return Path.Combine([repoRoot, "MyHomeRamen.Features", filePath]);
+    const string middlePath = "MyHomeRamen.Features";
+
+    return Path.Combine([repoRoot, middlePath, filePath]);
+}
+
+static string GetIntegrationTestFolderName(string aggregate)
+{
+    if (aggregate.EndsWith("ies", StringComparison.OrdinalIgnoreCase) ||
+        aggregate.EndsWith("s", StringComparison.OrdinalIgnoreCase))
+    {
+        return aggregate;
+    }
+
+    if (aggregate.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+    {
+        return $"{aggregate[..^1]}ies";
+    }
+
+    if (aggregate.EndsWith("ch", StringComparison.OrdinalIgnoreCase) ||
+        aggregate.EndsWith("sh", StringComparison.OrdinalIgnoreCase) ||
+        aggregate.EndsWith("x", StringComparison.OrdinalIgnoreCase) ||
+        aggregate.EndsWith("z", StringComparison.OrdinalIgnoreCase))
+    {
+        return $"{aggregate}es";
+    }
+
+    return $"{aggregate}s";
 }
