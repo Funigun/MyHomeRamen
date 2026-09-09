@@ -5,9 +5,9 @@ using MyHomeRamen.Features.Identity.Permissions;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Extensions;
 
-namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Account;
+namespace MyHomeRamen.IdentityApi.IntegrationTests.Users;
 
-public sealed class RegisterGuestTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>
+public sealed class RegisterGuestTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
     [Fact]
     public async Task RegisterGuest_ShouldAssignGuestRole_WhenGuestIsCreated()

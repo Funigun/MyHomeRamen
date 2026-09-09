@@ -7,9 +7,9 @@ using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common.Data;
 using MyHomeRamen.IntegrationTests.Extensions;
 
-namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
+namespace MyHomeRamen.IdentityApi.IntegrationTests.Users;
 
-public sealed class AddAddressTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>, IAsyncLifetime
+public sealed class AddAddressTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanViewUserProfile, PermissionConstants.CanUpdateUserProfile];
     private (string KeycloakId, Guid UserId) _userId;

@@ -4,9 +4,9 @@ using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Extensions;
 
-namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
+namespace MyHomeRamen.IdentityApi.IntegrationTests.Users;
 
-public sealed class DeleteAddressTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>, IAsyncLifetime
+public sealed class DeleteAddressTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanViewUserProfile, PermissionConstants.CanUpdateUserProfile];
 

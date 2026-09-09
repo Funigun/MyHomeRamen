@@ -5,9 +5,9 @@ using MyHomeRamen.Features.Identity.Features.Users.GetDetails;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Extensions;
 
-namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Account;
+namespace MyHomeRamen.IdentityApi.IntegrationTests.Users;
 
-public sealed class GetDetailsTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>
+public sealed class GetDetailsTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
     private const string Endpoint = "/api/account/me";
     private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanViewUserProfile];

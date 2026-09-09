@@ -8,13 +8,9 @@
 | Action | Module | Aggregate | Feature Name | Endpoint Kind | Route |
 |--------|--------|-----------|--------------|---------------|-------|
 | create | Identity | Employee | RegisterEmployee | Command | Post:api/identity/employees/register |
-| create | Identity | Employee | RegisterEmployee | IntegrationTest | x |
 | create | Identity | Employee | GetEmployees | Query | Get:api/identity/employees |
-| create | Identity | Employee | GetEmployees | IntegrationTest | x |
 | create | Identity | Employee | GetById | Query | Get:api/identity/employees/{id} |
-| create | Identity | Employee | GetById | IntegrationTest | x |
 | create | Identity | Employee | UpdateEmployeeRoles | Command | Put:api/identity/employees/{id} |
-| create | Identity | Employee | UpdateEmployeeRoles | IntegrationTest | x |
 
 
 Valid `Action`: Create, Modify, Delete 

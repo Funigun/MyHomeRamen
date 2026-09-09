@@ -46,16 +46,43 @@ public record FeatureDetails(string Action, string Module,string Aggregate, stri
 
     private static string CalculateCommandType(string cqrsType) => cqrsType.ToLowerInvariant() switch
     {
-
-       "query" => "Query",
+        "query" => "Query",
         "command" => "Command",
-        "integrationtest" => "IntegrationTest",
         _ => throw new ArgumentException($"Invalid CQRS type: {cqrsType}", nameof(cqrsType)),
     };
 
     public bool IsQuery => Command.Type.Equals("Query", StringComparison.OrdinalIgnoreCase);
 
-    public bool ScaffoldIntegrationTest => Command.Type.Equals("IntegrationTest", StringComparison.OrdinalIgnoreCase);
-
     public bool RequireResponse => Endpoint.Type == "Get" || Endpoint.Type == "Post";
+
+    public string AggregatePluralName => Pluralize(Aggregate);
+
+    private static string Pluralize(string value)
+    {
+        if (value.EndsWith("ss", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{value}es";
+        }
+
+        if (value.EndsWith("ies", StringComparison.OrdinalIgnoreCase) ||
+            value.EndsWith("s", StringComparison.OrdinalIgnoreCase))
+        {
+            return value;
+        }
+
+        if (value.EndsWith("y", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{value[..^1]}ies";
+        }
+
+        if (value.EndsWith("ch", StringComparison.OrdinalIgnoreCase) ||
+            value.EndsWith("sh", StringComparison.OrdinalIgnoreCase) ||
+            value.EndsWith("x", StringComparison.OrdinalIgnoreCase) ||
+            value.EndsWith("z", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"{value}es";
+        }
+
+        return $"{value}s";
+    }
 }

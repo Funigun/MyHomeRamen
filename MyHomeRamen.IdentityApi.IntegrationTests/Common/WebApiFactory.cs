@@ -19,7 +19,7 @@ using MyHomeRamen.Persistance.Identity;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Common;
 
-public sealed class IdentityWebApiFactory(DbContainerFixture dbContainerFixture) : WebApplicationFactory<IApiAssemblyMarker>, IAsyncLifetime
+public sealed class WebApiFactory(DbContainerFixture dbContainerFixture) : WebApplicationFactory<IApiAssemblyMarker>, IAsyncLifetime
 {
     public IIdentityDbContext IdentityDbContext { get; private set; } = default!;
 

@@ -6,9 +6,9 @@ using MyHomeRamen.IdentityApi.IntegrationTests.Common;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.Domain.Identity.Permissions;
 
-namespace MyHomeRamen.IdentityApi.IntegrationTests.IdentityModule.Addresses;
+namespace MyHomeRamen.IdentityApi.IntegrationTests.Users;
 
-public sealed class GetAddressesTests(IdentityWebApiFactory apiFactory) : IClassFixture<IdentityWebApiFactory>, IAsyncLifetime
+public sealed class GetAddressesTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
     private const string Endpoint = "/api/account/me/addresses";
     private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanViewUserProfile];

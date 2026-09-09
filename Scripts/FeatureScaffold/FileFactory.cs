@@ -98,7 +98,7 @@ using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.{Module}Api.IntegrationTests.Common;
 using MyHomeRamen.{Module}Api.IntegrationTests.Common.Data;
 
-namespace MyHomeRamen.{Module}Api.IntegrationTests.{Aggregate};
+namespace MyHomeRamen.{Module}Api.IntegrationTests.{INTEGRATION_TEST_FOLDER};
 
 public sealed class {FEATURE}Tests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
@@ -148,9 +148,7 @@ public sealed class {FEATURE}Tests(WebApiFactory apiFactory) : IClassFixture<Web
 
         string HandlerResponseVariable = featureDetails.RequireResponse ? "{FEATURE}Response response = " : string.Empty;
 
-        string endpointType = featureDetails.ScaffoldIntegrationTest 
-                            ? "" 
-                            : featureDetails.Endpoint.Type switch
+        string endpointType = featureDetails.Endpoint.Type switch
                               {
                                   "Get" => "Get<{FEATURE}Response>",
                                   "Post" => "Post<{FEATURE}Response>",
@@ -169,6 +167,7 @@ public sealed class {FEATURE}Tests(WebApiFactory apiFactory) : IClassFixture<Web
                        .Replace("{ROUTE}", featureDetails.Endpoint.Route ?? "\"/TODO\"", StringComparison.Ordinal)
                        .Replace("{FEATURE}", featureDetails.Name, StringComparison.Ordinal)
                        .Replace("{Aggregate}", featureDetails.Aggregate, StringComparison.Ordinal)
+                       .Replace("{INTEGRATION_TEST_FOLDER}", featureDetails.AggregatePluralName, StringComparison.Ordinal)
                        .Replace("{Module}", featureDetails.Module, StringComparison.Ordinal)
                        .Replace("{CQRS}", featureDetails.Command.Type, StringComparison.Ordinal)
                        .Replace("{CQRS_LOWERCASE}", featureDetails.Command.Type.ToLower(), StringComparison.Ordinal);
