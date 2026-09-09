@@ -1,14 +1,14 @@
 ﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MyHomeRamen.Blazor.Features.Account.Common.Services;
-using MyHomeRamen.Blazor.Presentation.Authentication;
+using MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
+using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider;
 
-namespace MyHomeRamen.Blazor.Presentation;
+namespace MyHomeRamen.Blazor.Infrastructure.Authentication;
 
 internal static class AuthenticationDependencyInjection
 {
@@ -16,8 +16,6 @@ internal static class AuthenticationDependencyInjection
     {
         services.AddTransient<AuthHeaderHandler>()
                 .AddTransient<AdminAuthHeaderHandler>();
-
-        services.AddScoped<IClaimsTransformation, KeycloakRolesClaimsTransformation>();
 
         services.AddScoped<CustomAuthenticationStateProvider>();
         services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthenticationStateProvider>());

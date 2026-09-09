@@ -11,6 +11,8 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
 internal sealed class DataGenerator
 {
+    private DataGenerator() { }
+
     internal static Ingredient CreateIngredient()
         => new Faker<Ingredient>()
            .CustomInstantiator(f =>

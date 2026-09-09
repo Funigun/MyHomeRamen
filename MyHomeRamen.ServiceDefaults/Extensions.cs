@@ -9,6 +9,7 @@ using OpenTelemetry.Trace;
 
 namespace Microsoft.Extensions.Hosting;
 
+#pragma warning disable CA1307 // Specify StringComparison for clarity
 public static class Extensions
 {
     private const string HealthEndpointPath = "/health";
@@ -60,6 +61,7 @@ public static class Extensions
         builder.Services.AddOpenTelemetry()
                         .WithTracing(tracing =>
                         {
+
                             tracing.AddSource(builder.Environment.ApplicationName)
                                 .AddAspNetCoreInstrumentation(tracing =>
                                     tracing.Filter = context =>
@@ -68,8 +70,9 @@ public static class Extensions
                                 )
                                 .AddHttpClientInstrumentation()
                                 .AddRedisInstrumentation();
+
                         });
-        ;
+
         builder.AddOpenTelemetryExporters();
 
         builder.AddDefaultHealthChecks();
@@ -186,3 +189,4 @@ public static class Extensions
         return app;
     }
 }
+#pragma warning restore CA1307 // Specify StringComparison for clarity

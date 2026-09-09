@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.Blazor.Common.Configuration;
+﻿namespace MyHomeRamen.Blazor.Components.Configuration;
 
 public enum LayoutType
 {

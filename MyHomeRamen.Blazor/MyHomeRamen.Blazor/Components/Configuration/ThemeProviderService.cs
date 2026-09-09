@@ -1,6 +1,6 @@
 using MudBlazor;
 
-namespace MyHomeRamen.Blazor.Common.Configuration;
+namespace MyHomeRamen.Blazor.Components.Configuration;
 
 public sealed class ThemeProviderService(IConfiguration configuration)
 {

@@ -3,11 +3,10 @@ using MyHomeRamen.Blazor.Features.Admin.Employees;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services;
 using MyHomeRamen.Blazor.Features.Payments.Common.Services;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services;
-using MyHomeRamen.Blazor.Presentation.Authentication;
-using MyHomeRamen.Blazor.Presentation.GuestAuthentication;
+using MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 using MyHomeRamen.ServiceDefaults;
 
-namespace MyHomeRamen.Blazor.Presentation;
+namespace MyHomeRamen.Blazor.Infrastructure.Authentication;
 
 internal static class ApiDependencyInjection
 {

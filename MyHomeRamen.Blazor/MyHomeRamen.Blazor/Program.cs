@@ -1,7 +1,7 @@
 using MudBlazor.Services;
-using MyHomeRamen.Blazor.Common.Configuration;
 using MyHomeRamen.Blazor.Components;
-using MyHomeRamen.Blazor.Presentation;
+using MyHomeRamen.Blazor.Components.Configuration;
+using MyHomeRamen.Blazor.Infrastructure.Authentication;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);

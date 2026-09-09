@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
 
-namespace MyHomeRamen.Blazor.Presentation.Authentication;
+namespace MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider;
 
 public sealed class CustomAuthenticationStateProvider(IHttpContextAccessor httpContextAccessor) : AuthenticationStateProvider
 {

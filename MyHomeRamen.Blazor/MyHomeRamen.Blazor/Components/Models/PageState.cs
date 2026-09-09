@@ -1,4 +1,4 @@
-namespace MyHomeRamen.Blazor.Common.Models;
+namespace MyHomeRamen.Blazor.Components.Models;
 
 public sealed record PageState
 {

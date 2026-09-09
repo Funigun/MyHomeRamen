@@ -4,7 +4,7 @@ using MyHomeRamen.Blazor.Features.Home.Common.Services;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services;
 
-namespace MyHomeRamen.Blazor.Presentation;
+namespace MyHomeRamen.Blazor.Infrastructure.Authentication;
 
 internal static class NavigationDependencyInjection
 {

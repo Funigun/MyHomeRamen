@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Primitives;
-using MyHomeRamen.Blazor.Presentation.Authentication;
+using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider;
 
-namespace MyHomeRamen.Blazor.Presentation.GuestAuthentication;
+namespace MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 
 public class GuestCookieForwardingHandler(IHttpContextAccessor httpContextAccessor, AuthenticationStateProvider authenticationState) : DelegatingHandler
 {

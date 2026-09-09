@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace MyHomeRamen.Blazor.Presentation.Authentication;
+namespace MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 
-public class AuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
+public class AdminAuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : DelegatingHandler
 {
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
@@ -16,22 +16,8 @@ public class AuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : Deleg
         if (!string.IsNullOrWhiteSpace(accessToken))
         {
             request.Headers.Remove("x-scheme");
-
             request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
-
-            System.Security.Claims.ClaimsPrincipal? user = httpContext.User;
-            string scheme = "RestaurantCustomer";
-
-            if (user.IsInRole("manager"))
-            {
-                scheme = "RestaurantManager";
-            }
-            else if (user.IsInRole("employee"))
-            {
-                scheme = "RestaurantEmployee";
-            }
-
-            request.Headers.Add("x-scheme", scheme);
+            request.Headers.Add("x-scheme", "RestaurantManager");
         }
 
         return await base.SendAsync(request, cancellationToken);

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace MyHomeRamen.Blazor.Presentation;
+namespace MyHomeRamen.Blazor.Infrastructure.Authentication;
 
 internal static class SignInSignOutRouteBuilderExtensions
 {

@@ -1,5 +1,5 @@
 using FluentValidation;
-using MyHomeRamen.Blazor.Common.Models;
+using MyHomeRamen.Blazor.Components.Models;
 
 namespace MyHomeRamen.Blazor.Features.Account.AccountManagement.Components;
 
