@@ -86,18 +86,6 @@ Valid `Endpoint Kind`: Command, Query
 <Integration tests details>
 ```
 
-When task-loading supplies an Azure DevOps work item, add this section to every generated plan:
-
-```markdown
-## Azure DevOps
-- Organization: <organization>
-- Project: <project>
-- Repository: <repository>
-- Work item: <id>
-- URL: <url>
-- Initial state: <state>
-```
-
 ## Plan Validation
 
 Once a backend plan file has been written, **execute** the lint script against it using the `run_command` tool (do NOT read or interpret the script file manually):

@@ -84,10 +84,14 @@
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/backend-tests.instructions.md" />
     <File Path=".github/instructions/backend.instructions.md" />
+    <File Path=".github/instructions/blazor.instructions.md" />
   </Folder>
   <Folder Name="/_github/skills/" />
   <Folder Name="/_github/skills/db-access/">
     <File Path=".github/skills/db-access/SKILL.md" />
+  </Folder>
+  <Folder Name="/_github/skills/domain-design/">
+    <File Path=".github/skills/domain-design/SKILL.md" />
   </Folder>
   <Folder Name="/_github/skills/domain-preparation/">
     <File Path=".github/skills/domain-preparation/SKILL.md" />
