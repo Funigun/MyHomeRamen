@@ -4,7 +4,7 @@ namespace MyHomeRamen.Features.Restaurants.Features.Companies.Common;
 
 public interface ICompanyLoader
 {
-    Task<CompanyDetails> ById(CompanyDetailsId companyDetailsId, CancellationToken cancellationToken);
+    Task<Company> ById(CompanyId companyDetailsId, CancellationToken cancellationToken);
 
-    Task<IEnumerable<CompanyDetails>> ByIds(IEnumerable<CompanyDetailsId> companyDetailsIds, CancellationToken cancellationToken);
+    Task<IEnumerable<Company>> ByIds(IEnumerable<CompanyId> companyDetailsIds, CancellationToken cancellationToken);
 }

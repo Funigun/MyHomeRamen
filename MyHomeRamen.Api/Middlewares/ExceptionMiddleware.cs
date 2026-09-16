@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text.Json;
 using FluentValidation;
 using MyHomeRamen.Features.Common.Exceptions;
@@ -34,6 +34,12 @@ public sealed class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionM
 
     private ResponseBody ToResponseBody(Exception exception) => exception switch
     {
+        ConflictException => new ResponseBody
+        {
+            StatusCode = (int)HttpStatusCode.Conflict,
+            Message = exception.Message,
+        },
+
         NotFoundException => new ResponseBody
         {
             StatusCode = (int)HttpStatusCode.NotFound,

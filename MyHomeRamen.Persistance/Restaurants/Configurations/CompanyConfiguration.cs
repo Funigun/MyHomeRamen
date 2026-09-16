@@ -5,38 +5,44 @@ using MyHomeRamen.Domain.Restaurants.Companies;
 
 namespace MyHomeRamen.Persistance.Restaurants.Configurations;
 
-public class CompanyDetailsConfiguration : IEntityTypeConfiguration<CompanyDetails>
+public class CompanyConfiguration : IEntityTypeConfiguration<Company>
 {
-    public void Configure(EntityTypeBuilder<CompanyDetails> builder)
+    public void Configure(EntityTypeBuilder<Company> builder)
     {
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Name)
                .IsRequired()
-               .HasMaxLength(CompanyDetailsConstants.MaxNameLength);
+               .HasMaxLength(CompanyConstants.MaxNameLength);
+
+        builder.Property(x => x.NormalizedName)
+               .IsRequired()
+               .HasMaxLength(CompanyConstants.MaxNameLength);
+
+        builder.HasIndex(x => x.NormalizedName).IsUnique();
 
         builder.Property(x => x.Description)
-               .HasMaxLength(CompanyDetailsConstants.MaxDescriptionLength);
+               .HasMaxLength(CompanyConstants.MaxDescriptionLength);
 
         builder.Property(x => x.LogoUrl)
-               .HasMaxLength(CompanyDetailsConstants.MaxLogoUrlLength);
+               .HasMaxLength(CompanyConstants.MaxLogoUrlLength);
 
         builder.OwnsOne(x => x.BusinessDetails, businessDetails =>
         {
             businessDetails.Property(x => x.LegalName)
-                           .HasColumnName(nameof(CompanyDetails.BusinessDetails.LegalName))
+                           .HasColumnName(nameof(Company.BusinessDetails.LegalName))
                            .IsRequired()
-                           .HasMaxLength(CompanyDetailsConstants.MaxLegalNameLength);
+                           .HasMaxLength(CompanyConstants.MaxLegalNameLength);
 
             businessDetails.Property(x => x.TaxId)
-                           .HasColumnName(nameof(CompanyDetails.BusinessDetails.TaxId))
+                           .HasColumnName(nameof(Company.BusinessDetails.TaxId))
                            .IsRequired()
-                           .HasMaxLength(CompanyDetailsConstants.MaxTaxIdLength);
+                           .HasMaxLength(CompanyConstants.MaxTaxIdLength);
         });
 
         builder.HasMany(x => x.Media)
                .WithOne()
-               .HasForeignKey("CompanyDetailsId")
+               .HasForeignKey("CompanyId")
                .OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(x => x.Media).UsePropertyAccessMode(PropertyAccessMode.Field);

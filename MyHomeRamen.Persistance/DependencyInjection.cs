@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Features.Common.Configurations;
@@ -28,6 +28,8 @@ using MyHomeRamen.Persistance.Restaurants;
 using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
 using MyHomeRamen.Features.Restaurants.Features.Companies.Common;
+
+using MyHomeRamen.Persistance.Identity.CompanyMemberships;
 
 namespace MyHomeRamen.Persistance;
 
@@ -164,6 +166,7 @@ public static class DependencyInjection
 
         services.AddScoped<IIdentityDbContext, IdentityDbContext>();
         services.AddScoped<Features.Identity.Features.Users.Common.IUserRepository, UserRepository>();
+        services.AddScoped<Features.Identity.Features.CompanyMemberships.Common.ICompanyMembershipRepository, CompanyMembershipRepository>();
         services.AddScoped<Features.Identity.Features.Roles.Common.IRoleRepository, RoleRepository>();
         services.AddScoped<Features.Identity.Features.Permissions.Common.IPermissionRepository, PermissionRepository>();
 

@@ -1,6 +1,6 @@
 namespace MyHomeRamen.Domain.Common.CompanyDetails;
 
-public static class CompanyDetailsConstants
+public static class CompanyConstants
 {
     public const int MaxNameLength = 200;
     public const int MaxDescriptionLength = 2000;

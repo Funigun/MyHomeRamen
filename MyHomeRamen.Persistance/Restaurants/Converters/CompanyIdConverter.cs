@@ -3,9 +3,9 @@ using MyHomeRamen.Domain.Restaurants.Companies;
 
 namespace MyHomeRamen.Persistance.Restaurants.Converters;
 
-public class CompanyDetailsIdConverter : ValueConverter<CompanyDetailsId, Guid>
+public class CompanyIdConverter : ValueConverter<CompanyId, Guid>
 {
-    public CompanyDetailsIdConverter() : base(id => id.Value, value => new CompanyDetailsId(value))
+    public CompanyIdConverter() : base(id => id.Value, value => new CompanyId(value))
     {
     }
 }

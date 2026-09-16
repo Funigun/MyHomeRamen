@@ -1,13 +1,15 @@
-﻿using MyHomeRamen.Domain.Abstractions;
+using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Restaurants.Companies.ValueObjects;
 
 namespace MyHomeRamen.Domain.Restaurants.Companies;
 
-public sealed class CompanyDetails : Aggregate<CompanyDetailsId>
+public sealed class Company : Aggregate<CompanyId>
 {
     private readonly List<SocialMedia> _media = [];
 
     public string Name { get; private set; } = string.Empty;
+
+    public string NormalizedName { get; private set; } = string.Empty;
 
     public string? Description { get; private set; } = string.Empty;
 
@@ -17,20 +19,26 @@ public sealed class CompanyDetails : Aggregate<CompanyDetailsId>
 
     public IReadOnlyList<SocialMedia> Media => _media.ToList();
 
-    private CompanyDetails() { }
+    private Company() { }
 
-    public static CompanyDetails Create(string name, string? description, string? logoUrl)
+    public static Company Create(string name, string? description, string? logoUrl)
     {
-        CompanyDetails companyDetails = new()
+        Company companyDetails = new()
         {
-            Id = new CompanyDetailsId(Guid.CreateVersion7()),
+            Id = new CompanyId(Guid.CreateVersion7()),
             Name = name,
+            NormalizedName = NormalizeName(name),
             Description = description,
             LogoUrl = logoUrl
         };
 
-        CompanyDetailsValidator.Validate(companyDetails);
+        CompanyValidator.Validate(companyDetails);
         return companyDetails;
+    }
+
+    public static string NormalizeName(string name)
+    {
+        return string.Concat(name.Where(char.IsLetterOrDigit)).ToUpperInvariant();
     }
 
     public void UpdateBusinessDetails(string legalName, string taxId)

@@ -9,6 +9,8 @@ using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.Features.Roles.Common;
 using MyHomeRamen.Features.Identity.Features.Permissions.Common;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
+using MyHomeRamen.Features.Identity.Features.CompanyMemberships.Common;
+using MyHomeRamen.Domain.Identity.CompanyMemberships;
 using MyHomeRamen.Persistance.Identity.Converters;
 using MyHomeRamen.Domain.Abstractions;
 
@@ -27,7 +29,10 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
 
     public DbSet<RolePermission> RolePermissions { get; set; }
 
+    public DbSet<CompanyMembership> CompanyMemberships { get; set; }
+
     public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
+    public ICompanyMembershipRepository CompanyMembership => _serviceProvider.GetService<ICompanyMembershipRepository>() ?? throw new InvalidOperationException("CompanyMembershipRepository is not registered in the service provider.");
     public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
     public IPermissionRepository Permission => _serviceProvider.GetService<IPermissionRepository>() ?? throw new InvalidOperationException("PermissionRepository is not registered in the service provider.");
 
@@ -89,6 +94,19 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
              .UsingEntity("UserRoles");
         });
 
+        modelBuilder.Entity<CompanyMembership>(b =>
+        {
+            b.ToTable("CompanyMemberships");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.UserId).IsRequired();
+            b.Property(x => x.CompanyId).IsRequired();
+            b.Property(x => x.RoleId).IsRequired();
+            b.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
+            b.HasIndex(x => x.IdempotencyKey).IsUnique();
+            b.HasIndex(x => new { x.UserId, x.CompanyId }).IsUnique();
+        });
+
         modelBuilder.Entity<Role>(b =>
         {
             b.ToTable("Roles");
@@ -130,6 +148,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
         configurationBuilder.Properties<RolePermissionId>().HaveConversion<RolePermissionIdConverter>();
+        configurationBuilder.Properties<CompanyMembershipId>().HaveConversion<CompanyMembershipIdConverter>();
     }
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)

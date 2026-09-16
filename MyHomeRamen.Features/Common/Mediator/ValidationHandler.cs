@@ -5,7 +5,7 @@ using MyHomeRamen.Features.Common.Exceptions;
 namespace MyHomeRamen.Features.Common.Mediator;
 
 public sealed class ValidationHandler<TRequest, TResponse>(IValidator<TRequest>? validator, IRequestHandler<TRequest, TResponse> next) : IRequestHandler<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+              where TRequest : IRequest<TResponse>
 {
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
     {
@@ -16,6 +16,13 @@ public sealed class ValidationHandler<TRequest, TResponse>(IValidator<TRequest>?
 
             if (!validationResult.IsValid)
             {
+                ValidationFailure? conflictError = validationResult.Errors.FirstOrDefault(error => error.ErrorCode == "Conflict");
+
+                if (conflictError is not null)
+                {
+                    throw new ConflictException(conflictError.ErrorMessage);
+                }
+
                 throw CustomValidationException.ValidationFailed("Validation failed", validationResult.Errors);
             }
         }

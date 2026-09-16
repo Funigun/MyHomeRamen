@@ -58,7 +58,7 @@ public class Role : AuditableEntity, IEntity<RoleId>
         Role role = new()
         {
             Id = Guid.CreateVersion7(),
-            Name = RoleConstants.Admin,
+            Name = RoleConstants.RestaurantAdmin,
             Description = "Administrator role with full access to the system.",
             IsRemovable = false,
             IsEditable = false

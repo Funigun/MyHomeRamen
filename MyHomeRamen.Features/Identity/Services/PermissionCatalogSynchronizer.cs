@@ -71,7 +71,7 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
     {
         IEnumerable<PermissionId> allPermissionIds = allPermissions.Select(p => p.Id);
 
-        Role? adminRole = await identityDbContext.Role.Load().ByName(RoleConstants.Admin, cancellationToken);
+        Role? adminRole = await identityDbContext.Role.Load().ByName(RoleConstants.RestaurantAdmin, cancellationToken);
 
         if (adminRole is null)
         {

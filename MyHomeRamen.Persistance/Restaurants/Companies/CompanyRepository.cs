@@ -5,7 +5,7 @@ using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Restaurants;
 
-public sealed partial class CompanyRepository(RestaurantsDbContext restaurantsDbContext, ICacheService cacheService) : BaseRepository<CompanyDetails, CompanyDetailsId>(restaurantsDbContext, cacheService), ICompanyRepository
+public sealed partial class CompanyRepository(RestaurantsDbContext restaurantsDbContext, ICacheService cacheService) : BaseRepository<Company, CompanyId>(restaurantsDbContext, cacheService), ICompanyRepository
 {
     public ICompanyQuery Query() => this;
 
