@@ -11,7 +11,7 @@ public sealed class GetMyIdAuthorizationPolicy(ICurrentUser currentUser) : IAuth
 {
     public async Task<bool> Authorize(GetMyIdQuery request, CancellationToken cancellationToken)
     {
-        return currentUser.CanViewUserProfile();
+        return currentUser.IsAuthenticated;
     }
 }
 

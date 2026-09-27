@@ -1,0 +1,8 @@
+﻿@page "/restaurants/companies/management"
+@attribute [Authorize(Policy = PermissionConstants.CompanyView)]
+
+@using MyHomeRamen.Blazor.Features.Restaurants.Shared
+
+<PageTitle>Company Details Management</PageTitle>
+
+<CompanyDetailsView />

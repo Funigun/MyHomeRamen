@@ -76,10 +76,12 @@
     <File Path=".github/copilot-instructions.md" />
   </Folder>
   <Folder Name="/_github/agents/">
-    <File Path=".github/agents/drax-implementation.agent.md" />
-    <File Path=".github/agents/drax-planning.agent.md" />
-    <File Path=".github/agents/drax-reviewer.agent.md" />
-    <File Path=".github/agents/feature-plan-template.md" />
+    <File Path=".github/agents/drax-back-implementation.agent.md" />
+    <File Path=".github/agents/drax-back-planning.agent.md" />
+    <File Path=".github/agents/drax-back-reviewer.agent.md" />
+    <File Path=".github/agents/drax-front-implementation.agent.md" />
+    <File Path=".github/agents/drax-front-planning.agent.md" />
+    <File Path=".github/agents/drax-front-reviewer.agent.md" />
   </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/backend-tests.instructions.md" />
@@ -89,9 +91,6 @@
   <Folder Name="/_github/skills/" />
   <Folder Name="/_github/skills/db-access/">
     <File Path=".github/skills/db-access/SKILL.md" />
-  </Folder>
-  <Folder Name="/_github/skills/domain-design/">
-    <File Path=".github/skills/domain-design/SKILL.md" />
   </Folder>
   <Folder Name="/_github/skills/domain-preparation/">
     <File Path=".github/skills/domain-preparation/SKILL.md" />

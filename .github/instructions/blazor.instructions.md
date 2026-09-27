@@ -16,32 +16,51 @@ applyTo: '**/MyHomeRamen.Blazor/**/*.razor,**/MyHomeRamen.Blazor/**/*.cs,**/MyHo
 
 - Do not use single page/component for multiple workflows e.g. Create, View, Edit defined by page/form parameter.
 - Organize UI by module, aggregate, and user action.
-- Pages define only route, layout, authorization and act as container for the slice main component.
-- Slice main component orchestrates workflow: loading data, api calls, validation, and handling user interactions, can be split into sub-components for visual/responsibility separation.
+- Pages define route, layout, authorization, localized page title, and render the slice root component. Keep workflow markup out of pages.
+- Slice root component owns the page shell and orchestrates workflow: loading data, api calls, validation, error handling, and user interactions. It can be split into sub-components for visual/responsibility separation.
 - Prefer action-oriented slices such as `ListEmployees`, `ViewEmployee`, `CreateEmployee`, `EditEmployee`, and `DeleteEmployee`.
 - Each slice owns its route, page state, API orchestration, validation, loading state, error handling, authorization, and post-action navigation.
-- Share visual field groups and display components, not complete workflows.
+- Share visual field groups and display components, not complete workflows or slice root components.
 - Shared components receive data and callbacks. They do not load data, call APIs, perform navigation, or decide which operation is executing.
+- Keep workflow roots beside their page within the feature slice. Use `Shared` only for reusable components, models, contracts, clients, and cross-slice UI primitives.
 - Define Dependency Injection registration extension per module.
 
 Recommended structure:
 
 ```text
 Features/
-└── Admin/
-    └── Employees/
-        ├── ListEmployees/
-        ├── ViewEmployee/
-        ├── CreateEmployee/
-        ├── EditEmployee/
-        ├── ChangeEmployeeStatus/
+└── {Module}/
+    └── {Aggregate}/
+        └── ComposedCrudFeature/
+            ├── {Feature}Page.razor
+            ├── {Feature}View.razor
+            ├── {Feature}Form.razor
+            └── {Feature}Model.cs
+        ├── DividedCrudFeature/
+            ├── Pages/
+            |   ├── {Feature}CreatePage.razor
+            |   ├── {Feature}ViewPage.razor
+            |   └── {Feature}EditPage.razor
+            |   ├── Shared/
+            |   |   ├── {Feature}List.razor
+            |   |   ├── {Feature}Form.razor
+            |   |   ├── {Feature}Model.cs
+            ├── {Feature}View.razor
+            ├── {Feature}ViewPage.razor
+        ├── ComplexFeature/
+            ├── SubFeatureA/
+            |   ├── SomeModel.cs
+            |   ├── SomeComponent.razor
+            |   ├── SomeView.razor
+            ├── SubFeatureB/
+            |   ├── SomeModel.cs
+            |   ├── SomeComponent.razor
+            |   ├── SomeView.razor
+            ├── Shared/
         └── Shared/
-        Role/
-        ├── ListRoles/
-        ├── CreateRole/
-        ├── EditRole/
-        └── Shared/
-        DependencyInjection.cs
+        |   ├── {Aggregate}ApiClient.cs
+        |   ├── {Aggregate}ApiContracts.cs
+        └─ DependencyInjection.cs
 ```
 
 ## 3) API clients
@@ -82,6 +101,7 @@ public static class EmployeeRoutes
 ## 5) Localization
 
 - Use resource files for application-owned text: labels, buttons, navigation, validation, errors, titles, and empty states.
+- Localize `PageTitle` in pages and headings, descriptions, loading/error states, and action text in slice root components.
 - Keep restaurant or business content in the database with translation records.
 - Use stable codes or IDs for roles, permissions, statuses, and other authorization data. Never use translated display names for authorization decisions.
 - Resolve requested language and fallback language at the query/API boundary.

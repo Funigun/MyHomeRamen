@@ -1,0 +1,137 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.RegisterOwner.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+
+
+@inject CompanyApiClient RegistrationApiClient
+@inject IStringLocalizer<RegisterCompanyOwnerResources> Text
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudStack Spacing="3">
+        <MudTextField @bind-Value="_model.UserName"
+                      For="() => _model.UserName"
+                      Label="@Text["UserName"]"
+                      Variant="Variant.Outlined"
+                      Disabled="_isSubmitting"
+                      Immediate="true" />
+
+        <MudTextField @bind-Value="_model.FirstName"
+                      For="() => _model.FirstName"
+                      Label="@Text["FirstName"]"
+                      Variant="Variant.Outlined"
+                      Disabled="_isSubmitting"
+                      Immediate="true" />
+
+        <MudTextField @bind-Value="_model.LastName"
+                      For="() => _model.LastName"
+                      Label="@Text["LastName"]"
+                      Variant="Variant.Outlined"
+                      Disabled="_isSubmitting"
+                      Immediate="true" />
+
+        <MudTextField @bind-Value="_model.Email"
+                      For="() => _model.Email"
+                      Label="@Text["Email"]"
+                      InputType="InputType.Email"
+                      Variant="Variant.Outlined"
+                      Disabled="_isSubmitting"
+                      Immediate="true" />
+
+        <MudTextField @bind-Value="_model.PhoneNumber"
+                      For="() => _model.PhoneNumber"
+                      Label="@Text["PhoneNumber"]"
+                      InputType="InputType.Telephone"
+                      Variant="Variant.Outlined"
+                      Disabled="_isSubmitting"
+                      Immediate="true" />
+
+        <MudTextField @bind-Value="_model.Password"
+                      For="() => _model.Password"
+                      Label="@Text["Password"]"
+                      InputType="InputType.Password"
+                      Variant="Variant.Outlined"
+                      Disabled="_isSubmitting"
+                      Immediate="true" />
+
+        <MudTextField @bind-Value="_model.ConfirmPassword"
+                      For="() => _model.ConfirmPassword"
+                      Label="@Text["ConfirmPassword"]"
+                      InputType="InputType.Password"
+                      Variant="Variant.Outlined"
+                      Disabled="_isSubmitting"
+                      Immediate="true" />
+    
+        <MudTextField @bind-Value="_model.CompanyName"
+                      For="() => _model.CompanyName"
+                      Label="@Text["CompanyName"]"
+                      InputType="InputType.Text"
+                      Variant="Variant.Outlined"
+                      Disabled="_isSubmitting"
+                      Immediate="true" />
+    
+        <MudButton ButtonType="ButtonType.Submit"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   FullWidth="true"
+                   Disabled="_isSubmitting"
+                   OnClick="SubmitAsync">
+
+            @if (_isSubmitting)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                @Text["Submitting"]
+            }
+            else
+            {
+                @Text["Register"]
+            }
+        </MudButton>
+    </MudStack>
+
+    @if (_errorMessage is not null)
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Error" Dense="true">@_errorMessage</MudAlert>
+        </MudItem>
+    }
+</MudForm>
+
+
+
+    @code {
+    private MudForm _form = default!;
+    private readonly RegisterCompanyOwnerModel _model = new();
+    private readonly RegisterCompanyOwnerValidator _validator = new();
+    private readonly string _idempotencyKey = Guid.NewGuid().ToString("N");
+    private IReadOnlyList<string> _companyNameErrors = [];
+    private string? _errorMessage;
+    private Guid? _companyId;
+    private bool _isSubmitting;
+
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+
+        if (_isSubmitting || !_form.IsValid)
+        {
+            return;
+        }
+
+        try
+        {
+            RegisterCompanyOwnerResponse response = await RegistrationApiClient.RegisterCompanyOwnerAsync(_model.ToRequest(), _idempotencyKey);
+
+            _companyId = response.CompanyId;
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to register company owner. Please try again later.";
+            StateHasChanged();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+}

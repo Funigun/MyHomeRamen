@@ -18,6 +18,11 @@
             <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/menu"))">Menu</MudButton>
             <MudSpacer />
             
+            @if(_isCompanyOwner)
+            {
+                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/company/owner-panel"))">Company Owner Panel</MudButton>
+            }
+
             @if(_isAdmin)
             {
                 <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.AdminPanel))">Admin Panel</MudButton>
@@ -40,11 +45,13 @@
     private bool _isAuthenticated = false;
     private string _userName = string.Empty;
     private bool _isAdmin = false;
+    private bool _isCompanyOwner = false;
 
     protected override async Task OnInitializedAsync()
     {
         _isAuthenticated = await AuthenticationStateProvider.IsAuthenticated();
         _isAdmin = await AuthenticationStateProvider.IsAdmin();
+        _isCompanyOwner = await AuthenticationStateProvider.IsCompanyOwner();
     }
 
     private void Navigate(string url)

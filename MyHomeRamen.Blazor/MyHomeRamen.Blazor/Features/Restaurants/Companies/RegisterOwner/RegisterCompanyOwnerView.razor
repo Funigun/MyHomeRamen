@@ -1,0 +1,11 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.RegisterOwner.Components
+
+@inject IStringLocalizer<RegisterCompanyOwnerResources> Text
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h4" Class="mb-2">@Text["Heading"]</MudText>
+    <MudText Typo="Typo.body2" Class="mb-6">@Text["Description"]</MudText>
+
+    <RegisterCompanyOwnerForm />
+</MudPaper>

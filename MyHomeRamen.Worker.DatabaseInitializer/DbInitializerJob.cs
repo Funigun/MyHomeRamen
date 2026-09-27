@@ -30,7 +30,7 @@ internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbCo
         Dictionary<IUnitOfWork, DatabaseUserConfig> unitOfWorkContexts = new()
         {
             { userContext, DatabaseUserConfig.Create("Identity", configuration) },
-            { restaurantDbContext, DatabaseUserConfig.Create("Restaurants", configuration) },
+            { restaurantDbContext, DatabaseUserConfig.Create("Restaurant", configuration) },
             { menuDbContext, DatabaseUserConfig.Create("Menu", configuration) },
             { shoppingCartDbContext, DatabaseUserConfig.Create("ShoppingCart", configuration) },
             { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) },

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Title" xml:space="preserve"><value>Register company</value></data>
+  <data name="Heading" xml:space="preserve"><value>Register your company</value></data>
+  <data name="Description" xml:space="preserve"><value>Create your owner account and register your company in one step.</value></data>
+  <data name="UserName" xml:space="preserve"><value>Username</value></data>
+  <data name="FirstName" xml:space="preserve"><value>First name</value></data>
+  <data name="LastName" xml:space="preserve"><value>Last name</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="PhoneNumber" xml:space="preserve"><value>Phone number</value></data>
+  <data name="Password" xml:space="preserve"><value>Password</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Confirm password</value></data>
+  <data name="Register" xml:space="preserve"><value>Register company</value></data>
+  <data name="Submitting" xml:space="preserve"><value>Registering...</value></data>
+  <data name="ValidationFailure" xml:space="preserve"><value>Review highlighted fields and correct invalid values.</value></data>
+  <data name="SuccessHeading" xml:space="preserve"><value>Company registered</value></data>
+  <data name="SuccessMessage" xml:space="preserve"><value>Your company owner account is ready.</value></data>
+  <data name="CompanyId" xml:space="preserve"><value>Company ID</value></data>
+  <data name="DuplicateCompanyName" xml:space="preserve"><value>Company name already exists. Choose another name.</value></data>
+  <data name="Unauthorized" xml:space="preserve"><value>You are not authorized to register a company.</value></data>
+  <data name="ExternalFailure" xml:space="preserve"><value>Registration service failed. Your entered data is preserved; retry with the same form.</value></data>
+  <data name="UnexpectedFailure" xml:space="preserve"><value>Unexpected error occurred. Retry without losing your entered data.</value></data>
+</root>

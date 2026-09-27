@@ -1,0 +1,10 @@
+@page "/register/company-owner"
+@attribute [Authorize]
+@layout AppLayout
+
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<RegisterCompanyOwnerResources> Text
+
+<PageTitle>@Text["Title"]</PageTitle>
+
+<RegisterCompanyOwnerView />

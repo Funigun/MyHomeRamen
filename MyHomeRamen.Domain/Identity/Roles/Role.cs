@@ -24,82 +24,36 @@ public class Role : AuditableEntity, IEntity<RoleId>
         
     }
 
-    public static Role Create(string name, string description)
-    {
-        Role role = new()
-        {
-            Id = Guid.CreateVersion7(),
-            Name = name,
-            Description = description
-        };
-
-        return role;
-    }
-
-    public static Role Create(string name, string description, IEnumerable<PermissionId> permissions)
-    {
-        Role role = new()
-        {
-            Id = Guid.CreateVersion7(),
-            Name = name,
-            Description = description
-        };
-
-        foreach (PermissionId permission in permissions)
-        {
-            role._permissions.Add(RolePermission.Create(role.Id, permission));
-        }
-
-        return role;
-    }
-
     public static Role CreateAdmin(IEnumerable<PermissionId> permissions)
-    {
-        Role role = new()
-        {
-            Id = Guid.CreateVersion7(),
-            Name = RoleConstants.RestaurantAdmin,
-            Description = "Administrator role with full access to the system.",
-            IsRemovable = false,
-            IsEditable = false
-        };
-
-        foreach (PermissionId permission in permissions)
-        {
-            role._permissions.Add(RolePermission.Create(role.Id, permission));
-        }
-
-        return role;
-    }
-
+    => CreateSystemRole(RoleConstants.RestaurantAdmin, "Administrator role with full access to the system.", permissions);
     public static Role CreateGuest(IEnumerable<PermissionId> permissions)
-    {
-        Role role = new()
-        {
-            Id = Guid.CreateVersion7(),
-            Name = RoleConstants.Guest,
-            Description = "Guest role with limited access to the system.",
-            IsRemovable = false,
-            IsEditable = false
-        };
-
-        foreach (PermissionId permission in permissions)
-        {
-            role._permissions.Add(RolePermission.Create(role.Id, permission));
-        }
-
-        return role;
-    }
+        => CreateSystemRole(RoleConstants.Guest, "Guest role with limited access to the system.", permissions);
 
     public static Role CreateCustomer(IEnumerable<PermissionId> permissions)
+        => CreateSystemRole(RoleConstants.Customer, "Customer role with extended access to the system.", permissions);
+
+    public static Role CreateCompanyOwner(IEnumerable<PermissionId> permissions)
+        => CreateSystemRole(RoleConstants.CompanyOwner, "Company Owner role with extended access to the system.", permissions);
+
+    public static Role CreateCustom(string name, string description)
     {
         Role role = new()
         {
             Id = Guid.CreateVersion7(),
-            Name = RoleConstants.Customer,
-            Description = "Customer role with extended access to the system.",
-            IsRemovable = false,
-            IsEditable = false
+            Name = name,
+            Description = description
+        };
+
+        return role;
+    }
+
+    public static Role CreateCustom(string name, string description, IEnumerable<PermissionId> permissions)
+    {
+        Role role = new()
+        {
+            Id = Guid.CreateVersion7(),
+            Name = name,
+            Description = description
         };
 
         foreach (PermissionId permission in permissions)
@@ -109,11 +63,8 @@ public class Role : AuditableEntity, IEntity<RoleId>
 
         return role;
     }
-
-    public void UpdateDescription(string description)
-    {
-        Description = description;
-    }
+    
+    public void UpdateDescription(string description) => Description = description;
 
     public void UpdatePermissions(IEnumerable<PermissionId> permissions)
     {
@@ -123,5 +74,24 @@ public class Role : AuditableEntity, IEntity<RoleId>
         {
             _permissions.Add(RolePermission.Create(Id, permission));
         }
+    }
+
+    private static Role CreateSystemRole(string name, string description, IEnumerable<PermissionId> permissions)
+    {
+        Role role = new()
+        {
+            Id = Guid.CreateVersion7(),
+            Name = name,
+            Description = description,
+            IsRemovable = false,
+            IsEditable = false
+        };
+
+        foreach (PermissionId permission in permissions)
+        {
+            role._permissions.Add(RolePermission.Create(role.Id, permission));
+        }
+
+        return role;
     }
 }

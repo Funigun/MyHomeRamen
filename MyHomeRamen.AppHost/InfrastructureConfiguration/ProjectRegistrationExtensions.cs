@@ -22,7 +22,8 @@ internal static class ProjectRegistrationExtensions
             ConfigurationConstants.OrderModuleName,
             ConfigurationConstants.ShoppingCartModuleName,
             ConfigurationConstants.PaymentModuleName,
-            ConfigurationConstants.IdentityModuleName
+            ConfigurationConstants.IdentityModuleName,
+            ConfigurationConstants.RestaurantModuleName
         ];
 
         return builder.AddProject<Projects.MyHomeRamen_Api>(ServiceNames.Api(prefix))
@@ -59,7 +60,8 @@ internal static class ProjectRegistrationExtensions
             ConfigurationConstants.OrderModuleName,
             ConfigurationConstants.ShoppingCartModuleName,
             ConfigurationConstants.PaymentModuleName,
-            ConfigurationConstants.IdentityModuleName
+            ConfigurationConstants.IdentityModuleName,
+            ConfigurationConstants.RestaurantModuleName
         ];
 
         return builder.AddProject<Projects.MyHomeRamen_Worker_DatabaseInitializer>(ServiceNames.DbInitializerWorker(prefix))
@@ -78,7 +80,8 @@ internal static class ProjectRegistrationExtensions
             ConfigurationConstants.OrderModuleName,
             ConfigurationConstants.ShoppingCartModuleName,
             ConfigurationConstants.PaymentModuleName,
-            ConfigurationConstants.IdentityModuleName
+            ConfigurationConstants.IdentityModuleName,
+            ConfigurationConstants.RestaurantModuleName
         ];
 
         return builder.AddProject<Projects.MyHomeRamen_Worker_MessagesHandler>(ServiceNames.MessagesWorker(prefix))

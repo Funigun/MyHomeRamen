@@ -73,7 +73,7 @@ public class IdentityTestData
         IEnumerable<Permission> permissions = await IdentityDbContext.Permission.Load().All(TestContext.Current.CancellationToken);
         IEnumerable<PermissionId> permissionIds = permissions.Where(p => role.permissions.Contains(p.Name)).Select(p => p.Id);
 
-        Role roleToSeed = Role.Create(role.roleName, $"{role.roleName} role for testing purposes", permissionIds);
+        Role roleToSeed = Role.CreateCustom(role.roleName, $"{role.roleName} role for testing purposes", permissionIds);
         User user = User.Create(keycloakUserId, userName, name, "User", $"{userName}@example.com", "123456789", roleToSeed);
 
         IdentityDbContext.Role.Add(roleToSeed);
@@ -97,7 +97,7 @@ public class IdentityTestData
             .Select(permission => permission.Id)
             .ToArray();
 
-        Role guestRole = Role.Create($"Guest Test User {Guid.CreateVersion7()}", "Guest role for testing purposes", permissionIds);
+        Role guestRole = Role.CreateCustom($"Guest Test User {Guid.CreateVersion7()}", "Guest role for testing purposes", permissionIds);
         User guest = User.CreateGuest();
         guest.AddRole(guestRole);
         IdentityDbContext.Role.Add(guestRole);

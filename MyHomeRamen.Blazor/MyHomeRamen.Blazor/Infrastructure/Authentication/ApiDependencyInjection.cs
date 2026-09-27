@@ -1,5 +1,6 @@
 using MyHomeRamen.Blazor.Features.Account.Common.Services;
 using MyHomeRamen.Blazor.Features.Admin.Employees;
+using MyHomeRamen.Blazor.Features.Restaurants;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services;
 using MyHomeRamen.Blazor.Features.Payments.Common.Services;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services;
@@ -21,6 +22,8 @@ internal static class ApiDependencyInjection
             }
         ).AddHttpMessageHandler<AuthHeaderHandler>()
          .AddHttpMessageHandler<GuestCookieForwardingHandler>();
+
+        services.AddRestaurantsFeatureServices(infrastructurePrefix);
 
         services.AddHttpClient<EmployeeApiClient>(client =>
             {

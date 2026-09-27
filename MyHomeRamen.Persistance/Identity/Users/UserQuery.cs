@@ -30,7 +30,7 @@ public partial class UserRepository : IUserQuery
     public async Task<Guid?> GetIdByKeycloakId(string userId, CancellationToken cancellationToken)
         => await identityDbContext.Users.AsNoTracking()
                       .Where(u => u.KeycloakUserId == userId)
-                      .Select(user => user.Id)
+                      .Select(user => (Guid?)user.Id)
                       .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<int> GetNumberOfAddresses(Guid userId, CancellationToken cancellationToken)

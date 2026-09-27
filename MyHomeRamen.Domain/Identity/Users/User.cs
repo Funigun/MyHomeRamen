@@ -26,7 +26,7 @@ public class User : AuditableEntity, IEntity<UserId>
 
     public string UserName { get; private set; } = default!;
 
-    public string Role { get; private set; } = default!;
+    public string Role { get; private set; } = string.Empty;
 
     public ICollection<Address> Addresses => _addresses.ToList();
 

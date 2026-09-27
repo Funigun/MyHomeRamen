@@ -22,10 +22,13 @@ public sealed class Company : Aggregate<CompanyId>
     private Company() { }
 
     public static Company Create(string name, string? description, string? logoUrl)
+        => Create(new CompanyId(Guid.CreateVersion7()), name, description, logoUrl);
+
+    public static Company Create(CompanyId id, string name, string? description, string? logoUrl)
     {
         Company companyDetails = new()
         {
-            Id = new CompanyId(Guid.CreateVersion7()),
+            Id = id,
             Name = name,
             NormalizedName = NormalizeName(name),
             Description = description,

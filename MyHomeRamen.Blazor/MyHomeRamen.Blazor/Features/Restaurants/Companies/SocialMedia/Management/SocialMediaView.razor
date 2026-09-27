@@ -1,0 +1,28 @@
+﻿@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+
+@inject CompanyApiClient CompanyApiClient
+
+<MudPaper Elevation="3" Class="pa-6">
+    <MudText Typo="Typo.h1" Class="mb-4">Company Owner Panel</MudText>
+
+    <CompanyOwnerPanelHeader />
+
+    @if (isLoading)
+    {
+        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+    }
+    else
+    {
+        <SocialMediaGrid />
+    }
+</MudPaper>
+
+@code {
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        isLoading = false;
+    }
+}

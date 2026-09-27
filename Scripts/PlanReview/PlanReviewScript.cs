@@ -21,7 +21,7 @@ Console.WriteLine($"[plan-verifier] processing plan: {featurePlanPath}");
 Console.WriteLine($"[plan-verifier] repo root: {repoRoot}");
 
 List<string> issues = [];
-HashSet<string> validModules = ["Menu", "Orders", "ShoppingCart", "Reservations", "Payments", "Users"];
+HashSet<string> validModules = ["Menu", "Orders", "ShoppingCart", "Reservations", "Payments", "Users", "Restaurants"];
 
 // Title checks
 if (planFile.Title == "Untitled")

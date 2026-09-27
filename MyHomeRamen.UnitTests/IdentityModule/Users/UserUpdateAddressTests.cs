@@ -99,7 +99,7 @@ public sealed class UserUpdateAddressTests
             lastName: "User",
             email: "test@example.com",
             phoneNumber: "123456789",
-            role: Role.Create("customer", "customer role"));
+            role: Role.CreateCustom("customer", "customer role"));
     }
 
     private static Address CreateAddress(bool isDefault = false)

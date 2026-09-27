@@ -84,13 +84,6 @@ public static class DependencyInjection
                                             && @interface.GetGenericArguments()[0] == requestType));
     }
 
-    private static bool IsCommandRequest(Type requestType)
-    {
-        return typeof(ICommand).IsAssignableFrom(requestType)
-            || requestType.GetInterfaces().Any(@interface => @interface.IsGenericType
-                && @interface.GetGenericTypeDefinition() == typeof(ICommand<>));
-    }
-
     public static IServiceCollection AddHandlers(this IServiceCollection services, Assembly assembly)
     {
         Type handlerOpenType = typeof(IRequestHandler<,>);
@@ -115,9 +108,8 @@ public static class DependencyInjection
 
             Type[] handlerArguments = interfaceType.GetGenericArguments();
             Type requestType = handlerArguments[0];
-            bool isCommand = IsCommandRequest(requestType);
 
-            if (isCommand || validatedRequestTypes.Contains(requestType))
+            if (validatedRequestTypes.Contains(requestType))
             {
                 services.Decorate(interfaceType, typeof(ValidationHandler<,>).MakeGenericType(handlerArguments));
             }

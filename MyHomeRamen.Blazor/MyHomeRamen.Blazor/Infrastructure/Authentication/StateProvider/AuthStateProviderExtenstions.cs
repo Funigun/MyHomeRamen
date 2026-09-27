@@ -19,13 +19,19 @@ public static class AuthStateProviderExtenstions
         public async Task<bool> IsAdmin()
         {
             IEnumerable<string> roles = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserRolesAsync();
-            return roles.Contains("Admin");
+            return roles.Contains("Restaurant Admin");
         }
 
-        public async Task<bool> IsEmployee()
+        public async Task<bool> IsCompanyOwner()
         {
             IEnumerable<string> roles = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserRolesAsync();
-            return roles.Contains("Employee");
+            return roles.Contains("Company Owner");
+        }
+
+        public async Task<bool> IsGuest()
+        {
+            IEnumerable<string> roles = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserRolesAsync();
+            return roles.Contains("Guest");
         }
 
         public async Task<bool> IsCustomer()

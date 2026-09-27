@@ -1,0 +1,8 @@
+﻿@page "/restaurants/companies/social-media"
+@attribute [Authorize(Policy = PermissionConstants.CompanySocialMediaView)]
+
+@using MyHomeRamen.Blazor.Features.Restaurants.Shared
+
+<PageTitle>Social Media Management</PageTitle>
+
+<SocialMediaView/>

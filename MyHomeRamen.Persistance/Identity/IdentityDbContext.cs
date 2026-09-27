@@ -13,6 +13,7 @@ using MyHomeRamen.Features.Identity.Features.CompanyMemberships.Common;
 using MyHomeRamen.Domain.Identity.CompanyMemberships;
 using MyHomeRamen.Persistance.Identity.Converters;
 using MyHomeRamen.Domain.Abstractions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MyHomeRamen.Persistance.Identity;
 
@@ -55,12 +56,22 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
 
     private void UpdateEntities()
     {
+        DateTimeOffset changeDate = DateTime.UtcNow;
+
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
         {
             switch (entry.State)
             {
                 case EntityState.Added:
                     entry.Entity.CreatedBy = _currentUser.UserId.ToString();
+                    entry.Entity.CreatedOn = changeDate;
+                    entry.Entity.ModifiedBy = _currentUser.UserId.ToString();
+                    entry.Entity.ModifiedOn = changeDate;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.ModifiedBy = _currentUser.UserId.ToString();
+                    entry.Entity.ModifiedOn = changeDate;
                     break;
             }
         }
@@ -177,7 +188,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     {
         if (!await Roles.AnyAsync(cancellationToken))
         {
-            IEnumerable<Role> roles = RoleConstants.AvailableRoles.Select(roleName => Domain.Identity.Roles.Role.Create(roleName, $"{roleName} role"));
+            IEnumerable<Role> roles = RoleConstants.AvailableRoles.Select(roleName => Domain.Identity.Roles.Role.CreateCustom(roleName, $"{roleName} role"));
 
             await Roles.AddRangeAsync(roles, cancellationToken);
             await SaveChangesAsync(cancellationToken);

@@ -25,7 +25,7 @@ internal static class TestUserFactory
             .Where(permission => permissionNames.Contains(permission.Name))
             .Select(permission => permission.Id);
 
-        Role role = Role.Create(roleName, $"{roleName} role for testing purposes", permissionIds);
+        Role role = Role.CreateCustom(roleName, $"{roleName} role for testing purposes", permissionIds);
         string keycloakUserId = $"test-keycloak-{Guid.NewGuid():N}";
         User user = User.Create(
             keycloakUserId,

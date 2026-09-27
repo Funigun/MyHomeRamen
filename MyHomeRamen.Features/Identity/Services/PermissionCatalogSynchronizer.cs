@@ -7,10 +7,12 @@ using MyHomeRamen.Features.Identity.Permissions;
 
 namespace MyHomeRamen.Features.Identity.Services;
 
-public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbContext) : IPermissionCatalogSynchronizer
+public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbContext, IAuthorizationService authorizationService) : IPermissionCatalogSynchronizer
 {
     public async Task Synchronize(CancellationToken cancellationToken)
     {
+        await authorizationService.ImpersonateSystemAccount(cancellationToken);
+
         IEnumerable<Permission> existingPermissions = await identityDbContext.Permission.Load().All(cancellationToken);
         
         Dictionary<(string Module, string Name), Permission> existingPermissionsByKey = existingPermissions.ToDictionary(permission => (permission.Module, permission.Name));
@@ -28,6 +30,7 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
         await UpdateAdminRole(allCurrentPermissions, cancellationToken);
         await UpdateGuestRole(allCurrentPermissions, cancellationToken);
         await UpdateCustomerRole(allCurrentPermissions, cancellationToken);
+        await UpdateCompanyOwnerRole(allCurrentPermissions, cancellationToken);
 
         await identityDbContext.SaveChangesAsync(cancellationToken);
     }
@@ -97,6 +100,24 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
         else
         {
             guestRole.UpdatePermissions(guestPermissionIds);
+        }
+    }
+
+    private async Task UpdateCompanyOwnerRole(IEnumerable<Permission> allCurrentPermissions, CancellationToken cancellationToken)
+    {
+        HashSet<(string Module, string Name)> companyOwnerPermissions = PermissionCatalog.CompantyOwnerPermissions.ToHashSet();
+
+        IEnumerable<PermissionId> companyOwnerPermissionIds = allCurrentPermissions.Where(permission => companyOwnerPermissions.Contains((permission.Module, permission.Name)))
+                                                                                   .Select(permission => permission.Id);
+
+        Role? companyOwnerRole = await identityDbContext.Role.Load().ByName(RoleConstants.CompanyOwner, cancellationToken);
+        if (companyOwnerRole is null)
+        {
+            identityDbContext.Role.Add(Role.CreateCompanyOwner(companyOwnerPermissionIds));
+        }
+        else
+        {
+            companyOwnerRole.UpdatePermissions(companyOwnerPermissionIds);
         }
     }
 

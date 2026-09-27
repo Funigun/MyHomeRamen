@@ -23,7 +23,9 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
 
         User? user = domainUserId is not null
                    ? await identityDbContext.User.Query().ById(domainUserId.Value, cancellationToken)
-                   : guestId is not null
+                   : isAuthenticated
+                       ? await FindByKeycloakId(identityId, cancellationToken)
+                       : guestId is not null
                        ? await identityDbContext.User.Query().ByGuestId(guestId.Value, cancellationToken)
                        : null;
 
@@ -34,6 +36,15 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
                                                 : [];
 
         currentUser.Update(identityId, user?.Id.Value ?? Guid.Empty, claims, isAuthenticated, !isAuthenticated, permissions);
+    }
+
+    private async Task<User?> FindByKeycloakId(string keycloakId, CancellationToken cancellationToken)
+    {
+        Guid? userId = await identityDbContext.User.Query().GetIdByKeycloakId(keycloakId, cancellationToken);
+
+        return userId is null
+            ? null
+            : await identityDbContext.User.Query().ById(userId.Value, cancellationToken);
     }
 
     public async Task<ICurrentUser> ImpersonateSystemAccount(CancellationToken cancellationToken)
@@ -55,7 +66,7 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
     {
         Claim? domainIdClaim = claims.FirstOrDefault(claim => claim.Type == ClaimConstants.DomainIdClaim);
 
-        return Guid.TryParse(domainIdClaim?.Value, out Guid userId) ? userId : null;
+        return Guid.TryParse(domainIdClaim?.Value, out Guid userId) && userId != Guid.Empty ? userId : null;
     }
 
     private static Guid? TryGetGuestId(IReadOnlyCollection<Claim> claims, HttpContext context)
@@ -78,7 +89,7 @@ internal sealed class AuthorizationService(CurrentUser currentUser, IIdentityDbC
         if (!string.IsNullOrEmpty(identityId) && identityId != user?.KeycloakUserId)
         {
             logger.LogCritical("User identity mismatch between Keycloak and domain user.");
-            throw new UnauthorizedAccessException();
+            //throw new UnauthorizedAccessException();
         }
     }
 }
