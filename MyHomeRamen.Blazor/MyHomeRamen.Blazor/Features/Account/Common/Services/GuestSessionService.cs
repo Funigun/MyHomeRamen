@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using MyHomeRamen.Blazor.Features.Account.Common.Models;
+using MyHomeRamen.Blazor.Features.Account.Common.Services.Contracts.Users.Account.Responses;
 
 namespace MyHomeRamen.Blazor.Features.Account.Common.Services;
 

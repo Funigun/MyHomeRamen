@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Components.Authorization;
+using MyHomeRamen.Blazor.Infrastructure.Authentication;
 
 namespace MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider;
 
@@ -18,14 +20,14 @@ public static class AuthStateProviderExtenstions
 
         public async Task<bool> IsAdmin()
         {
-            IEnumerable<string> roles = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserRolesAsync();
-            return roles.Contains("Restaurant Admin");
+            ClaimsPrincipal user = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserAsync();
+            return user.HasClaim(AuthenticationClaimConstants.AdminCanViewPanel, bool.TrueString);
         }
 
         public async Task<bool> IsCompanyOwner()
         {
-            IEnumerable<string> roles = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserRolesAsync();
-            return roles.Contains("Company Owner");
+            ClaimsPrincipal user = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserAsync();
+            return user.HasClaim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString);
         }
 
         public async Task<bool> IsGuest()

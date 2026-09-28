@@ -2,9 +2,10 @@
 @layout UserProfileLayout
 @attribute [Authorize(Roles = "Customer,Employee,Admin")]
 
-@using MyHomeRamen.Blazor.Features.Account.Common.Services
-@using MyHomeRamen.Blazor.Features.Account.Common.Models
 @using MyHomeRamen.Blazor.Features.Account.AccountManagement.Components
+@using MyHomeRamen.Blazor.Features.Account.Common.Models
+@using MyHomeRamen.Blazor.Features.Account.Common.Services
+@using MyHomeRamen.Blazor.Features.Account.Common.Services.Contracts.Users.Account.Responses
 
 @inject CustomerAccountApiClient AccountApiClient
 

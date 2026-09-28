@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using MyHomeRamen.Blazor.Features.Account.Common.Models;
 using MyHomeRamen.Blazor.Features.Account.Common.Services;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider;
@@ -72,11 +73,23 @@ internal static class AuthenticationDependencyInjection
                                 CustomerAccountApiClient accountApiClient = ctx.HttpContext.RequestServices
                                     .GetRequiredService<CustomerAccountApiClient>();
 
-                                string domainId = await accountApiClient.GetMyIdAsync(ctx.HttpContext.RequestAborted, rawAccessToken);
+                                GetMeModel currentUser = await accountApiClient.GetMeAsync(ctx.HttpContext.RequestAborted, rawAccessToken);
 
-                                if (!string.IsNullOrEmpty(domainId))
+                                identity.AddClaim(new Claim(AuthenticationClaimConstants.DomainId, currentUser.UserId.ToString()));
+
+                                if (currentUser.FirstName is not null)
                                 {
-                                    identity.AddClaim(new Claim("domain_id", domainId));
+                                    identity.AddClaim(new Claim(AuthenticationClaimConstants.FirstName, currentUser.FirstName));
+                                }
+
+                                if (currentUser.AdminActions?.CanViewPanel == true)
+                                {
+                                    identity.AddClaim(new Claim(AuthenticationClaimConstants.AdminCanViewPanel, bool.TrueString));
+                                }
+
+                                if (currentUser.OwnerActions?.CanViewPanel == true)
+                                {
+                                    identity.AddClaim(new Claim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString));
                                 }
                             }
                         };

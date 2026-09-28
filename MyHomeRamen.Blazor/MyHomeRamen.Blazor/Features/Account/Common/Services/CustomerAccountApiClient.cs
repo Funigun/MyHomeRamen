@@ -1,24 +1,29 @@
 ﻿using MyHomeRamen.Blazor.Features.Account.Common.Models;
 using MyHomeRamen.Blazor.Features.Account.SignUp;
+using MyHomeRamen.Blazor.Features.Account.Common.Services.Contracts.Users.Account.Responses;
 
 namespace MyHomeRamen.Blazor.Features.Account.Common.Services;
 
 public class CustomerAccountApiClient(HttpClient httpClient)
 {
-    public async Task<string> GetMyIdAsync(CancellationToken cancellationToken, string? bearerToken = null)
+    public async Task<GetMeModel> GetMeAsync(CancellationToken cancellationToken, string? bearerToken = null)
     {
-        if (bearerToken is not null)
+        using HttpRequestMessage request = new(HttpMethod.Get, "/api/identity/users/me");
+        if (!string.IsNullOrEmpty(bearerToken))
         {
-            using HttpRequestMessage request = new(HttpMethod.Get, "/api/account/me/id");
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", bearerToken);
-            using HttpResponseMessage httpResponse = await httpClient.SendAsync(request, cancellationToken);
-            httpResponse.EnsureSuccessStatusCode();
-            GetMyIdResponse? result = await httpResponse.Content.ReadFromJsonAsync<GetMyIdResponse>(cancellationToken: cancellationToken);
-            return result?.Id.ToString() ?? string.Empty;
         }
 
-        GetMyIdResponse? response = await httpClient.GetFromJsonAsync<GetMyIdResponse>("/api/account/me/id", cancellationToken);
-        return response?.Id.ToString() ?? string.Empty;
+        using HttpResponseMessage httpResponse = await httpClient.SendAsync(request, cancellationToken);
+        httpResponse.EnsureSuccessStatusCode();
+        GetMeResponse response = await httpResponse.Content.ReadFromJsonAsync<GetMeResponse>(cancellationToken: cancellationToken)
+                               ?? throw new InvalidOperationException("Current user response was empty.");
+
+        return new GetMeModel(
+            response.UserId,
+            response.FirstName,
+            response.AdminActions is null ? null : new GetMeAdminActionsModel(response.AdminActions.CanViewPanel),
+            response.OwnerActions is null ? null : new GetMeOwnerActionsModel(response.OwnerActions.CanViewPanel));
     }
 
     public async Task CreateAsync(SignUpRequest request, CancellationToken ct = default)
