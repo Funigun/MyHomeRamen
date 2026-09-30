@@ -1,0 +1,98 @@
+diff --git a/MyHomeRamen.Domain/Restaurants/Companies/Company.cs b/MyHomeRamen.Domain/Restaurants/Companies/Company.cs
+index 6f47a593..ee9e0ba0 100644
+--- a/MyHomeRamen.Domain/Restaurants/Companies/Company.cs
++++ b/MyHomeRamen.Domain/Restaurants/Companies/Company.cs
+@@ -48,4 +48,12 @@ public sealed class Company : Aggregate<CompanyId>
+     {
+         BusinessDetails = BusinessDetails.Create(legalName, taxId);
+     }
++    public void UpdateDetails(string? description, string? logoUrl, string legalName, string taxId)
++    {
++        Description = description;
++        LogoUrl = logoUrl;
++        BusinessDetails = BusinessDetails.Create(legalName, taxId);
++        CompanyValidator.Validate(this);
++    }
+ }
++
+diff --git a/MyHomeRamen.Features/Restaurants/Features/Companies/Common/ICompanyLoader.cs b/MyHomeRamen.Features/Restaurants/Features/Companies/Common/ICompanyLoader.cs
+index 43213ff9..76232f20 100644
+--- a/MyHomeRamen.Features/Restaurants/Features/Companies/Common/ICompanyLoader.cs
++++ b/MyHomeRamen.Features/Restaurants/Features/Companies/Common/ICompanyLoader.cs
+@@ -7,4 +7,6 @@ public interface ICompanyLoader
+     Task<Company> ById(CompanyId companyDetailsId, CancellationToken cancellationToken);
+ 
+     Task<IEnumerable<Company>> ByIds(IEnumerable<CompanyId> companyDetailsIds, CancellationToken cancellationToken);
++
++    Task<Company?> Current(CancellationToken cancellationToken);
+ }
+diff --git a/MyHomeRamen.Features/Restaurants/Features/Companies/Common/ICompanyQuery.cs b/MyHomeRamen.Features/Restaurants/Features/Companies/Common/ICompanyQuery.cs
+index 995ee2c8..7895318d 100644
+--- a/MyHomeRamen.Features/Restaurants/Features/Companies/Common/ICompanyQuery.cs
++++ b/MyHomeRamen.Features/Restaurants/Features/Companies/Common/ICompanyQuery.cs
+@@ -3,4 +3,6 @@ namespace MyHomeRamen.Features.Restaurants.Features.Companies.Common;
+ public interface ICompanyQuery
+ {
+     Task<bool> IsNameUnique(string normalizedName, CancellationToken cancellationToken);
++
++    Task<CompanyDetailsProjection?> CurrentDetails(CancellationToken cancellationToken);
+ }
+diff --git a/MyHomeRamen.Persistance/Restaurants/Companies/CompanyLoader.cs b/MyHomeRamen.Persistance/Restaurants/Companies/CompanyLoader.cs
+index 9c2ba07c..bf92e276 100644
+--- a/MyHomeRamen.Persistance/Restaurants/Companies/CompanyLoader.cs
++++ b/MyHomeRamen.Persistance/Restaurants/Companies/CompanyLoader.cs
+@@ -4,11 +4,15 @@ using MyHomeRamen.Features.Restaurants.Features.Companies.Common;
+ 
+ namespace MyHomeRamen.Persistance.Restaurants;
+ 
+-public partial class CompanyRepository : ICompanyLoader
++public sealed partial class CompanyRepository : ICompanyLoader
+ {
+     async Task<Company> ICompanyLoader.ById(CompanyId companyDetailsId, CancellationToken cancellationToken)
+         => await First(c => c.Id == companyDetailsId, cancellationToken);
+ 
+     async Task<IEnumerable<Company>> ICompanyLoader.ByIds(IEnumerable<CompanyId> companyDetailsIds, CancellationToken cancellationToken)
+         => await List(new DbQueryOptions<Company>() { Filter = c => companyDetailsIds.Contains(c.Id) }, cancellationToken);
++
++    async Task<Company?> ICompanyLoader.Current(CancellationToken cancellationToken)
++        => await FirstOrDefault(c => true, cancellationToken);
+ }
++
+diff --git a/MyHomeRamen.Persistance/Restaurants/Companies/CompanyQuery.cs b/MyHomeRamen.Persistance/Restaurants/Companies/CompanyQuery.cs
+index df5f0dcb..a120730f 100644
+--- a/MyHomeRamen.Persistance/Restaurants/Companies/CompanyQuery.cs
++++ b/MyHomeRamen.Persistance/Restaurants/Companies/CompanyQuery.cs
+@@ -1,9 +1,32 @@
++using MyHomeRamen.Domain.Restaurants.Companies;
++using MyHomeRamen.Features.Common.Repository;
+ using MyHomeRamen.Features.Restaurants.Features.Companies.Common;
+ 
+ namespace MyHomeRamen.Persistance.Restaurants;
+ 
+-public partial class CompanyRepository : ICompanyQuery
++public sealed partial class CompanyRepository : ICompanyQuery
+ {
++
+     public async Task<bool> IsNameUnique(string normalizedName, CancellationToken cancellationToken)
+         => !await Exists(c => c.NormalizedName == normalizedName, cancellationToken);
++
++    public async Task<CompanyDetailsProjection?> CurrentDetails(CancellationToken cancellationToken)
++    {
++        return await QueryFirstOrDefault<Company, CompanyDetailsProjection>(
++            restaurantsDbContext.Companies,
++            new DbQueryOptions<Company, CompanyDetailsProjection>
++            {
++                Selector = company => new CompanyDetailsProjection(
++                    company.Id.Value,
++                    company.Name,
++                    company.Description,
++                    company.LogoUrl,
++                    company.BusinessDetails.LegalName,
++                    company.BusinessDetails.TaxId)
++            },
++            cancellationToken);
++    }
+ }
++
++
++

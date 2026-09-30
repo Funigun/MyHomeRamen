@@ -48,4 +48,12 @@ public sealed class Company : Aggregate<CompanyId>
     {
         BusinessDetails = BusinessDetails.Create(legalName, taxId);
     }
+    public void UpdateDetails(string? description, string? logoUrl, string legalName, string taxId)
+    {
+        Description = description;
+        LogoUrl = logoUrl;
+        BusinessDetails = BusinessDetails.Create(legalName, taxId);
+        CompanyValidator.Validate(this);
+    }
 }
+
