@@ -1,16 +1,16 @@
-﻿
 <MudCard>
-    <MudStack Row="true">
-        <MudButton>
-            Company Details
-        </MudButton>
-
-        <MudButton>
-            Social Medial
-        </MudButton>
-
-        <MudButton>
-            Restaurants
-        </MudButton>
+    <MudStack Row="true" Spacing="1" Class="flex-wrap">
+        <MudButton Href="@CompanyDetailsHref" Variant="Variant.Text" Color="Color.Primary">@CompanyDetailsLabel</MudButton>
+        <MudButton Href="@SocialMediaHref" Variant="Variant.Text" Color="Color.Primary">@SocialMediaLabel</MudButton>
+        <MudButton Href="@RestaurantsHref" Variant="Variant.Text" Color="Color.Primary">@RestaurantsLabel</MudButton>
     </MudStack>
 </MudCard>
+
+@code {
+    private const string CompanyDetailsHref = "/restaurants/companies/management";
+    private const string SocialMediaHref = "/restaurants/companies/social-media";
+    private const string RestaurantsHref = "/restaurants/companies/restaurants";
+    private const string CompanyDetailsLabel = "Company Details";
+    private const string SocialMediaLabel = "Social Media";
+    private const string RestaurantsLabel = "Restaurants";
+}

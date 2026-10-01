@@ -7,4 +7,6 @@ public interface ICompanyLoader
     Task<Company> ById(CompanyId companyDetailsId, CancellationToken cancellationToken);
 
     Task<IEnumerable<Company>> ByIds(IEnumerable<CompanyId> companyDetailsIds, CancellationToken cancellationToken);
+
+    Task<Company?> Current(CancellationToken cancellationToken);
 }

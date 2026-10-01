@@ -1,5 +1,62 @@
-﻿<h3>CompanyDetailsForm</h3>
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Management
+
+@inject IStringLocalizer<CompanyDetailsResources> Text
+
+<MudForm @ref="form" Model="Model" Validation="validator.ValidateValue" ValidationDelay="0" Class="mt-4">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h5">@Text["EditHeading"]</MudText>
+        <MudTextField @bind-Value="Model.Description" For="() => Model.Description" Label="@Text["Description"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" ErrorText="@GetError(nameof(Model.Description))" Error="@HasError(nameof(Model.Description))" />
+        <MudTextField @bind-Value="Model.LogoUrl" For="() => Model.LogoUrl" Label="@Text["LogoUrl"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" ErrorText="@GetError(nameof(Model.LogoUrl))" Error="@HasError(nameof(Model.LogoUrl))" />
+        <MudTextField @bind-Value="Model.LegalName" For="() => Model.LegalName" Label="@Text["LegalName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" ErrorText="@GetError(nameof(Model.LegalName))" Error="@HasError(nameof(Model.LegalName))" />
+        <MudTextField @bind-Value="Model.TaxId" For="() => Model.TaxId" Label="@Text["TaxId"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" ErrorText="@GetError(nameof(Model.TaxId))" Error="@HasError(nameof(Model.TaxId))" />
+
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="flex-wrap">
+            <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="IsSubmitting" OnClick="SubmitAsync">
+                @if (IsSubmitting)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                    @Text["Saving"]
+                }
+                else
+                {
+                    @Text["Save"]
+                }
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudForm>
 
 @code {
+    [Parameter, EditorRequired] public CompanyDetailsFormModel Model { get; set; } = default!;
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
+    [Parameter, EditorRequired] public EventCallback<CompanyDetailsFormModel> OnSubmit { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
 
+    private MudForm form = default!;
+    private readonly CompanyDetailsModelValidator validator = new();
+
+    private async Task SubmitAsync()
+    {
+        await form.Validate();
+        if (!form.IsValid || IsSubmitting)
+        {
+            return;
+        }
+
+        await OnSubmit.InvokeAsync(Model);
+    }
+
+    private async Task CancelAsync()
+    {
+        await OnCancel.InvokeAsync();
+    }
+
+    private bool HasError(string propertyName) => ValidationErrors.ContainsKey(propertyName);
+
+    private string? GetError(string propertyName) => ValidationErrors.TryGetValue(propertyName, out string[]? errors)
+        ? string.Join(" ", errors)
+        : null;
 }

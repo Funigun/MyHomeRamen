@@ -1,34 +1,172 @@
-﻿@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
 
 @inject CompanyApiClient CompanyApiClient
+@inject IStringLocalizer<CompanyDetailsResources> Text
+@inject NavigationManager NavigationManager
 
-<MudPaper Elevation="3" Class="pa-6">
-    <MudText Typo="Typo.h1" Class="mb-4">Company Owner Panel</MudText>
+<MudPaper Elevation="3" Class="pa-4 pa-md-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
 
     <CompanyOwnerPanelHeader />
 
     @if (isLoading)
     {
-        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+        <MudStack AlignItems="AlignItems.Center" Class="pa-8">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
     }
-    else if (companyDetails is null)
+    else if (isForbidden)
     {
-        <MudText Color="Color.Error">Failed to load company details.</MudText>
+        <MudAlert Severity="Severity.Error" Class="mt-6">@Text["Forbidden"]</MudAlert>
     }
-    else
+    else if (errorMessage is not null)
     {
-        <CompanyDetailsForm CompanyDetails="companyDetails" />
+        <MudAlert Severity="Severity.Error" Class="mt-6">@errorMessage</MudAlert>
+    }
+    else if (companyDetails is not null)
+    {
+        <MudStack Spacing="4" Class="mt-6">
+            <MudText Typo="Typo.h4">@companyDetails.Name</MudText>
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2">@Text["Description"]</MudText>
+                    <MudText>@DisplayValue(companyDetails.Description)</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2">@Text["LogoUrl"]</MudText>
+                    <MudText>@DisplayValue(companyDetails.LogoUrl)</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2">@Text["LegalName"]</MudText>
+                    <MudText>@DisplayValue(companyDetails.BusinessDetails.LegalName)</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2">@Text["TaxId"]</MudText>
+                    <MudText>@DisplayValue(companyDetails.BusinessDetails.TaxId)</MudText>
+                </MudItem>
+            </MudGrid>
+
+            @if (isEditing)
+            {
+                <CompanyDetailsForm Model="editModel!"
+                                    IsSubmitting="isSubmitting"
+                                    ValidationErrors="validationErrors"
+                                    OnSubmit="UpdateDetailsAsync"
+                                    OnCancel="CancelEdit" />
+            }
+            else if (CanEdit)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="BeginEdit">
+                    @Text["Edit"]
+                </MudButton>
+            }
+        </MudStack>
     }
 </MudPaper>
 
 @code {
     private CompanyDetailsModel? companyDetails;
+    private CompanyDetailsFormModel? editModel;
+    private IReadOnlyDictionary<string, string[]> validationErrors = new Dictionary<string, string[]>();
+    private string? errorMessage;
     private bool isLoading = true;
+    private bool isForbidden;
+    private bool isEditing;
+    private bool isSubmitting;
+
+    private bool CanEdit => companyDetails?.CanEditCompanyDetails == true;
 
     protected override async Task OnInitializedAsync()
     {
-        CompanyDetailsDto dto = await CompanyApiClient.GetDetails();
-        companyDetails = dto is not null ? CompanyDetailsModel.FromDto(dto) : null;
-        isLoading = false;
+        await LoadDetailsAsync();
     }
+
+    private async Task LoadDetailsAsync()
+    {
+        isLoading = true;
+        errorMessage = null;
+        isForbidden = false;
+
+        try
+        {
+            CompanyDetailsDto dto = await CompanyApiClient.GetDetailsAsync();
+            companyDetails = CompanyDetailsModel.FromDto(dto);
+        }
+        catch (CompanyApiException exception) when (exception.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            isForbidden = true;
+        }
+        catch (CompanyApiException exception)
+        {
+            errorMessage = exception.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void BeginEdit()
+    {
+        if (companyDetails is null || !CanEdit)
+        {
+            return;
+        }
+
+        editModel = CompanyDetailsFormModel.FromDetails(companyDetails);
+        validationErrors = new Dictionary<string, string[]>();
+        errorMessage = null;
+        isEditing = true;
+    }
+
+    private void CancelEdit()
+    {
+        if (isSubmitting)
+        {
+            return;
+        }
+
+        isEditing = false;
+        validationErrors = new Dictionary<string, string[]>();
+    }
+
+    private async Task UpdateDetailsAsync(CompanyDetailsFormModel model)
+    {
+        if (isSubmitting || !CanEdit)
+        {
+            return;
+        }
+
+        isSubmitting = true;
+        validationErrors = new Dictionary<string, string[]>();
+        errorMessage = null;
+
+        try
+        {
+            await CompanyApiClient.UpdateDetailsAsync(model.ToRequest());
+            await LoadDetailsAsync();
+            isEditing = false;
+        }
+        catch (CompanyApiException exception) when (exception.StatusCode == System.Net.HttpStatusCode.BadRequest)
+        {
+            validationErrors = exception.ValidationErrors;
+            errorMessage = exception.GeneralError ?? Text["ValidationFailure"];
+        }
+        catch (CompanyApiException exception) when (exception.StatusCode == System.Net.HttpStatusCode.Forbidden)
+        {
+            errorMessage = Text["Forbidden"];
+        }
+        catch (CompanyApiException exception)
+        {
+            errorMessage = exception.Message;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? Text["NotProvided"] : value;
 }
