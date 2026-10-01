@@ -1,10 +1,32 @@
-﻿using System.Net;
+using System.Net;
+using System.Text.Json;
 
 namespace MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
 
 public sealed class CompanyApiClient(HttpClient httpClient)
 {
-    private const string BASE_URL = "api/companies";
+    private const string DetailsUrl = "api/restaurants/company/details";
+
+    public async Task<CompanyDetailsDto> GetDetailsAsync(CancellationToken cancellationToken = default)
+    {
+        using HttpResponseMessage response = await httpClient.GetAsync(DetailsUrl, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw await CompanyApiException.FromResponseAsync(response, cancellationToken);
+        }
+
+        return await response.Content.ReadFromJsonAsync<CompanyDetailsDto>(cancellationToken: cancellationToken)
+            ?? throw new CompanyApiException(HttpStatusCode.InternalServerError, "Company details response was empty.");
+    }
+
+    public async Task UpdateDetailsAsync(UpdateCompanyDetailsRequest request, CancellationToken cancellationToken = default)
+    {
+        using HttpResponseMessage response = await httpClient.PutAsJsonAsync(DetailsUrl, request, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw await CompanyApiException.FromResponseAsync(response, cancellationToken);
+        }
+    }
 
     public async Task<RegisterCompanyOwnerResponse> RegisterCompanyOwnerAsync(RegisterCompanyOwnerRequest request, string idempotencyKey, CancellationToken cancellationToken = default)
     {
@@ -20,19 +42,61 @@ public sealed class CompanyApiClient(HttpClient httpClient)
             throw new RegistrationApiException(response.StatusCode);
         }
 
-        RegisterCompanyOwnerResponse? result = await response.Content.ReadFromJsonAsync<RegisterCompanyOwnerResponse>(
-            cancellationToken: cancellationToken);
-
+        RegisterCompanyOwnerResponse? result = await response.Content.ReadFromJsonAsync<RegisterCompanyOwnerResponse>(cancellationToken: cancellationToken);
         return result ?? throw new RegistrationApiException(HttpStatusCode.InternalServerError);
     }
+}
 
-    public async Task<CompanyDetailsDto> GetDetails(CancellationToken cancellationToken = default)
+public sealed class CompanyApiException(HttpStatusCode statusCode, string message, IReadOnlyDictionary<string, string[]>? validationErrors = null, string? generalError = null) : Exception(message)
+{
+    public HttpStatusCode StatusCode { get; } = statusCode;
+    public IReadOnlyDictionary<string, string[]> ValidationErrors { get; } = validationErrors ?? new Dictionary<string, string[]>();
+    public string? GeneralError { get; } = generalError;
+
+    public static async Task<CompanyApiException> FromResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
-        HttpResponseMessage? response = await httpClient.GetAsync($"{BASE_URL}/details", cancellationToken);
-        response.EnsureSuccessStatusCode();
+        string body = await response.Content.ReadAsStringAsync(cancellationToken);
+        if (response.StatusCode == HttpStatusCode.BadRequest && !string.IsNullOrWhiteSpace(body))
+        {
+            try
+            {
+                using JsonDocument document = JsonDocument.Parse(body);
+                JsonElement root = document.RootElement;
+                Dictionary<string, string[]> errors = new(StringComparer.OrdinalIgnoreCase);
+                string? generalError = null;
 
-        return await response.Content.ReadFromJsonAsync<CompanyDetailsDto>(cancellationToken: cancellationToken)
-            ?? throw new InvalidOperationException("Unable to deserialize CompanyDetailsDto from response.");
+                if (root.TryGetProperty("errors", out JsonElement errorsElement) && errorsElement.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (JsonProperty error in errorsElement.EnumerateObject())
+                    {
+                        errors[error.Name] = error.Value.ValueKind == JsonValueKind.Array
+                            ? error.Value.EnumerateArray().Where(item => item.ValueKind == JsonValueKind.String).Select(item => item.GetString()!).ToArray()
+                            : [error.Value.GetString() ?? string.Empty];
+                    }
+                }
+
+                if (root.TryGetProperty("detail", out JsonElement detail) && detail.ValueKind == JsonValueKind.String)
+                {
+                    generalError = detail.GetString();
+                }
+                else if (root.TryGetProperty("title", out JsonElement title) && title.ValueKind == JsonValueKind.String)
+                {
+                    generalError = title.GetString();
+                }
+
+                return new CompanyApiException(response.StatusCode, generalError ?? "Company details request was rejected.", errors, generalError);
+            }
+            catch (JsonException)
+            {
+            }
+        }
+
+        string message = response.StatusCode switch
+        {
+            HttpStatusCode.Forbidden => "You are not authorized to manage company details.",
+            _ => "Company details request failed. Please try again."
+        };
+        return new CompanyApiException(response.StatusCode, message);
     }
 }
 
