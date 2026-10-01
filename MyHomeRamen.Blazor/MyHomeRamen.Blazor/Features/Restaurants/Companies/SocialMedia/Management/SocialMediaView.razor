@@ -1,28 +1,194 @@
-﻿@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using System.Net
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Shared
 
-@inject CompanyApiClient CompanyApiClient
+@inject SocialMediaApiClient SocialMediaApiClient
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IStringLocalizer<SocialMediaResources> Text
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthorizationService AuthorizationService
 
-<MudPaper Elevation="3" Class="pa-6">
-    <MudText Typo="Typo.h1" Class="mb-4">Company Owner Panel</MudText>
-
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
     <CompanyOwnerPanelHeader />
 
-    @if (isLoading)
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-6 mb-2 flex-wrap gap-2">
+        <MudText Typo="Typo.h4">@Text["SectionTitle"]</MudText>
+        @if (_canEdit)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialogAsync">@Text["Add"]</MudButton>
+        }
+    </MudStack>
+
+    @if (_isLoading)
     {
-        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_isForbidden)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@Text["Forbidden"]</MudAlert>
+    }
+    else if (_loadError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@Text["LoadError"]</MudAlert>
     }
     else
     {
-        <SocialMediaGrid />
+        <SocialMediaGrid Items="_items"
+                         ShowActions="_canEdit"
+                         EmptyText='@Text["Empty"]'
+                         EditText='@Text["Edit"]'
+                         DeleteText='@Text["Delete"]'
+                         OnEdit="OpenEditDialogAsync"
+                         OnDelete="ConfirmDeleteAsync" />
     }
 </MudPaper>
 
 @code {
-    private bool isLoading = true;
+    private readonly List<SocialMediaViewModel> _items = [];
+    private bool _isLoading = true;
+    private bool _loadError;
+    private bool _isForbidden;
+    private bool _canEdit;
 
     protected override async Task OnInitializedAsync()
     {
+        AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canEdit = (await AuthorizationService.AuthorizeAsync(state.User, PermissionConstants.CompanySocialMediaEdit)).Succeeded;
+        await LoadAsync();
+    }
 
-        isLoading = false;
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _loadError = false;
+        _isForbidden = false;
+        try
+        {
+            GetSocialMediaForManageResponse response = await SocialMediaApiClient.GetForManageAsync();
+            _items.Clear();
+            _items.AddRange(response.Items.Select(SocialMediaViewModel.FromResponse));
+        }
+        catch (SocialMediaApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
+        {
+            _isForbidden = true;
+        }
+        catch (SocialMediaApiException)
+        {
+            _loadError = true;
+        }
+        catch (HttpRequestException)
+        {
+            _loadError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        await ShowDialogAsync(false, null);
+    }
+
+    private async Task OpenEditDialogAsync(SocialMediaViewModel item)
+    {
+        await ShowDialogAsync(true, item);
+    }
+
+    private async Task ShowDialogAsync(bool isEdit, SocialMediaViewModel? item)
+    {
+        SocialMediaFormModel model = item is null ? new() : SocialMediaFormModel.FromViewModel(item);
+        DialogParameters<SocialMediaDialog> parameters = new()
+        {
+            { dialog => dialog.Model, model },
+            { dialog => dialog.IsEdit, isEdit },
+            { dialog => dialog.OnSubmit, SaveAsync }
+        };
+        DialogOptions options = new()
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseButton = true,
+            FullScreen = true
+        };
+
+        await DialogService.ShowAsync<SocialMediaDialog>(isEdit ? Text["UpdateTitle"] : Text["CreateTitle"], parameters, options);
+    }
+
+    private async Task<bool> SaveAsync(SocialMediaFormModel model)
+    {
+        try
+        {
+            SocialMediaViewModel? existing = model.Id.HasValue ? _items.FirstOrDefault(item => item.Id == model.Id.Value) : null;
+            if (existing is null)
+            {
+                await SocialMediaApiClient.CreateAsync(model.ToCreateRequest());
+                Snackbar.Add(Text["Created"], Severity.Success);
+            }
+            else
+            {
+                await SocialMediaApiClient.UpdateAsync(existing.Id, model.ToUpdateRequest());
+                Snackbar.Add(Text["Updated"], Severity.Success);
+            }
+
+            await LoadAsync();
+            return true;
+        }
+        catch (SocialMediaApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
+        {
+            Snackbar.Add(Text["Forbidden"], Severity.Error);
+            return false;
+        }
+        catch (SocialMediaApiException exception) when ((int)exception.StatusCode is >= 400 and < 500)
+        {
+            Snackbar.Add(Text["ValidationFailure"], Severity.Error);
+            return false;
+        }
+        catch (HttpRequestException)
+        {
+            Snackbar.Add(Text["UnexpectedError"], Severity.Error);
+            return false;
+        }
+    }
+
+    private async Task ConfirmDeleteAsync(SocialMediaViewModel item)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            Text["DeleteConfirmTitle"],
+            Text["DeleteConfirmMessage"],
+            yesText: Text["Delete"],
+            cancelText: Text["Cancel"]);
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        try
+        {
+            await SocialMediaApiClient.DeleteAsync(item.Id);
+            Snackbar.Add(Text["Deleted"], Severity.Success);
+            await LoadAsync();
+        }
+        catch (SocialMediaApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
+        {
+            Snackbar.Add(Text["Forbidden"], Severity.Error);
+        }
+        catch (SocialMediaApiException)
+        {
+            Snackbar.Add(Text["UnexpectedError"], Severity.Error);
+        }
+        catch (HttpRequestException)
+        {
+            Snackbar.Add(Text["UnexpectedError"], Severity.Error);
+        }
     }
 }

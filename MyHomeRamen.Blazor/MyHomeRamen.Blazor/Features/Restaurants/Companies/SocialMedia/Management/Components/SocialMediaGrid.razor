@@ -1,5 +1,49 @@
-﻿<h3>SocialMediaTable</h3>
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Models
+
+@if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="mt-4">@EmptyText</MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="mt-1">
+        @foreach (SocialMediaViewModel item in Items)
+        {
+            <MudItem xs="12" sm="6">
+                <MudCard Outlined="true" Class="h-100">
+                    <MudCardContent Class="d-flex flex-column h-100">
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                            @if (!string.IsNullOrWhiteSpace(item.LogoUrl))
+                            {
+                                <MudAvatar Image="@item.LogoUrl" Size="Size.Large" Alt="@item.Name" />
+                            }
+                            else
+                            {
+                                <MudAvatar Size="Size.Large">@item.Name[..1].ToUpperInvariant()</MudAvatar>
+                            }
+                            <MudText Typo="Typo.h6">@item.Name</MudText>
+                        </MudStack>
+                        <MudLink Href="@item.Url" Target="_blank" Rel="noopener noreferrer" Class="mt-4 text-break">@item.Url</MudLink>
+                        @if (ShowActions)
+                        {
+                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="1" Class="mt-auto pt-4">
+                                <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Edit" OnClick="@(() => OnEdit.InvokeAsync(item))">@EditText</MudButton>
+                                <MudButton Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="@(() => OnDelete.InvokeAsync(item))">@DeleteText</MudButton>
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
 
 @code {
-
+    [Parameter, EditorRequired] public IReadOnlyList<SocialMediaViewModel> Items { get; set; } = [];
+    [Parameter] public bool ShowActions { get; set; }
+    [Parameter] public string EmptyText { get; set; } = "No social media configured.";
+    [Parameter] public string EditText { get; set; } = "Edit";
+    [Parameter] public string DeleteText { get; set; } = "Delete";
+    [Parameter] public EventCallback<SocialMediaViewModel> OnEdit { get; set; }
+    [Parameter] public EventCallback<SocialMediaViewModel> OnDelete { get; set; }
 }
