@@ -6,16 +6,13 @@ Add Company-scoped social-media management and anonymous available-media reads. 
 ## 2. Files to create / modify
 | Action | Module | Aggregate | Feature Name | Endpoint Kind | Route |
 |--------|--------|-----------|--------------|---------------|-------|
-| Create | Restaurants | Company | CreateSocialMedia | Command | `POST /api/restaurants/company/{id}/social-media` |
-| Create | Restaurants | Company | GetSocialMediaForManage | Query | `GET /api/restaurants/company/{id}/social-media/manage` |
-| Create | Restaurants | Company | UpdateSocialMedia | Command | `PUT /api/restaurants/company/{id}/social-media/{socialMediaId}` |
-| Create | Restaurants | Company | DeleteSocialMedia | Command | `DELETE /api/restaurants/company/{id}/social-media/{socialMediaId}` |
-| Create | Restaurants | Company | GetAvailableSocialMedia | Query | `GET /api/restaurants/company/{id}/social-media/available` |
-| Modify | Restaurants | Company | SocialMedia aggregate behavior | Command | — |
-| Modify | Restaurants | Company | Company repository/query access | Query and command support | — |
-| Modify | Restaurants | Company | Restaurants database context | Command support | — |
+| Create | Restaurants | Company | CreateSocialMedia | Command | POST: /api/restaurants/company/social-media |
+| Create | Restaurants | Company | GetSocialMediaForManage | Query | GET: /api/restaurants/company/social-media/manage |
+| Create | Restaurants | Company | UpdateSocialMedia | Command | PUT: /api/restaurants/company/social-media/{socialMediaId} |
+| Create | Restaurants | Company | DeleteSocialMedia | Command | DELETE: /api/restaurants/company/social-media/{socialMediaId} |
+| Create | Restaurants | Company | GetAvailableSocialMedia | Query | GET: /api/restaurants/company/social-media/available |
 
-## 3. Domain changes
+Additional modified surfaces: Company social-media aggregate behavior, Company repository/query access, and Restaurants database context support.`r`n`r`n## 3. Domain changes
 - Keep Company as aggregate owner; do not create an independent SocialMedia repository.
 - Preserve `SocialMedia.Create` validation for required and maximum-length `Name`, `LogoUrl`, and `Url`.
 - Add Company-owned SocialMedia update and removal behavior.

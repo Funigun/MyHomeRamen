@@ -44,6 +44,27 @@ public sealed class Company : Aggregate<CompanyId>
         return string.Concat(name.Where(char.IsLetterOrDigit)).ToUpperInvariant();
     }
 
+    public void AddSocialMedia(SocialMedia socialMedia)
+    {
+        _media.Add(socialMedia);
+    }
+
+    public void UpdateSocialMedia(SocialMediaId socialMediaId, string name, string logoUrl, string url)
+    {
+        SocialMedia socialMedia = FindSocialMedia(socialMediaId);
+        socialMedia.Update(name, logoUrl, url);
+    }
+
+    public void RemoveSocialMedia(SocialMediaId socialMediaId)
+    {
+        SocialMedia socialMedia = FindSocialMedia(socialMediaId);
+        _media.Remove(socialMedia);
+    }
+
+    private SocialMedia FindSocialMedia(SocialMediaId socialMediaId)
+        => _media.FirstOrDefault(media => media.Id == socialMediaId)
+           ?? throw new InvalidOperationException("Social media does not belong to this company.");
+
     public void UpdateBusinessDetails(string legalName, string taxId)
     {
         BusinessDetails = BusinessDetails.Create(legalName, taxId);
