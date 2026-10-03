@@ -1,0 +1,165 @@
+diff --git a/MyHomeRamen.Domain/Identity/CompanyMemberships/CompanyMembership.cs b/MyHomeRamen.Domain/Identity/CompanyMemberships/CompanyMembership.cs
+index 59d38322..7f50deb8 100644
+--- a/MyHomeRamen.Domain/Identity/CompanyMemberships/CompanyMembership.cs
++++ b/MyHomeRamen.Domain/Identity/CompanyMemberships/CompanyMembership.cs
+@@ -10,12 +10,32 @@ public sealed class CompanyMembership : AuditableEntity, IEntity<CompanyMembersh
+     public CompanyMembershipId Id { get; private set; }
+     public UserId UserId { get; private set; }
+     public Guid CompanyId { get; private set; }
++    public Guid RestaurantId { get; private set; }
+     public RoleId RoleId { get; private set; }
+     public bool IsActive { get; private set; }
+     public string IdempotencyKey { get; private set; } = string.Empty;
+ 
+     private CompanyMembership() { }
+ 
++    public static CompanyMembership CreateRestaurantAdmin(UserId userId, Guid companyId, Guid restaurantId, RoleId roleId, string idempotencyKey)
++    {
++        if (companyId == Guid.Empty || restaurantId == Guid.Empty || roleId.Value == Guid.Empty || string.IsNullOrWhiteSpace(idempotencyKey))
++        {
++            throw new DomainException("Company, restaurant, role, and idempotency key are required.");
++        }
++
++        return new CompanyMembership
++        {
++            Id = Guid.CreateVersion7(),
++            UserId = userId,
++            CompanyId = companyId,
++            RestaurantId = restaurantId,
++            RoleId = roleId,
++            IsActive = true,
++            IdempotencyKey = idempotencyKey
++        };
++    }
++
+     public static CompanyMembership CreateOwner(UserId userId, Guid companyId, RoleId roleId, string idempotencyKey)
+     {
+         if (companyId == Guid.Empty || roleId.Value == Guid.Empty || string.IsNullOrWhiteSpace(idempotencyKey))
+@@ -34,3 +54,5 @@ public sealed class CompanyMembership : AuditableEntity, IEntity<CompanyMembersh
+         };
+     }
+ }
++
++
+diff --git a/MyHomeRamen.Domain/Restaurants/Restaurants/Restaurant.cs b/MyHomeRamen.Domain/Restaurants/Restaurants/Restaurant.cs
+index 0c000bd3..4d55d946 100644
+--- a/MyHomeRamen.Domain/Restaurants/Restaurants/Restaurant.cs
++++ b/MyHomeRamen.Domain/Restaurants/Restaurants/Restaurant.cs
+@@ -1,4 +1,4 @@
+-﻿using MyHomeRamen.Domain.Abstractions;
++using MyHomeRamen.Domain.Abstractions;
+ using MyHomeRamen.Domain.Restaurants.Restaurants.ValueObjects;
+ 
+ namespace MyHomeRamen.Domain.Restaurants.Restaurants;
+@@ -38,6 +38,14 @@ public sealed class Restaurant : Aggregate<RestaurantId>
+         return restaurant;
+     }
+ 
++    public void AssignManager(Guid managerUserId)
++    {
++        if (managerUserId == Guid.Empty)
++        {
++            throw new ArgumentException("Manager user identifier is required.", nameof(managerUserId));
++        }
++    }
++
+     public void UpdateDetails(string name, Address address, bool isActive)
+     {
+         Name = name;
+@@ -76,3 +84,5 @@ public sealed class Restaurant : Aggregate<RestaurantId>
+         closingPeriod?.Deactivate();
+     }
+ }
++
++
+diff --git a/MyHomeRamen.Features/Identity/Features/CompanyMemberships/Common/ICompanyMembershipRepository.cs b/MyHomeRamen.Features/Identity/Features/CompanyMemberships/Common/ICompanyMembershipRepository.cs
+index da60ec05..56cbd31f 100644
+--- a/MyHomeRamen.Features/Identity/Features/CompanyMemberships/Common/ICompanyMembershipRepository.cs
++++ b/MyHomeRamen.Features/Identity/Features/CompanyMemberships/Common/ICompanyMembershipRepository.cs
+@@ -8,4 +8,7 @@ public interface ICompanyMembershipRepository : IRepository<CompanyMembership, C
+ {
+     Task<CompanyMembership?> ByIdempotencyKey(string key, CancellationToken cancellationToken);
+     Task<bool> Exists(UserId userId, Guid companyId, CancellationToken cancellationToken);
++    Task<bool> Exists(UserId userId, Guid companyId, Guid restaurantId, CancellationToken cancellationToken);
+ }
++
++
+diff --git a/MyHomeRamen.Features/Restaurants/Features/Restaurants/Common/IRestaurantQuery.cs b/MyHomeRamen.Features/Restaurants/Features/Restaurants/Common/IRestaurantQuery.cs
+index 07876b23..fceafe3a 100644
+--- a/MyHomeRamen.Features/Restaurants/Features/Restaurants/Common/IRestaurantQuery.cs
++++ b/MyHomeRamen.Features/Restaurants/Features/Restaurants/Common/IRestaurantQuery.cs
+@@ -1,6 +1,13 @@
++using MyHomeRamen.Domain.Restaurants.Restaurants;
++
+ namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
+ 
+ public interface IRestaurantQuery
+ {
+     Task<bool> IsNameUnique(string name, CancellationToken cancellationToken);
++    Task<RestaurantDetailsDto?> Details(RestaurantId restaurantId, CancellationToken cancellationToken);
++    Task<IEnumerable<RestaurantListItemDto>> Available(CancellationToken cancellationToken);
+ }
++
++public sealed record RestaurantDetailsDto(Guid Id, string Name, bool IsActive, string Street, string City, string ZipCode, double Latitude, double Longitude, string? Phone, string? Email, string? AccountNumber, string? BankName, string? RoutingNumber);
++public sealed record RestaurantListItemDto(Guid Id, string Name, bool IsActive, string Street, string City, string ZipCode, double Latitude, double Longitude, string? Phone, string? Email);
+diff --git a/MyHomeRamen.Persistance/Identity/CompanyMemberships/CompanyMembershipRepository.cs b/MyHomeRamen.Persistance/Identity/CompanyMemberships/CompanyMembershipRepository.cs
+index 5e797c72..887f0188 100644
+--- a/MyHomeRamen.Persistance/Identity/CompanyMemberships/CompanyMembershipRepository.cs
++++ b/MyHomeRamen.Persistance/Identity/CompanyMemberships/CompanyMembershipRepository.cs
+@@ -14,4 +14,7 @@ public sealed class CompanyMembershipRepository(IdentityDbContext dbContext, ICa
+ 
+     public async Task<bool> Exists(UserId userId, Guid companyId, CancellationToken cancellationToken)
+         => await dbContext.CompanyMemberships.AsNoTracking().AnyAsync(x => x.UserId == userId && x.CompanyId == companyId && x.IsActive, cancellationToken);
++    public async Task<bool> Exists(UserId userId, Guid companyId, Guid restaurantId, CancellationToken cancellationToken)
++        => await dbContext.CompanyMemberships.AsNoTracking().AnyAsync(x => x.UserId == userId && x.CompanyId == companyId && x.RestaurantId == restaurantId && x.IsActive, cancellationToken);
+ }
++
+diff --git a/MyHomeRamen.Persistance/Identity/IdentityDbContext.cs b/MyHomeRamen.Persistance/Identity/IdentityDbContext.cs
+index 66e668a1..4ad5265e 100644
+--- a/MyHomeRamen.Persistance/Identity/IdentityDbContext.cs
++++ b/MyHomeRamen.Persistance/Identity/IdentityDbContext.cs
+@@ -112,10 +112,11 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
+             b.Property(x => x.Id).ValueGeneratedNever();
+             b.Property(x => x.UserId).IsRequired();
+             b.Property(x => x.CompanyId).IsRequired();
++            b.Property(x => x.RestaurantId).IsRequired();
+             b.Property(x => x.RoleId).IsRequired();
+             b.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
+             b.HasIndex(x => x.IdempotencyKey).IsUnique();
+-            b.HasIndex(x => new { x.UserId, x.CompanyId }).IsUnique();
++            b.HasIndex(x => new { x.UserId, x.CompanyId, x.RestaurantId }).IsUnique();
+         });
+ 
+         modelBuilder.Entity<Role>(b =>
+@@ -200,3 +201,5 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
+         return await Database.ExecuteSqlInterpolatedAsync(sql, cancellationToken);
+     }
+ }
++
++
+diff --git a/MyHomeRamen.Persistance/Restaurants/Restaurants/RestaurantRepository.cs b/MyHomeRamen.Persistance/Restaurants/Restaurants/RestaurantRepository.cs
+index 8b3bb54c..9ae8355c 100644
+--- a/MyHomeRamen.Persistance/Restaurants/Restaurants/RestaurantRepository.cs
++++ b/MyHomeRamen.Persistance/Restaurants/Restaurants/RestaurantRepository.cs
+@@ -1,6 +1,7 @@
+ using MyHomeRamen.Domain.Restaurants.Restaurants;
+ using MyHomeRamen.Features.Common.Cache;
+ using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
++using Microsoft.EntityFrameworkCore;
+ using MyHomeRamen.Persistance.Common;
+ 
+ namespace MyHomeRamen.Persistance.Restaurants;
+@@ -10,4 +11,13 @@ public sealed partial class RestaurantRepository(RestaurantsDbContext restaurant
+     public IRestaurantQuery Query() => this;
+ 
+     public IRestaurantLoader Load() => this;
++
++    public async Task<RestaurantDetailsDto?> Details(RestaurantId restaurantId, CancellationToken cancellationToken)
++        => await restaurantsDbContext.Restaurants.AsNoTracking().Where(r => r.Id == restaurantId).Select(r => new RestaurantDetailsDto(r.Id.Value, r.Name, r.IsActive, r.Address.Street, r.Address.City, r.Address.ZipCode, r.Address.Location.Latitude, r.Address.Location.Longitude, r.ContactDetails == null ? null : r.ContactDetails.Phone, r.ContactDetails == null ? null : r.ContactDetails.Email, r.BankAccount == null ? null : r.BankAccount.AccountNumber, r.BankAccount == null ? null : r.BankAccount.BankName, r.BankAccount == null ? null : r.BankAccount.RoutingNumber)).FirstOrDefaultAsync(cancellationToken);
++
++    public async Task<IEnumerable<RestaurantListItemDto>> Available(CancellationToken cancellationToken)
++        => await restaurantsDbContext.Restaurants.AsNoTracking().OrderBy(r => r.CreatedOn).Select(r => new RestaurantListItemDto(r.Id.Value, r.Name, r.IsActive, r.Address.Street, r.Address.City, r.Address.ZipCode, r.Address.Location.Latitude, r.Address.Location.Longitude, r.ContactDetails == null ? null : r.ContactDetails.Phone, r.ContactDetails == null ? null : r.ContactDetails.Email)).ToListAsync(cancellationToken);
+ }
++
++
++

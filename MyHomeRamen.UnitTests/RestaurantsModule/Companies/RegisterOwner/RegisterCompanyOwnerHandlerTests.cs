@@ -102,6 +102,9 @@ public sealed class RegisterCompanyOwnerHandlerTests
             RequestedDto = companyOwner;
             return Task.FromResult(result);
         }
+
+        public Task<RestaurantAdminRegistrationResult> RegisterRestaurantAdminAsync(RestaurantAdminRegistrationDto restaurantAdmin, CancellationToken cancellationToken)
+            => throw new NotSupportedException();
     }
 
     private sealed class RestaurantDbContextStub : IRestaurantDbContext

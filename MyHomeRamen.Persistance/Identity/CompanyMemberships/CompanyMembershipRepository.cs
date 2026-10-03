@@ -14,4 +14,7 @@ public sealed class CompanyMembershipRepository(IdentityDbContext dbContext, ICa
 
     public async Task<bool> Exists(UserId userId, Guid companyId, CancellationToken cancellationToken)
         => await dbContext.CompanyMemberships.AsNoTracking().AnyAsync(x => x.UserId == userId && x.CompanyId == companyId && x.IsActive, cancellationToken);
+    public async Task<bool> Exists(UserId userId, Guid companyId, Guid restaurantId, CancellationToken cancellationToken)
+        => await dbContext.CompanyMemberships.AsNoTracking().AnyAsync(x => x.UserId == userId && x.CompanyId == companyId && x.RestaurantId == restaurantId && x.IsActive, cancellationToken);
 }
+
