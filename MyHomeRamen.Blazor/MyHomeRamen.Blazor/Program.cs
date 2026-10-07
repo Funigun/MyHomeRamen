@@ -36,6 +36,7 @@ try
     builder.Services.AddHttpContextAccessor()
                     .AddAuthenticationHandlers()
                     .AddKeycloackAuthentication(builder)
+                    .AddBlazorAuthorization()
                     .AddCascadingAuthenticationState();
 
     builder.Services.AddMudServices();

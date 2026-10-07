@@ -25,4 +25,11 @@ public static class RestaurantsPermissionConstants
         RestaurantBankDetailsEdit, RestaurantWorkingHoursEdit, 
         RestaurantContactDetailsEdit, RestaurantClosingPeriodsEdit
     ];
+
+    public static IEnumerable<string> CompanyOwnerPermissions =>
+    [
+        CompanyView, CompanyEdit,
+        CompanySocialMediaView, CompanySocialMediaEdit,
+        RestaurantsManage,
+    ];
 }

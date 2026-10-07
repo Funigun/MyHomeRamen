@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Social media management</value></data>
+  <data name="Heading" xml:space="preserve"><value>Company owner panel</value></data>
+  <data name="SectionTitle" xml:space="preserve"><value>Social media</value></data>
+  <data name="Add" xml:space="preserve"><value>Add social media</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="LogoUrl" xml:space="preserve"><value>Logo URL</value></data>
+  <data name="Url" xml:space="preserve"><value>URL</value></data>
+  <data name="CreateTitle" xml:space="preserve"><value>Add social media</value></data>
+  <data name="UpdateTitle" xml:space="preserve"><value>Edit social media</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading social media...</value></data>
+  <data name="Empty" xml:space="preserve"><value>No social media configured.</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Social media could not be loaded.</value></data>
+  <data name="Forbidden" xml:space="preserve"><value>You do not have permission to view company social media.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>Something went wrong. Please try again.</value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Delete social media</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Delete this social media link? This action cannot be undone.</value></data>
+  <data name="Created" xml:space="preserve"><value>Social media added.</value></data>
+  <data name="Updated" xml:space="preserve"><value>Social media updated.</value></data>
+  <data name="Deleted" xml:space="preserve"><value>Social media deleted.</value></data>
+  <data name="ValidationFailure" xml:space="preserve"><value>Review highlighted fields and correct invalid values.</value></data>
+</root>

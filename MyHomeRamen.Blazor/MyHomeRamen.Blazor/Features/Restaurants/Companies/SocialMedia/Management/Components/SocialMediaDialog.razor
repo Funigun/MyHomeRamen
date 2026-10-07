@@ -1,5 +1,62 @@
-﻿<h3>SocialMediaDialog</h3>
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Models
+
+@inject IStringLocalizer<SocialMediaResources> Text
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue" ValidationDelay="0">
+            <MudStack Spacing="2">
+                <MudTextField Label="@Text["Name"]" @bind-Value="Model.Name" For="@(() => Model.Name)" Required="true" Variant="Variant.Outlined" />
+                <MudTextField Label="@Text["LogoUrl"]" @bind-Value="Model.LogoUrl" For="@(() => Model.LogoUrl)" Required="true" Variant="Variant.Outlined" />
+                <MudTextField Label="@Text["Url"]" @bind-Value="Model.Url" For="@(() => Model.Url)" Required="true" Variant="Variant.Outlined" />
+                @if (ErrorMessage is not null)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+                }
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@Text["Cancel"]</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="IsBusy" OnClick="SubmitAsync">
+            @if (IsBusy)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+            }
+            else
+            {
+                <span>@Text["Save"]</span>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
 
 @code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter, EditorRequired] public SocialMediaFormModel Model { get; set; } = default!;
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public bool IsBusy { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public Func<SocialMediaFormModel, Task<bool>> OnSubmit { get; set; } = default!;
 
+    private MudForm _form = default!;
+    private readonly SocialMediaFormModelValidator _validator = new();
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        if (await OnSubmit(Model))
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
 }

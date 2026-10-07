@@ -72,17 +72,18 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
 
     private async Task UpdateAdminRole(IEnumerable<Permission> allPermissions, CancellationToken cancellationToken)
     {
-        IEnumerable<PermissionId> allPermissionIds = allPermissions.Select(p => p.Id);
+        IEnumerable<PermissionId> adminPermissionIds = allPermissions.Where(permission => !RestaurantsPermissionConstants.CompanyOwnerPermissions.Contains(permission.Name))
+                                                                     .Select(p => p.Id);
 
         Role? adminRole = await identityDbContext.Role.Load().ByName(RoleConstants.RestaurantAdmin, cancellationToken);
 
         if (adminRole is null)
         {
-            identityDbContext.Role.Add(Role.CreateAdmin(allPermissionIds));
+            identityDbContext.Role.Add(Role.CreateAdmin(adminPermissionIds));
         }
         else
         {
-            adminRole.UpdatePermissions(allPermissionIds);
+            adminRole.UpdatePermissions(adminPermissionIds);
         }
     }
 
@@ -105,19 +106,16 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
 
     private async Task UpdateCompanyOwnerRole(IEnumerable<Permission> allCurrentPermissions, CancellationToken cancellationToken)
     {
-        HashSet<(string Module, string Name)> companyOwnerPermissions = PermissionCatalog.CompantyOwnerPermissions.ToHashSet();
-
-        IEnumerable<PermissionId> companyOwnerPermissionIds = allCurrentPermissions.Where(permission => companyOwnerPermissions.Contains((permission.Module, permission.Name)))
-                                                                                   .Select(permission => permission.Id);
+        IEnumerable<PermissionId> allPermissionIds = allCurrentPermissions.Select(p => p.Id);
 
         Role? companyOwnerRole = await identityDbContext.Role.Load().ByName(RoleConstants.CompanyOwner, cancellationToken);
         if (companyOwnerRole is null)
         {
-            identityDbContext.Role.Add(Role.CreateCompanyOwner(companyOwnerPermissionIds));
+            identityDbContext.Role.Add(Role.CreateCompanyOwner(allPermissionIds));
         }
         else
         {
-            companyOwnerRole.UpdatePermissions(companyOwnerPermissionIds);
+            companyOwnerRole.UpdatePermissions(allPermissionIds);
         }
     }
 

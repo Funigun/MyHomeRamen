@@ -188,7 +188,7 @@ public static class DependencyInjection
             );
         });
 
-        services.AddScoped<IRestaurantDbContext, RestaurantsDbContext>();
+        services.AddScoped<IRestaurantDbContext>(provider => provider.GetRequiredService<RestaurantsDbContext>());
         services.AddScoped<IRestaurantRepository, RestaurantRepository>();
         services.AddScoped<ICompanyRepository, CompanyRepository>();
 

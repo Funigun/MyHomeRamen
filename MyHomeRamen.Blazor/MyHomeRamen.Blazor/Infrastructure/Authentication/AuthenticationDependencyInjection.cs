@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MyHomeRamen.Blazor.Features.Account.Common.Models;
 using MyHomeRamen.Blazor.Features.Account.Common.Services;
+using MyHomeRamen.Blazor.Features.Restaurants.Shared;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider;
 
@@ -20,6 +21,19 @@ internal static class AuthenticationDependencyInjection
 
         services.AddScoped<CustomAuthenticationStateProvider>();
         services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomAuthenticationStateProvider>());
+
+        return services;
+    }
+
+    internal static IServiceCollection AddBlazorAuthorization(this IServiceCollection services)
+    {
+        services.AddAuthorizationBuilder()
+                .AddPolicy(PermissionConstants.CompanyView, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString))
+                .AddPolicy(PermissionConstants.CompanySocialMediaView, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString))
+                .AddPolicy(PermissionConstants.CompanySocialMediaEdit, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString));
 
         return services;
     }

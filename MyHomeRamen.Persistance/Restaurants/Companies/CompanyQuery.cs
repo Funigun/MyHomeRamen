@@ -7,6 +7,8 @@ namespace MyHomeRamen.Persistance.Restaurants;
 
 public sealed partial class CompanyRepository : ICompanyQuery
 {
+    public async Task<bool> HasMedia(SocialMediaId mediaId, CancellationToken cancellationToken)
+        => await Exists(c => c.Media.Any(media => media.Id == mediaId), cancellationToken);
 
     public async Task<bool> IsNameUnique(string normalizedName, CancellationToken cancellationToken)
         => !await Exists(c => c.NormalizedName == normalizedName, cancellationToken);

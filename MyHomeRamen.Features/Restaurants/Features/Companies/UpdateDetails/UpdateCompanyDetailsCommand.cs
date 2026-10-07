@@ -65,6 +65,7 @@ public sealed class UpdateCompanyDetailsHandler(IRestaurantDbContext dbContext) 
             command.Request.BusinessDetails.LegalName,
             command.Request.BusinessDetails.TaxId);
 
+        dbContext.Company.Update(company);
         await dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;
     }

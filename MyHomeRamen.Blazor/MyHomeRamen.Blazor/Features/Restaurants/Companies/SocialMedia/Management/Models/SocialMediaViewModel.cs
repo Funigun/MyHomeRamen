@@ -1,22 +1,19 @@
-﻿using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
+using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
 
 namespace MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Models;
 
-public class SocialMediaViewModel
+public sealed class SocialMediaViewModel
 {
-    public Guid? Id { get; private set; } = default!;
+    public Guid Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string LogoUrl { get; init; } = string.Empty;
+    public string Url { get; init; } = string.Empty;
 
-    public string Name { get; private set; } = default!;
-
-    public string? LogoUrl { get; private set; } = default!;
-
-    public Dictionary<string, bool> AllowedActions { get; private set; } = default!;
-
-    public static SocialMediaViewModel FromDto(SocialMediaDto dto) => new()
+    public static SocialMediaViewModel FromResponse(SocialMediaManageResponse response) => new()
     {
-        Id = dto.Id,
-        Name = dto.Name,
-        LogoUrl = dto.LogoUrl,
-        AllowedActions = dto.AllowedActions
+        Id = response.Id,
+        Name = response.Name,
+        LogoUrl = response.LogoUrl,
+        Url = response.Url
     };
 }

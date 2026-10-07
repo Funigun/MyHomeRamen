@@ -10,7 +10,7 @@ public sealed class CompanyDetailsModel
     public string? LogoUrl { get; private set; }
     public CompanyBusinessDetailsModel BusinessDetails { get; private set; } = new();
     public IReadOnlyDictionary<string, bool> AllowedActions { get; private set; } = new Dictionary<string, bool>();
-    public bool CanEditCompanyDetails => AllowedActions.TryGetValue("CanEditCompanyDetails", out bool allowed) && allowed;
+    public bool CanEditCompanyDetails => AllowedActions.TryGetValue("canEditCompanyDetails", out bool allowed) && allowed;
 
     public static CompanyDetailsModel FromDto(CompanyDetailsDto dto) => new()
     {

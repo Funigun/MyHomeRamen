@@ -15,6 +15,15 @@ internal static class DependencyInjection
             .AddHttpMessageHandler<AuthHeaderHandler>()
             .AddHttpMessageHandler<GuestCookieForwardingHandler>();
 
+        services.AddHttpClient<SocialMediaApiClient>(client =>
+            {
+                client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>()
+            .AddHttpMessageHandler<GuestCookieForwardingHandler>();
+
         return services;
     }
+
+
 }

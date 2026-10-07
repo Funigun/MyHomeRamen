@@ -1,4 +1,4 @@
-﻿using MyHomeRamen.Domain.Abstractions;
+using MyHomeRamen.Domain.Abstractions;
 
 namespace MyHomeRamen.Domain.Restaurants.Companies;
 
@@ -13,6 +13,14 @@ public sealed class SocialMedia : IEntity<SocialMediaId>
     public string Url { get; private set; } = string.Empty;
 
     private SocialMedia() { }
+
+    public void Update(string name, string logoUrl, string url)
+    {
+        Name = name;
+        LogoUrl = logoUrl;
+        Url = url;
+        SocialMediaValidator.Validate(this);
+    }
 
     public static SocialMedia Create(string name, string logoUrl, string url)
     {
