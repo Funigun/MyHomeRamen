@@ -24,6 +24,4 @@ internal static class DependencyInjection
 
         return services;
     }
-
-
 }

@@ -8,4 +8,7 @@ public interface ICompanyMembershipRepository : IRepository<CompanyMembership, C
 {
     Task<CompanyMembership?> ByIdempotencyKey(string key, CancellationToken cancellationToken);
     Task<bool> Exists(UserId userId, Guid companyId, CancellationToken cancellationToken);
+    Task<bool> Exists(UserId userId, Guid companyId, Guid restaurantId, CancellationToken cancellationToken);
 }
+
+

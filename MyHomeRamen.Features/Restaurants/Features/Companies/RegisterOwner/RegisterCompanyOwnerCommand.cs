@@ -1,7 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Common.CompanyDetails;
 using MyHomeRamen.Domain.Restaurants.Companies;
-using MyHomeRamen.Features.Common.Exceptions;
 using MyHomeRamen.Features.Common.Mediator;
 using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Restaurants.Features.Abstractions;

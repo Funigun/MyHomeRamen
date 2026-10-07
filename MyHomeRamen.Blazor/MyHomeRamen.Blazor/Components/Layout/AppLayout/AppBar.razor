@@ -18,12 +18,7 @@
             <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/menu"))">Menu</MudButton>
             <MudSpacer />
             
-            @if(_isCompanyOwner)
-            {
-                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/restaurants/companies/management"))">Company Owner Panel</MudButton>
-            }
-
-            @if(_isAdmin)
+            @if(_isAdmin || _isCompanyOwner)
             {
                 <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.AdminPanel))">Admin Panel</MudButton>
             }

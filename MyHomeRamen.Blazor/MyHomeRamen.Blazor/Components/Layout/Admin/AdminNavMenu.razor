@@ -1,10 +1,26 @@
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider
 
 @inject MenuNavigationService MenuNavigationService
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudNavMenu>
-    <MudNavGroup Title="Menu Management" Icon="@Icons.Material.Filled.RestaurantMenu" Expanded="true">
+    @if (_isCompanyOwner)
+    {
+        <MudNavGroup Title="Company Management" Icon="@Icons.Material.Outlined.Domain" Expanded="false">
+            <MudNavLink Href="/restaurants/companies/management" Match="NavLinkMatch.All">
+                Company details
+            </MudNavLink>
+            <MudNavLink Href="/restaurants/companies/social-media" Match="NavLinkMatch.All">
+                Social Media
+            </MudNavLink>
+            <MudNavLink Href="/restaurants/companies/restaurants" Match="NavLinkMatch.All">
+                Restaurants
+            </MudNavLink>
+        </MudNavGroup>
+    }
+    <MudNavGroup Title="Menu Management" Icon="@Icons.Material.Filled.RestaurantMenu" Expanded="false">
         <MudNavLink Href="@MenuNavigationService.Routes.Admin.ProductsManagement" Match="NavLinkMatch.All">
             Products Management
         </MudNavLink>
@@ -13,3 +29,12 @@
         </MudNavLink>
     </MudNavGroup>
 </MudNavMenu>
+
+@code {
+    private bool _isCompanyOwner = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _isCompanyOwner = await AuthenticationStateProvider.IsCompanyOwner();
+    }
+}
