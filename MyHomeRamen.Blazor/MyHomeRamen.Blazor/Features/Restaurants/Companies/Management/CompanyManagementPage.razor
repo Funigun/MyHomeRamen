@@ -1,10 +1,10 @@
 @page "/restaurants/companies/management"
-@attribute [Authorize(Policy = PermissionConstants.CompanyView)]
+@attribute [Authorize(Policy = AdminSectionConstants.CompanyManagement)]
 @layout AdminLayout
 
 @using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.Management
-@using MyHomeRamen.Blazor.Features.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 @inject IStringLocalizer<CompanyDetailsResources> Text
 
 <PageTitle>@Text["Title"]</PageTitle>

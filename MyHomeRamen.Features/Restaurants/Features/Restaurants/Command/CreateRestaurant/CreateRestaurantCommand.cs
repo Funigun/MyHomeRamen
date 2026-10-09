@@ -5,7 +5,6 @@ using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
 using MyHomeRamen.Features.Restaurants.Features.Abstractions;
-using MyHomeRamen.Features.Identity.Permissions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Command.CreateRestaurant;
 
@@ -16,7 +15,7 @@ public sealed record CreateRestaurantCommand(CreateRestaurantRequest Request) : 
 public sealed class CreateRestaurantAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<CreateRestaurantCommand>
 {
     public async Task<bool> Authorize(CreateRestaurantCommand request, CancellationToken cancellationToken) 
-        => await Task.FromResult(currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantsCreate));
+        => await Task.FromResult(currentUser.CanAddRestaurant());
 }
 
 public sealed class CreateRestaurantValidator : AbstractValidator<CreateRestaurantCommand>

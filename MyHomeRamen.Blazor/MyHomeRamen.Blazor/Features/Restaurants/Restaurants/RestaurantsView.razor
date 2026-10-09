@@ -1,0 +1,89 @@
+@using System.Net
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+
+@inject RestaurantApiClient RestaurantApiClient
+@inject IStringLocalizer<RestaurantsResources> Text
+@inject NavigationManager NavigationManager
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4 flex-wrap gap-2">
+        <MudText Typo="Typo.h1">@Text["Heading"]</MudText>
+        @if (_canCreate)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="CreateRestaurantAsync">
+                @Text["CreateRestaurant"]
+            </MudButton>
+        }
+    </MudStack>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_isForbidden)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@Text["Forbidden"]</MudAlert>
+    }
+    else if (_loadError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@Text["LoadError"]</MudAlert>
+    }
+    else
+    {
+        <RestaurantsGrid Items="_items"
+                         EmptyText='@Text["Empty"]'
+                         AddressText='@Text["Address"]'
+                         PhoneText='@Text["Phone"]'
+                         EmailText='@Text["Email"]'
+                         ActiveText='@Text["Active"]'
+                         InactiveText='@Text["Inactive"]' />
+    }
+</MudPaper>
+
+    @code {
+    private readonly List<RestaurantViewModel> _items = [];
+    private bool _isLoading = true;
+    private bool _isForbidden;
+    private bool _loadError;
+    private bool _canCreate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            GetAvailableRestaurantsResponse response = await RestaurantApiClient.GetAvailableAsync();
+            _items.AddRange(response.Restaurants.Select(RestaurantViewModel.FromResponse));
+            _canCreate = response.CanCreate;
+        }
+        catch (RestaurantApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
+        {
+            _isForbidden = true;
+        }
+        catch (RestaurantApiException)
+        {
+            _loadError = true;
+        }
+        catch (HttpRequestException)
+        {
+            _loadError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private Task CreateRestaurantAsync()
+    {
+        NavigationManager.NavigateTo("/restaurants/companies/restaurants/create");
+        return Task.CompletedTask;
+    }
+}

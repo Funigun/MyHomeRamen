@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
 using MyHomeRamen.Blazor.Infrastructure.Authentication;
 
@@ -18,16 +18,10 @@ public static class AuthStateProviderExtenstions
             return await ((CustomAuthenticationStateProvider)authenticationState).IsAuthenticated();
         }
 
-        public async Task<bool> IsAdmin()
+        public async Task<bool> CanViewAdminPanel()
         {
             ClaimsPrincipal user = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserAsync();
             return user.HasClaim(AuthenticationClaimConstants.AdminCanViewPanel, bool.TrueString);
-        }
-
-        public async Task<bool> IsCompanyOwner()
-        {
-            ClaimsPrincipal user = await ((CustomAuthenticationStateProvider)authenticationState).GetCurrentUserAsync();
-            return user.HasClaim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString);
         }
 
         public async Task<bool> IsGuest()

@@ -3,9 +3,6 @@ namespace MyHomeRamen.Blazor.Features.Account.Common.Services.Contracts.Users.Ac
 public sealed record GetMeResponse(
     Guid UserId,
     string? FirstName,
-    GetMeAdminActionsResponse? AdminActions,
-    GetMeOwnerActionsResponse? OwnerActions);
+    GetMeAdminNavigationResponse AdminNavigation);
 
-public sealed record GetMeAdminActionsResponse(bool CanViewPanel);
-
-public sealed record GetMeOwnerActionsResponse(bool CanViewPanel);
+public sealed record GetMeAdminNavigationResponse(bool CanSeeAdminPanel, IReadOnlyCollection<string> Sections);

@@ -1,9 +1,10 @@
 @page "/admin/menu/products/create"
-@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
 
-@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Products.Components
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@attribute [Authorize(Policy = AdminSectionConstants.ProductsManagement)]
 
 @inject MenuNavigationService MenuNavigation
 

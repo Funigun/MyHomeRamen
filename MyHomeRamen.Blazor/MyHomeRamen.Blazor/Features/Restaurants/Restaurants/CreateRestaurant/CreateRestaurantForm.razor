@@ -1,0 +1,176 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
+
+@inject IStringLocalizer<RestaurantsResources> Text
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudStack Spacing="4">
+        <MudTextField Label="@Text["Name"]"
+                      @bind-Value="_model.Name"
+                      For="@(() => _model.Name)"
+                      Variant="Variant.Outlined"
+                      Immediate="true"
+                      Disabled="IsSubmitting"
+                      Required="true" />
+
+        <MudCheckBox T="bool"
+                     Label="@Text["Active"]"
+                     @bind-Value="_model.IsActive"
+                     Disabled="IsSubmitting" />
+
+        <MudText Typo="Typo.h6">@Text["AddressSection"]</MudText>
+        <MudGrid>
+            <MudItem xs="12">
+                <MudTextField Label="@Text["Street"]"
+                              @bind-Value="_model.Street"
+                              For="@(() => _model.Street)"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              Disabled="IsSubmitting"
+                              Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField Label="@Text["City"]"
+                              @bind-Value="_model.City"
+                              For="@(() => _model.City)"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              Disabled="IsSubmitting"
+                              Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField Label="@Text["ZipCode"]"
+                              @bind-Value="_model.ZipCode"
+                              For="@(() => _model.ZipCode)"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              Disabled="IsSubmitting"
+                              Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="double?"
+                                 Label="@Text["Latitude"]"
+                                 @bind-Value="_model.Latitude"
+                                 For="@(() => _model.Latitude)"
+                                 Variant="Variant.Outlined"
+                                 Min="-90"
+                                 Max="90"
+                                 Disabled="IsSubmitting"
+                                 Required="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="double?"
+                                 Label="@Text["Longitude"]"
+                                 @bind-Value="_model.Longitude"
+                                 For="@(() => _model.Longitude)"
+                                 Variant="Variant.Outlined"
+                                 Min="-180"
+                                 Max="180"
+                                 Disabled="IsSubmitting"
+                                 Required="true" />
+            </MudItem>
+        </MudGrid>
+
+        <MudText Typo="Typo.h6">@Text["ContactSection"]</MudText>
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudTextField Label="@Text["Phone"]"
+                              @bind-Value="_model.Phone"
+                              For="@(() => _model.Phone)"
+                              InputType="InputType.Telephone"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              Disabled="IsSubmitting" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField Label="@Text["Email"]"
+                              @bind-Value="_model.Email"
+                              For="@(() => _model.Email)"
+                              InputType="InputType.Email"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              Disabled="IsSubmitting" />
+            </MudItem>
+        </MudGrid>
+
+        <MudText Typo="Typo.h6">@Text["BankSection"]</MudText>
+        <MudGrid>
+            <MudItem xs="12" sm="4">
+                <MudTextField Label="@Text["AccountNumber"]"
+                              @bind-Value="_model.AccountNumber"
+                              For="@(() => _model.AccountNumber)"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              Disabled="IsSubmitting" />
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudTextField Label="@Text["BankName"]"
+                              @bind-Value="_model.BankName"
+                              For="@(() => _model.BankName)"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              Disabled="IsSubmitting" />
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudTextField Label="@Text["RoutingNumber"]"
+                              @bind-Value="_model.RoutingNumber"
+                              For="@(() => _model.RoutingNumber)"
+                              Variant="Variant.Outlined"
+                              Immediate="true"
+                              Disabled="IsSubmitting" />
+            </MudItem>
+        </MudGrid>
+
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+        }
+
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="flex-wrap">
+            <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="IsSubmitting"
+                       OnClick="SubmitAsync">
+                @if (IsSubmitting)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                    @Text["Creating"]
+                }
+                else
+                {
+                    @Text["CreateSubmit"]
+                }
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudForm>
+
+@code {
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter, EditorRequired] public EventCallback<CreateRestaurantFormModel> OnSubmit { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+
+    private readonly CreateRestaurantFormModel _model = new();
+    private MudForm _form = default!;
+    private CreateRestaurantFormModelValidator _validator = default!;
+
+    protected override void OnInitialized()
+    {
+        _validator = new CreateRestaurantFormModelValidator(Text);
+    }
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+        if (!_form.IsValid || IsSubmitting)
+        {
+            return;
+        }
+
+        await OnSubmit.InvokeAsync(_model);
+    }
+
+    private Task CancelAsync() => OnCancel.InvokeAsync();
+}

@@ -1,40 +1,76 @@
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 @using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider
 
 @inject MenuNavigationService MenuNavigationService
-@inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthorizationService AuthorizationService
 
 <MudNavMenu>
-    @if (_isCompanyOwner)
+    @if (_canViewCompanyDetails || _canViewSocialMedia || _canManageRestaurants || _canCreateRestaurant)
     {
         <MudNavGroup Title="Company Management" Icon="@Icons.Material.Outlined.Domain" Expanded="false">
-            <MudNavLink Href="/restaurants/companies/management" Match="NavLinkMatch.All">
-                Company details
-            </MudNavLink>
-            <MudNavLink Href="/restaurants/companies/social-media" Match="NavLinkMatch.All">
-                Social Media
-            </MudNavLink>
-            <MudNavLink Href="/restaurants/companies/restaurants" Match="NavLinkMatch.All">
-                Restaurants
-            </MudNavLink>
+            @if (_canViewCompanyDetails)
+            {
+                <MudNavLink Href="/restaurants/companies/management" Match="NavLinkMatch.All">
+                    Company details
+                </MudNavLink>
+            }
+            @if (_canViewSocialMedia)
+            {
+                <MudNavLink Href="/restaurants/companies/social-media" Match="NavLinkMatch.All">
+                    Social Media
+                </MudNavLink>
+            }
+            @if (_canManageRestaurants)
+            {
+                <MudNavLink Href="/restaurants/companies/restaurants" Match="NavLinkMatch.All">
+                    Restaurants
+                </MudNavLink>
+            }
+            @if (_canCreateRestaurant)
+            {
+                <MudNavLink Href="/restaurants/companies/restaurants/create" Match="NavLinkMatch.All">
+                    Create restaurant
+                </MudNavLink>
+            }
         </MudNavGroup>
     }
-    <MudNavGroup Title="Menu Management" Icon="@Icons.Material.Filled.RestaurantMenu" Expanded="false">
-        <MudNavLink Href="@MenuNavigationService.Routes.Admin.ProductsManagement" Match="NavLinkMatch.All">
-            Products Management
-        </MudNavLink>
-        <MudNavLink Href="@MenuNavigationService.Routes.Admin.IngredientsManagement" Match="NavLinkMatch.All">
-            Ingredients Management
-        </MudNavLink>
-    </MudNavGroup>
+    @if (_canManageProducts || _canManageIngredients)
+    {
+        <MudNavGroup Title="Menu Management" Icon="@Icons.Material.Filled.RestaurantMenu" Expanded="false">
+            @if (_canManageProducts)
+            {
+                <MudNavLink Href="@MenuNavigationService.Routes.Admin.ProductsManagement" Match="NavLinkMatch.All">
+                    Products Management
+                </MudNavLink>
+            }
+            @if (_canManageIngredients)
+            {
+                <MudNavLink Href="@MenuNavigationService.Routes.Admin.IngredientsManagement" Match="NavLinkMatch.All">
+                    Ingredients Management
+                </MudNavLink>
+            }
+        </MudNavGroup>
+    }
 </MudNavMenu>
 
 @code {
-    private bool _isCompanyOwner = false;
+    private bool _canViewCompanyDetails;
+    private bool _canViewSocialMedia;
+    private bool _canManageRestaurants;
+    private bool _canCreateRestaurant;
+    private bool _canManageProducts;
+    private bool _canManageIngredients;
 
     protected override async Task OnInitializedAsync()
     {
-        _isCompanyOwner = await AuthenticationStateProvider.IsCompanyOwner();
+        AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _canViewCompanyDetails = (await AuthorizationService.AuthorizeAsync(state.User, AdminSectionConstants.CompanyManagement)).Succeeded;
+        _canViewSocialMedia = (await AuthorizationService.AuthorizeAsync(state.User, AdminSectionConstants.SocialMediaManagement)).Succeeded;
+        _canManageRestaurants = (await AuthorizationService.AuthorizeAsync(state.User, AdminSectionConstants.RestaurantsManagement)).Succeeded;
+        _canCreateRestaurant = (await AuthorizationService.AuthorizeAsync(state.User, AdminSectionConstants.RestaurantCreation)).Succeeded;
+        _canManageProducts = (await AuthorizationService.AuthorizeAsync(state.User, AdminSectionConstants.ProductsManagement)).Succeeded;
+        _canManageIngredients = (await AuthorizationService.AuthorizeAsync(state.User, AdminSectionConstants.IngredientsManagement)).Succeeded;
     }
 }

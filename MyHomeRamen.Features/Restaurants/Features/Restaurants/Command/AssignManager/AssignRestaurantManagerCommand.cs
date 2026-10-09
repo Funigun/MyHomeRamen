@@ -3,7 +3,7 @@ using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
 using MyHomeRamen.Features.Identity.ExternalApi;
-using MyHomeRamen.Features.Identity.Permissions;
+using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Command.AssignManager;
 
@@ -23,7 +23,7 @@ public sealed record AssignRestaurantManagerCommand(Guid RestaurantId, AssignRes
 public sealed class AssignRestaurantManagerAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<AssignRestaurantManagerCommand>
 {
     public async Task<bool> Authorize(AssignRestaurantManagerCommand request, CancellationToken cancellationToken) 
-        => await Task.FromResult(currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantsManage));
+        => await Task.FromResult(currentUser.CanManageRestaurants());
 }
 
 public sealed class AssignRestaurantManagerValidator : AbstractValidator<AssignRestaurantManagerCommand>

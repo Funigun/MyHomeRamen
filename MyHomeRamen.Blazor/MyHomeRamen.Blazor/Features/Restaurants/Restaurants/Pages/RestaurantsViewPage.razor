@@ -1,8 +1,12 @@
 ﻿@page "/restaurants/companies/restaurants"
+@attribute [Authorize(Policy = AdminSectionConstants.RestaurantsManagement)]
 @layout AdminLayout
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Pages
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 
-<span>Hello</span>
+@inject IStringLocalizer<RestaurantsResources> Text
 
-@code {
-
-}
+<PageTitle>@Text["PageTitle"]</PageTitle>
+<RestaurantsView />

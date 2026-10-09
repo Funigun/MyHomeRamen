@@ -11,11 +11,20 @@ public sealed class GetMeTests(WebApiFactory apiFactory) : IClassFixture<WebApiF
     private const string Endpoint = "/api/identity/users/me";
 
     [Fact]
-    public async Task GetMe_ShouldReturnUserAndPanelActions_ForAssignedPermissions()
+    public async Task GetMe_ShouldReturnUserAndAdminSections_ForAssignedPermissions()
     {
         // Arrange
         (string KeycloakId, Guid UserId) user = await apiFactory.IdentityTestData.SeedUser(
-            ("Panel User", [RestaurantsPermissionConstants.RestaurantManage, RestaurantsPermissionConstants.CompanyView]),
+            ("Panel User",
+            [
+                RestaurantsPermissionConstants.CompanyView,
+                RestaurantsPermissionConstants.CompanySocialMediaView,
+                RestaurantsPermissionConstants.RestaurantsManage,
+                RestaurantsPermissionConstants.RestaurantsCreate,
+                RestaurantsPermissionConstants.RestaurantManage,
+                MenuPermissionConstants.CanManageProducts,
+                MenuPermissionConstants.CanManageIngredients
+            ]),
             "panel-user",
             "Alex");
 
@@ -30,12 +39,23 @@ public sealed class GetMeTests(WebApiFactory apiFactory) : IClassFixture<WebApiF
         GetMeResponse body = await response.ResponseToDto<GetMeResponse>();
         Assert.Equal(user.UserId, body.UserId);
         Assert.Equal("Alex", body.FirstName);
-        Assert.Equal(new AdminActions(CanViewPanel: true), body.AdminActions);
-        Assert.Equal(new OwnerActions(CanViewPanel: true), body.OwnerActions);
+        Assert.True(body.AdminNavigation.CanSeeAdminPanel);
+        Assert.Equal(
+            new[]
+            {
+                AdminSectionConstants.CompanyManagement,
+                AdminSectionConstants.SocialMediaManagement,
+                AdminSectionConstants.RestaurantsManagement,
+                AdminSectionConstants.RestaurantCreation,
+                AdminSectionConstants.RestaurantManagement,
+                AdminSectionConstants.ProductsManagement,
+                AdminSectionConstants.IngredientsManagement
+            },
+            body.AdminNavigation.Sections);
     }
 
     [Fact]
-    public async Task GetMe_ShouldReturnNullProfileAndActions_ForGuest()
+    public async Task GetMe_ShouldReturnNullProfileAndEmptyAdminSections_ForGuest()
     {
         // Arrange
         (Guid UserId, Guid GuestId) guest = await apiFactory.IdentityTestData.SeedGuest([]);
@@ -50,8 +70,8 @@ public sealed class GetMeTests(WebApiFactory apiFactory) : IClassFixture<WebApiF
         GetMeResponse body = await response.ResponseToDto<GetMeResponse>();
         Assert.Equal(guest.UserId, body.UserId);
         Assert.Null(body.FirstName);
-        Assert.Null(body.AdminActions);
-        Assert.Null(body.OwnerActions);
+        Assert.False(body.AdminNavigation.CanSeeAdminPanel);
+        Assert.Empty(body.AdminNavigation.Sections);
     }
 
     [Fact]

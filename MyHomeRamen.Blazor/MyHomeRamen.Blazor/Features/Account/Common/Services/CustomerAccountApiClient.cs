@@ -22,8 +22,7 @@ public class CustomerAccountApiClient(HttpClient httpClient)
         return new GetMeModel(
             response.UserId,
             response.FirstName,
-            response.AdminActions is null ? null : new GetMeAdminActionsModel(response.AdminActions.CanViewPanel),
-            response.OwnerActions is null ? null : new GetMeOwnerActionsModel(response.OwnerActions.CanViewPanel));
+            new GetMeAdminNavigationModel(response.AdminNavigation.CanSeeAdminPanel, response.AdminNavigation.Sections));
     }
 
     public async Task CreateAsync(SignUpRequest request, CancellationToken ct = default)

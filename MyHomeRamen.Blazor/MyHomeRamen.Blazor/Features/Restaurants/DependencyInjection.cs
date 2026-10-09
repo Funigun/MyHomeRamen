@@ -1,4 +1,5 @@
 using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
+using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 using MyHomeRamen.ServiceDefaults;
 
@@ -16,6 +17,13 @@ internal static class DependencyInjection
             .AddHttpMessageHandler<GuestCookieForwardingHandler>();
 
         services.AddHttpClient<SocialMediaApiClient>(client =>
+            {
+                client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>()
+            .AddHttpMessageHandler<GuestCookieForwardingHandler>();
+
+        services.AddHttpClient<RestaurantApiClient>(client =>
             {
                 client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
             })

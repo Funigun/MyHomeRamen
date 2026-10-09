@@ -1,10 +1,10 @@
 @page "/admin/menu/ingredients/create"
 
-@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 
-@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+@attribute [Authorize(Policy = AdminSectionConstants.IngredientsManagement)]
 
 @inject MenuNavigationService MenuNavigation
 

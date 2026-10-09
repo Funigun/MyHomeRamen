@@ -1,7 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Common.SocialMedia;
 using MyHomeRamen.Domain.Restaurants.Companies;
-using MyHomeRamen.Domain.Restaurants.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
@@ -15,7 +14,7 @@ public sealed record CreateSocialMediaCommand(CreateSocialMediaRequest Request) 
 public sealed class CreateSocialMediaAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<CreateSocialMediaCommand>
 {
     public async Task<bool> Authorize(CreateSocialMediaCommand request, CancellationToken cancellationToken)
-        => await Task.FromResult(currentUser.Permissions.Contains(PermissionConstants.CompanySocialMediaEdit));
+        => await Task.FromResult(currentUser.CanEditCompanySocialMedia());
 }
 
 public sealed class CreateSocialMediaValidator : AbstractValidator<CreateSocialMediaCommand>

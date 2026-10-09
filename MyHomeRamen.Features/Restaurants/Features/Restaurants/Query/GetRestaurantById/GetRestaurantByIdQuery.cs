@@ -2,7 +2,6 @@ using FluentValidation;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
-using MyHomeRamen.Features.Identity.Permissions;
 using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
 
@@ -13,7 +12,7 @@ public sealed record GetRestaurantByIdResponse(RestaurantDetailsDto Restaurant);
 
 public sealed class GetRestaurantByIdAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetRestaurantByIdQuery>
 {
-    public Task<bool> Authorize(GetRestaurantByIdQuery request, CancellationToken cancellationToken) => Task.FromResult(currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantManage));
+    public Task<bool> Authorize(GetRestaurantByIdQuery request, CancellationToken cancellationToken) => Task.FromResult(currentUser.CanManageRestaurant());
 }
 
 public sealed class GetRestaurantByIdValidator : AbstractValidator<GetRestaurantByIdQuery>

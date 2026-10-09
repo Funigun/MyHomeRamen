@@ -1,0 +1,59 @@
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+
+@if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="mt-4">@EmptyText</MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="mt-1">
+        @foreach (RestaurantViewModel item in Items)
+        {
+            <MudItem xs="12" sm="6" lg="4">
+                <MudCard Outlined="true" Class="h-100">
+                    <MudCardContent Class="d-flex flex-column h-100">
+                        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Spacing="2">
+                            <MudText Typo="Typo.h6">@item.Name</MudText>
+                            <MudChip T="string" Size="Size.Small"
+                                     Color="@(item.IsActive ? Color.Success : Color.Default)"
+                                     Variant="Variant.Outlined">
+                                @(item.IsActive ? ActiveText : InactiveText)
+                            </MudChip>
+                        </MudStack>
+
+                        <MudStack Spacing="2" Class="mt-4">
+                            <div>
+                                <MudText Typo="Typo.subtitle2">@AddressText</MudText>
+                                <MudText Class="text-break">@item.Address</MudText>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(item.Phone))
+                            {
+                                <div>
+                                    <MudText Typo="Typo.subtitle2">@PhoneText</MudText>
+                                    <MudLink Href="@($"tel:{Uri.EscapeDataString(item.Phone)}")" Class="text-break">@item.Phone</MudLink>
+                                </div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.Email))
+                            {
+                                <div>
+                                    <MudText Typo="Typo.subtitle2">@EmailText</MudText>
+                                    <MudLink Href="@($"mailto:{item.Email}")" Class="text-break">@item.Email</MudLink>
+                                </div>
+                            }
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<RestaurantViewModel> Items { get; set; } = [];
+    [Parameter, EditorRequired] public string EmptyText { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string AddressText { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string PhoneText { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string EmailText { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string ActiveText { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string InactiveText { get; set; } = string.Empty;
+}

@@ -1,5 +1,12 @@
 ﻿@page "/restaurants/companies/restaurants/create"
+@attribute [Authorize(Policy = AdminSectionConstants.RestaurantCreation)]
+@layout AdminLayout
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.CreateRestaurant
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 
-@code {
+@inject IStringLocalizer<RestaurantsResources> Text
 
-}
+<PageTitle>@Text["CreatePageTitle"]</PageTitle>
+<CreateRestaurantView />

@@ -1,6 +1,5 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Restaurants.Companies;
-using MyHomeRamen.Domain.Restaurants.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
@@ -13,7 +12,7 @@ public sealed record DeleteSocialMediaCommand(Guid SocialMediaId) : ICommand<Uni
 public sealed class DeleteSocialMediaAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<DeleteSocialMediaCommand>
 {
     public async Task<bool> Authorize(DeleteSocialMediaCommand request, CancellationToken cancellationToken)
-        => await Task.FromResult(currentUser.Permissions.Contains(PermissionConstants.CompanySocialMediaEdit));
+        => await Task.FromResult(currentUser.CanEditCompanySocialMedia());
 }
 
 public sealed class DeleteSocialMediaValidator : AbstractValidator<DeleteSocialMediaCommand>

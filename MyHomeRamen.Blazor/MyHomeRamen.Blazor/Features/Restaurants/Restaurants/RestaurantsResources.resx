@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Restaurants</value></data>
+  <data name="Heading" xml:space="preserve"><value>Restaurants</value></data>
+  <data name="CreateRestaurant" xml:space="preserve"><value>Create restaurant</value></data>
+  <data name="CreatePageTitle" xml:space="preserve"><value>Create restaurant</value></data>
+  <data name="CreateTitle" xml:space="preserve"><value>Create restaurant</value></data>
+  <data name="CreateSubmit" xml:space="preserve"><value>Create restaurant</value></data>
+  <data name="Creating" xml:space="preserve"><value>Creating restaurant...</value></data>
+  <data name="BackToRestaurants" xml:space="preserve"><value>Back to restaurants</value></data>
+  <data name="CreateForbidden" xml:space="preserve"><value>You do not have permission to create restaurants.</value></data>
+  <data name="CreateValidationError" xml:space="preserve"><value>Restaurant could not be created. Check that its name is unique and all fields are valid.</value></data>
+  <data name="CreateError" xml:space="preserve"><value>Restaurant could not be created. Please try again.</value></data>
+  <data name="Created" xml:space="preserve"><value>Restaurant created.</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading restaurants...</value></data>
+  <data name="Empty" xml:space="preserve"><value>No restaurants are available.</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Restaurants could not be loaded.</value></data>
+  <data name="Forbidden" xml:space="preserve"><value>You do not have permission to view restaurants.</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="NameRequired" xml:space="preserve"><value>Restaurant name is required.</value></data>
+  <data name="NameTooLong" xml:space="preserve"><value>Restaurant name cannot exceed 200 characters.</value></data>
+  <data name="Street" xml:space="preserve"><value>Street</value></data>
+  <data name="StreetRequired" xml:space="preserve"><value>Street is required.</value></data>
+  <data name="City" xml:space="preserve"><value>City</value></data>
+  <data name="CityRequired" xml:space="preserve"><value>City is required.</value></data>
+  <data name="ZipCode" xml:space="preserve"><value>ZIP code</value></data>
+  <data name="ZipCodeRequired" xml:space="preserve"><value>ZIP code is required.</value></data>
+  <data name="Latitude" xml:space="preserve"><value>Latitude</value></data>
+  <data name="LatitudeRequired" xml:space="preserve"><value>Latitude is required.</value></data>
+  <data name="LatitudeRange" xml:space="preserve"><value>Latitude must be between -90 and 90.</value></data>
+  <data name="Longitude" xml:space="preserve"><value>Longitude</value></data>
+  <data name="LongitudeRequired" xml:space="preserve"><value>Longitude is required.</value></data>
+  <data name="LongitudeRange" xml:space="preserve"><value>Longitude must be between -180 and 180.</value></data>
+  <data name="AddressSection" xml:space="preserve"><value>Address and location</value></data>
+  <data name="ContactSection" xml:space="preserve"><value>Contact details</value></data>
+  <data name="ContactPairRequired" xml:space="preserve"><value>Provide both phone and email, or leave both blank.</value></data>
+  <data name="EmailInvalid" xml:space="preserve"><value>Enter a valid email address.</value></data>
+  <data name="BankSection" xml:space="preserve"><value>Bank details (optional)</value></data>
+  <data name="AccountNumber" xml:space="preserve"><value>Account number</value></data>
+  <data name="BankName" xml:space="preserve"><value>Bank name</value></data>
+  <data name="RoutingNumber" xml:space="preserve"><value>Routing number</value></data>
+  <data name="BankDetailsPairRequired" xml:space="preserve"><value>Provide all bank details, or leave all blank.</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Address" xml:space="preserve"><value>Address</value></data>
+  <data name="Phone" xml:space="preserve"><value>Phone</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Inactive" xml:space="preserve"><value>Inactive</value></data>
+</root>

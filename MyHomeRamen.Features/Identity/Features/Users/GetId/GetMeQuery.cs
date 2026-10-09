@@ -9,15 +9,12 @@ namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
 
 public sealed record GetMeQuery : IQuery<GetMeResponse>;
 
-public sealed record AdminActions(bool CanViewPanel);
-
-public sealed record OwnerActions(bool CanViewPanel);
+public sealed record AdminNavigationAccess(bool CanSeeAdminPanel, IReadOnlyCollection<string> Sections);
 
 public sealed record GetMeResponse(
     Guid UserId,
     string? FirstName,
-    AdminActions? AdminActions,
-    OwnerActions? OwnerActions);
+    AdminNavigationAccess AdminNavigation);
 
 public sealed class GetMeAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetMeQuery>
 {
@@ -32,15 +29,48 @@ public sealed class GetMeHandler(IIdentityDbContext dbContext, ICurrentUser curr
     public async Task<GetMeResponse> Handle(GetMeQuery query, CancellationToken cancellationToken)
     {
         User user = await dbContext.User.Query().ById(currentUser.UserId, cancellationToken)
-                    ?? throw new InvalidOperationException("Current user not found.");
+                 ?? throw new InvalidOperationException("Current user not found.");
 
-        bool canViewAdminPanel = currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantManage);
-        bool canViewOwnerPanel = currentUser.Permissions.Contains(RestaurantsPermissionConstants.CompanyView);
+        List<string> sections = [];
+
+        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.CompanyView))
+        {
+            sections.Add(AdminSectionConstants.CompanyManagement);
+        }
+
+        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.CompanySocialMediaView))
+        {
+            sections.Add(AdminSectionConstants.SocialMediaManagement);
+        }
+
+        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantsManage))
+        {
+            sections.Add(AdminSectionConstants.RestaurantsManagement);
+        }
+
+        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantsCreate))
+        {
+            sections.Add(AdminSectionConstants.RestaurantCreation);
+        }
+
+        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantManage))
+        {
+            sections.Add(AdminSectionConstants.RestaurantManagement);
+        }
+
+        if (currentUser.Permissions.Contains(MenuPermissionConstants.CanManageProducts))
+        {
+            sections.Add(AdminSectionConstants.ProductsManagement);
+        }
+
+        if (currentUser.Permissions.Contains(MenuPermissionConstants.CanManageIngredients))
+        {
+            sections.Add(AdminSectionConstants.IngredientsManagement);
+        }
 
         return new GetMeResponse(
             user.Id.Value,
             user.GuestId is null ? user.FirstName : null,
-            canViewAdminPanel ? new AdminActions(CanViewPanel: true) : null,
-            canViewOwnerPanel ? new OwnerActions(CanViewPanel: true) : null);
+            new AdminNavigationAccess(sections.Count > 0, sections));
     }
 }

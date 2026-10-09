@@ -1,7 +1,5 @@
 namespace MyHomeRamen.Blazor.Features.Account.Common.Models;
 
-public sealed record GetMeModel(Guid UserId, string? FirstName, GetMeAdminActionsModel? AdminActions, GetMeOwnerActionsModel? OwnerActions);
+public sealed record GetMeModel(Guid UserId, string? FirstName, GetMeAdminNavigationModel AdminNavigation);
 
-public sealed record GetMeAdminActionsModel(bool CanViewPanel);
-
-public sealed record GetMeOwnerActionsModel(bool CanViewPanel);
+public sealed record GetMeAdminNavigationModel(bool CanSeeAdminPanel, IReadOnlyCollection<string> Sections);

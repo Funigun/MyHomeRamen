@@ -1,10 +1,11 @@
 @page "/restaurants/companies/social-media"
-@attribute [Authorize(Policy = PermissionConstants.CompanySocialMediaView)]
+@attribute [Authorize(Policy = AdminSectionConstants.SocialMediaManagement)]
 @layout AdminLayout
 
-@using MyHomeRamen.Blazor.Features.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 @using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management
+
 @inject IStringLocalizer<SocialMediaResources> Text
 
 <PageTitle>@Text["PageTitle"]</PageTitle>

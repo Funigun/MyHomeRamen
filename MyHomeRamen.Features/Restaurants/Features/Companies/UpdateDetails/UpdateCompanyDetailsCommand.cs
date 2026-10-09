@@ -5,7 +5,6 @@ using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
 using MyHomeRamen.Features.Restaurants.Features.Abstractions;
-using MyHomeRamen.Features.Restaurants.Permissions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.UpdateDetails;
 

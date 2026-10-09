@@ -1,13 +1,13 @@
 @page "/admin/menu/products/{Id:guid}/edit"
 
-@using MyHomeRamen.Blazor.Features.Menu.Common.Constants
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Ingredients.Responses
 @using MyHomeRamen.Blazor.Features.Menu.Products.Components
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 
-@attribute [Authorize(Roles = MenuRoleConstants.Admin)]
+@attribute [Authorize(Policy = AdminSectionConstants.ProductsManagement)]
 
 @inject MenuApiClient MenuApiClient
 @inject MenuNavigationService MenuNavigation

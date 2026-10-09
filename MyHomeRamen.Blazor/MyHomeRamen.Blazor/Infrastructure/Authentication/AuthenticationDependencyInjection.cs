@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using MyHomeRamen.Blazor.Features.Account.Common.Models;
 using MyHomeRamen.Blazor.Features.Account.Common.Services;
-using MyHomeRamen.Blazor.Features.Restaurants.Shared;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider;
 
@@ -28,12 +27,20 @@ internal static class AuthenticationDependencyInjection
     internal static IServiceCollection AddBlazorAuthorization(this IServiceCollection services)
     {
         services.AddAuthorizationBuilder()
-                .AddPolicy(PermissionConstants.CompanyView, policy =>
-                    policy.RequireClaim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString))
-                .AddPolicy(PermissionConstants.CompanySocialMediaView, policy =>
-                    policy.RequireClaim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString))
-                .AddPolicy(PermissionConstants.CompanySocialMediaEdit, policy =>
-                    policy.RequireClaim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString));
+                .AddPolicy(AdminSectionConstants.CompanyManagement, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.CompanyManagement))
+                .AddPolicy(AdminSectionConstants.SocialMediaManagement, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.SocialMediaManagement))
+                .AddPolicy(AdminSectionConstants.RestaurantsManagement, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.RestaurantsManagement))
+                .AddPolicy(AdminSectionConstants.RestaurantCreation, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.RestaurantCreation))
+                .AddPolicy(AdminSectionConstants.RestaurantManagement, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.RestaurantManagement))
+                .AddPolicy(AdminSectionConstants.ProductsManagement, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.ProductsManagement))
+                .AddPolicy(AdminSectionConstants.IngredientsManagement, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.IngredientsManagement));
 
         return services;
     }
@@ -96,14 +103,17 @@ internal static class AuthenticationDependencyInjection
                                     identity.AddClaim(new Claim(AuthenticationClaimConstants.FirstName, currentUser.FirstName));
                                 }
 
-                                if (currentUser.AdminActions?.CanViewPanel == true)
+                                if (currentUser.AdminNavigation.CanSeeAdminPanel)
                                 {
                                     identity.AddClaim(new Claim(AuthenticationClaimConstants.AdminCanViewPanel, bool.TrueString));
                                 }
 
-                                if (currentUser.OwnerActions?.CanViewPanel == true)
+                                foreach (string section in currentUser.AdminNavigation.Sections)
                                 {
-                                    identity.AddClaim(new Claim(AuthenticationClaimConstants.OwnerCanViewPanel, bool.TrueString));
+                                    if (!identity.HasClaim(AuthenticationClaimConstants.AdminSection, section))
+                                    {
+                                        identity.AddClaim(new Claim(AuthenticationClaimConstants.AdminSection, section));
+                                    }
                                 }
                             }
                         };

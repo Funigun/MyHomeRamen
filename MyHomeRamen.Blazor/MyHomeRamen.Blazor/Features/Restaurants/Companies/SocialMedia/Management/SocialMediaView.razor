@@ -3,14 +3,11 @@
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Components
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Models
-@using MyHomeRamen.Blazor.Features.Restaurants.Shared
 
 @inject SocialMediaApiClient SocialMediaApiClient
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IStringLocalizer<SocialMediaResources> Text
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IAuthorizationService AuthorizationService
 
 <MudPaper Elevation="3" Class="pa-4 pa-sm-6">
     <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
@@ -59,8 +56,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _canEdit = (await AuthorizationService.AuthorizeAsync(state.User, PermissionConstants.CompanySocialMediaEdit)).Succeeded;
         await LoadAsync();
     }
 
@@ -74,6 +69,7 @@
             GetSocialMediaForManageResponse response = await SocialMediaApiClient.GetForManageAsync();
             _items.Clear();
             _items.AddRange(response.Items.Select(SocialMediaViewModel.FromResponse));
+            _canEdit = response.CanEditMedia;
         }
         catch (SocialMediaApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
         {
