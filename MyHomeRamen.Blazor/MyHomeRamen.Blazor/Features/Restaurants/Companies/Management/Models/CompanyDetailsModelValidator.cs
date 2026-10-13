@@ -1,9 +1,9 @@
 using FluentValidation;
 using MyHomeRamen.Blazor.Components.Models;
 
-namespace MyHomeRamen.Blazor.Features.Restaurants.Companies.Management;
+namespace MyHomeRamen.Blazor.Features.Restaurants.Companies.Management.Models;
 
-public sealed class CompanyDetailsModelValidator : BaseValidator<CompanyDetailsFormModel>
+public sealed class CompanyDetailsModelValidator : BaseValidator<CompanyDetailsEditModel>
 {
     public CompanyDetailsModelValidator()
     {

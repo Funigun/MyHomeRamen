@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using MyHomeRamen.Blazor.Infrastructure.Api;
 
 namespace MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared;
 
@@ -33,35 +34,5 @@ public sealed class RestaurantApiClient(HttpClient httpClient)
     }
 }
 
-public sealed record GetAvailableRestaurantsResponse(IReadOnlyList<AvailableRestaurantResponse> Restaurants, bool CanCreate);
-
-public sealed record CreateRestaurantRequest(
-    string Name,
-    bool IsActive,
-    string Street,
-    string City,
-    string ZipCode,
-    double Latitude,
-    double Longitude,
-    string? Phone,
-    string? Email,
-    string? AccountNumber,
-    string? BankName,
-    string? RoutingNumber);
-
-public sealed record AvailableRestaurantResponse(
-    Guid Id,
-    string Name,
-    bool IsActive,
-    string Street,
-    string City,
-    string ZipCode,
-    double Latitude,
-    double Longitude,
-    string? Phone,
-    string? Email);
-
-public sealed class RestaurantApiException(HttpStatusCode statusCode, string? detail = null) : Exception(detail)
-{
-    public HttpStatusCode StatusCode { get; } = statusCode;
-}
+public sealed class RestaurantApiException(HttpStatusCode statusCode, string? detail = null)
+    : ApiException(statusCode, detail ?? "Restaurant request failed.");

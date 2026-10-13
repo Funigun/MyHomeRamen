@@ -1,4 +1,5 @@
 using System.Net;
+using MyHomeRamen.Blazor.Infrastructure.Api;
 
 namespace MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
 
@@ -44,8 +45,4 @@ public sealed class SocialMediaApiClient(HttpClient httpClient)
     }
 }
 
-public sealed class SocialMediaApiException(HttpStatusCode statusCode, string? detail = null) : Exception(detail)
-{
-    public HttpStatusCode StatusCode { get; } = statusCode;
-}
-
+public sealed class SocialMediaApiException(HttpStatusCode statusCode, string? detail = null) : ApiException(statusCode, detail ?? "Social media request failed.");

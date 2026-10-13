@@ -149,10 +149,10 @@
 @code {
     [Parameter] public bool IsSubmitting { get; set; }
     [Parameter] public string? ErrorMessage { get; set; }
-    [Parameter, EditorRequired] public EventCallback<CreateRestaurantFormModel> OnSubmit { get; set; }
+    [Parameter, EditorRequired] public EventCallback<CreateRestaurantModel> OnSubmit { get; set; }
     [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
 
-    private readonly CreateRestaurantFormModel _model = new();
+    private readonly CreateRestaurantModel _model = new();
     private MudForm _form = default!;
     private CreateRestaurantFormModelValidator _validator = default!;
 

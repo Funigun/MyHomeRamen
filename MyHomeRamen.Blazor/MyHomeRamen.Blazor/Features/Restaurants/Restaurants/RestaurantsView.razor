@@ -1,9 +1,11 @@
-@using System.Net
 @using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject RestaurantApiClient RestaurantApiClient
+@inject ApiService ApiService
 @inject IStringLocalizer<RestaurantsResources> Text
 @inject NavigationManager NavigationManager
 
@@ -28,10 +30,6 @@
             <MudText>@Text["Loading"]</MudText>
         </MudStack>
     }
-    else if (_isForbidden)
-    {
-        <MudAlert Severity="Severity.Error" Class="mt-4">@Text["Forbidden"]</MudAlert>
-    }
     else if (_loadError)
     {
         <MudAlert Severity="Severity.Error" Class="mt-4">@Text["LoadError"]</MudAlert>
@@ -48,10 +46,9 @@
     }
 </MudPaper>
 
-    @code {
+@code {
     private readonly List<RestaurantViewModel> _items = [];
     private bool _isLoading = true;
-    private bool _isForbidden;
     private bool _loadError;
     private bool _canCreate;
 
@@ -59,21 +56,17 @@
     {
         try
         {
-            GetAvailableRestaurantsResponse response = await RestaurantApiClient.GetAvailableAsync();
-            _items.AddRange(response.Restaurants.Select(RestaurantViewModel.FromResponse));
-            _canCreate = response.CanCreate;
-        }
-        catch (RestaurantApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
-        {
-            _isForbidden = true;
-        }
-        catch (RestaurantApiException)
-        {
-            _loadError = true;
-        }
-        catch (HttpRequestException)
-        {
-            _loadError = true;
+            ApiResult<(IReadOnlyList<RestaurantViewModel> Items, bool CanCreate)> result = await ApiService.ExecuteAsync(
+                async () => RestaurantViewModel.FromResponse(await RestaurantApiClient.GetAvailableAsync()));
+            if (result is ApiResult<(IReadOnlyList<RestaurantViewModel> Items, bool CanCreate)>.Success success)
+            {
+                _items.AddRange(success.Value.Items);
+                _canCreate = success.Value.CanCreate;
+            }
+            else if (result is ApiResult<(IReadOnlyList<RestaurantViewModel> Items, bool CanCreate)>.Failure failure && !failure.Error.HandledGlobally)
+            {
+                _loadError = true;
+            }
         }
         finally
         {

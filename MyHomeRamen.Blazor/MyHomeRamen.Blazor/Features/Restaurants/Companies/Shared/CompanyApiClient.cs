@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using MyHomeRamen.Blazor.Infrastructure.Api;
 
 namespace MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
 
@@ -7,7 +8,7 @@ public sealed class CompanyApiClient(HttpClient httpClient)
 {
     private const string DetailsUrl = "api/restaurants/company/details";
 
-    public async Task<CompanyDetailsDto> GetDetailsAsync(CancellationToken cancellationToken = default)
+    public async Task<CompanyDetailsResponse> GetDetailsAsync(CancellationToken cancellationToken = default)
     {
         using HttpResponseMessage response = await httpClient.GetAsync(DetailsUrl, cancellationToken);
         if (!response.IsSuccessStatusCode)
@@ -15,11 +16,11 @@ public sealed class CompanyApiClient(HttpClient httpClient)
             throw await CompanyApiException.FromResponseAsync(response, cancellationToken);
         }
 
-        return await response.Content.ReadFromJsonAsync<CompanyDetailsDto>(cancellationToken: cancellationToken)
+        return await response.Content.ReadFromJsonAsync<CompanyDetailsResponse>(cancellationToken: cancellationToken)
             ?? throw new CompanyApiException(HttpStatusCode.InternalServerError, "Company details response was empty.");
     }
 
-    public async Task UpdateDetailsAsync(UpdateCompanyDetailsRequest request, CancellationToken cancellationToken = default)
+    public async Task UpdateDetailsAsync(CompanyDetailsUpdateRequest request, CancellationToken cancellationToken = default)
     {
         using HttpResponseMessage response = await httpClient.PutAsJsonAsync(DetailsUrl, request, cancellationToken);
         if (!response.IsSuccessStatusCode)
@@ -47,12 +48,12 @@ public sealed class CompanyApiClient(HttpClient httpClient)
     }
 }
 
-public sealed class CompanyApiException(HttpStatusCode statusCode, string message, IReadOnlyDictionary<string, string[]>? validationErrors = null, string? generalError = null) : Exception(message)
+public sealed class CompanyApiException(
+    HttpStatusCode statusCode,
+    string message,
+    IReadOnlyDictionary<string, string[]>? validationErrors = null,
+    string? generalError = null) : ApiException(statusCode, message, validationErrors, generalError)
 {
-    public HttpStatusCode StatusCode { get; } = statusCode;
-    public IReadOnlyDictionary<string, string[]> ValidationErrors { get; } = validationErrors ?? new Dictionary<string, string[]>();
-    public string? GeneralError { get; } = generalError;
-
     public static async Task<CompanyApiException> FromResponseAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         string body = await response.Content.ReadAsStringAsync(cancellationToken);

@@ -3,8 +3,10 @@
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Components
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Management.Models
+@using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject SocialMediaApiClient SocialMediaApiClient
+@inject ApiService ApiService
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
 @inject IStringLocalizer<SocialMediaResources> Text
@@ -27,10 +29,6 @@
             <MudText>@Text["Loading"]</MudText>
         </MudStack>
     }
-    else if (_isForbidden)
-    {
-        <MudAlert Severity="Severity.Error" Class="mt-4">@Text["Forbidden"]</MudAlert>
-    }
     else if (_loadError)
     {
         <MudAlert Severity="Severity.Error" Class="mt-4">@Text["LoadError"]</MudAlert>
@@ -47,11 +45,10 @@
     }
 </MudPaper>
 
-    @code {
+@code {
     private readonly List<SocialMediaViewModel> _items = [];
     private bool _isLoading = true;
     private bool _loadError;
-    private bool _isForbidden;
     private bool _canEdit;
 
     protected override async Task OnInitializedAsync()
@@ -63,25 +60,20 @@
     {
         _isLoading = true;
         _loadError = false;
-        _isForbidden = false;
         try
         {
-            GetSocialMediaForManageResponse response = await SocialMediaApiClient.GetForManageAsync();
-            _items.Clear();
-            _items.AddRange(response.Items.Select(SocialMediaViewModel.FromResponse));
-            _canEdit = response.CanEditMedia;
-        }
-        catch (SocialMediaApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
-        {
-            _isForbidden = true;
-        }
-        catch (SocialMediaApiException)
-        {
-            _loadError = true;
-        }
-        catch (HttpRequestException)
-        {
-            _loadError = true;
+            ApiResult<(IReadOnlyList<SocialMediaViewModel> Items, bool CanEdit)> result = await ApiService.ExecuteAsync(
+                async () => SocialMediaViewModel.FromResponse(await SocialMediaApiClient.GetForManageAsync()));
+            if (result is ApiResult<(IReadOnlyList<SocialMediaViewModel> Items, bool CanEdit)>.Success success)
+            {
+                _items.Clear();
+                _items.AddRange(success.Value.Items);
+                _canEdit = success.Value.CanEdit;
+            }
+            else if (result is ApiResult<(IReadOnlyList<SocialMediaViewModel> Items, bool CanEdit)>.Failure failure && !failure.Error.HandledGlobally)
+            {
+                _loadError = true;
+            }
         }
         finally
         {
@@ -119,39 +111,36 @@
 
     private async Task<bool> SaveAsync(SocialMediaFormModel model)
     {
-        try
+        SocialMediaViewModel? existing = model.Id.HasValue ? _items.FirstOrDefault(item => item.Id == model.Id.Value) : null;
+        ApiResult<bool> result = existing is null
+            ? await ApiService.ExecuteAsync(() => SocialMediaApiClient.CreateAsync(model.ToCreateRequest()))
+            : await ApiService.ExecuteAsync(() => SocialMediaApiClient.UpdateAsync(existing.Id, model.ToUpdateRequest()));
+
+        if (result is ApiResult<bool>.Failure failure)
         {
-            SocialMediaViewModel? existing = model.Id.HasValue ? _items.FirstOrDefault(item => item.Id == model.Id.Value) : null;
-            if (existing is null)
+            if (!failure.Error.HandledGlobally)
             {
-                await SocialMediaApiClient.CreateAsync(model.ToCreateRequest());
-                Snackbar.Add(Text["Created"], Severity.Success);
-            }
-            else
-            {
-                await SocialMediaApiClient.UpdateAsync(existing.Id, model.ToUpdateRequest());
-                Snackbar.Add(Text["Updated"], Severity.Success);
+                if (failure.Error.IsNetworkError)
+                {
+                    Snackbar.Add(Text["UnexpectedError"], Severity.Error);
+                }
+                else if (failure.Error.StatusCode is HttpStatusCode statusCode && (int)statusCode is >= 400 and < 500)
+                {
+                    Snackbar.Add(Text["ValidationFailure"], Severity.Error);
+                }
+                else
+                {
+                    Snackbar.Add(Text["UnexpectedError"], Severity.Error);
+                }
             }
 
-            await LoadAsync();
-            StateHasChanged();
-            return true;
-        }
-        catch (SocialMediaApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
-        {
-            Snackbar.Add(Text["Forbidden"], Severity.Error);
             return false;
         }
-        catch (SocialMediaApiException exception) when ((int)exception.StatusCode is >= 400 and < 500)
-        {
-            Snackbar.Add(Text["ValidationFailure"], Severity.Error);
-            return false;
-        }
-        catch (HttpRequestException)
-        {
-            Snackbar.Add(Text["UnexpectedError"], Severity.Error);
-            return false;
-        }
+
+        Snackbar.Add(existing is null ? Text["Created"] : Text["Updated"], Severity.Success);
+        await LoadAsync();
+        StateHasChanged();
+        return true;
     }
 
     private async Task ConfirmDeleteAsync(SocialMediaViewModel item)
@@ -166,24 +155,19 @@
             return;
         }
 
-        try
+        ApiResult<bool> result = await ApiService.ExecuteAsync(() => SocialMediaApiClient.DeleteAsync(item.Id));
+        if (result is ApiResult<bool>.Failure failure)
         {
-            await SocialMediaApiClient.DeleteAsync(item.Id);
-            Snackbar.Add(Text["Deleted"], Severity.Success);
-            await LoadAsync();
-            StateHasChanged();
+            if (!failure.Error.HandledGlobally)
+            {
+                Snackbar.Add(Text["UnexpectedError"], Severity.Error);
+            }
+
+            return;
         }
-        catch (SocialMediaApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
-        {
-            Snackbar.Add(Text["Forbidden"], Severity.Error);
-        }
-        catch (SocialMediaApiException)
-        {
-            Snackbar.Add(Text["UnexpectedError"], Severity.Error);
-        }
-        catch (HttpRequestException)
-        {
-            Snackbar.Add(Text["UnexpectedError"], Severity.Error);
-        }
+
+        Snackbar.Add(Text["Deleted"], Severity.Success);
+        await LoadAsync();
+        StateHasChanged();
     }
 }

@@ -29,10 +29,10 @@
 </MudForm>
 
 @code {
-    [Parameter, EditorRequired] public CompanyDetailsFormModel Model { get; set; } = default!;
+    [Parameter, EditorRequired] public CompanyDetailsEditModel Model { get; set; } = default!;
     [Parameter] public bool IsSubmitting { get; set; }
     [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
-    [Parameter, EditorRequired] public EventCallback<CompanyDetailsFormModel> OnSubmit { get; set; }
+    [Parameter, EditorRequired] public EventCallback<CompanyDetailsEditModel> OnSubmit { get; set; }
     [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
 
     private MudForm form = default!;

@@ -1,12 +1,11 @@
 using FluentValidation;
 using Microsoft.Extensions.Localization;
 using MyHomeRamen.Blazor.Components.Models;
-using MyHomeRamen.Blazor.Features.Restaurants.Restaurants;
 using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared;
 
 namespace MyHomeRamen.Blazor.Features.Restaurants.Restaurants.CreateRestaurant;
 
-public sealed class CreateRestaurantFormModel
+public sealed class CreateRestaurantModel
 {
     public string Name { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
@@ -26,9 +25,10 @@ public sealed class CreateRestaurantFormModel
             EmptyToNull(Phone), EmptyToNull(Email), EmptyToNull(AccountNumber), EmptyToNull(BankName), EmptyToNull(RoutingNumber));
 
     private static string? EmptyToNull(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
+
 }
 
-public sealed class CreateRestaurantFormModelValidator : BaseValidator<CreateRestaurantFormModel>
+public sealed class CreateRestaurantFormModelValidator : BaseValidator<CreateRestaurantModel>
 {
     public CreateRestaurantFormModelValidator(IStringLocalizer<RestaurantsResources> text)
     {
@@ -63,7 +63,7 @@ public sealed class CreateRestaurantFormModelValidator : BaseValidator<CreateRes
         });
     }
 
-    private static bool HasAnyBankDetails(CreateRestaurantFormModel model)
+    private static bool HasAnyBankDetails(CreateRestaurantModel model)
         => !string.IsNullOrWhiteSpace(model.AccountNumber)
             || !string.IsNullOrWhiteSpace(model.BankName)
             || !string.IsNullOrWhiteSpace(model.RoutingNumber);

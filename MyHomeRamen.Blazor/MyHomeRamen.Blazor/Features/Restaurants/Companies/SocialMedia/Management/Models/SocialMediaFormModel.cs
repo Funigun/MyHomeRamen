@@ -11,6 +11,9 @@ public sealed class SocialMediaFormModel
     public string LogoUrl { get; set; } = string.Empty;
     public string Url { get; set; } = string.Empty;
 
+    public CreateSocialMediaRequest ToCreateRequest() => new(Name, LogoUrl, Url);
+    public UpdateSocialMediaRequest ToUpdateRequest() => new(Name, LogoUrl, Url);
+
     public static SocialMediaFormModel FromViewModel(SocialMediaViewModel viewModel) => new()
     {
         Id = viewModel.Id,
@@ -19,8 +22,6 @@ public sealed class SocialMediaFormModel
         Url = viewModel.Url
     };
 
-    public CreateSocialMediaRequest ToCreateRequest() => new(Name, LogoUrl, Url);
-    public UpdateSocialMediaRequest ToUpdateRequest() => new(Name, LogoUrl, Url);
 }
 
 public sealed class SocialMediaFormModelValidator : BaseValidator<SocialMediaFormModel>

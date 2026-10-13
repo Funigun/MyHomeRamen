@@ -2,9 +2,11 @@
 @using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
 @using MyHomeRamen.Blazor.Infrastructure.Authentication
 
 @inject RestaurantApiClient RestaurantApiClient
+@inject ApiService ApiService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthorizationService AuthorizationService
 @inject IStringLocalizer<RestaurantsResources> Text
@@ -54,7 +56,7 @@
         _isCheckingPermission = false;
     }
 
-    private async Task CreateAsync(CreateRestaurantFormModel model)
+    private async Task CreateAsync(CreateRestaurantModel model)
     {
         if (_isSubmitting || !_canCreate)
         {
@@ -66,25 +68,22 @@
 
         try
         {
-            await RestaurantApiClient.CreateAsync(model.ToRequest());
+            ApiResult<bool> result = await ApiService.ExecuteAsync(
+                () => RestaurantApiClient.CreateAsync(model.ToRequest()));
+            if (result is ApiResult<bool>.Failure failure)
+            {
+                if (!failure.Error.HandledGlobally)
+                {
+                    _errorMessage = failure.Error.StatusCode == HttpStatusCode.BadRequest
+                        ? Text["CreateValidationError"]
+                        : Text["CreateError"];
+                }
+
+                return;
+            }
+
             Snackbar.Add(Text["Created"], Severity.Success);
             NavigationManager.NavigateTo("/restaurants/companies/restaurants");
-        }
-        catch (RestaurantApiException exception) when (exception.StatusCode == HttpStatusCode.Forbidden)
-        {
-            _errorMessage = Text["CreateForbidden"];
-        }
-        catch (RestaurantApiException exception) when (exception.StatusCode == HttpStatusCode.BadRequest)
-        {
-            _errorMessage = Text["CreateValidationError"];
-        }
-        catch (RestaurantApiException)
-        {
-            _errorMessage = Text["CreateError"];
-        }
-        catch (HttpRequestException)
-        {
-            _errorMessage = Text["CreateError"];
         }
         finally
         {

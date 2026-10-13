@@ -1,9 +1,11 @@
 @using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Management.Models
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject CompanyApiClient CompanyApiClient
+@inject ApiService ApiService
 @inject IStringLocalizer<CompanyDetailsResources> Text
-@inject NavigationManager NavigationManager
 
 <MudPaper Elevation="3" Class="pa-4 pa-md-6">
     <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
@@ -14,10 +16,6 @@
             <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
             <MudText>@Text["Loading"]</MudText>
         </MudStack>
-    }
-    else if (isForbidden)
-    {
-        <MudAlert Severity="Severity.Error" Class="mt-6">@Text["Forbidden"]</MudAlert>
     }
     else if (errorMessage is not null)
     {
@@ -66,11 +64,10 @@
 
 @code {
     private CompanyDetailsModel? companyDetails;
-    private CompanyDetailsFormModel? editModel;
+    private CompanyDetailsEditModel? editModel;
     private IReadOnlyDictionary<string, string[]> validationErrors = new Dictionary<string, string[]>();
     private string? errorMessage;
     private bool isLoading = true;
-    private bool isForbidden;
     private bool isEditing;
     private bool isSubmitting;
 
@@ -85,20 +82,13 @@
     {
         isLoading = true;
         errorMessage = null;
-        isForbidden = false;
 
         try
         {
-            CompanyDetailsDto dto = await CompanyApiClient.GetDetailsAsync();
-            companyDetails = CompanyDetailsModel.FromDto(dto);
-        }
-        catch (CompanyApiException exception) when (exception.StatusCode == System.Net.HttpStatusCode.Forbidden)
-        {
-            isForbidden = true;
-        }
-        catch (CompanyApiException exception)
-        {
-            errorMessage = exception.Message;
+            ApiResult<CompanyDetailsModel> result = await ApiService.ExecuteAsync(
+                async () => CompanyDetailsModel.FromResponse(await CompanyApiClient.GetDetailsAsync()));
+            ApplyErrors(result);
+            companyDetails = result is ApiResult<CompanyDetailsModel>.Success success ? success.Value : null;
         }
         finally
         {
@@ -113,9 +103,7 @@
             return;
         }
 
-        editModel = CompanyDetailsFormModel.FromDetails(companyDetails);
-        validationErrors = new Dictionary<string, string[]>();
-        errorMessage = null;
+        editModel = CompanyDetailsEditModel.FromDetails(companyDetails);
         isEditing = true;
     }
 
@@ -130,7 +118,7 @@
         validationErrors = new Dictionary<string, string[]>();
     }
 
-    private async Task UpdateDetailsAsync(CompanyDetailsFormModel model)
+    private async Task UpdateDetailsAsync(CompanyDetailsEditModel model)
     {
         if (isSubmitting || !CanEdit)
         {
@@ -138,32 +126,41 @@
         }
 
         isSubmitting = true;
-        validationErrors = new Dictionary<string, string[]>();
-        errorMessage = null;
 
         try
         {
-            await CompanyApiClient.UpdateDetailsAsync(model.ToRequest());
+            ApiResult<bool> result = await ApiService.ExecuteAsync(
+                () => CompanyApiClient.UpdateDetailsAsync(model.ToRequest()));
+            ApplyErrors(result);
+            if (result is ApiResult<bool>.Failure failure)
+            {
+                return;
+            }
+
             await LoadDetailsAsync();
             isEditing = false;
-        }
-        catch (CompanyApiException exception) when (exception.StatusCode == System.Net.HttpStatusCode.BadRequest)
-        {
-            validationErrors = exception.ValidationErrors;
-            errorMessage = exception.GeneralError ?? Text["ValidationFailure"];
-        }
-        catch (CompanyApiException exception) when (exception.StatusCode == System.Net.HttpStatusCode.Forbidden)
-        {
-            errorMessage = Text["Forbidden"];
-        }
-        catch (CompanyApiException exception)
-        {
-            errorMessage = exception.Message;
         }
         finally
         {
             isSubmitting = false;
         }
+    }
+
+    private void ApplyErrors<T>(ApiResult<T> result)
+    {
+        validationErrors = new Dictionary<string, string[]>();
+        errorMessage = null;
+
+        if (result is not ApiResult<T>.Failure failure || failure.Error.HandledGlobally)
+        {
+            return;
+        }
+
+        validationErrors = failure.Error.ValidationErrors;
+        errorMessage = failure.Error.GeneralError
+            ?? (failure.Error.StatusCode == System.Net.HttpStatusCode.BadRequest
+                ? Text["ValidationFailure"]
+                : failure.Error.Message);
     }
 
     private string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? Text["NotProvided"] : value;
