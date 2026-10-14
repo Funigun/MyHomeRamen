@@ -1,0 +1,36 @@
+using System.Net;
+using MyHomeRamen.Blazor.Infrastructure.Api;
+
+namespace MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.Shared;
+
+public sealed class {Aggregate}ApiClient(HttpClient httpClient, ApiService apiService)
+{
+    private const string BaseUrl = "api/{module-url}/{aggregates-url}";
+    private const string FailureMessage = "{Aggregate} request failed.";
+
+    public Task<ApiResult<Get{Aggregates}Response>> GetAsync(CancellationToken cancellationToken = default) =>
+        apiService.ExecuteAsync(() => GetCoreAsync(cancellationToken));
+
+    public Task<ApiResult<bool>> CreateAsync(Create{Aggregate}Request request, CancellationToken cancellationToken = default) =>
+        apiService.ExecuteAsync(() => CreateCoreAsync(request, cancellationToken));
+
+    private async Task<Get{Aggregates}Response> GetCoreAsync(CancellationToken cancellationToken)
+    {
+        using HttpResponseMessage response = await httpClient.GetAsync(BaseUrl, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+
+        return await response.Content.ReadFromJsonAsync<Get{Aggregates}Response>(cancellationToken: cancellationToken)
+            ?? throw new ApiRequestException(HttpStatusCode.InternalServerError, FailureMessage);
+    }
+
+    private async Task CreateCoreAsync(Create{Aggregate}Request request, CancellationToken cancellationToken)
+    {
+        using HttpResponseMessage response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+    }
+}
+
+// DI (module DependencyInjection.cs):
+// services.AddHttpClient<{Aggregate}ApiClient>(client => client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}"))
+//     .AddHttpMessageHandler<AuthHeaderHandler>()
+//     .AddHttpMessageHandler<GuestCookieForwardingHandler>();

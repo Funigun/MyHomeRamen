@@ -1,0 +1,57 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.{Slice}.Components
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.{Slice}.Models
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject {Aggregate}ApiClient {Aggregate}ApiClient
+@inject IStringLocalizer<{Slice}Resources> Text
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
+
+    <{Slice}Form IsSubmitting="_isSubmitting"
+                 ErrorMessage="@_submitError.Message"
+                 ValidationErrors="_submitError.ValidationErrors"
+                 OnSubmit="SubmitAsync"
+                 OnCancel="Cancel" />
+</MudPaper>
+
+@code {
+    private readonly ApiErrorState _submitError = new();
+    private bool _isSubmitting;
+
+    private async Task SubmitAsync({Slice}FormModel model)
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            ApiResult<bool> result = await {Aggregate}ApiClient.CreateAsync(model.ToRequest());
+            if (_submitError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["Saved"], Severity.Success);
+            NavigationManager.NavigateTo({Aggregate}Routes.Index);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private Task Cancel()
+    {
+        NavigationManager.NavigateTo({Aggregate}Routes.Index);
+        return Task.CompletedTask;
+    }
+}

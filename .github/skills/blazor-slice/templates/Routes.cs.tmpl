@@ -1,0 +1,10 @@
+namespace MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.Shared;
+
+public static class {Aggregate}Routes
+{
+    public const string Index = "/{module-url}/{aggregates-url}";
+    public const string Create = Index + "/create";
+    public const string EditTemplate = Index + "/{Id:guid}/edit";
+
+    public static string Edit(Guid id) => $"{Index}/{id}/edit";
+}

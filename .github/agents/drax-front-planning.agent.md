@@ -26,10 +26,18 @@ Always load:
 
 - `.github/instructions/blazor.instructions.md`
 - `.github/copilot-instructions.md`
+- `.github/skills/blazor-slice/SKILL.md` (slice templates and tokens)
 
 Load the backend feature preview plan when available, if not provided by user ask for clarification:
 
 - `.github/plans/{module}/{title}-preview-plan.md`
+
+## Research (before planning)
+
+1. Reuse check: grep aggregate `Shared/` for existing `*ApiClient`, `*Routes`, `*Resources`; extend, do not duplicate.
+2. Pick reference slice in same module (e.g. `Features/Restaurants`) and follow it.
+3. Pick template per file from the skill: `LoadView`, `SubmitView`, `Form`, `FormModel`, `ApiClient`.
+4. Entry page of aggregate = `{Aggregate}Page` at aggregate root, not `List{X}`.
 
 ## Plan File
 
@@ -53,26 +61,35 @@ Valid `Action`: Create, Modify, Delete
 
 ## 3. {Feature title}
 
-### 3.1 Folder structure
-- <Folders and files to create or modify>
+### 3.1 Slice manifest
+| Action | File | Template | Notes |
+|--------|------|----------|-------|
+
+Template: skill template name, or `none` with reason.
 
 ### 3.2 API contracts
 - <Frontend transport contracts and mapping boundary>
 
 ### 3.3 API client
-- <Resource client methods and DI registration>
+- <Resource client methods returning `ApiResult<T>` and DI registration>
 
 ### 3.4 UI models
 - <View models, form models, and mapping>
 
 ### 3.5 Components
-- <Reusable components and callbacks>
+- <Reusable components and callbacks; forms take `ValidationErrors` and `ErrorMessage`>
 
 ### 3.6 View
 - <Feature orchestration, loading, validation, errors, and actions>
 
 ### 3.7 Page
-- <Route, layout, authorization, and page composition>
+- <Route, layout, authorization policy, and page composition>
+
+### 3.8 Resources
+- <Slice keys on top of standard keys>
+
+## 4. Decisions needed
+- <Policy, layout, route, error messages — only unknowns>
 ```
 
-Do not invent missing requirements. Leave unknown details blank and identify decisions requiring user input.
+Do not invent missing requirements. Leave unknown details blank and list them in Decisions needed.

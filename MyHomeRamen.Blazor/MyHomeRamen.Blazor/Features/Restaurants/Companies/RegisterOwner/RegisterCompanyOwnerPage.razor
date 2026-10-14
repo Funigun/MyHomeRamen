@@ -1,8 +1,10 @@
-@page "/register/company-owner"
+@attribute [Route(CompanyRoutes.RegisterOwner)]
 @attribute [Authorize]
+
 @layout AppLayout
 
 @using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
 @inject IStringLocalizer<RegisterCompanyOwnerResources> Text
 
 <PageTitle>@Text["Title"]</PageTitle>

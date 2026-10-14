@@ -89,6 +89,9 @@
     <File Path=".github/instructions/blazor.instructions.md" />
   </Folder>
   <Folder Name="/_github/skills/" />
+  <Folder Name="/_github/skills/blazor-slice/">
+    <File Path=".github/skills/blazor-slice/SKILL.md" />
+  </Folder>
   <Folder Name="/_github/skills/db-access/">
     <File Path=".github/skills/db-access/SKILL.md" />
   </Folder>

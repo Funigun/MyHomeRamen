@@ -1,0 +1,15 @@
+@attribute [Route(CompanyRoutes.SocialMedia)]
+@attribute [Authorize(Policy = AdminSectionConstants.SocialMediaManagement)]
+
+@layout AdminLayout
+
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia
+
+@inject IStringLocalizer<SocialMediaResources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+
+<SocialMediaView />

@@ -1,14 +1,11 @@
-@using System.Net
 @using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Api
-@using MyHomeRamen.Blazor.Infrastructure.Authentication
 
 @inject RestaurantApiClient RestaurantApiClient
-@inject ApiService ApiService
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IAuthorizationService AuthorizationService
 @inject IStringLocalizer<RestaurantsResources> Text
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
@@ -24,66 +21,36 @@
         </MudButton>
     </MudStack>
 
-    @if (_isCheckingPermission)
-    {
-        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
-            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
-        </MudStack>
-    }
-    else if (!_canCreate)
-    {
-        <MudAlert Severity="Severity.Error" Class="mt-4">@Text["CreateForbidden"]</MudAlert>
-    }
-    else
-    {
-        <CreateRestaurantForm IsSubmitting="_isSubmitting"
-                              ErrorMessage="_errorMessage"
-                              OnSubmit="CreateAsync"
-                              OnCancel="NavigateToRestaurants" />
-    }
+    <RestaurantForm IsSubmitting="_isSubmitting"
+                    ErrorMessage="@_submitError.Message"
+                    ValidationErrors="_submitError.ValidationErrors"
+                    OnSubmit="CreateAsync"
+                    OnCancel="NavigateToRestaurants" />
 </MudPaper>
 
 @code {
-    private bool _isCheckingPermission = true;
-    private bool _canCreate;
     private bool _isSubmitting;
-    private string? _errorMessage;
+    private readonly ApiErrorState _submitError = new();
 
-    protected override async Task OnInitializedAsync()
+    private async Task CreateAsync(CreateRestaurantFormModel model)
     {
-        AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _canCreate = (await AuthorizationService.AuthorizeAsync(state.User, AdminSectionConstants.RestaurantCreation)).Succeeded;
-        _isCheckingPermission = false;
-    }
-
-    private async Task CreateAsync(CreateRestaurantModel model)
-    {
-        if (_isSubmitting || !_canCreate)
+        if (_isSubmitting)
         {
             return;
         }
 
         _isSubmitting = true;
-        _errorMessage = null;
 
         try
         {
-            ApiResult<bool> result = await ApiService.ExecuteAsync(
-                () => RestaurantApiClient.CreateAsync(model.ToRequest()));
-            if (result is ApiResult<bool>.Failure failure)
+            ApiResult<bool> result = await RestaurantApiClient.CreateAsync(model.ToRequest());
+            if (_submitError.Apply(result, Text["CreateValidationError"], Text["CreateError"]))
             {
-                if (!failure.Error.HandledGlobally)
-                {
-                    _errorMessage = failure.Error.StatusCode == HttpStatusCode.BadRequest
-                        ? Text["CreateValidationError"]
-                        : Text["CreateError"];
-                }
-
                 return;
             }
 
             Snackbar.Add(Text["Created"], Severity.Success);
-            NavigationManager.NavigateTo("/restaurants/companies/restaurants");
+            NavigationManager.NavigateTo(RestaurantRoutes.Index);
         }
         finally
         {
@@ -93,7 +60,7 @@
 
     private Task NavigateToRestaurants()
     {
-        NavigationManager.NavigateTo("/restaurants/companies/restaurants");
+        NavigationManager.NavigateTo(RestaurantRoutes.Index);
         return Task.CompletedTask;
     }
 }

@@ -3,46 +3,47 @@ using MyHomeRamen.Blazor.Infrastructure.Api;
 
 namespace MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
 
-public sealed class SocialMediaApiClient(HttpClient httpClient)
+public sealed class SocialMediaApiClient(HttpClient httpClient, ApiService apiService)
 {
     private const string BaseUrl = "api/restaurants/company/social-media";
+    private const string FailureMessage = "Social media request failed.";
 
-    public async Task<GetSocialMediaForManageResponse> GetForManageAsync(CancellationToken cancellationToken = default)
+    public Task<ApiResult<GetSocialMediaForManageResponse>> GetForManageAsync(CancellationToken cancellationToken = default) =>
+        apiService.ExecuteAsync(() => GetForManageCoreAsync(cancellationToken));
+
+    public Task<ApiResult<bool>> CreateAsync(CreateSocialMediaRequest request, CancellationToken cancellationToken = default) =>
+        apiService.ExecuteAsync(() => CreateCoreAsync(request, cancellationToken));
+
+    public Task<ApiResult<bool>> UpdateAsync(Guid socialMediaId, UpdateSocialMediaRequest request, CancellationToken cancellationToken = default) =>
+        apiService.ExecuteAsync(() => UpdateCoreAsync(socialMediaId, request, cancellationToken));
+
+    public Task<ApiResult<bool>> DeleteAsync(Guid socialMediaId, CancellationToken cancellationToken = default) =>
+        apiService.ExecuteAsync(() => DeleteCoreAsync(socialMediaId, cancellationToken));
+
+    private async Task<GetSocialMediaForManageResponse> GetForManageCoreAsync(CancellationToken cancellationToken)
     {
         using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/manage", cancellationToken);
-        await EnsureSuccessAsync(response, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+
         return await response.Content.ReadFromJsonAsync<GetSocialMediaForManageResponse>(cancellationToken: cancellationToken)
-            ?? throw new SocialMediaApiException(HttpStatusCode.InternalServerError);
+            ?? throw new ApiRequestException(HttpStatusCode.InternalServerError, FailureMessage);
     }
 
-    public async Task CreateAsync(CreateSocialMediaRequest request, CancellationToken cancellationToken = default)
+    private async Task CreateCoreAsync(CreateSocialMediaRequest request, CancellationToken cancellationToken)
     {
         using HttpResponseMessage response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
-        await EnsureSuccessAsync(response, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
     }
 
-    public async Task UpdateAsync(Guid socialMediaId, UpdateSocialMediaRequest request, CancellationToken cancellationToken = default)
+    private async Task UpdateCoreAsync(Guid socialMediaId, UpdateSocialMediaRequest request, CancellationToken cancellationToken)
     {
         using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{socialMediaId}", request, cancellationToken);
-        await EnsureSuccessAsync(response, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
     }
 
-    public async Task DeleteAsync(Guid socialMediaId, CancellationToken cancellationToken = default)
+    private async Task DeleteCoreAsync(Guid socialMediaId, CancellationToken cancellationToken)
     {
         using HttpResponseMessage response = await httpClient.DeleteAsync($"{BaseUrl}/{socialMediaId}", cancellationToken);
-        await EnsureSuccessAsync(response, cancellationToken);
-    }
-
-    private static async Task EnsureSuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
-    {
-        if (response.IsSuccessStatusCode)
-        {
-            return;
-        }
-
-        string? detail = await response.Content.ReadAsStringAsync(cancellationToken);
-        throw new SocialMediaApiException(response.StatusCode, detail);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
     }
 }
-
-public sealed class SocialMediaApiException(HttpStatusCode statusCode, string? detail = null) : ApiException(statusCode, detail ?? "Social media request failed.");

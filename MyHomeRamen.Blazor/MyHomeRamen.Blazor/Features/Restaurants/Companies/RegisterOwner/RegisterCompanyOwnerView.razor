@@ -1,11 +1,44 @@
 @using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.RegisterOwner.Components
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.RegisterOwner.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
 
+@inject CompanyApiClient CompanyApiClient
 @inject IStringLocalizer<RegisterCompanyOwnerResources> Text
 
 <MudPaper Elevation="3" Class="pa-6">
     <MudText Typo="Typo.h4" Class="mb-2">@Text["Heading"]</MudText>
     <MudText Typo="Typo.body2" Class="mb-6">@Text["Description"]</MudText>
 
-    <RegisterCompanyOwnerForm />
+    <RegisterCompanyOwnerForm IsSubmitting="_isSubmitting"
+                              ErrorMessage="@_submitError.Message"
+                              ValidationErrors="_submitError.ValidationErrors"
+                              OnSubmit="RegisterAsync" />
 </MudPaper>
+
+@code {
+    private readonly string _idempotencyKey = Guid.NewGuid().ToString("N");
+    private readonly ApiErrorState _submitError = new();
+    private bool _isSubmitting;
+
+    private async Task RegisterAsync(RegisterCompanyOwnerModel model)
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            ApiResult<RegisterCompanyOwnerResponse> result = await CompanyApiClient.RegisterCompanyOwnerAsync(model.ToRequest(), _idempotencyKey);
+            _submitError.Apply(result, Text["ValidationFailure"], Text["UnexpectedFailure"]);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+}

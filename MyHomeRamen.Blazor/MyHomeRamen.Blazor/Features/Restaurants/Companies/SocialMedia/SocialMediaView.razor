@@ -1,0 +1,155 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Models
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject SocialMediaApiClient SocialMediaApiClient
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject IStringLocalizer<SocialMediaResources> Text
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
+
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mt-6 mb-2 flex-wrap gap-2">
+        <MudText Typo="Typo.h4">@Text["SectionTitle"]</MudText>
+        @if (_canEdit)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialogAsync">@Text["Add"]</MudButton>
+        }
+    </MudStack>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@_loadError.Message</MudAlert>
+    }
+    else
+    {
+        <SocialMediaGrid Items="_items"
+                         ShowActions="_canEdit"
+                         EmptyText='@Text["Empty"]'
+                         EditText='@Text["Edit"]'
+                         DeleteText='@Text["Delete"]'
+                         OnEdit="OpenEditDialogAsync"
+                         OnDelete="ConfirmDeleteAsync" />
+    }
+</MudPaper>
+
+@code {
+    private readonly List<SocialMediaViewModel> _items = [];
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _submitError = new();
+    private bool _isLoading = true;
+    private bool _canEdit;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            ApiResult<GetSocialMediaForManageResponse> result = await SocialMediaApiClient.GetForManageAsync();
+            _loadError.Apply(result, Text["LoadError"], Text["LoadError"]);
+            if (result is ApiResult<GetSocialMediaForManageResponse>.Success success)
+            {
+                (IReadOnlyList<SocialMediaViewModel> items, bool canEdit) = SocialMediaViewModel.FromResponse(success.Value);
+                _items.Clear();
+                _items.AddRange(items);
+                _canEdit = canEdit;
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OpenCreateDialogAsync()
+    {
+        await ShowDialogAsync(false, null);
+    }
+
+    private async Task OpenEditDialogAsync(SocialMediaViewModel item)
+    {
+        await ShowDialogAsync(true, item);
+    }
+
+    private async Task ShowDialogAsync(bool isEdit, SocialMediaViewModel? item)
+    {
+        _submitError.Clear();
+        SocialMediaFormModel model = item is null ? new() : SocialMediaFormModel.FromViewModel(item);
+        DialogParameters<SocialMediaDialog> parameters = new()
+        {
+            { dialog => dialog.Model, model },
+            { dialog => dialog.IsEdit, isEdit },
+            { dialog => dialog.SubmitError, _submitError },
+            { dialog => dialog.OnSubmit, SaveAsync }
+        };
+        DialogOptions options = new()
+        {
+            MaxWidth = MaxWidth.ExtraSmall,
+            CloseButton = true,
+        };
+
+        await DialogService.ShowAsync<SocialMediaDialog>(isEdit ? Text["UpdateTitle"] : Text["CreateTitle"], parameters, options);
+    }
+
+    private async Task<bool> SaveAsync(SocialMediaFormModel model)
+    {
+        SocialMediaViewModel? existing = model.Id.HasValue ? _items.FirstOrDefault(item => item.Id == model.Id.Value) : null;
+        ApiResult<bool> result = existing is null
+            ? await SocialMediaApiClient.CreateAsync(model.ToCreateRequest())
+            : await SocialMediaApiClient.UpdateAsync(existing.Id, model.ToUpdateRequest());
+
+        if (_submitError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]))
+        {
+            return false;
+        }
+
+        Snackbar.Add(existing is null ? Text["Created"] : Text["Updated"], Severity.Success);
+        await LoadAsync();
+        StateHasChanged();
+        return true;
+    }
+
+    private async Task ConfirmDeleteAsync(SocialMediaViewModel item)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            Text["DeleteConfirmTitle"],
+            Text["DeleteConfirmMessage"],
+            yesText: Text["Delete"],
+            cancelText: Text["Cancel"]);
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        ApiResult<bool> result = await SocialMediaApiClient.DeleteAsync(item.Id);
+        ApiErrorState deleteError = new();
+        if (deleteError.Apply(result, Text["UnexpectedError"], Text["UnexpectedError"]))
+        {
+            if (deleteError.HasError)
+            {
+                Snackbar.Add(deleteError.Message!, Severity.Error);
+            }
+
+            return;
+        }
+
+        Snackbar.Add(Text["Deleted"], Severity.Success);
+        await LoadAsync();
+        StateHasChanged();
+    }
+}

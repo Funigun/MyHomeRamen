@@ -5,7 +5,6 @@
 @using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject RestaurantApiClient RestaurantApiClient
-@inject ApiService ApiService
 @inject IStringLocalizer<RestaurantsResources> Text
 @inject NavigationManager NavigationManager
 
@@ -30,9 +29,9 @@
             <MudText>@Text["Loading"]</MudText>
         </MudStack>
     }
-    else if (_loadError)
+    else if (_loadError.HasError)
     {
-        <MudAlert Severity="Severity.Error" Class="mt-4">@Text["LoadError"]</MudAlert>
+        <MudAlert Severity="Severity.Error" Class="mt-4">@_loadError.Message</MudAlert>
     }
     else
     {
@@ -48,24 +47,21 @@
 
 @code {
     private readonly List<RestaurantViewModel> _items = [];
+    private readonly ApiErrorState _loadError = new();
     private bool _isLoading = true;
-    private bool _loadError;
     private bool _canCreate;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            ApiResult<(IReadOnlyList<RestaurantViewModel> Items, bool CanCreate)> result = await ApiService.ExecuteAsync(
-                async () => RestaurantViewModel.FromResponse(await RestaurantApiClient.GetAvailableAsync()));
-            if (result is ApiResult<(IReadOnlyList<RestaurantViewModel> Items, bool CanCreate)>.Success success)
+            ApiResult<GetAvailableRestaurantsResponse> result = await RestaurantApiClient.GetAvailableAsync();
+            _loadError.Apply(result, Text["LoadError"], Text["LoadError"]);
+            if (result is ApiResult<GetAvailableRestaurantsResponse>.Success success)
             {
-                _items.AddRange(success.Value.Items);
-                _canCreate = success.Value.CanCreate;
-            }
-            else if (result is ApiResult<(IReadOnlyList<RestaurantViewModel> Items, bool CanCreate)>.Failure failure && !failure.Error.HandledGlobally)
-            {
-                _loadError = true;
+                (IReadOnlyList<RestaurantViewModel> items, bool canCreate) = RestaurantViewModel.FromResponse(success.Value);
+                _items.AddRange(items);
+                _canCreate = canCreate;
             }
         }
         finally
@@ -76,7 +72,7 @@
 
     private Task CreateRestaurantAsync()
     {
-        NavigationManager.NavigateTo("/restaurants/companies/restaurants/create");
+        NavigationManager.NavigateTo(RestaurantRoutes.Create);
         return Task.CompletedTask;
     }
 }

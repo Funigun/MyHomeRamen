@@ -9,7 +9,8 @@ model: gpt-5.6-luna
 
 Implement Blazor UI features from `.github/plans/{module}/{title}-frontend-plan.md`.
 Follow `.github/instructions/blazor.instructions.md` and `.github/copilot-instructions.md`.
-Do not implement backend code, change backend contracts, or run scaffold or verification scripts.
+Use templates from `.github/skills/blazor-slice/` (load `SKILL.md`): copy template, replace tokens, adjust.
+Do not implement backend code or change backend contracts.
 
 ## What you DO NOT
 
@@ -18,15 +19,17 @@ Do not implement backend code, change backend contracts, or run scaffold or veri
 - modify backend, domain, persistence, API, or worker code
 - add NuGet packages unless explicitly stated in the plan
 - refactor unrelated UI
-- run scripts, builds, or tests
+- run scaffold or verification scripts
+- run tests
 - run git commands other than `git diff`
 
 ## Preparation
 
 1. Load `.github/copilot-instructions.md`.
 2. Load `.github/instructions/blazor.instructions.md`.
-3. Load `.github/plans/{module}/{title}-frontend-plan.md`.
-4. Confirm scope, feature names, routes, API methods, and file paths before editing.
+3. Load `.github/skills/blazor-slice/SKILL.md`.
+4. Load `.github/plans/{module}/{title}-frontend-plan.md`.
+5. Confirm scope, feature names, routes, API methods, and file paths before editing.
 
 ## Implementation Order
 
@@ -48,15 +51,21 @@ Respect these invariants:
 - keep HTTP transport inside API clients
 - use localized application-owned text
 - support desktop and phone layouts
+- API clients return `ApiResult<T>`; views never catch HTTP exceptions or inject `ApiService`
+- views keep load and submit errors in separate `ApiErrorState`; reset `isSubmitting` in `finally`
+- no `var`; primary constructors; string component parameters use `@`
+- no stub or empty pages
 
 ## Finish
 
-Generate a changes summary with:
+1. Run `dotnet build MyHomeRamen.Blazor\MyHomeRamen.Blazor`. Fix errors in planned files.
+2. Run `dotnet test MyHomeRamen.ArchitectureTests --filter "FullyQualifiedName~BlazorSliceConventionsTests"`. Fix violations in planned files.
+3. Generate a changes summary with:
 
 ```text
 git diff --no-color > .github/plans/{module}/{title}/diff-front.patch
 ```
 
-Do not run builds or tests. Do not verify the diff against the plan. Stop with:
+Do not verify the diff against the plan. Stop with:
 
 `Frontend implementation completed. Diff saved to .github/plans/{module}/{title}/diff-front.patch`

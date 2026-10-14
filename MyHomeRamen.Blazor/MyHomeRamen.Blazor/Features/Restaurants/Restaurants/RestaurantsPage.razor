@@ -1,0 +1,15 @@
+@attribute [Route(RestaurantRoutes.Index)]
+@attribute [Authorize(Policy = AdminSectionConstants.RestaurantsManagement)]
+
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<RestaurantsResources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+
+<RestaurantsView />

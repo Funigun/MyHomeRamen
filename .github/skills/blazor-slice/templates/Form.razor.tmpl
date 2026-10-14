@@ -1,0 +1,73 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.{Slice}.Models
+
+@inject IStringLocalizer<{Slice}Resources> Text
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudStack Spacing="3">
+        <MudTextField @bind-Value="_model.Name"
+                      For="() => _model.Name"
+                      Label="@Text["Name"]"
+                      Variant="Variant.Outlined"
+                      Disabled="IsSubmitting"
+                      Immediate="true"
+                      Error="@HasError(nameof(_model.Name))"
+                      ErrorText="@GetError(nameof(_model.Name))" />
+
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+        }
+
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="flex-wrap">
+            <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="IsSubmitting" OnClick="SubmitAsync">
+                @if (IsSubmitting)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                    @Text["Saving"]
+                }
+                else
+                {
+                    @Text["Save"]
+                }
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudForm>
+
+@code {
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
+    [Parameter, EditorRequired] public EventCallback<{Slice}FormModel> OnSubmit { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+
+    private readonly {Slice}FormModel _model = new();
+    private MudForm _form = default!;
+    private {Slice}FormModelValidator _validator = default!;
+
+    protected override void OnInitialized()
+    {
+        _validator = new {Slice}FormModelValidator(Text);
+    }
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+        if (!_form.IsValid || IsSubmitting)
+        {
+            return;
+        }
+
+        await OnSubmit.InvokeAsync(_model);
+    }
+
+    private Task CancelAsync() => OnCancel.InvokeAsync();
+
+    private bool HasError(string propertyName) => ValidationErrors.ContainsKey(propertyName);
+
+    private string? GetError(string propertyName) => ValidationErrors.TryGetValue(propertyName, out string[]? errors)
+        ? string.Join(" ", errors)
+        : null;
+}

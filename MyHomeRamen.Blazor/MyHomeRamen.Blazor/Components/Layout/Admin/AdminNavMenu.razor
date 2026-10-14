@@ -1,4 +1,6 @@
 @using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Authentication
 @using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider
 
@@ -12,25 +14,25 @@
         <MudNavGroup Title="Company Management" Icon="@Icons.Material.Outlined.Domain" Expanded="false">
             @if (_canViewCompanyDetails)
             {
-                <MudNavLink Href="/restaurants/companies/management" Match="NavLinkMatch.All">
+                <MudNavLink Href="@CompanyRoutes.Details" Match="NavLinkMatch.All">
                     Company details
                 </MudNavLink>
             }
             @if (_canViewSocialMedia)
             {
-                <MudNavLink Href="/restaurants/companies/social-media" Match="NavLinkMatch.All">
+                <MudNavLink Href="@CompanyRoutes.SocialMedia" Match="NavLinkMatch.All">
                     Social Media
                 </MudNavLink>
             }
             @if (_canManageRestaurants)
             {
-                <MudNavLink Href="/restaurants/companies/restaurants" Match="NavLinkMatch.All">
+                <MudNavLink Href="@RestaurantRoutes.Index" Match="NavLinkMatch.All">
                     Restaurants
                 </MudNavLink>
             }
             @if (_canCreateRestaurant)
             {
-                <MudNavLink Href="/restaurants/companies/restaurants/create" Match="NavLinkMatch.All">
+                <MudNavLink Href="@RestaurantRoutes.Create" Match="NavLinkMatch.All">
                     Create restaurant
                 </MudNavLink>
             }

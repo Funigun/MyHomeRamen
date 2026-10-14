@@ -25,43 +25,71 @@ applyTo: '**/MyHomeRamen.Blazor/**/*.razor,**/MyHomeRamen.Blazor/**/*.cs,**/MyHo
 - Keep workflow roots beside their page within the feature slice. Use `Shared` only for reusable components, models, contracts, clients, and cross-slice UI primitives.
 - Define Dependency Injection registration extension per module.
 
-Recommended structure:
+### Slice structure (reference: `Features/Restaurants`)
+
+- One folder per action slice, named after the action: `CreateRestaurant`, `EditRestaurant`, `CompanyDetails`, `RegisterOwner`, `SocialMedia`.
+- Entry slice of an aggregate = `{Aggregate}Page` + `{Aggregate}View` at the aggregate root (e.g. `RestaurantsPage`). It is the aggregate's entry page; it is not necessarily a list, so no `List{X}` naming rule. Its `Components/` and `Models/` sit beside it in the aggregate root.
+- Folder name = slice name. Do not use generic names such as `Management`, `Pages`, `Models` at aggregate level for action slices.
+- Every slice uses the same file set:
+
+| File | Role |
+|---|---|
+| `{Slice}Page.razor` | Route, `[Authorize]`, layout, localized `PageTitle`, renders `{Slice}View`. Nothing else. |
+| `{Slice}View.razor` | Slice root: loading, API calls, errors, navigation, state. |
+| `Components/*.razor` | Dumb parts (forms, grids, dialogs). Parameters + `EventCallback` only. |
+| `Models/*.cs` | UI ViewModels, FormModels, validators. Namespace `...{Slice}.Models`. |
+
+- Only routable components end with `Page`. Everything beside the page is a slice root or part of it.
+- Slice-local resources: `{Slice}Resources.cs` + `.resx` in the slice folder.
+- Resources used by several slices of one aggregate (e.g. `RestaurantsResources`) live in the aggregate root.
+- Name Form components `{Action}{Aggregate}Form`; models `{Action}{Aggregate}FormModel` and `...FormModelValidator`.
+- A slice with one workflow gets no sub-folders besides `Components/` and `Models/`.
 
 ```text
 Features/
 └── {Module}/
+    ├── DependencyInjection.cs               ← one per module
+    ├── Shared/                              ← module-wide constants (permissions etc.)
     └── {Aggregate}/
-        └── ComposedCrudFeature/
-            ├── {Feature}Page.razor
-            ├── {Feature}View.razor
-            ├── {Feature}Form.razor
-            └── {Feature}Model.cs
-        ├── DividedCrudFeature/
-            ├── Pages/
-            |   ├── {Feature}CreatePage.razor
-            |   ├── {Feature}ViewPage.razor
-            |   └── {Feature}EditPage.razor
-            |   ├── Shared/
-            |   |   ├── {Feature}List.razor
-            |   |   ├── {Feature}Form.razor
-            |   |   ├── {Feature}Model.cs
-            ├── {Feature}View.razor
-            ├── {Feature}ViewPage.razor
-        ├── ComplexFeature/
-            ├── SubFeatureA/
-            |   ├── SomeModel.cs
-            |   ├── SomeComponent.razor
-            |   ├── SomeView.razor
-            ├── SubFeatureB/
-            |   ├── SomeModel.cs
-            |   ├── SomeComponent.razor
-            |   ├── SomeView.razor
-            ├── Shared/
-        └── Shared/
-        |   ├── {Aggregate}ApiClient.cs
-        |   ├── {Aggregate}ApiContracts.cs
-        └─ DependencyInjection.cs
+        ├── {Aggregate}Page.razor            ← entry page of aggregate
+        ├── {Aggregate}View.razor
+        ├── {Aggregate}Resources.cs/.resx    ← shared by slices
+        ├── Components/                      ← entry slice parts, e.g. {Aggregate}Grid.razor
+        ├── Models/                          ← entry slice models, e.g. {Aggregate}ViewModel.cs
+        ├── Shared/
+        │   ├── {Aggregate}ApiClient.cs
+        │   ├── {Aggregate}ApiContracts.cs
+        │   └── {Aggregate}Routes.cs
+        ├── Create{Aggregate}/
+        │   ├── Create{Aggregate}Page.razor
+        │   ├── Create{Aggregate}View.razor
+        │   ├── Components/Create{Aggregate}Form.razor
+        │   └── Models/Create{Aggregate}FormModel.cs (+ Validator)
+        └── Edit{Aggregate}/ ...
 ```
+
+- Aggregates made of independent slices (e.g. `Companies`) have no aggregate-root page; each slice is a folder (`CompanyDetails`, `RegisterOwner`, `SocialMedia`) and clients live in `Shared/`.
+- Slices that cannot be a single action (e.g. details + inline edit) stay one slice named after the main view (`CompanyDetails`).
+- Mixed list + dialog slices (`SocialMedia`) keep dialog in `Components/`; dialog gets callbacks, root calls API.
+
+### API result handling
+
+- Clients own HTTP: each client method wraps its call in `ApiService.ExecuteAsync(...)` and returns `ApiResult<T>` (`Success` / `Failure`). Non-success responses throw via `response.EnsureApiSuccessAsync(...)` (`ApiRequestException`). Views never catch HTTP exceptions and never call `ApiService`.
+- Views hold errors in `ApiErrorState` (`Infrastructure/Api`): `Apply(result, badRequestMessage, unexpectedMessage)` returns true on failure. `ValidationErrors` and `Message` come from it.
+- Keep load errors and submit errors in separate `ApiErrorState` instances. A submit error must not replace loaded content or discard the form.
+- `GetDisplayableError()` returns null for success and for errors handled globally (403/5xx redirects); `ApiErrorState` already respects it. Do not copy `HandledGlobally` checks into views.
+- Localize all error text via resources (`ValidationFailure`, `UnexpectedError`, `LoadError`). Never show `ApiError.Message`.
+- Forms take `ValidationErrors` and `ErrorMessage` parameters; map field errors with `Error`/`ErrorText` by property name.
+- Reset `isSubmitting` in `finally`.
+- Map response to ViewModel inside `Success` branch; map FormModel to request with `ToRequest()`.
+- Pass string fields to component parameters with `@` (`ErrorMessage="@_submitError.Message"`); without it Blazor passes the literal text.
+
+### Enforced by architecture tests (`BlazorSliceConventionsTests`)
+
+- Routable components end with `Page`.
+- Pages do not inject `*ApiClient` or `ApiService`.
+- Components in `Components/` do not inject `*ApiClient` or `ApiService`.
+- Rules currently run for `Features.Restaurants` only. Extend `FeaturesNamespace` as modules are refactored.
 
 ## 3) API clients
 
@@ -78,23 +106,21 @@ Features/
 
 ## 4) Routes and navigation
 
-- Declare routable URLs with `@page` beside the page that owns the route.
-- Do not duplicate every `@page` route in a module navigation service.
-- Use direct `Href` or `NavigationManager.NavigateTo` for simple navigation.
-- Use small static route builders for parameterized or reused URLs.
+- Declare each aggregate's URLs once in `{Aggregate}Routes` (static class in the aggregate `Shared/`), with `const` strings.
+- Pages use `@attribute [Route({Aggregate}Routes.X)]` (Razor `@page` accepts only literals, so it cannot use constants). Parameterized routes use a `...Template` const plus a builder method.
+- Nav menus, `Href` and `NavigationManager.NavigateTo` use the same constants. No hardcoded URL strings.
 - Keep a navigation service only when it performs real workflow behavior such as preserving state, handling return URLs, or selecting a destination conditionally.
-- Ensure route builders and `@page` declarations do not drift.
 
 Example:
 
 ```csharp
-public static class EmployeeRoutes
+public static class RestaurantRoutes
 {
-    public const string Index = "/admin/employees";
-    public const string Create = "/admin/employees/create";
+    public const string Index = "/restaurants/companies/restaurants";
+    public const string Create = Index + "/create";
+    public const string EditTemplate = Index + "/{Id:guid}/edit";
 
-    public static string View(Guid id) => $"/admin/employees/{id}";
-    public static string Edit(Guid id) => $"/admin/employees/{id}/edit";
+    public static string Edit(Guid id) => $"{Index}/{id}/edit";
 }
 ```
 

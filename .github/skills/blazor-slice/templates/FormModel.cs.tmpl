@@ -1,0 +1,21 @@
+using FluentValidation;
+using Microsoft.Extensions.Localization;
+using MyHomeRamen.Blazor.Components.Models;
+using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.Shared;
+
+namespace MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.{Slice}.Models;
+
+public sealed class {Slice}FormModel
+{
+    public string Name { get; set; } = string.Empty;
+
+    public Create{Aggregate}Request ToRequest() => new(Name);
+}
+
+public sealed class {Slice}FormModelValidator : BaseValidator<{Slice}FormModel>
+{
+    public {Slice}FormModelValidator(IStringLocalizer<{Slice}Resources> text)
+    {
+        RuleFor(model => model.Name).NotEmpty().WithMessage(text["NameRequired"]);
+    }
+}
