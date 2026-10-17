@@ -1,0 +1,26 @@
+using System.Net;
+using Bogus;
+using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.IntegrationTests.Extensions;
+using MyHomeRamen.{Module}Api.IntegrationTests.Common;
+using MyHomeRamen.{Module}Api.IntegrationTests.Common.Data;
+
+namespace MyHomeRamen.{Module}Api.IntegrationTests.{AggregatePlural};
+
+public sealed class {Feature}Tests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
+{
+    public async ValueTask InitializeAsync()
+    {
+        // seed data
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        // cleanup seeded data
+    }
+
+    // {Feature}_ShouldReturnOk_ForValidRequest
+    // {Feature}_ShouldReturnUnauthorized_ForAnonymousUser
+    // {Feature}_ShouldReturnForbidden_ForMissingPermission
+    // {Feature}_ShouldReturnBadRequest_ForInvalidRequest
+}

@@ -16,8 +16,7 @@ public sealed class CompanyOwnerDtoValidatorTests
             "123456789",
             "password",
             "different",
-            Guid.CreateVersion7(),
-            "idempotency-key");
+            Guid.CreateVersion7());
         CompanyOwnerDtoValidator validator = new();
 
         FluentValidation.Results.ValidationResult result = validator.Validate(companyOwner);

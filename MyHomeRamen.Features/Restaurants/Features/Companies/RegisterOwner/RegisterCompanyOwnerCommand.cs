@@ -7,16 +7,12 @@ using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.RegisterOwner;
 
-public sealed record RegisterCompanyOwnerCommand(RegisterCompanyOwnerRequest Request, string IdempotencyKey) : ICommand<RegisterCompanyOwnerResponse>;
+public sealed record RegisterCompanyOwnerCommand(RegisterCompanyOwnerRequest Request) : ICommand<RegisterCompanyOwnerResponse>;
 
 public sealed class RegisterCompanyOwnerCommandValidator : AbstractValidator<RegisterCompanyOwnerCommand>
 {
     public RegisterCompanyOwnerCommandValidator(IRestaurantDbContext restaurantDbContext)
     {
-        RuleFor(x => x.IdempotencyKey)
-            .NotEmpty()
-                .WithMessage("Idempotency-Key is required.");
-
         RuleFor(x => x.Request.CompanyName)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
@@ -50,8 +46,7 @@ public sealed class RegisterCompanyOwnerHandler(IIdentityService identityService
                 command.Request.PhoneNumber,
                 command.Request.Password,
                 command.Request.ConfirmPassword,
-                proposedCompanyId,
-                command.IdempotencyKey),
+                proposedCompanyId),
             cancellationToken);
 
         if (identityResult.Error is not null)

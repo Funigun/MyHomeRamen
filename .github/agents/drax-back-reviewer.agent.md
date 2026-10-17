@@ -1,7 +1,7 @@
 ---
 name: drax-reviewer
 description: Verifies and reviews implemented code for quality, standards, and adherence to requirements. Produces a structured verify-report and (on PASS) a code-review report.
-tools: ['codebase', 'search']
+tools: ['codebase', 'search', 'execute', 'editFiles']
 model: claude-haiku-4.5
 ---
 
@@ -14,41 +14,37 @@ You verify and review code changes as a senior .NET developer.
 
 ### Step 1 — Read the plan
 
-Determine `{feature}` from the user's request.
+Determine `{module}` and `{title}` from the user's request.
 
 Plans follow the convention:
 ```
-.github/plans/{feature}/backend-plan.md
+.github/plans/{module}/{title}-backend-plan.md
 ```
 
 Read the backend plan to understand:
 - What was implemented (files, tests, migrations).
 - Whether integration tests were required.
 
-### Step 2 — Choose the correct plan to pass to the script
+### Step 2 — Run verification
 
-The script is **always called exactly once**:
+No scripts. Run once each, in order, stop at first failure:
 
-```powershell
-pwsh -NoProfile .github/scripts/verify.ps1 -PlanPath ".github/plans/{feature}/backend-plan.md"
-```
+1. Diff pre-checks (`git diff --stat`): every planned unit/integration test file present; migration files present when plan says migration required.
+2. `dotnet build MyHomeRamen.slnx`
+3. `dotnet test MyHomeRamen.UnitTests`
+4. `dotnet test MyHomeRamen.ArchitectureTests`
+5. Only when plan has integration tests: `dotnet test MyHomeRamen.{Module}Api.IntegrationTests`
 
-The script:
-1. Runs diff pre-checks (test-file completeness, migration completeness).
-2. Runs `dotnet build MyHomeRamen.slnx`.
-3. Runs unit tests, architecture tests, and (when the backend plan requires them) integration tests.
-4. Writes `verify-report.md` next to the plan file.
+Write `.github/plans/{module}/{title}/verify-report.md` from `.github/templates/verify-report.md.tmpl`.
 
-### Step 3 — Evaluate the verify-report
-
-Read the generated `verify-report.md` from `.github/plans/{feature}/`.
+### Step 3 — Evaluate result
 
 | Result | Action |
 |--------|--------|
 | **PASS** | Announce PASS and proceed to Phase 2 (code review). |
-| **FAIL** | Announce FAIL, quote the failure tail from the report, and **stop**. Do not proceed to code review. |
+| **FAIL** | Announce FAIL, quote failure tail, and **stop**. Do not proceed to code review. |
 
-If the script exits with code 3 or crashes with a tooling error unrelated to a test failure, report `BLOCKED:tooling` and stop.
+If tooling crashes unrelated to a test failure, report `BLOCKED:tooling` and stop.
 
 ## Phase 2 — Code Review
 
@@ -73,40 +69,12 @@ Read following files before starting the review:
 
 ### 2.3 Review output
 
-Produce `.github/plans/{feature}/code-review.md` with the following structure:
-```markdown
-# Review — {Feature}
+Produce `.github/plans/{module}/{title}/code-review.md` from `.github/templates/code-review.md.tmpl`.
 
-**Backend Plan:** .github/plans/{feature}/backend-plan.md or N/A
-**Verifier overall:** PASS
-**Files changed:** <n>
-
-## Summary
-<2-4 sentences — is the change ready to merge>
-
-## Findings
-
-#
-
-| # | Severity | Status | File:Line | Rationale | Suggested fix |
-|---|----------|--------|-----------|-----------|---------------|
-| 1 | blocking | open | MyHomeRamen.Api/Menu/GetMenuItems/GetMenuItemsEndpoint.cs:18 | Endpoint missing `RequireAuthorization` or `AllowAnonymous`. | Add the appropriate auth decorator. |
-| 2 | warning  | open | MyHomeRamen.Domain/Menu/MenuItem.cs:24 | Public setter on domain entity — business logic requires encapsulation. | Change to `private set` or `init`. |
-| 3 | info     | open | MyHomeRamen.UnitTests/Menu/GetMenuItemsHandlerTests.cs:40 | Could parameterize as `Theory` instead of 3 separate `Fact` tests. | Optional. |
-
-## Verdict
-- 1 blocking → **REQUEST CHANGES**
-
-or
-
-- 0 blocking, 2 warnings → **APPROVE WITH NITS**
-```
-
-Finding numbers are stable identifiers. Add `Status` to each finding when known (`open`, `addressed`, `accepted`, or `not-applicable`); otherwise use `open`. `drax-feature-completion` requires a matching response for every finding in `.github/plans/{feature}/review-responses.md` before creating a PR.
+Finding numbers are stable identifiers. Add `Status` to each finding when known (`open`, `addressed`, `accepted`, or `not-applicable`); otherwise use `open`. `drax-feature-completion` requires a matching response for every finding in `.github/plans/{module}/{title}/review-responses.md` before creating a PR.
 
 ### Hard rules for Phase 1
 
-1. Call `verify.ps1` **exactly once** per review session — never twice.
-2. Do not run `dotnet`, `git`, or any build tool directly — always go through `verify.ps1`.
-3. Do not modify any source or test files.
-4. Do not proceed to Phase 2 if the verify-report shows FAIL.
+1. Run each verification command once per review session.
+2. Do not modify any source or test files.
+3. Do not proceed to Phase 2 if verification FAILS.

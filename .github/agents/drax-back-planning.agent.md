@@ -1,7 +1,7 @@
 ---
 name: drax-back-planner
 description: Research codebase and generate structured implementation and testing plans for single/multiple features per module for backend development. Frontend plans are excluded here.
-tools: ['search', 'web/fetch', 'read', 'edit', 'execute']
+tools: ['search', 'web/fetch', 'read', 'edit']
 model: gpt-5.6-luna
 ---
 
@@ -22,15 +22,12 @@ You **DO NOT** write code or change any files.
 ## What to NOT to do:
 - do not run builds, tests
 - do not write code, create folders or files other than plan files
-- do not modify instructions / agents / scripts / code
+- do not modify instructions / agents / skills / templates / code
 - plan UI development (handled by separate agent)
 
 ## Required Instructions / Skills
 
-Conditional reading:
-- if backend involved, load `.github/instructions/backend.instructions.md`
-
-Always load:
+- `.github/instructions/backend.instructions.md`
 - `.github/wiki/architecture.md`
 - `.github/copilot-instructions.md`
 
@@ -46,21 +43,8 @@ Determine if database migrations are required based on domain model changes and 
 
 Location: `.github/plans/{module}/{title}-preview-plan.md`
 
-Ask user for a list of features to implement and create a single file per module with list of features where each feature has following structure:
-``` markdown
-## {feature title}
-
-Module:
-Aggregate:
-
-Domain logic:
-Domain events:
-
-Route:
-Authorization logic:
-Validation logic:
-Handler logic:
-```
+Ask user for a list of features to implement and create a single file per module.
+Repeat template `.github/templates/features-preview-plan.md.tmpl` once per feature.
 
 Include details provided by user, but do not try to guess or infer any missing details. Lacking details must stay blank.
 
@@ -71,56 +55,15 @@ or if user will complete the file and get back to you.
 
 Location: `.github/plans/{module}/{title}-backend-plan.md`
 
-Based on the features list create a backend plan file for all features per module. Each file should have the following structure:
-Sections 4-4.5 should be repeated for each feature in the list.
+Based on the features list create one backend plan file per module from `.github/templates/backend-plan.md.tmpl`.
+Repeat section 4 (4.1-4.5) for each feature.
 
-```markdown
-# Plan: {Module} - {Title}
+## Plan Self-Check
 
-## 1. Problem
-<What user wants, why, what already exists — 2-3 sentences max>
+No scripts. Before finishing, verify plan manually:
+- title matches `# Plan: {Module} - {Title}`; Module is valid (see template)
+- only template section headers (`## 1.`-`## 4.`) used
+- section 2 table has exact template columns, one row per feature, `Action` is Create/Modify/Delete
+- every feature has sections 4.1-4.5
 
-## 2. Files to create / modify
-| Action | Module | Aggregate | Feature Name | Endpoint Kind | Route |
-|--------|--------|-----------|--------------|---------------|-------|
-
-Valid `Action`: Create, Modify, Delete 
-Valid `Module`: Identity, Menu, Orders, ShoppingCart, Reservations, Payments, Restaurants
-Valid `Aggregate`: Required Aggregate name, does not have to match domain model
-Valid `Endpoint Kind`: Command, Query
-
-## 3. Migration required: true/false
-
-## 4. {Feature title}
-
-### 4.1 Domain changes
-- <Logic + Events>
-
-### 4.2 Persistance
-- implementation of I{Aggregate}Repository.Load().{Method} or I{Aggregate}Repository.Query().{Method} or point to existing methods
-
-### 4.3 API details
-Request:
-Response:
-Command/Query:
-Command/Query handler:
-Validation policy:
-Authorization policy:
-Endpoint:
-
-### 4.4 Unit Tests
-<Unit tests details for domain>
-
-### 4.5 Integration Tests
-<Integration tests details for API endpoints>
-```
-
-## Plan Validation
-
-Once a backend plan file has been written, **execute** the lint script against it using the `run_command` tool (do NOT read or interpret the script file manually):
-
-```
-dotnet run ./Scripts/PlanReview/PlanReviewScript.cs -- .github/plans/{module}/{title}-backend-plan.md
-```
-
-Inspect exit status and output. If validation fails, provide user with info and wait for further instructions.
+If any check fails, fix the plan. If cannot fix (missing user details), tell user and wait.

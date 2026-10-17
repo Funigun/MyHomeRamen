@@ -17,7 +17,7 @@ the implementation order, required gates, scope boundaries, and completion artif
 - Edit paths that are not specified in the plan
 - Run builds or tests
 - Add NuGet packages unless explicitly stated in the plan
-- Skip Slice Scaffold Script when backend involved
+- Skip template scaffolding when backend involved
 - Analyze existing methods for potential refactors
 - Refactor existing code base unless explicitly stated in the plan
 - Load the same file multiple times
@@ -40,18 +40,20 @@ Its backend order is:
 
 Load `.github/copilot-instructions.md` for GitHub Copilot usage guidelines and best practices.
 
-### 1) Run scaffold script
-
-**MANDATORY GATE — run immediately after loading the plan, before loading any other files:**
-This is .Net 10 new feature (file-based apps), run exactly as below:
-> ```
-> cd "C:\Users\stepn\source\repos\MyHomeRamen" && dotnet run ./Scripts/FeatureScaffold/FeatureScaffoldScript.cs -- .github/plans/{module}/{title}-backend-plan.md
-> ```
-
-### 2) Load plan
+### 1) Load plan
 
 Load the specified backend plan:
 - `.github/plans/{module}/{title}-backend-plan.md`
+
+### 2) Scaffold from templates
+
+**MANDATORY GATE — after loading plan, before other implementation work:**
+For each `Create` row in plan section 2, create files by hand from templates in `.github/skills/feature-implementation/templates/`:
+- `Endpoint.cs.tmpl` → `{Feature}Endpoint.cs`
+- `Cqrs.cs.tmpl` → `{Feature}.cs` (command/query, policies, handler)
+- `IntegrationTests.cs.tmpl` → `{Feature}Tests.cs` (only if plan has integration tests)
+
+Replace placeholders (`{Module}`, `{Aggregate}`, `{AggregatePlural}`, `{Feature}`, `{Cqrs}`, `{cqrs}`, `{EndpointType}`, `{Route}`) from plan section 2. Drop response type when feature has none. No scripts.
 
 ### 3) Load instruction files
 
@@ -62,12 +64,12 @@ Load the specified backend plan:
 
 ### 4) Implementation
 
-1. Domain (section ## 3. Domain changes)
-2. Persistence (section ## 4. Persistance)
-3. API slice (section ## 5. API details) - this includes files scaffolded by script that generated skeletons in order:
+1. Domain (section ## 4.1 Domain changes)
+2. Persistence (section ## 4.2 Persistance)
+3. API slice (section ## 4.3 API details) - includes files scaffolded from templates, in order:
    DTOs -> Request/Response -> Command -> Handler -> Validator -> Endpoint
-4. Unit Tests (section ## 6. Tests) - if unit tests are specified
-5. Integration Tests (section ## 6. Tests) - if integration tests are specified
+4. Unit Tests (section ## 4.4) - if specified
+5. Integration Tests (section ## 4.5) - if specified
 
 ### 5) Generate changes summary
 

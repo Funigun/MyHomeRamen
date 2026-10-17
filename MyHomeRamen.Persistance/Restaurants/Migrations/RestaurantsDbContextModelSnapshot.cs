@@ -18,7 +18,7 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("restaurants")
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -144,6 +144,9 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -166,6 +169,8 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
                         .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("Restaurants", "restaurants");
                 });
@@ -219,6 +224,11 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
 
             modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Restaurants.Restaurant", b =>
                 {
+                    b.HasOne("MyHomeRamen.Domain.Restaurants.Companies.Company", null)
+                        .WithMany("Restaurants")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.OwnsOne("MyHomeRamen.Domain.Restaurants.Restaurants.ValueObjects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("RestaurantId")
@@ -373,6 +383,8 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
             modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Companies.Company", b =>
                 {
                     b.Navigation("Media");
+
+                    b.Navigation("Restaurants");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Restaurants.Restaurant", b =>

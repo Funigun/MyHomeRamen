@@ -112,10 +112,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             b.Property(x => x.Id).ValueGeneratedNever();
             b.Property(x => x.UserId).IsRequired();
             b.Property(x => x.CompanyId).IsRequired();
-            b.Property(x => x.RestaurantId).IsRequired();
-            b.Property(x => x.RoleId).IsRequired();
-            b.Property(x => x.IdempotencyKey).IsRequired().HasMaxLength(200);
-            b.HasIndex(x => x.IdempotencyKey).IsUnique();
+            b.Property(x => x.RestaurantId).IsRequired(false);
             b.HasIndex(x => new { x.UserId, x.CompanyId, x.RestaurantId }).IsUnique();
         });
 
@@ -201,5 +198,4 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
         return await Database.ExecuteSqlInterpolatedAsync(sql, cancellationToken);
     }
 }
-
 

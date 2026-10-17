@@ -25,8 +25,5 @@ public sealed class CompanyOwnerDtoValidator : AbstractValidator<CompanyOwnerDto
         RuleFor(x => x.CompanyId)
             .NotEmpty()
             .WithMessage("Company ID must not be empty.");
-        RuleFor(x => x.IdempotencyKey)
-            .NotEmpty()
-            .WithMessage("Idempotency-Key is required.");
     }
 }

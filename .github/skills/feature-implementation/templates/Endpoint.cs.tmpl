@@ -1,0 +1,37 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using MyHomeRamen.Features.Common.Endpoints;
+using MyHomeRamen.Features.Common.Mediator;
+
+namespace MyHomeRamen.Features.{Module}.Features.{Aggregate}.{Feature};
+
+public sealed record {Feature}Request();
+
+// Omit when feature has no response
+public sealed record {Feature}Response();
+
+public sealed class {Feature}Endpoint : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
+    {
+        // {EndpointType}: Get<{Feature}Response> | Post<{Feature}Response> | Put | Delete
+        endpointBuilder
+            .MapStandard{EndpointType}("{Route}", HandleAsync)
+            .WithName("{Feature}Endpoint")
+            .WithTags("{Tags}")
+            .WithDescription("{Description}")
+            .RequireAuthorization(); // or .AllowAnonymous() when plan says so
+    }
+
+    private static async Task<IResult> HandleAsync(
+        [FromServices] IRequestHandler<{Feature}{Cqrs}, {Feature}Response> handler,
+        CancellationToken cancellationToken)
+    {
+        {Feature}{Cqrs} {cqrs} = new();
+        {Feature}Response response = await handler.Handle({cqrs}, cancellationToken);
+
+        return TypedResults.Ok(response);
+    }
+}

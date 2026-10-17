@@ -14,9 +14,9 @@ public sealed class ProductModel
 
     public CategoryOption? CategoryId { get; set; }
 
-    public IEnumerable<IngredientOption> IngredientIds { get; set; } = [];
+    public IReadOnlyCollection<IngredientOption> IngredientIds { get; set; } = [];
 
-    public IEnumerable<IngredientOption> CustomIngredientIds { get; set; } = [];
+    public IReadOnlyCollection<IngredientOption> CustomIngredientIds { get; set; } = [];
 
     public CreateProductRequest ToCreateRequest()
     {
@@ -51,8 +51,8 @@ public sealed class ProductModel
             Description = response.Description,
             Price = response.Price,
             CategoryId = availableCategories.FirstOrDefault(c => c.Id == response.CategoryId),
-            IngredientIds = availableIngredients.Where(i => response.IngredientIds.Contains(i.Id)),
-            CustomIngredientIds = availableIngredients.Where(i => response.CustomIngredientIds.Contains(i.Id)),
+            IngredientIds = availableIngredients.Where(i => response.IngredientIds.Contains(i.Id)).ToList(),
+            CustomIngredientIds = availableIngredients.Where(i => response.CustomIngredientIds.Contains(i.Id)).ToList(),
         };
     }
 }

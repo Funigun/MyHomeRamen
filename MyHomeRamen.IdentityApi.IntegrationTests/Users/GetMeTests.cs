@@ -41,8 +41,7 @@ public sealed class GetMeTests(WebApiFactory apiFactory) : IClassFixture<WebApiF
         Assert.Equal("Alex", body.FirstName);
         Assert.True(body.AdminNavigation.CanSeeAdminPanel);
         Assert.Equal(
-            new[]
-            {
+            [
                 AdminSectionConstants.CompanyManagement,
                 AdminSectionConstants.SocialMediaManagement,
                 AdminSectionConstants.RestaurantsManagement,
@@ -50,7 +49,7 @@ public sealed class GetMeTests(WebApiFactory apiFactory) : IClassFixture<WebApiF
                 AdminSectionConstants.RestaurantManagement,
                 AdminSectionConstants.ProductsManagement,
                 AdminSectionConstants.IngredientsManagement
-            },
+            ],
             body.AdminNavigation.Sections);
     }
 
@@ -59,8 +58,8 @@ public sealed class GetMeTests(WebApiFactory apiFactory) : IClassFixture<WebApiF
     {
         // Arrange
         (Guid UserId, Guid GuestId) guest = await apiFactory.IdentityTestData.SeedGuest([]);
-        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(Endpoint)
-            .WithGuestCookie(guest.GuestId.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(Endpoint);
+        request.WithGuestCookie(guest.GuestId.ToString());
 
         // Act
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(request, TestContext.Current.CancellationToken);

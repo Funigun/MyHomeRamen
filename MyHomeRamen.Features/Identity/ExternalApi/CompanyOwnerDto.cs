@@ -8,5 +8,4 @@ public sealed record CompanyOwnerDto(
     string PhoneNumber,
     string Password,
     string ConfirmPassword,
-    Guid CompanyId,
-    string IdempotencyKey);
+    Guid CompanyId);

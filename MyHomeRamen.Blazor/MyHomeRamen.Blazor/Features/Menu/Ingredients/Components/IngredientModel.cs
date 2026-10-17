@@ -12,7 +12,7 @@ public sealed class IngredientModel
 
     public decimal Price { get; set; }
 
-    public IEnumerable<CategoryOption> CategoryIds { get; set; } = [];
+    public IReadOnlyCollection<CategoryOption> CategoryIds { get; set; } = [];
 
     public CreateIngredientRequest ToCreateRequest()
     {
@@ -31,7 +31,7 @@ public sealed class IngredientModel
             Name = response.Name,
             Description = response.Description,
             Price = response.Price,
-            CategoryIds = availableCategories.Where(c => response.CategoryIds.Contains(c.Id)),
+            CategoryIds = availableCategories.Where(c => response.CategoryIds.Contains(c.Id)).ToList(),
         };
     }
 }

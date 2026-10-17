@@ -18,7 +18,7 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("identity")
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -38,21 +38,13 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("IdempotencyKey")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset?>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<Guid>("RoleId")
+                    b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserId")
@@ -60,11 +52,9 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IdempotencyKey")
-                        .IsUnique();
-
-                    b.HasIndex("UserId", "CompanyId")
-                        .IsUnique();
+                    b.HasIndex("UserId", "CompanyId", "RestaurantId")
+                        .IsUnique()
+                        .HasFilter("[RestaurantId] IS NOT NULL");
 
                     b.ToTable("CompanyMemberships", "identity");
                 });

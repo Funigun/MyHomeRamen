@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
 
@@ -34,11 +33,10 @@ public sealed class RegisterCompanyOwnerEndpoint : IEndpoint
 
     private static async Task<IResult> Handler(
         [FromBody] RegisterCompanyOwnerRequest request,
-        [FromHeader(Name = HeaderConstants.IdempotencyKey)] string? idempotencyKey,
         [FromServices] IRequestHandler<RegisterCompanyOwnerCommand, RegisterCompanyOwnerResponse> handler,
         CancellationToken cancellationToken)
     {
-        RegisterCompanyOwnerCommand command = new(request, idempotencyKey ?? string.Empty);
+        RegisterCompanyOwnerCommand command = new(request);
         RegisterCompanyOwnerResponse response = await handler.Handle(command, cancellationToken);
         
         return TypedResults.Created($"/api/restaurants/companies/{response.CompanyId}", response);

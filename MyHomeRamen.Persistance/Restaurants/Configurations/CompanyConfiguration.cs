@@ -45,6 +45,11 @@ public class CompanyConfiguration : IEntityTypeConfiguration<Company>
                .HasForeignKey("CompanyId")
                .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(x => x.Restaurants)
+               .WithOne()
+               .HasForeignKey("CompanyId")
+               .OnDelete(DeleteBehavior.Cascade);
+
         builder.Navigation(x => x.Media).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

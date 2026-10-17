@@ -1,11 +1,13 @@
 using MyHomeRamen.Domain.Abstractions;
 using MyHomeRamen.Domain.Restaurants.Companies.ValueObjects;
+using MyHomeRamen.Domain.Restaurants.Restaurants;
 
 namespace MyHomeRamen.Domain.Restaurants.Companies;
 
 public sealed class Company : Aggregate<CompanyId>
 {
     private readonly List<SocialMedia> _media = [];
+    private readonly List<Restaurant> _restaurants = [];
 
     public string Name { get; private set; } = string.Empty;
 
@@ -18,6 +20,8 @@ public sealed class Company : Aggregate<CompanyId>
     public BusinessDetails BusinessDetails { get; private set; } = default!;
 
     public IReadOnlyList<SocialMedia> Media => _media.ToList();
+
+    public IReadOnlyList<Restaurant> Restaurants => _restaurants.ToList();
 
     private Company() { }
 
@@ -78,4 +82,3 @@ public sealed class Company : Aggregate<CompanyId>
         CompanyValidator.Validate(this);
     }
 }
-

@@ -9,12 +9,9 @@ namespace MyHomeRamen.Persistance.Identity.CompanyMemberships;
 
 public sealed class CompanyMembershipRepository(IdentityDbContext dbContext, ICacheService cacheService) : BaseRepository<CompanyMembership, CompanyMembershipId>(dbContext, cacheService), ICompanyMembershipRepository
 {
-    public async Task<CompanyMembership?> ByIdempotencyKey(string key, CancellationToken cancellationToken)
-        => await dbContext.CompanyMemberships.AsNoTracking().FirstOrDefaultAsync(x => x.IdempotencyKey == key, cancellationToken);
-
     public async Task<bool> Exists(UserId userId, Guid companyId, CancellationToken cancellationToken)
-        => await dbContext.CompanyMemberships.AsNoTracking().AnyAsync(x => x.UserId == userId && x.CompanyId == companyId && x.IsActive, cancellationToken);
-    public async Task<bool> Exists(UserId userId, Guid companyId, Guid restaurantId, CancellationToken cancellationToken)
-        => await dbContext.CompanyMemberships.AsNoTracking().AnyAsync(x => x.UserId == userId && x.CompanyId == companyId && x.RestaurantId == restaurantId && x.IsActive, cancellationToken);
-}
+        => await dbContext.CompanyMemberships.AsNoTracking().AnyAsync(x => x.UserId == userId && x.CompanyId == companyId, cancellationToken);
 
+    public async Task<bool> Exists(UserId userId, Guid companyId, Guid restaurantId, CancellationToken cancellationToken)
+        => await dbContext.CompanyMemberships.AsNoTracking().AnyAsync(x => x.UserId == userId && x.CompanyId == companyId && (x.RestaurantId == null || x.RestaurantId == restaurantId), cancellationToken);
+}

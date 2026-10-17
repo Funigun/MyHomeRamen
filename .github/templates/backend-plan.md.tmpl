@@ -1,0 +1,39 @@
+# Plan: {Module} - {Title}
+
+## 1. Problem
+<What user wants, why, what already exists — 2-3 sentences max>
+
+## 2. Files to create / modify
+| Action | Module | Aggregate | Feature Name | Endpoint Kind | Route |
+|--------|--------|-----------|--------------|---------------|-------|
+
+<!-- Action: Create | Modify | Delete -->
+<!-- Module: Identity | Menu | Orders | ShoppingCart | Reservations | Payments | Restaurants -->
+<!-- Endpoint Kind: Command | Query -->
+
+## 3. Migration required: true/false
+
+<!-- Repeat sections 4.x per feature. Migration name: {YYYYMMDD}_{DescriptiveName} -->
+
+## 4. {Feature title}
+
+### 4.1 Domain changes
+- <Logic + Events>
+
+### 4.2 Persistance
+- I{Aggregate}Repository.Load().{Method} / I{Aggregate}Repository.Query().{Method} or existing methods
+
+### 4.3 API details
+Request:
+Response:
+Command/Query:
+Command/Query handler:
+Validation policy:
+Authorization policy:
+Endpoint:
+
+### 4.4 Unit Tests
+<Unit tests details for domain>
+
+### 4.5 Integration Tests
+<Integration tests details for API endpoints>

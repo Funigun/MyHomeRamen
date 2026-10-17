@@ -23,7 +23,7 @@ Follow this order:
 1. **Prepare**
    - Load `.github/copilot-instructions.md`.
    - Identify plan scope, affected module, aggregate, endpoint kind, route, and files listed in `## 2. Files to create / modify`.
-   - For backend work, run the Slice Scaffold Script exactly as required by the implementation agent before loading additional implementation files.
+   - For backend work, scaffold files from `.github/skills/feature-implementation/templates/*.tmpl` for each `Create` row in plan section 2 before loading additional implementation files. No scripts.
 
 2. **Load plan and instructions**
    - Load the applicable backend plan.
