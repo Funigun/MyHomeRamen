@@ -23,42 +23,6 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Identity.CompanyMemberships.CompanyMembership", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("ModifiedOn")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid?>("RestaurantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "CompanyId", "RestaurantId")
-                        .IsUnique()
-                        .HasFilter("[RestaurantId] IS NOT NULL");
-
-                    b.ToTable("CompanyMemberships", "identity");
-                });
-
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Permissions.Permission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -132,6 +96,9 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("RestaurantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.ToTable("Roles", "identity");
@@ -155,6 +122,40 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("RolePermissions", "identity");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.UserRole", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId", "RoleId")
+                        .IsUnique();
+
+                    b.ToTable("UserRoles", "identity");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.User", b =>
@@ -197,10 +198,6 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -212,21 +209,6 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .HasFilter("[GuestId] IS NOT NULL");
 
                     b.ToTable("Users", "identity");
-                });
-
-            modelBuilder.Entity("UserRoles", b =>
-                {
-                    b.Property<Guid>("RolesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("RolesId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserRoles", "identity");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.RolePermission", b =>
@@ -242,6 +224,25 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.UserRole", b =>
+                {
+                    b.HasOne("MyHomeRamen.Domain.Identity.Roles.Role", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyHomeRamen.Domain.Identity.Users.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.User", b =>
@@ -289,24 +290,16 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.Navigation("Addresses");
                 });
 
-            modelBuilder.Entity("UserRoles", b =>
-                {
-                    b.HasOne("MyHomeRamen.Domain.Identity.Roles.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RolesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MyHomeRamen.Domain.Identity.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("MyHomeRamen.Domain.Identity.Roles.Role", b =>
                 {
                     b.Navigation("RolePermissions");
+
+                    b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Identity.Users.User", b =>
+                {
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

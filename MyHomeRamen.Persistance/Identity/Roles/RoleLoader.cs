@@ -6,7 +6,8 @@ namespace MyHomeRamen.Persistance.Identity;
 
 public partial class RoleRepository : IRoleLoader
 {
-    public Task<Role?> ByName(string roleName, CancellationToken cancellationToken)
+    public Task<Role?> ByName(string roleName, CancellationToken cancellationToken, Guid? restaurantId = null)
         => identityDbContext.Roles.Include(r => r.RolePermissions)
-                                  .FirstOrDefaultAsync(role => role.Name.ToLower() == roleName.ToLower(), cancellationToken);
+                                  .FirstOrDefaultAsync(role => role.Name.ToLower() == roleName.ToLower()
+                                                               && role.RestaurantId == restaurantId, cancellationToken);
 }

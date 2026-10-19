@@ -24,7 +24,7 @@ public class RegisterGuestHandler(IIdentityDbContext dbContext) : IRequestHandle
                           ?? throw new InvalidOperationException("Guest role was not found.");
 
         User guest = User.CreateGuest();
-        guest.AddRole(guestRole);
+        guest.AssignRole(guestRole);
         dbContext.User.Add(guest);
         await dbContext.SaveChangesAsync(cancellationToken);
 

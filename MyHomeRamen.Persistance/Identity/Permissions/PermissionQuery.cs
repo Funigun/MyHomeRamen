@@ -15,7 +15,7 @@ public sealed partial class PermissionRepository : IPermissionQuery
     {
         List<RoleId> roleIds = await identityDbContext.Users.AsNoTracking()
                       .Where(user => user.Id == new UserId(userId))
-                      .SelectMany(user => user.Roles.Select(role => role.Id))
+                      .SelectMany(user => user.UserRoles.Select(userRole => userRole.RoleId))
                       .ToListAsync(cancellationToken);
 
         return await identityDbContext.RolePermissions.AsNoTracking()

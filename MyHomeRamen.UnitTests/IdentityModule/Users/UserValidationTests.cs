@@ -1,4 +1,3 @@
-using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 
 namespace MyHomeRamen.UnitTests.IdentityModule.Users;
@@ -11,13 +10,12 @@ public class UserValidationTests
     private const string ValidLastName = "User";
     private const string ValidEmail = "test@example.com";
     private const string ValidPhoneNumber = "123456789";
-    private static readonly Role ValidRole = Role.CreateCustom("customer", "customer role");
 
     [Fact]
     public void Create_Should_SetEmail_When_DataIsValid()
     {
         // Act
-        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber, ValidRole);
+        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber);
 
         // Assert
         Assert.Equal(ValidEmail, user.Email);
@@ -27,7 +25,7 @@ public class UserValidationTests
     public void Create_Should_SetFirstName_When_DataIsValid()
     {
         // Act
-        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber, ValidRole);
+        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber);
 
         // Assert
         Assert.Equal(ValidFirstName, user.FirstName);
@@ -37,7 +35,7 @@ public class UserValidationTests
     public void Create_Should_SetLastName_When_DataIsValid()
     {
         // Act
-        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber, ValidRole);
+        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber);
 
         // Assert
         Assert.Equal(ValidLastName, user.LastName);
@@ -47,19 +45,17 @@ public class UserValidationTests
     public void Create_Should_SetUserName_When_DataIsValid()
     {
         // Act
-        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber, ValidRole);
+        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber);
 
         // Assert
         Assert.Equal(ValidUserName, user.UserName);
     }
 
     [Fact]
-    public void Create_Should_SetRole_When_DataIsValid()
+    public void Create_ShouldNotAssignRoles_When_DataIsValid()
     {
-        // Act
-        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber, ValidRole);
+        User user = User.Create(ValidKeycloakUserId, ValidUserName, ValidFirstName, ValidLastName, ValidEmail, ValidPhoneNumber);
 
-        // Assert
-        Assert.Contains(user.Roles, r => r.Name == ValidRole.Name);
+        Assert.Empty(user.UserRoles);
     }
 }

@@ -7,8 +7,7 @@ namespace MyHomeRamen.Domain.Identity.Users;
 public class User : AuditableEntity, IEntity<UserId>
 {
     private readonly List<Address> _addresses = [];
-
-    private readonly List<Role> _roles = [];
+    private readonly List<UserRole> _userRoles = [];
 
     public UserId Id { get; private set; }
 
@@ -26,17 +25,22 @@ public class User : AuditableEntity, IEntity<UserId>
 
     public string UserName { get; private set; } = default!;
 
-    public string Role { get; private set; } = string.Empty;
-
     public ICollection<Address> Addresses => _addresses.ToList();
 
-    public ICollection<Role> Roles => _roles.ToList();
+    public ICollection<UserRole> UserRoles => _userRoles.ToList();
 
     private User()
     {
     }
 
-    public static User Create(string keycloakUserId, string userName, string firstName, string lastName, string email, string phoneNumber, Role role)
+    private User(UserId id, List<Address> addresses, List<UserRole> userRoles)
+    {
+        Id = id;
+        _addresses = addresses;
+        _userRoles = userRoles;
+    }
+
+    public static User Create(string keycloakUserId, string userName, string firstName, string lastName, string email, string phoneNumber)
     {
         User user = new ()
         {
@@ -46,11 +50,8 @@ public class User : AuditableEntity, IEntity<UserId>
             FirstName = firstName,
             LastName = lastName,
             Email = email,
-            PhoneNumber = phoneNumber,
-            Role = role.Name,
+            PhoneNumber = phoneNumber
         };
-
-        user.AddRole(role);
 
         UserValidator.ValidateUser(user);
         return user;
@@ -66,8 +67,7 @@ public class User : AuditableEntity, IEntity<UserId>
             FirstName = "Guest",
             LastName = "User",
             Email = "guest@example.com",
-            PhoneNumber = "000-000-000",
-            Role = "Guest"
+            PhoneNumber = "000-000-000"
         };
 
         UserValidator.ValidateUser(user);
@@ -87,9 +87,14 @@ public class User : AuditableEntity, IEntity<UserId>
         };
     }
 
-    public void AddRole(Role role)
+    public void AssignRole(Role role)
     {
-        _roles.Add(role);
+        if (_userRoles.Any(userRole => userRole.RoleId == role.Id))
+        {
+            throw UserRoleErrors.RoleAlreadyAssigned();
+        }
+
+        _userRoles.Add(UserRole.Create(this, role));
     }
 
     public void AddAddress(Address address)

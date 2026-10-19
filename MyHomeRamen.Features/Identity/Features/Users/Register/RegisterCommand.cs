@@ -51,7 +51,8 @@ public class RegisterHandler(IKeycloakAdminService keycloakAdminService, IIdenti
 
         Role role = await usersDbContext.Role.Load().ByName(RoleConstants.Customer, cancellationToken)
                     ?? throw new InvalidOperationException("Customer role was not found.");
-        User user = command.Request.ToUserDto(keycloakUserId, role);
+        User user = command.Request.ToUserDto(keycloakUserId);
+        user.AssignRole(role);
 
         usersDbContext.User.Add(user);
         await usersDbContext.SaveChangesAsync(cancellationToken);
@@ -87,7 +88,7 @@ internal static class Mappings
 
     extension(RegisterRequest request)
     {
-        internal User ToUserDto(string keycloakUserId, Role role)
+        internal User ToUserDto(string keycloakUserId)
         {
             return User.Create(
                 keycloakUserId,
@@ -95,8 +96,7 @@ internal static class Mappings
                 request.FirstName,
                 request.LastName,
                 request.Email,
-                request.PhoneNumber,
-                role
+                request.PhoneNumber
             );
         }
     }

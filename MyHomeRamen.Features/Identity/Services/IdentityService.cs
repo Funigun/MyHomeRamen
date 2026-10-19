@@ -1,6 +1,5 @@
 using FluentValidation;
 using FluentValidation.Results;
-using MyHomeRamen.Domain.Identity.CompanyMemberships;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
@@ -42,14 +41,11 @@ public sealed class IdentityService(
 
         string keycloakUserId = await keycloakAdminService.CreateUserAsync(keycloakUser, cancellationToken);
         
-        User user = User.Create(keycloakUserId, companyOwner.UserName, companyOwner.FirstName, companyOwner.LastName, companyOwner.Email, companyOwner.PhoneNumber, customerRole);
-
-        user.AddRole(ownerRole);
-
-        CompanyMembership membership = CompanyMembership.Create(user.Id, companyOwner.CompanyId);
+        User user = User.Create(keycloakUserId, companyOwner.UserName, companyOwner.FirstName, companyOwner.LastName, companyOwner.Email, companyOwner.PhoneNumber);
+        user.AssignRole(customerRole);
+        user.AssignRole(ownerRole);
 
         identityDbContext.User.Add(user);
-        identityDbContext.CompanyMembership.Add(membership);
         await identityDbContext.SaveChangesAsync(cancellationToken);
 
         return new CompanyOwnerRegistrationResult(user.Id.Value, companyOwner.CompanyId, null);

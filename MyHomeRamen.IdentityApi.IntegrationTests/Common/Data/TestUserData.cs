@@ -33,8 +33,8 @@ internal static class TestUserFactory
             firstName,
             lastName,
             $"{userName}@example.com",
-            "123456789",
-            role);
+            "123456789");
+        user.AssignRole(role);
 
         dbContext.Role.Add(role);
         dbContext.User.Add(user);
