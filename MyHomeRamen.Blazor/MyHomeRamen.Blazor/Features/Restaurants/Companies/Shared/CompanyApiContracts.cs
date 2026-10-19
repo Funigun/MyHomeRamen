@@ -1,17 +1,10 @@
 namespace MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
 
-public sealed record CompanyDetailsResponse(Guid Id, string Name, string Description, string? LogoUrl, BusinessDetailsDto BusinessDetails, Dictionary<string, bool> AllowedActions);
+public sealed record CompanyDetailsResponse(Guid Id, string Name, string Description, string? LogoUrl, BusinessDetailsDto BusinessDetails, CompanyDetailsAllowedActions AllowedActions);
+public sealed record CompanyDetailsAllowedActions(bool CanEditCompanyDetails);
 public sealed record BusinessDetailsDto(string LegalName, string TaxId);
 public sealed record CompanyDetailsUpdateRequest(string Description, string? LogoUrl, BusinessDetailsForUpdateDto BusinessDetails);
 public sealed record BusinessDetailsForUpdateDto(string LegalName, string TaxId);
-
-public sealed record CompanySocialMediaResponse(Guid Id, string Name, IEnumerable<SocialMediaDto> SocialMedia, Dictionary<string, bool> AllowedActions);
-public sealed record SocialMediaDto(Guid Id, string Name, string? LogoUrl, string? Url, Dictionary<string, bool> AllowedActions);
-
-public sealed record CompanyRestaurantsResponse(Guid Id, string Name, IEnumerable<RestaurantDto> Restaurants, Dictionary<string, bool> AllowedActions);
-public sealed record RestaurantDto(Guid Id, string Name, string? LogoUrl, RestaurantAddressDto Address, RestaurantContactDto Contact, Dictionary<string, bool> AllowedActions);
-public sealed record RestaurantAddressDto(string Street, string City, string ZipCode);
-public sealed record RestaurantContactDto(string PhoneNumber, string Email);
 
 public sealed record RegisterCompanyOwnerRequest(
     string UserName,

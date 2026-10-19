@@ -9,8 +9,7 @@ public sealed class CompanyDetailsViewModel
     public string Description { get; init; } = string.Empty;
     public string? LogoUrl { get; init; }
     public CompanyBusinessDetailsViewModel BusinessDetails { get; init; } = new(string.Empty, string.Empty);
-    public IReadOnlyDictionary<string, bool> AllowedActions { get; init; } = new Dictionary<string, bool>();
-    public bool CanEditCompanyDetails => AllowedActions.TryGetValue("canEditCompanyDetails", out bool allowed) && allowed;
+    public bool CanEditCompanyDetails { get; init; }
 
     public static CompanyDetailsViewModel FromResponse(CompanyDetailsResponse response) => new()
     {
@@ -19,6 +18,6 @@ public sealed class CompanyDetailsViewModel
         Description = response.Description,
         LogoUrl = response.LogoUrl,
         BusinessDetails = CompanyBusinessDetailsViewModel.FromResponse(response.BusinessDetails),
-        AllowedActions = response.AllowedActions.ToDictionary(item => item.Key, item => item.Value)
+        CanEditCompanyDetails = response.AllowedActions.CanEditCompanyDetails
     };
 }
