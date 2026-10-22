@@ -8,16 +8,17 @@ public class AdminAuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : 
 {
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        HttpContext? httpContext = httpContextAccessor.HttpContext ??
-            throw new InvalidOperationException("No HttpContext available from the IHttpContextAccessor.");
-
-        string? accessToken = await httpContext.GetTokenAsync("access_token");
-
-        if (!string.IsNullOrWhiteSpace(accessToken))
+        HttpContext? httpContext = httpContextAccessor.HttpContext;
+        if (httpContext is not null)
         {
-            request.Headers.Remove("x-scheme");
-            request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
-            request.Headers.Add("x-scheme", "RestaurantManager");
+            string? accessToken = await httpContext.GetTokenAsync("access_token");
+
+            if (!string.IsNullOrWhiteSpace(accessToken))
+            {
+                _ = request.Headers.Remove("x-scheme");
+                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
+                request.Headers.Add("x-scheme", "RestaurantManager");
+            }
         }
 
         return await base.SendAsync(request, cancellationToken);

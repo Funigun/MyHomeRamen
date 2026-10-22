@@ -81,8 +81,6 @@ public class IdentityTestData
         IdentityDbContext.User.Add(user);
         await IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
-        IEnumerable<Permission> userPermissions = await IdentityDbContext.Permission.Query().ByUserId(user.Id.Value, TestContext.Current.CancellationToken);
-
         return (keycloakUserId, user.Id);
     }
 

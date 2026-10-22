@@ -29,6 +29,7 @@
   <data name="CityRequired" xml:space="preserve"><value>City is required.</value></data>
   <data name="ZipCode" xml:space="preserve"><value>ZIP code</value></data>
   <data name="ZipCodeRequired" xml:space="preserve"><value>ZIP code is required.</value></data>
+  <data name="Required" xml:space="preserve"><value>This field is required.</value></data>
   <data name="Latitude" xml:space="preserve"><value>Latitude</value></data>
   <data name="LatitudeRequired" xml:space="preserve"><value>Latitude is required.</value></data>
   <data name="LatitudeRange" xml:space="preserve"><value>Latitude must be between -90 and 90.</value></data>
@@ -37,13 +38,11 @@
   <data name="LongitudeRange" xml:space="preserve"><value>Longitude must be between -180 and 180.</value></data>
   <data name="AddressSection" xml:space="preserve"><value>Address and location</value></data>
   <data name="ContactSection" xml:space="preserve"><value>Contact details</value></data>
-  <data name="ContactPairRequired" xml:space="preserve"><value>Provide both phone and email, or leave both blank.</value></data>
   <data name="EmailInvalid" xml:space="preserve"><value>Enter a valid email address.</value></data>
-  <data name="BankSection" xml:space="preserve"><value>Bank details (optional)</value></data>
+  <data name="BankSection" xml:space="preserve"><value>Bank details</value></data>
   <data name="AccountNumber" xml:space="preserve"><value>Account number</value></data>
   <data name="BankName" xml:space="preserve"><value>Bank name</value></data>
   <data name="RoutingNumber" xml:space="preserve"><value>Routing number</value></data>
-  <data name="BankDetailsPairRequired" xml:space="preserve"><value>Provide all bank details, or leave all blank.</value></data>
   <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Address" xml:space="preserve"><value>Address</value></data>
   <data name="Phone" xml:space="preserve"><value>Phone</value></data>

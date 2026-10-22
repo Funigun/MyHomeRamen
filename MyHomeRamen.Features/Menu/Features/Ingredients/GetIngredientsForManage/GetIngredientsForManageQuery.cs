@@ -32,9 +32,7 @@ public sealed record GetIngredientsForManageQueryOptions(string? Name, IEnumerab
 public sealed class GetIngredientsForManageAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetIngredientsForManageQuery>
 {
     public async Task<bool> Authorize(GetIngredientsForManageQuery request, CancellationToken cancellationToken)
-    {
-        return currentUser.CanManageIngredients();
-    }
+        => await Task.FromResult(currentUser.CanManageIngredients());
 }
 
 public sealed class GetIngredientsForManageValidator : AbstractValidator<GetIngredientsForManageQuery>

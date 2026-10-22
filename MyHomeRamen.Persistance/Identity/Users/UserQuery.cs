@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
 
@@ -32,6 +33,16 @@ public partial class UserRepository : IUserQuery
                       .Where(u => u.KeycloakUserId == userId)
                       .Select(user => (Guid?)user.Id)
                       .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<bool> IsCompanyOwnerConfigured(CancellationToken cancellationToken)
+        => await identityDbContext.Users.AsNoTracking()
+            .AnyAsync(
+                user => user.KeycloakUserId != null
+                        && user.KeycloakUserId != string.Empty
+                        && user.UserRoles.Any(userRole =>
+                            userRole.Role.Name == RoleConstants.CompanyOwner
+                            && userRole.Role.RestaurantId == null),
+                cancellationToken);
 
     public async Task<int> GetNumberOfAddresses(Guid userId, CancellationToken cancellationToken)
     => await identityDbContext.Users.AsNoTracking()

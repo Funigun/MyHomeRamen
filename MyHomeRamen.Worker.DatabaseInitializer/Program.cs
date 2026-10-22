@@ -1,5 +1,5 @@
-using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Persistance;
 using MyHomeRamen.Worker.Common;
@@ -56,12 +56,13 @@ try
         options.WaitForJobsToComplete = true;
     });
 
-    IHost host = builder.Build();
+    using IHost host = builder.Build();
     await host.RunAsync();
 }
 catch (Exception ex)
 {
     Log.Fatal(ex, "Host terminated unexpectedly");
+    Environment.ExitCode = 1;
 }
 finally
 {

@@ -22,8 +22,5 @@ public sealed class CompanyOwnerDtoValidator : AbstractValidator<CompanyOwnerDto
             .NotEmpty()
             .Equal(x => x.Password)
             .WithMessage("Passwords do not match.");
-        RuleFor(x => x.CompanyId)
-            .NotEmpty()
-            .WithMessage("Company ID must not be empty.");
     }
 }

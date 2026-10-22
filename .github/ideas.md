@@ -24,3 +24,13 @@ Prepare module db access refactor plan according to guidance:
 5) List validators, handlers and integration tests that require updates
 
 6) List files to cleanup: old interfaces, db exensions and other legacy code that is no longer used
+
+## Restaurant customization ideas
+
+- Add editable restaurant color-palette configuration.
+- Add editable footer content and visibility settings.
+- Add editable landing-page elements and section configuration.
+- Consider landing-page layout configuration and editing experience.
+- Consider menu navigation layout options, such as top bar or side bar.
+- Include admin-panel view and navigation layout options in the design.
+- Evaluate required domain models, persistence, and application features before implementation.

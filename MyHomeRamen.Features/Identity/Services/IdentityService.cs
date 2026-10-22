@@ -20,7 +20,7 @@ public sealed class IdentityService(
         if (!validationResult.IsValid)
         {
             string error = string.Join(" ", validationResult.Errors.Select(validationError => validationError.ErrorMessage));
-            return new CompanyOwnerRegistrationResult(null, null, error);
+            return new CompanyOwnerRegistrationResult(null, error);
         }
 
         Role customerRole = await identityDbContext.Role.Load().ByName(RoleConstants.Customer, cancellationToken)
@@ -48,6 +48,9 @@ public sealed class IdentityService(
         identityDbContext.User.Add(user);
         await identityDbContext.SaveChangesAsync(cancellationToken);
 
-        return new CompanyOwnerRegistrationResult(user.Id.Value, companyOwner.CompanyId, null);
+        return new CompanyOwnerRegistrationResult(user.Id.Value, null);
     }
+
+    public Task<bool> IsCompanyOwnerConfiguredAsync(CancellationToken cancellationToken)
+        => identityDbContext.User.Query().IsCompanyOwnerConfigured(cancellationToken);
 }

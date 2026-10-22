@@ -13,11 +13,18 @@ public sealed record GetAvailableRestaurantsResponse(IEnumerable<RestaurantListI
 public sealed class GetAvailableRestaurantsAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetAvailableRestaurantsQuery>
 {
     public async Task<bool> Authorize(GetAvailableRestaurantsQuery request, CancellationToken cancellationToken) 
-        => await Task.FromResult(currentUser.CanManageRestaurants());
+        => await Task.FromResult(currentUser.CanManageAnyRestaurant());
 }
 
 public sealed class GetAvailableRestaurantsHandler(IRestaurantDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetAvailableRestaurantsQuery, GetAvailableRestaurantsResponse>
 {
     public async Task<GetAvailableRestaurantsResponse> Handle(GetAvailableRestaurantsQuery query, CancellationToken cancellationToken)
-        => new(await dbContext.Restaurant.Query().Available(cancellationToken), currentUser.CanAddRestaurant());
+    {
+        IReadOnlyCollection<Guid>? restaurantIds = currentUser.CanManageAllRestaurants()
+            ? null
+            : currentUser.ManagedRestaurantIds();
+
+        IEnumerable<RestaurantListItemDto> restaurants = await dbContext.Restaurant.Query().Available(restaurantIds, cancellationToken);
+        return new GetAvailableRestaurantsResponse(restaurants, currentUser.CanAddRestaurant());
+    }
 }

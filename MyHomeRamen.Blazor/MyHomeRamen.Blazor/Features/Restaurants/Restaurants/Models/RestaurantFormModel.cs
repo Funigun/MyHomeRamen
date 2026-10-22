@@ -18,19 +18,17 @@ public sealed class CreateRestaurantFormModel
 
     public double? Longitude { get; set; }
 
-    public string? Phone { get; set; }
+    public string Phone { get; set; } = string.Empty;
 
-    public string? Email { get; set; }
+    public string Email { get; set; } = string.Empty;
 
-    public string? AccountNumber { get; set; }
+    public string AccountNumber { get; set; } = string.Empty;
 
-    public string? BankName { get; set; }
+    public string BankName { get; set; } = string.Empty;
 
-    public string? RoutingNumber { get; set; }
+    public string RoutingNumber { get; set; } = string.Empty;
 
     public CreateRestaurantRequest ToRequest()
         => new(Name, IsActive, Street, City, ZipCode, Latitude!.Value, Longitude!.Value,
-            EmptyToNull(Phone), EmptyToNull(Email), EmptyToNull(AccountNumber), EmptyToNull(BankName), EmptyToNull(RoutingNumber));
-
-    private static string? EmptyToNull(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
+            Phone, Email, AccountNumber, BankName, RoutingNumber);
 }

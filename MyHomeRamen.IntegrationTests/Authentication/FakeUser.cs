@@ -13,4 +13,5 @@ public class FakeUser : ICurrentUser
     public bool IsAuthenticated { get; init; }
     public bool IsGuest { get; init; }
     public IReadOnlyCollection<string> Permissions { get; init; } = [];
+    public IReadOnlyCollection<PermissionGrant> PermissionGrants { get; init; } = [];
 }

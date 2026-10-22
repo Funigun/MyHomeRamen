@@ -10,11 +10,11 @@ public sealed record CreateRestaurantRequest(
     string ZipCode,
     double Latitude,
     double Longitude,
-    string? Phone,
-    string? Email,
-    string? AccountNumber,
-    string? BankName,
-    string? RoutingNumber);
+    string Phone,
+    string Email,
+    string AccountNumber,
+    string BankName,
+    string RoutingNumber);
 
 public sealed record AvailableRestaurantResponse(
     Guid Id,

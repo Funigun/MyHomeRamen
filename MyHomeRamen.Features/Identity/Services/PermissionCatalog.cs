@@ -13,17 +13,28 @@ internal static class PermissionCatalog
         .. CreateDefinitions("Orders", OrdersPermissionConstants.AvailablePermissions),
         .. CreateDefinitions("Reservations", ReservationsPermissionConstants.AvailablePermissions),
         .. CreateDefinitions("Payments", PaymentsPermissionConstants.AvailablePermissions),
-        .. CreateDefinitions("Restaurants", RestaurantsPermissionConstants.AvailablePermissions)
+        .. CreateDefinitions(
+            "Restaurants",
+            RestaurantsPermissionConstants.AvailablePermissions,
+            RestaurantsPermissionConstants.ResourceScopedPermissions)
     ];
 
     public static IReadOnlySet<(string Module, string Name)> GuestPermissions { get; } 
         = ShoppingCartPermissionConstants.GuestPermissions.Select(permission => ("ShoppingCart", permission))
                                                           .ToHashSet();
 
-    public static IReadOnlySet<(string Module, string Name)> CompantyOwnerPermissions { get; }
-        = RestaurantsPermissionConstants.AvailablePermissions.Select(permission => ("Restaurants", permission))
-                                                             .ToHashSet();
+    public static IReadOnlySet<(string Module, string Name)> CompanyOwnerPermissions { get; }
+        = RestaurantsPermissionConstants.CompanyOwnerPermissions.Select(permission => ("Restaurants", permission))
+                                                                 .ToHashSet();
 
-    private static IEnumerable<PermissionDefinition> CreateDefinitions(string moduleName, IEnumerable<string> permissions) 
-        => permissions.Select(permission => new PermissionDefinition(moduleName, permission, permission));
+    private static IEnumerable<PermissionDefinition> CreateDefinitions(
+        string moduleName,
+        IEnumerable<string> permissions,
+        IEnumerable<string>? resourceScopedPermissions = null)
+    {
+        HashSet<string> resourceScopedNames = resourceScopedPermissions?.ToHashSet(StringComparer.Ordinal) ?? [];
+
+        return permissions.Select(permission =>
+            new PermissionDefinition(moduleName, permission, permission, resourceScopedNames.Contains(permission)));
+    }
 }

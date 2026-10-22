@@ -12,7 +12,8 @@ public sealed record GetRestaurantByIdResponse(RestaurantDetailsDto Restaurant);
 
 public sealed class GetRestaurantByIdAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetRestaurantByIdQuery>
 {
-    public Task<bool> Authorize(GetRestaurantByIdQuery request, CancellationToken cancellationToken) => Task.FromResult(currentUser.CanManageRestaurant());
+    public Task<bool> Authorize(GetRestaurantByIdQuery request, CancellationToken cancellationToken)
+        => Task.FromResult(currentUser.CanManageRestaurant(request.RestaurantId));
 }
 
 public sealed class GetRestaurantByIdValidator : AbstractValidator<GetRestaurantByIdQuery>

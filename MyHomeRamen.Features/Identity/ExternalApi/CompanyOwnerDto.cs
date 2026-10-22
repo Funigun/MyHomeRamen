@@ -7,5 +7,4 @@ public sealed record CompanyOwnerDto(
     string Email,
     string PhoneNumber,
     string Password,
-    string ConfirmPassword,
-    Guid CompanyId);
+    string ConfirmPassword);

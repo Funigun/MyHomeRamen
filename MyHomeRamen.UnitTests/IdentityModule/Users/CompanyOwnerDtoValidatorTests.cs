@@ -15,8 +15,8 @@ public sealed class CompanyOwnerDtoValidatorTests
             "owner@example.com",
             "123456789",
             "password",
-            "different",
-            Guid.CreateVersion7());
+            "different");
+
         CompanyOwnerDtoValidator validator = new();
 
         FluentValidation.Results.ValidationResult result = validator.Validate(companyOwner);

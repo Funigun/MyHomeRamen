@@ -52,6 +52,10 @@ Currently there are following modules:
 3. Set the **Aspire** host project (`MyHomeRamen.AppHost`) as the startup project.
 4. Run the application. .NET Aspire will automatically provision and configure the local development environment (Redis, RabbitMQ) and launch the services.
 
+### Initial company setup
+
+On first launch, Blazor checks whether a company and at least one restaurant exist. Until both exist, it routes users to a configuration flow to register the owner, create the company, and create the first restaurant. If company creation already succeeded but restaurant creation did not, the flow resumes at restaurant setup. After setup completes, users sign in with the owner account.
+
 ## 4. Architecture Overview
 
 The project follows a **Modular Monolith** architecture pattern with **Vertical Slice** architecture principles.

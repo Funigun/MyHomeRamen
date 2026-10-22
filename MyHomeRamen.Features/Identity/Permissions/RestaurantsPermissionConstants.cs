@@ -30,6 +30,16 @@ public static class RestaurantsPermissionConstants
     [
         CompanyView, CompanyEdit,
         CompanySocialMediaView, CompanySocialMediaEdit,
-        RestaurantsManage,
+        RestaurantsManage, RestaurantsCreate
+    ];
+
+    public static IEnumerable<string> ResourceScopedPermissions =>
+    [
+        RestaurantManage,
+        RestaurantDetailsEdit,
+        RestaurantBankDetailsEdit,
+        RestaurantWorkingHoursEdit,
+        RestaurantContactDetailsEdit,
+        RestaurantClosingPeriodsEdit
     ];
 }

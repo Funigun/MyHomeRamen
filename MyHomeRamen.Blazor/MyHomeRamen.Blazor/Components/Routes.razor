@@ -1,19 +1,126 @@
 ﻿@using MyHomeRamen.Blazor.Components.Layout.AppLayout
 @using MyHomeRamen.Blazor.Features.Account.Common.Services
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.ConfigureCompanySetup
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+@using Microsoft.Extensions.Localization
 
 @inject GuestSessionService GuestSessionService
+@inject CompanyApiClient CompanyApiClient
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<CompanySetupResources> Text
 
-<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }" NotFoundPage="typeof(Errors.NotFound)">
-    <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(AppLayout)" />
-    </Found>
-</Router>
+@implements IDisposable
+
+@if (!_isReady)
+{
+    <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="pa-8">
+        <MudProgressCircular Indeterminate="true" />
+        <MudText>@Text["Loading"]</MudText>
+    </MudStack>
+}
+else if (_loadError.HasError)
+{
+    <MudPaper Class="pa-6 ma-6">
+        <MudAlert Severity="Severity.Error">@(_loadError.Message ?? Text["LoadError"])</MudAlert>
+        <MudButton Class="mt-4" Variant="Variant.Filled" Color="Color.Primary" OnClick="RetryAsync">@Text["Retry"]</MudButton>
+    </MudPaper>
+}
+else if (_status is { IsComplete: false })
+{
+    <LayoutView Layout="typeof(CompanySetupLayout)">
+        <CompanySetupPage Status="_status" />
+    </LayoutView>
+}
+else if (IsSetupLocation(NavigationManager.Uri))
+{
+    <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="pa-8">
+        <MudProgressCircular Indeterminate="true" />
+    </MudStack>
+}
+else
+{
+    <Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(Client._Imports).Assembly }" NotFoundPage="typeof(Errors.NotFound)">
+        <Found Context="routeData">
+            <RouteView RouteData="routeData" DefaultLayout="typeof(AppLayout)" />
+        </Found>
+    </Router>
+}
 
 @code {
+    private readonly ApiErrorState _loadError = new();
+    private CompanySetupStatusResponse? _status;
+    private bool _isReady;
+
     protected override async Task OnInitializedAsync()
     {
-        await GuestSessionService.EnsureGuestSessionAsync();
+        NavigationManager.LocationChanged += OnLocationChanged;
+        await LoadStatusAsync();
+        if (_status is { IsComplete: true })
+        {
+            await GuestSessionService.EnsureGuestSessionAsync();
+        }
+    }
 
-        await base.OnInitializedAsync();
+    private async Task RetryAsync()
+    {
+        _isReady = false;
+        _loadError.Clear();
+        await LoadStatusAsync();
+    }
+
+    private async Task LoadStatusAsync()
+    {
+        ApiResult<CompanySetupStatusResponse> result = await CompanyApiClient.GetSetupStatusAsync();
+        if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"]))
+        {
+            _isReady = true;
+            return;
+        }
+
+        if (result is ApiResult<CompanySetupStatusResponse>.Success success)
+        {
+            _status = success.Value;
+        }
+
+        _isReady = true;
+        RedirectForSetupState(NavigationManager.Uri);
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args)
+    {
+        _ = InvokeAsync(() => RedirectForSetupState(args.Location));
+    }
+
+    private void RedirectForSetupState(string location)
+    {
+        if (!_isReady || _status is null)
+        {
+            return;
+        }
+
+        bool isSetupLocation = IsSetupLocation(location);
+        if (!_status.IsComplete && !isSetupLocation)
+        {
+            NavigationManager.NavigateTo(CompanyRoutes.Setup, new NavigationOptions { ReplaceHistoryEntry = true });
+        }
+        else if (_status.IsComplete && isSetupLocation)
+        {
+            NavigationManager.NavigateTo(
+                AuthenticationRoutes.Login,
+                new NavigationOptions { ForceLoad = true, ReplaceHistoryEntry = true });
+        }
+    }
+
+    private static bool IsSetupLocation(string location)
+    {
+        Uri? uri = Uri.TryCreate(location, UriKind.Absolute, out Uri? absoluteUri) ? absoluteUri : null;
+        return uri?.AbsolutePath.Equals(CompanyRoutes.Setup, StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

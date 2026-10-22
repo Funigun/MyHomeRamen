@@ -1,0 +1,24 @@
+@inherits LayoutComponentBase
+
+@inject ThemeProviderService ThemeProvider
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<CascadingAuthenticationState>
+    <MudLayout>
+        <MudMainContent>
+            <div style="min-height: 100vh; padding: 48px 24px; max-width: 800px; margin: 0 auto;">
+                @Body
+            </div>
+        </MudMainContent>
+    </MudLayout>
+</CascadingAuthenticationState>
+
+@code {
+    private MudTheme _theme = default!;
+
+    protected override void OnInitialized() => _theme = ThemeProvider.GetTheme();
+}

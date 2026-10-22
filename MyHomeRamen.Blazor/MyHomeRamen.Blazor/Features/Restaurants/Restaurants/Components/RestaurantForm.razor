@@ -95,7 +95,8 @@
                               InputType="InputType.Telephone"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              Disabled="IsSubmitting" />
+                              Disabled="IsSubmitting"
+                              Required="true" />
             </MudItem>
             <MudItem xs="12" sm="6">
                 <MudTextField Label="@Text["Email"]"
@@ -106,7 +107,8 @@
                               InputType="InputType.Email"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              Disabled="IsSubmitting" />
+                              Disabled="IsSubmitting"
+                              Required="true" />
             </MudItem>
         </MudGrid>
 
@@ -120,7 +122,8 @@
                               ErrorText="@GetError(nameof(_model.AccountNumber))"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              Disabled="IsSubmitting" />
+                              Disabled="IsSubmitting"
+                              Required="true" />
             </MudItem>
             <MudItem xs="12" sm="4">
                 <MudTextField Label="@Text["BankName"]"
@@ -130,7 +133,8 @@
                               ErrorText="@GetError(nameof(_model.BankName))"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              Disabled="IsSubmitting" />
+                              Disabled="IsSubmitting"
+                              Required="true" />
             </MudItem>
             <MudItem xs="12" sm="4">
                 <MudTextField Label="@Text["RoutingNumber"]"
@@ -140,7 +144,8 @@
                               ErrorText="@GetError(nameof(_model.RoutingNumber))"
                               Variant="Variant.Outlined"
                               Immediate="true"
-                              Disabled="IsSubmitting" />
+                              Disabled="IsSubmitting"
+                              Required="true" />
             </MudItem>
         </MudGrid>
 

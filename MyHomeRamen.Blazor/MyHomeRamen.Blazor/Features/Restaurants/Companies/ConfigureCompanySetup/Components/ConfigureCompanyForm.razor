@@ -1,0 +1,74 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.ConfigureCompanySetup.Models
+
+@inject IStringLocalizer<CompanySetupResources> Text
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h5">@Text["CompanySection"]</MudText>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_model.Name" @bind-Value:after="RefreshValidation" For="() => _model.Name" Label="@Text["CompanyName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Name))" ErrorText="@GetError(nameof(_model.Name))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.LegalName" @bind-Value:after="RefreshValidation" For="() => _model.LegalName" Label="@Text["CompanyLegalName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.LegalName))" ErrorText="@GetError(nameof(_model.LegalName))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.TaxId" @bind-Value:after="RefreshValidation" For="() => _model.TaxId" Label="@Text["CompanyTaxId"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.TaxId))" ErrorText="@GetError(nameof(_model.TaxId))" />
+            </MudItem>
+        </MudGrid>
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+        }
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(IsSubmitting || !_validationResult.IsValid)" OnClick="SubmitAsync">
+            @if (IsSubmitting)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                @Text["Saving"]
+            }
+            else
+            {
+                @Text["SaveCompany"]
+            }
+        </MudButton>
+    </MudStack>
+</MudForm>
+
+@code {
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
+    [Parameter, EditorRequired] public EventCallback<ConfigureCompanyFormModel> OnSubmit { get; set; }
+
+    private readonly ConfigureCompanyFormModel _model = new();
+    private MudForm _form = default!;
+    private ConfigureCompanyFormModelValidator _validator = default!;
+    private FluentValidation.Results.ValidationResult _validationResult = new();
+
+    protected override void OnInitialized()
+    {
+        _validator = new ConfigureCompanyFormModelValidator(Text);
+        RefreshValidation();
+    }
+
+    private void RefreshValidation() => _validationResult = _validator.Validate(_model);
+
+    private async Task SubmitAsync()
+    {
+        RefreshValidation();
+        await _form.ValidateAsync();
+        if (!_validationResult.IsValid || !_form.IsValid || IsSubmitting)
+        {
+            return;
+        }
+
+        await OnSubmit.InvokeAsync(_model);
+    }
+
+    private bool HasError(string propertyName) => ValidationErrors.ContainsKey(propertyName);
+
+    private string? GetError(string propertyName) => ValidationErrors.TryGetValue(propertyName, out string[]? errors)
+        ? string.Join(" ", errors)
+        : null;
+}

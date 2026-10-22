@@ -1,4 +1,4 @@
----
+ye---
 title: "ADR-0004: Centralized Restaurant Configuration"
 status: "Accepted"
 date: "2026-02-18"
@@ -58,4 +58,31 @@ Key aspects of this decision:
 
 ### Update Note (2026)
 
-The trial `RestaurantId` (GUID) field and its associated `AuditableEntity.RestaurantId`/query-filter plumbing have been removed from the domain, persistence and infrastructure layers. `RestaurantConfigurationProvider` (and Blazor's `RestaurantConfiguration`) retain `RestaurantName`/`InfrastructurePrefix` only. Proper multi-restaurant support will be reintroduced via a dedicated `Restaurants` module rather than a scattered `RestaurantId` column.
+The trial `RestaurantId` (GUID) field and its associated
+`AuditableEntity.RestaurantId`/query-filter plumbing were removed from the
+domain, persistence, and infrastructure layers. The later Restaurants module
+introduced Company and Restaurant aggregates; see the refactor status below.
+
+### Refactor status and open decision (2026-10)
+
+The implementation is moving from deployment-specific restaurant branding
+toward persisted Company and Restaurant data. The current `Company` aggregate
+stores company name, description, logo URL, legal name, and tax ID. An
+in-progress onboarding workflow creates the initial Company and Restaurant.
+This partially replaces the original model, but does not yet remove
+`RestaurantConfiguration`:
+
+- `InfrastructurePrefix` remains deployment configuration required by Aspire.
+- `RestaurantName` remains available to API and Blazor configuration.
+- Blazor still reads home-page fields such as tagline, description, location,
+  season label, established year, and copyright from configuration.
+- Home-page content is not yet loaded from the Company database/API.
+
+Copyright, terms of service, and policy content are not currently Company
+fields. Whether these are application-wide defaults or company-managed content
+remains open. If legal documents require user acceptance, design versioning
+and acceptance records alongside content storage; do not model them as one
+replaceable text value. See the
+[restaurant and company configuration guide](../Getting%20Started/0001-restaurant-configuration.md)
+for current boundaries and options. This update records implementation
+status, not a new accepted architecture decision.

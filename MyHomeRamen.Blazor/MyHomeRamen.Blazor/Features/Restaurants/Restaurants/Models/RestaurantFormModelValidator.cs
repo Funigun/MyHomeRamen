@@ -21,26 +21,14 @@ public sealed class CreateRestaurantFormModelValidator : BaseValidator<CreateRes
             .NotNull().WithMessage(text["LongitudeRequired"])
             .Must(value => !value.HasValue || value.Value is >= -180 and <= 180).WithMessage(text["LongitudeRange"]);
 
-        RuleFor(model => model.Phone)
-            .NotEmpty().WithMessage(text["ContactPairRequired"])
-            .When(model => !string.IsNullOrWhiteSpace(model.Email));
-        RuleFor(model => model.Email)
-            .NotEmpty().WithMessage(text["ContactPairRequired"])
-            .When(model => !string.IsNullOrWhiteSpace(model.Phone));
+        RuleFor(model => model.Phone).NotEmpty().WithMessage(text["Required"]);
+        RuleFor(model => model.Email).NotEmpty().WithMessage(text["Required"]);
         RuleFor(model => model.Email)
             .EmailAddress().WithMessage(text["EmailInvalid"])
             .When(model => !string.IsNullOrWhiteSpace(model.Email));
 
-        When(HasAnyBankDetails, () =>
-        {
-            RuleFor(model => model.AccountNumber).NotEmpty().WithMessage(text["BankDetailsPairRequired"]);
-            RuleFor(model => model.BankName).NotEmpty().WithMessage(text["BankDetailsPairRequired"]);
-            RuleFor(model => model.RoutingNumber).NotEmpty().WithMessage(text["BankDetailsPairRequired"]);
-        });
+        RuleFor(model => model.AccountNumber).NotEmpty().WithMessage(text["Required"]);
+        RuleFor(model => model.BankName).NotEmpty().WithMessage(text["Required"]);
+        RuleFor(model => model.RoutingNumber).NotEmpty().WithMessage(text["Required"]);
     }
-
-    private static bool HasAnyBankDetails(CreateRestaurantFormModel model)
-        => !string.IsNullOrWhiteSpace(model.AccountNumber)
-            || !string.IsNullOrWhiteSpace(model.BankName)
-            || !string.IsNullOrWhiteSpace(model.RoutingNumber);
 }

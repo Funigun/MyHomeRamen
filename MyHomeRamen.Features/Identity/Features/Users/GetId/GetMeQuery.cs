@@ -26,6 +26,9 @@ public sealed class GetMeAuthorizationPolicy(ICurrentUser currentUser) : IAuthor
 
 public sealed class GetMeHandler(IIdentityDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetMeQuery, GetMeResponse>
 {
+    private const string RestaurantsModuleName = "Restaurants";
+    private const string MenuModuleName = "Menu";
+
     public async Task<GetMeResponse> Handle(GetMeQuery query, CancellationToken cancellationToken)
     {
         User user = await dbContext.User.Query().ById(currentUser.UserId, cancellationToken)
@@ -33,37 +36,38 @@ public sealed class GetMeHandler(IIdentityDbContext dbContext, ICurrentUser curr
 
         List<string> sections = [];
 
-        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.CompanyView))
+        if (currentUser.HasPermission(RestaurantsModuleName, RestaurantsPermissionConstants.CompanyView))
         {
             sections.Add(AdminSectionConstants.CompanyManagement);
         }
 
-        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.CompanySocialMediaView))
+        if (currentUser.HasPermission(RestaurantsModuleName, RestaurantsPermissionConstants.CompanySocialMediaView))
         {
             sections.Add(AdminSectionConstants.SocialMediaManagement);
         }
 
-        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantsManage))
+        if (currentUser.HasPermission(RestaurantsModuleName, RestaurantsPermissionConstants.RestaurantsManage)
+            || currentUser.HasAnyPermission(RestaurantsModuleName, RestaurantsPermissionConstants.RestaurantManage))
         {
             sections.Add(AdminSectionConstants.RestaurantsManagement);
         }
 
-        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantsCreate))
+        if (currentUser.HasPermission(RestaurantsModuleName, RestaurantsPermissionConstants.RestaurantsCreate))
         {
             sections.Add(AdminSectionConstants.RestaurantCreation);
         }
 
-        if (currentUser.Permissions.Contains(RestaurantsPermissionConstants.RestaurantManage))
+        if (currentUser.HasAnyPermission(RestaurantsModuleName, RestaurantsPermissionConstants.RestaurantManage))
         {
             sections.Add(AdminSectionConstants.RestaurantManagement);
         }
 
-        if (currentUser.Permissions.Contains(MenuPermissionConstants.CanManageProducts))
+        if (currentUser.HasPermission(MenuModuleName, MenuPermissionConstants.CanManageProducts))
         {
             sections.Add(AdminSectionConstants.ProductsManagement);
         }
 
-        if (currentUser.Permissions.Contains(MenuPermissionConstants.CanManageIngredients))
+        if (currentUser.HasPermission(MenuModuleName, MenuPermissionConstants.CanManageIngredients))
         {
             sections.Add(AdminSectionConstants.IngredientsManagement);
         }

@@ -25,10 +25,21 @@ public sealed class Company : Aggregate<CompanyId>
 
     private Company() { }
 
-    public static Company Create(string name, string? description, string? logoUrl)
-        => Create(new CompanyId(Guid.CreateVersion7()), name, description, logoUrl);
+    public static Company Create(
+        string name,
+        string? description,
+        string? logoUrl,
+        string legalName,
+        string taxId)
+        => Create(new CompanyId(Guid.CreateVersion7()), name, description, logoUrl, legalName, taxId);
 
-    public static Company Create(CompanyId id, string name, string? description, string? logoUrl)
+    public static Company Create(
+        CompanyId id,
+        string name,
+        string? description,
+        string? logoUrl,
+        string legalName,
+        string taxId)
     {
         Company companyDetails = new()
         {
@@ -37,7 +48,7 @@ public sealed class Company : Aggregate<CompanyId>
             NormalizedName = NormalizeName(name),
             Description = description,
             LogoUrl = logoUrl,
-            BusinessDetails = BusinessDetails.Create("", "")
+            BusinessDetails = BusinessDetails.Create(legalName, taxId)
         };
 
         CompanyValidator.Validate(companyDetails);
@@ -52,6 +63,11 @@ public sealed class Company : Aggregate<CompanyId>
     public void AddSocialMedia(SocialMedia socialMedia)
     {
         _media.Add(socialMedia);
+    }
+
+    public void AddRestaurant(Restaurant restaurant)
+    {
+        _restaurants.Add(restaurant);
     }
 
     public void UpdateSocialMedia(SocialMediaId socialMediaId, string name, string logoUrl, string url)

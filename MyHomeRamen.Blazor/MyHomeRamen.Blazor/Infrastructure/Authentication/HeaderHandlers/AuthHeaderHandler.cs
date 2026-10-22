@@ -8,30 +8,15 @@ public class AuthHeaderHandler(IHttpContextAccessor httpContextAccessor) : Deleg
 {
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        HttpContext? httpContext = httpContextAccessor.HttpContext ??
-            throw new InvalidOperationException("No HttpContext available from the IHttpContextAccessor.");
-
-        string? accessToken = await httpContext.GetTokenAsync("access_token");
-
-        if (!string.IsNullOrWhiteSpace(accessToken))
+        HttpContext? httpContext = httpContextAccessor.HttpContext;
+        if (httpContext is not null)
         {
-            // request.Headers.Remove("x-scheme");
+            string? accessToken = await httpContext.GetTokenAsync("access_token");
 
-            request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
-
-            //System.Security.Claims.ClaimsPrincipal? user = httpContext.User;
-            //string scheme = "RestaurantCustomer";
-            //
-            //if (user.IsInRole("manager"))
-            //{
-            //    scheme = "RestaurantManager";
-            //}
-            //else if (user.IsInRole("employee"))
-            //{
-            //    scheme = "RestaurantEmployee";
-            //}
-            //
-            //request.Headers.Add("x-scheme", scheme);
+            if (!string.IsNullOrWhiteSpace(accessToken))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, accessToken);
+            }
         }
 
         return await base.SendAsync(request, cancellationToken);

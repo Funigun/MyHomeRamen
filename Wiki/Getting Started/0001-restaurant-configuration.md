@@ -1,42 +1,59 @@
-# Restaurant Configuration
+# Restaurant and company configuration
 
-The `MyHomeRamen` application uses a centralized configuration approach to manage different restaurant instances. 
-This configuration is primarily handled in `MyHomeRamen.AppHost` and allows for setting up the environment for a specific restaurant, 
-including its infrastructure and identity settings.
+Configuration currently has two overlapping sources. AppHost settings still
+identify the deployment and its infrastructure. The Restaurants module is
+being refactored to store company and restaurant business data in the
+application database.
 
-## AppHost Orchestration
+## Deployment configuration
 
-The `AppHost.cs` file is the entry point for the Aspire orchestration. It reads the configuration and sets up the distributed application, orchestrating the following resources:
-- Infrastructure: Redis Cache, RabbitMQ, Keycloak.
-- Projects: API, Identity API, Blazor Frontend, Database Initializer.
-- Workers: Mail Sender, Messages Handler.
+`RestaurantConfiguration:InfrastructurePrefix` is deployment-level
+configuration used by Aspire to name resources and services, such as API,
+Redis, RabbitMQ, and Keycloak. Keep infrastructure names, connection
+information, and service endpoints in deployment configuration; they are
+needed before application data can be queried.
 
-## Configuration Section
+`RestaurantConfiguration:Name` is currently passed through AppHost and used
+by application configuration providers. The API uses it for the Scalar API
+title. Blazor also reads display and home-page values from
+`RestaurantConfiguration`, including `Tagline`, `Description`,
+`EstablishedYear`, `Location`, `SeasonLabel`, and `Copyright`.
 
-The `RestaurantConfiguration` section in `appsettings.Development.json` is crucial for identifying the restaurant and properly naming infrastructure resources.
+## Company data
 
-```json
-"RestaurantConfiguration": {
-  "Name": "My Home Ramen",
-  "InfrastructurePrefix": "my-home-ramen"
-}
-```
+The current `Company` aggregate stores `Name`, `Description`, `LogoUrl`, and
+`BusinessDetails` (`LegalName` and `TaxId`). The in-progress company setup
+workflow creates the initial Company and Restaurant. These persisted fields
+overlap with some values still supplied through configuration, but they do not
+yet replace the Blazor home-page settings.
 
-### Fields
+Company data and deployment configuration have different lifecycles:
 
-#### Name
-- **Description**: The display name of the restaurant.
-- **Usage**: Used primarily on the frontend application (`MyHomeRamen.Blazor`) to display the restaurant name to the user.
+- Deployment settings choose and connect infrastructure.
+- Company data describes the business and can be managed through application
+  workflows.
+- Home-page content currently remains in Blazor configuration; it is not yet
+  loaded from the Company API.
 
-#### InfrastructurePrefix
-- **Description**: A string prefix used for naming infrastructure resources and services.
-- **Usage**: 
-    - **Aspire Orchestrator**: In `RegistrationExtensions.cs` and `ProjectRegistrationExtensions.cs`, this prefix is used to construct resource names (e.g., `{prefix}-redis`, `{prefix}-api`, `{prefix}-rabbitmq`).
-    - **Service Discovery**: Concrete services rely on these prefixed names to discover and connect to required dependencies (e.g., the API project referring to the Redis cache).
+## Open design decision: public and legal content
 
-## Related Configurations
+Copyright text, terms of service, and policies are not currently Company
+fields. Decide whether they are application-wide defaults or editable,
+company-specific content before adding persistence or changing the home page.
 
-Other configuration fields (such as `InfrastructureConfig` and `Authorization`) provide ways to configure separate restaurant environments easily.
+If content must vary by Company and be editable at runtime, database-backed
+Company content and a public read API are a natural fit. Terms and policies
+need more than a mutable text field when users must accept them: preserve
+versions, publication/effective dates, locales where needed, and acceptance
+records. Copyright text may be a simple Company setting or derived from Company
+name and year. This remains a design option, not an accepted decision.
 
-- For details on database settings, see `0002-database-configuration`.
-- For details on identity and Keycloak settings, see `0003-keycloak-configuration`.
+The home page will need to read public Company content from an API if it moves
+from static configuration to database-managed content. Do not move
+infrastructure settings into Company data as part of that refactor.
+
+## Related configuration
+
+- [Database configuration](0002-database-configuration.md)
+- [Keycloak configuration](0003-keycloak-configuration.md)
+- [Centralized configuration ADR](../Architecture/0004-restaurant-configuration.md)

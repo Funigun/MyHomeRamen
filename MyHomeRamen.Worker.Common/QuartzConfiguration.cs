@@ -9,7 +9,6 @@ public static class QuartzConfiguration
     {
         services.Configure<QuartzOptions>(options =>
         {
-            options.Scheduling.IgnoreDuplicates = true;
             options.Scheduling.OverwriteExistingData = true;
         });
 

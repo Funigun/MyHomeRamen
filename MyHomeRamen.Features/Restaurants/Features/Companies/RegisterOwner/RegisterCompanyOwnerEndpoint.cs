@@ -7,38 +7,26 @@ using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.RegisterOwner;
 
-public sealed record RegisterCompanyOwnerRequest(
-    string UserName,
-    string FirstName,
-    string LastName,
-    string Email,
-    string PhoneNumber,
-    string Password,
-    string ConfirmPassword,
-    string CompanyName);
-
-public sealed record RegisterCompanyOwnerResponse(Guid CompanyId);
-
 public sealed class RegisterCompanyOwnerEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPost<RegisterCompanyOwnerResponse>("api/restaurants/company/register-owner", Handler)
-                       .ProducesProblem(StatusCodes.Status409Conflict)
+        endpointBuilder.MapStandardPost<RegisterCompanyOwnerResponse>("api/restaurants/company/setup/owner", HandleAsync)
                        .WithName("RegisterCompanyOwner")
-                       .WithDescription("Registers company and assigns registering user as company owner.")
-                       .WithTags("restaurants", "companies")
+                       .WithTags("Restaurants", "Company setup")
+                       .WithDescription("Registers the initial company owner.")
                        .AllowAnonymous();
     }
 
-    private static async Task<IResult> Handler(
+    private static async Task<IResult> HandleAsync(
         [FromBody] RegisterCompanyOwnerRequest request,
         [FromServices] IRequestHandler<RegisterCompanyOwnerCommand, RegisterCompanyOwnerResponse> handler,
         CancellationToken cancellationToken)
     {
-        RegisterCompanyOwnerCommand command = new(request);
-        RegisterCompanyOwnerResponse response = await handler.Handle(command, cancellationToken);
-        
-        return TypedResults.Created($"/api/restaurants/companies/{response.CompanyId}", response);
+        RegisterCompanyOwnerResponse response = await handler.Handle(
+            new RegisterCompanyOwnerCommand(request),
+            cancellationToken);
+
+        return Results.Created("api/restaurants/company/setup/status", response);
     }
 }
