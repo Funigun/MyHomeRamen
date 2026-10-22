@@ -14,13 +14,15 @@ applyTo: '**/MyHomeRamen.Blazor/**/*.razor,**/MyHomeRamen.Blazor/**/*.cs,**/MyHo
 
 ## 2) Vertical Slice Architecture
 
-- Do not use single page/component for multiple workflows e.g. Create, View, Edit defined by page/form parameter.
+- Keep routes and slice roots action-specific; do not combine Create, Read, and Edit API orchestration in one page or slice root selected by a mode parameter.
+- When Create, Read, and Edit intentionally use the same fields and validation, use one shared aggregate form. It may accept an explicit mode to control presentation only; the owning slice root supplies its model and callbacks and remains responsible for API calls, authorization, navigation, and choosing the operation. In Read mode, render fields read-only and omit submit actions.
 - Organize UI by module, aggregate, and user action.
 - Pages define route, layout, authorization, localized page title, and render the slice root component. Keep workflow markup out of pages.
 - Slice root component owns the page shell and orchestrates workflow: loading data, api calls, validation, error handling, and user interactions. It can be split into sub-components for visual/responsibility separation.
 - Prefer action-oriented slices such as `ListEmployees`, `ViewEmployee`, `CreateEmployee`, `EditEmployee`, and `DeleteEmployee`.
 - Each slice owns its route, page state, API orchestration, validation, loading state, error handling, authorization, and post-action navigation.
-- Share visual field groups and display components, not complete workflows or slice root components.
+- Share visual field groups, display components, and forms when their fields and validation are intentionally common; do not share slice roots or move workflow orchestration into a form.
+- A shared mode form belongs in the aggregate root `Components/` and uses an aggregate-level form model and validator in `Models/` (e.g. `RestaurantForm` and `RestaurantFormModel`). Keep separate action-specific forms and models when the workflows have materially different fields or validation.
 - Shared components receive data and callbacks. They do not load data, call APIs, perform navigation, or decide which operation is executing.
 - Keep workflow roots beside their page within the feature slice. Use `Shared` only for reusable components, models, contracts, clients, and cross-slice UI primitives.
 - Define Dependency Injection registration extension per module.
@@ -42,7 +44,7 @@ applyTo: '**/MyHomeRamen.Blazor/**/*.razor,**/MyHomeRamen.Blazor/**/*.cs,**/MyHo
 - Only routable components end with `Page`. Everything beside the page is a slice root or part of it.
 - Slice-local resources: `{Slice}Resources.cs` + `.resx` in the slice folder.
 - Resources used by several slices of one aggregate (e.g. `RestaurantsResources`) live in the aggregate root.
-- Name Form components `{Action}{Aggregate}Form`; models `{Action}{Aggregate}FormModel` and `...FormModelValidator`.
+- Name action-specific forms `{Action}{Aggregate}Form`; models `{Action}{Aggregate}FormModel` and `...FormModelValidator`. For an intentionally shared mode form, use `{Aggregate}Form`, `{Aggregate}FormModel`, and `{Aggregate}FormModelValidator` at the aggregate root.
 - A slice with one workflow gets no sub-folders besides `Components/` and `Models/`.
 
 ```text
@@ -56,15 +58,17 @@ Features/
         ├── {Aggregate}Resources.cs/.resx    ← shared by slices
         ├── Components/                      ← entry slice parts, e.g. {Aggregate}Grid.razor
         ├── Models/                          ← entry slice models, e.g. {Aggregate}ViewModel.cs
+        │                                      or shared mode form model + validator
         ├── Shared/
         │   ├── {Aggregate}ApiClient.cs
         │   ├── {Aggregate}ApiContracts.cs
         │   └── {Aggregate}Routes.cs
+        ├── Components/{Aggregate}Form.razor ← optional shared Create/Read/Edit form
         ├── Create{Aggregate}/
         │   ├── Create{Aggregate}Page.razor
         │   ├── Create{Aggregate}View.razor
-        │   ├── Components/Create{Aggregate}Form.razor
-        │   └── Models/Create{Aggregate}FormModel.cs (+ Validator)
+        │   ├── Components/Create{Aggregate}Form.razor ← when not using shared form
+        │   └── Models/Create{Aggregate}FormModel.cs (+ Validator; when form is action-specific)
         └── Edit{Aggregate}/ ...
 ```
 

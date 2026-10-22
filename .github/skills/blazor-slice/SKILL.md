@@ -38,9 +38,9 @@ Rules: `.github/instructions/blazor.instructions.md`. Reference code: `Features/
 2. Folders + files by blazor.instructions.md structure.
 3. Routes + API contracts (no backend types).
 4. API client from `ApiClient.cs.tmpl`; register typed client in module `DependencyInjection.cs`.
-5. Models: ViewModel (`FromResponse`), FormModel (`ToRequest`), validator.
+5. Models: ViewModel (`FromResponse`), FormModel (`ToRequest`), validator. Use an aggregate-level `{Aggregate}FormModel` and validator when Create/Read/Edit intentionally share fields and validation; otherwise use action-specific models.
 6. Resources: standard keys + slice keys.
-7. Form component: params + callbacks only.
+7. Form component: params + callbacks only. Use one aggregate-level `{Aggregate}Form` for shared Create/Read/Edit presentation modes instead of generating duplicate action forms; adapt `Form.razor.tmpl` if no shared form exists. Mode controls presentation only; slice root owns API operation, authorization, and navigation. Use the action-specific form template when fields or validation differ.
 8. View: pick `LoadView` or `SubmitView`.
 9. Page last: route, authorize, layout, title only.
 10. `dotnet build MyHomeRamen.Blazor\MyHomeRamen.Blazor`. Fix errors.
