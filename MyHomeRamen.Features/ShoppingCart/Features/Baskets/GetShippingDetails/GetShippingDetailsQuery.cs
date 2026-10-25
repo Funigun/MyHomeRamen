@@ -17,7 +17,7 @@ public sealed class GetShippingDetailsAuthorizationPolicy(ICurrentUser currentUs
 {
     public async Task<bool> Authorize(GetShippingDetailsQuery request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(currentUser.CanCheckout());
+        return await Task.FromResult(currentUser.CanManageBasket());
     }
 }
 
@@ -67,7 +67,7 @@ public sealed record GetShippingDetailsQueryOptions(BasketId BasketId, UserId Us
     }
 }
 
-public sealed class GetShippingDetailsHandler(IShoppingCartDbContext dbContext) : IRequestHandler<GetShippingDetailsQuery, ShippingDetailsResponse>
+public sealed class GetShippingDetailsHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetShippingDetailsQuery, ShippingDetailsResponse>
 {
     public async Task<ShippingDetailsResponse> Handle(GetShippingDetailsQuery query, CancellationToken cancellationToken)
     {
@@ -76,6 +76,10 @@ public sealed class GetShippingDetailsHandler(IShoppingCartDbContext dbContext) 
 
         return shippingDetails is null
             ? throw new InvalidOperationException("Basket was not found.")
-            : new ShippingDetailsResponse(shippingDetails.PersonalPickup, shippingDetails.Delivery, shippingDetails.ShippingAddress);
+            : new ShippingDetailsResponse(
+                shippingDetails.PersonalPickup,
+                shippingDetails.Delivery,
+                shippingDetails.ShippingAddress,
+                currentUser.BasketAllowedActions());
     }
 }

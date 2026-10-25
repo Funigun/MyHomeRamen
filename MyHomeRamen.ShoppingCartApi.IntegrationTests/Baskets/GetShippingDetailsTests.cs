@@ -19,7 +19,7 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
     [Fact]
     public async Task GetShippingDetails_ShouldReturnOk_ForBasketWithShippingDetails()
     {
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         ShippingDetails shippingDetails = ShoppingCartDataSet.DeliveryShippingDetails();
         Product product = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
@@ -48,7 +48,7 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
     [Fact]
     public async Task GetShippingDetails_ShouldReturnBadRequest_ForNonExistentBasket()
     {
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         string url = string.Format(null, EndpointBase, Guid.NewGuid());
 
@@ -64,8 +64,8 @@ public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFi
     [Fact]
     public async Task GetShippingDetails_ShouldReturnBadRequest_ForBasketOfAnotherUser()
     {
-        (Guid UserId, Guid GuestId) basketOwner = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
-        (Guid UserId, Guid GuestId) otherUser = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
+        (Guid UserId, Guid GuestId) basketOwner = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
+        (Guid UserId, Guid GuestId) otherUser = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         Product product = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
         Basket? basket = DataGenerator.CreateBasket([DataGenerator.CreateBasketItem(product)], basketOwner.UserId);

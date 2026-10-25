@@ -1,0 +1,86 @@
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+
+@if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="mt-4">@EmptyText</MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="mt-2">
+        @foreach (IngredientViewModel item in Items)
+        {
+            <MudItem xs="12" sm="6" lg="4">
+                <MudCard Outlined="true" Class="h-100">
+                    <MudCardContent Class="d-flex flex-column h-100">
+                        <MudText Typo="Typo.h6">@item.Name</MudText>
+                        <MudText Class="mt-2">@item.Description</MudText>
+                        @if (CanEdit || CanDelete)
+                        {
+                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="1" Class="mt-auto pt-4">
+                                @if (CanEdit)
+                                {
+                                    <MudButton Variant="Variant.Outlined"
+                                               StartIcon="@Icons.Material.Filled.Edit"
+                                               OnClick="@(() => OnEdit.InvokeAsync(item.Id))">
+                                        @EditText
+                                    </MudButton>
+                                }
+                                @if (CanDelete)
+                                {
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Error"
+                                               StartIcon="@Icons.Material.Filled.Delete"
+                                               OnClick="@(() => ConfirmDeleteAsync(item.Id))">
+                                        @DeleteText
+                                    </MudButton>
+                                }
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+
+    @if (Paging.TotalPages > 1)
+    {
+        <MudStack Row="true" Justify="Justify.Center" Class="py-3">
+            <MudPagination Count="Paging.TotalPages"
+                           Selected="Paging.CurrentPage"
+                           SelectedChanged="OnPageChanged" />
+        </MudStack>
+    }
+}
+
+@code {
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+
+    [Parameter, EditorRequired] public IReadOnlyList<IngredientViewModel> Items { get; set; } = [];
+    [Parameter] public bool CanEdit { get; set; }
+    [Parameter] public bool CanDelete { get; set; }
+    [Parameter] public PageState Paging { get; set; } = PageState.Default();
+    [Parameter] public string EmptyText { get; set; } = string.Empty;
+    [Parameter] public string EditText { get; set; } = string.Empty;
+    [Parameter] public string DeleteText { get; set; } = string.Empty;
+    [Parameter] public string CancelText { get; set; } = string.Empty;
+    [Parameter] public string DeleteConfirmTitle { get; set; } = string.Empty;
+    [Parameter] public string DeleteConfirmMessage { get; set; } = string.Empty;
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public EventCallback<Guid> OnEdit { get; set; }
+    [Parameter] public EventCallback<Guid> OnDelete { get; set; }
+
+    private async Task ConfirmDeleteAsync(Guid id)
+    {
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            DeleteConfirmTitle,
+            DeleteConfirmMessage,
+            yesText: DeleteText,
+            cancelText: CancelText);
+
+        if (confirmed == true)
+        {
+            await OnDelete.InvokeAsync(id);
+        }
+    }
+}

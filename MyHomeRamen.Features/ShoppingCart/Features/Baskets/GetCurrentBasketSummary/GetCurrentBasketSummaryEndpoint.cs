@@ -4,12 +4,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Contracts;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 
 public sealed record CurrentBasketSummaryDto(Guid Id, IEnumerable<BasketSummaryItemDto> Items);
 
-public sealed record GetCurrentBasketSummaryResponse(Guid Id, IEnumerable<BasketSummaryItemDto> Items);
+public sealed record GetCurrentBasketSummaryResponse(Guid Id, IEnumerable<BasketSummaryItemDto> Items, AllowedActionsDto AllowedActions);
 
 public sealed record BasketSummaryItemDto(
     Guid Id,

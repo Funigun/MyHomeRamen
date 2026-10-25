@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Contracts;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
 
@@ -13,7 +14,7 @@ public sealed record GetCategoriesByTypeRequest(int CategoryType);
 
 public sealed record CategoryByTypeDto(Guid Id, string Name, int SortOrder);
 
-public sealed record GetCategoriesByTypeResponse(IEnumerable<CategoryByTypeDto> Categories);
+public sealed record GetCategoriesByTypeResponse(IEnumerable<CategoryByTypeDto> Categories, AllowedActionsDto AllowedActions);
 
 public sealed class GetCategoriesByTypeEndpoint : IEndpoint
 {

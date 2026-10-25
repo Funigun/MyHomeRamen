@@ -15,7 +15,7 @@ public sealed class UpdateShippingDetailsAuthorizationPolicy(ICurrentUser curren
 {
     public async Task<bool> Authorize(UpdateShippingDetailsCommand request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(currentUser.CanCheckout());
+        return await Task.FromResult(currentUser.CanManageBasket());
     }
 }
 

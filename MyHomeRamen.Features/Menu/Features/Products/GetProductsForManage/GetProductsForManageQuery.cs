@@ -3,6 +3,7 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Contracts;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
@@ -71,7 +72,7 @@ public sealed class GetProductsForManageValidator : AbstractValidator<GetProduct
     }
 }
 
-public sealed class GetProductsForManageHandler(IMenuDbContext dbContext) : IRequestHandler<GetProductsForManageQuery, GetProductsForManageResponse>
+public sealed class GetProductsForManageHandler(IMenuDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetProductsForManageQuery, GetProductsForManageResponse>
 {
     public async Task<GetProductsForManageResponse> Handle(
         GetProductsForManageQuery query,
@@ -88,6 +89,10 @@ public sealed class GetProductsForManageHandler(IMenuDbContext dbContext) : IReq
             Page: query.PageParameters.PageNumber,
             PageSize: query.PageParameters.PageSize,
             TotalCount: pagedResult.TotalItems,
-            Products: pagedResult.Items);
+            Products: pagedResult.Items,
+            AllowedActions: new AllowedActionsDto(
+                CanCreate: currentUser.CanManageProducts() && currentUser.CanAddProduct(),
+                CanEdit: currentUser.CanManageProducts() && currentUser.CanEditProduct(),
+                CanDelete: currentUser.CanManageProducts() && currentUser.CanDeleteProduct()));
     }
 }

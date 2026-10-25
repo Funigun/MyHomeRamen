@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="ProductPageTitle" xml:space="preserve"><value>Product categories</value></data>
+  <data name="IngredientPageTitle" xml:space="preserve"><value>Ingredient categories</value></data>
+  <data name="ProductHeading" xml:space="preserve"><value>Product categories</value></data>
+  <data name="IngredientHeading" xml:space="preserve"><value>Ingredient categories</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="NameRequired" xml:space="preserve"><value>Category name is required.</value></data>
+  <data name="NameMinLength" xml:space="preserve"><value>Category name must contain at least 3 characters.</value></data>
+  <data name="NameMaxLength" xml:space="preserve"><value>Category name must contain no more than 50 characters.</value></data>
+  <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Empty" xml:space="preserve"><value>No categories found.</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading categories...</value></data>
+  <data name="Create" xml:space="preserve"><value>Create category</value></data>
+  <data name="SaveOrder" xml:space="preserve"><value>Save order</value></data>
+  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Saving" xml:space="preserve"><value>Saving...</value></data>
+  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Delete category</value></data>
+  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Delete this category? This action cannot be undone.</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Failed to load categories. Please try again.</value></data>
+  <data name="ValidationFailure" xml:space="preserve"><value>Review highlighted fields and correct invalid values.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>Something went wrong. Please try again.</value></data>
+  <data name="CreateError" xml:space="preserve"><value>Failed to create category.</value></data>
+  <data name="DeleteError" xml:space="preserve"><value>Failed to delete category. It may still be in use.</value></data>
+  <data name="OrderError" xml:space="preserve"><value>Failed to save category order. Please try again.</value></data>
+  <data name="CreateSuccess" xml:space="preserve"><value>Category created successfully.</value></data>
+  <data name="DeleteSuccess" xml:space="preserve"><value>Category deleted successfully.</value></data>
+  <data name="OrderSuccess" xml:space="preserve"><value>Category order saved successfully.</value></data>
+</root>

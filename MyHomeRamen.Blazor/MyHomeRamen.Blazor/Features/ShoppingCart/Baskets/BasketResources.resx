@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Checkout</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading...</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Basket could not be loaded.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>Something went wrong.</value></data>
+  <data name="ValidationFailure" xml:space="preserve"><value>Please correct the highlighted fields.</value></data>
+  <data name="EmptyBasket" xml:space="preserve"><value>Your basket is empty.</value></data>
+</root>

@@ -16,7 +16,7 @@ public sealed class GetCurrentBasketDetailsAuthorizationPolicy(ICurrentUser curr
 {
     public async Task<bool> Authorize(GetCurrentBasketDetailsQuery request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(currentUser.CanViewBasket());
+        return await Task.FromResult(currentUser.CanManageBasket());
     }
 }
 
@@ -54,16 +54,17 @@ public sealed class GetCurrentBasketDetailsHandler(IShoppingCartDbContext dbCont
 
         return basket is null
             ? null
-            : new GetCurrentBasketDetailsResponse(basket.BasketId, basket.Items);
+            : new GetCurrentBasketDetailsResponse(basket.BasketId, basket.Items, currentUser.BasketAllowedActions());
     }
 }
 
 internal static class Mappings
 {
-    public static GetCurrentBasketDetailsResponse ToResponse(this Basket basket)
+    public static GetCurrentBasketDetailsResponse ToResponse(this Basket basket, ICurrentUser currentUser)
         => new(
             basket.Id.Value,
-            basket.Items.Select(i => i.ToDto()));
+            basket.Items.Select(i => i.ToDto()),
+            currentUser.BasketAllowedActions());
 
     private static BasketDetailsItemDto ToDto(this BasketItem item)
         => new(

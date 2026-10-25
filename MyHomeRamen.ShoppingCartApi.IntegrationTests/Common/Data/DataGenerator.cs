@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;

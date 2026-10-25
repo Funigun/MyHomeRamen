@@ -24,8 +24,8 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
 
     public async ValueTask InitializeAsync()
     {
-        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
-        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
+        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         Ingredient ingredient = DataGenerator.CreateIngredient();
         Product product = DataGenerator.CreateProduct([ingredient], []);
@@ -65,6 +65,23 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
         Assert.NotNull(getResponse);
         Assert.Equal(_customerBasket.Id.Value, getResponse.Id);
         Assert.NotEmpty(getResponse.Items);
+        Assert.True(getResponse.AllowedActions.CanCreate);
+        Assert.True(getResponse.AllowedActions.CanEdit);
+        Assert.False(getResponse.AllowedActions.CanDelete);
+    }
+
+    [Fact]
+    public async Task GetCurrentBasketSummary_ShouldReturnForbidden_WhenUserLacksBasketManagePermission()
+    {
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([]);
+
+        using HttpClient client = apiFactory.CreateClient();
+        using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(EndpointBase);
+        request.AddAuthorizationHeader(user);
+
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
+        await response.AssertStatusCode(HttpStatusCode.Forbidden);
     }
 
     [Fact]

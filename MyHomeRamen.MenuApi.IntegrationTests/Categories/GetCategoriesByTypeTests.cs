@@ -57,6 +57,9 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Categories);
+        Assert.False(result.AllowedActions.CanCreate);
+        Assert.False(result.AllowedActions.CanEdit);
+        Assert.False(result.AllowedActions.CanDelete);
     }
 
     [Fact]
@@ -117,5 +120,70 @@ public sealed class GetCategoriesByTypeTests(WebApiFactory apiFactory) : IClassF
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.BadRequest);
+    }
+
+    [Theory]
+    [InlineData(PermissionConstants.CanManageProducts, (int)CategoryType.Product, HttpStatusCode.OK)]
+    [InlineData(PermissionConstants.CanManageIngredients, (int)CategoryType.Ingredient, HttpStatusCode.OK)]
+    [InlineData(PermissionConstants.CanManageProducts, (int)CategoryType.Ingredient, HttpStatusCode.Forbidden)]
+    [InlineData(PermissionConstants.CanManageIngredients, (int)CategoryType.Product, HttpStatusCode.Forbidden)]
+    [InlineData(PermissionConstants.CanManageProducts, 999, HttpStatusCode.Forbidden)]
+    public async Task GetCategoriesByType_ShouldAuthorizeFeatureManager_ForMatchingCategoryType(
+        string permission,
+        int categoryType,
+        HttpStatusCode expectedStatusCode)
+    {
+        // Arrange
+        (string KeycloakUserId, Guid UserId) userId =
+            await apiFactory.IdentityTestData.SeedUser([permission], $"category-type-{Guid.NewGuid():N}");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={categoryType}");
+        httpRequest.AddAuthorizationHeader(userId);
+
+        try
+        {
+            // Act
+            HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+
+            // Assert
+            await responseMessage.AssertStatusCode(expectedStatusCode);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(userId.UserId);
+        }
+    }
+
+    [Fact]
+    public async Task GetCategoriesByType_ShouldReturnIndependentAllowedActions()
+    {
+        // Arrange
+        (string KeycloakUserId, Guid UserId) userId = await apiFactory.IdentityTestData.SeedUser(
+            [
+                PermissionConstants.CanManageCategories,
+                PermissionConstants.CanAddCategory,
+                PermissionConstants.CanEditCategory
+            ],
+            "get-category-actions-user");
+        using HttpRequestMessage httpRequest =
+            HttpClientExtensions.CreateGetMessage($"{EndpointBase}?categoryType={(int)CategoryType.Product}");
+        httpRequest.AddAuthorizationHeader(userId);
+
+        try
+        {
+            // Act
+            HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+            GetCategoriesByTypeResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(TestContext.Current.CancellationToken);
+
+            // Assert
+            await responseMessage.AssertStatusCode(HttpStatusCode.OK);
+            Assert.NotNull(result);
+            Assert.True(result.AllowedActions.CanCreate);
+            Assert.True(result.AllowedActions.CanEdit);
+            Assert.False(result.AllowedActions.CanDelete);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(userId.UserId);
+        }
     }
 }

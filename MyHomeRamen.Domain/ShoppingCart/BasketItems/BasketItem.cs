@@ -35,4 +35,11 @@ public sealed class BasketItem : AuditableEntity, IEntity<BasketItemId>
         BasketItemValidator.Validate(item);
         return item;
     }
+
+    public void UpdateQuantity(int quantity)
+    {
+        BasketItem updated = Create(Id, Product, quantity, Comment);
+        Quantity = updated.Quantity;
+        Price = updated.Price;
+    }
 }

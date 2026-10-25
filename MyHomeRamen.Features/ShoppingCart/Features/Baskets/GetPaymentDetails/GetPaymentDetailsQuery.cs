@@ -16,7 +16,7 @@ public sealed class GetPaymentDetailsAuthorizationPolicy(ICurrentUser currentUse
 {
     public async Task<bool> Authorize(GetPaymentDetailsQuery request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(currentUser.CanCheckout());
+        return await Task.FromResult(currentUser.CanManageBasket());
     }
 }
 
@@ -41,7 +41,7 @@ public sealed record GetPaymentDetailsQueryOptions(BasketId BasketId, UserId Use
         }
     );
 
-public sealed class GetPaymentDetailsHandler(IShoppingCartDbContext dbContext) : IRequestHandler<GetPaymentDetailsQuery, PaymentDetailsResponse>
+public sealed class GetPaymentDetailsHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetPaymentDetailsQuery, PaymentDetailsResponse>
 {
     public async Task<PaymentDetailsResponse> Handle(GetPaymentDetailsQuery query, CancellationToken cancellationToken)
     {
@@ -50,6 +50,9 @@ public sealed class GetPaymentDetailsHandler(IShoppingCartDbContext dbContext) :
 
         return paymentDetails is null
             ? throw new InvalidOperationException("Basket was not found.")
-            : new PaymentDetailsResponse(paymentDetails.PaymentMethodId, paymentDetails.PaymentChannelId);
+            : new PaymentDetailsResponse(
+                paymentDetails.PaymentMethodId,
+                paymentDetails.PaymentChannelId,
+                currentUser.BasketAllowedActions());
     }
 }

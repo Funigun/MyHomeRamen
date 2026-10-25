@@ -1,0 +1,16 @@
+@attribute [Route(ProductsRoutes.EditTemplate)]
+@attribute [Authorize(Policy = AdminSectionConstants.ProductsManagement)]
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Products.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<ProductsResources> Text
+
+<PageTitle>@Text["EditPageTitle"]</PageTitle>
+<EditProductView Id="Id" />
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+}

@@ -1,0 +1,201 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Components
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Shared
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.DTOs
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Requests
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject CategoryApiClient CategoryApiClient
+@inject IStringLocalizer<CategoryManagementResources> Text
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="flex-wrap gap-2">
+        <MudText Typo="Typo.h1">@Heading</MudText>
+        @if (_allowedActions?.CanCreate == true)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="BeginCreate">
+                @Text["Create"]
+            </MudButton>
+        }
+    </MudStack>
+
+    @if (_isCreating)
+    {
+        <CreateCategoryForm CategoryType="CategoryKind"
+                            IsSubmitting="_isSubmitting"
+                            ErrorMessage="@_actionError.Message"
+                            ValidationErrors="_actionError.ValidationErrors"
+                            OnSubmit="CreateAsync"
+                            OnCancel="CancelCreate" />
+    }
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@_loadError.Message</MudAlert>
+    }
+    else
+    {
+        @if (_actionError.HasError && !_isCreating)
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-4">@_actionError.Message</MudAlert>
+        }
+
+        <CategoryTable Items="_categories"
+                       CanEdit="_allowedActions?.CanEdit == true"
+                       CanDelete="_allowedActions?.CanDelete == true"
+                       OnDelete="DeleteAsync"
+                       OnOrderChanged="UpdateOrderAsync" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public CategoryType CategoryKind { get; set; }
+
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _actionError = new();
+    private List<CategoryByTypeDto> _categories = [];
+    private CategoryAllowedActions? _allowedActions;
+    private bool _isLoading = true;
+    private bool _isCreating;
+    private bool _isSubmitting;
+
+    private string Heading => Text[CategoryKind == CategoryType.Product ? "ProductHeading" : "IngredientHeading"];
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            ApiResult<GetCategoriesByTypeResponse> result = await CategoryApiClient.GetByTypeAsync((int)CategoryKind);
+            _loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"]);
+
+            if (result is ApiResult<GetCategoriesByTypeResponse>.Success success)
+            {
+                _categories = success.Value.Categories.ToList();
+                _allowedActions = success.Value.AllowedActions;
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void BeginCreate()
+    {
+        if (_allowedActions?.CanCreate == true)
+        {
+            _actionError.Clear();
+            _isCreating = true;
+        }
+    }
+
+    private void CancelCreate()
+    {
+        _isCreating = false;
+        _actionError.Clear();
+    }
+
+    private async Task CreateAsync(CreateCategoryRequest request)
+    {
+        if (_allowedActions?.CanCreate != true || _isSubmitting)
+        {
+            return;
+        }
+
+        await RunActionAsync(
+            () => CategoryApiClient.CreateAsync(request),
+            Text["CreateError"],
+            Text["CreateSuccess"],
+            closeCreateForm: true);
+    }
+
+    private async Task DeleteAsync(Guid id)
+    {
+        if (_allowedActions?.CanDelete != true)
+        {
+            return;
+        }
+
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            Text["DeleteConfirmTitle"],
+            Text["DeleteConfirmMessage"],
+            yesText: Text["Delete"],
+            cancelText: Text["Cancel"]);
+        if (confirmed != true)
+        {
+            return;
+        }
+
+        await RunActionAsync(
+            () => CategoryApiClient.DeleteAsync(id),
+            Text["DeleteError"],
+            Text["DeleteSuccess"]);
+    }
+
+    private async Task UpdateOrderAsync(List<CategoryByTypeDto> items)
+    {
+        if (_allowedActions?.CanEdit != true)
+        {
+            return;
+        }
+
+        IEnumerable<CategoryOrderItemDto> order = items
+            .Select((category, index) => new CategoryOrderItemDto(category.Id, index));
+        await RunActionAsync(
+            () => CategoryApiClient.UpdateOrderAsync(order),
+            Text["OrderError"],
+            Text["OrderSuccess"]);
+    }
+
+    private async Task RunActionAsync(
+        Func<Task<ApiResult<bool>>> action,
+        string badRequestMessage,
+        string successMessage,
+        bool closeCreateForm = false)
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _actionError.Clear();
+        try
+        {
+            ApiResult<bool> result = await action();
+            if (_actionError.Apply(result, badRequestMessage, Text["UnexpectedError"]))
+            {
+                await LoadAsync();
+                return;
+            }
+
+            _isCreating = closeCreateForm ? false : _isCreating;
+            Snackbar.Add(successMessage, Severity.Success);
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+}

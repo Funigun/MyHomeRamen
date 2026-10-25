@@ -16,7 +16,7 @@ public sealed class DeleteBasketItemAuthorizationPolicy(ICurrentUser currentUser
 {
     public async Task<bool> Authorize(DeleteBasketItemCommand request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(currentUser.CanRemoveProduct());
+        return await Task.FromResult(currentUser.CanManageBasket());
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Responses
+@using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject ShoppingCartApiClient ShoppingCartApiClient
 @inject ShoppingCartNavigationService ShoppingCartNavigationService
@@ -33,6 +34,7 @@
     private bool _isLoading;
     private decimal _total;
     private bool _isMenuOpen = false;
+    private bool _canEdit;
 
     private ElementReference _menuRef;
     private DotNetObjectReference<BasketSummaryMenu>? _dotNetRef;
@@ -61,10 +63,12 @@
         _items = [];
         _total = 0;
 
-        GetCurrentBasketSummaryResponse? response = await ShoppingCartApiClient.GetCurrentBasketSummaryAsync();
-        if (response is not null)
+        ApiResult<GetCurrentBasketSummaryResponse> result = await ShoppingCartApiClient.GetCurrentBasketSummaryAsync();
+        if (result is ApiResult<GetCurrentBasketSummaryResponse>.Success success)
         {
+            GetCurrentBasketSummaryResponse response = success.Value;
             _basketId = response.Id;
+            _canEdit = response.AllowedActions.CanEdit;
             _items = response.Items.Select(BasketItemTableModel.FromResponse).ToList();
             _total = _items.Sum(i => i.Price * i.Quantity);
         }
@@ -75,19 +79,29 @@
 
     private async Task HandleRemoveAsync(Guid id)
     {
-        await ShoppingCartApiClient.RemoveItem(_basketId, id);
+        if (!_canEdit) return;
+        await ShoppingCartApiClient.RemoveItemAsync(_basketId, id);
         await LoadBasketAsync();
     }
 
     private async Task ClearBasketAsync()
     {
-        await ShoppingCartApiClient.ClearBasket(_basketId);
+        if (!_canEdit) return;
+        await ShoppingCartApiClient.ClearBasketAsync(_basketId);
         await LoadBasketAsync();
     }
 
     private Task HandleUpdateQuantityAsync((Guid Id, int Quantity) args)
     {
-        return Task.CompletedTask;
+        return _canEdit
+            ? UpdateQuantityAsync(args)
+            : Task.CompletedTask;
+    }
+
+    private async Task UpdateQuantityAsync((Guid Id, int Quantity) args)
+    {
+        await ShoppingCartApiClient.UpdateQuantityAsync(_basketId, args.Id, args.Quantity);
+        await LoadBasketAsync();
     }
 
     private async Task HandleCheckoutAsync()

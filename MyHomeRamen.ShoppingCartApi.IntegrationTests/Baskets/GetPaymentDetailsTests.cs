@@ -21,7 +21,7 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnOk_ForBasketWithPaymentDetails()
     {
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         PaymentDetails paymentDetails = ShoppingCartDataSet.CashPaymentDetails();
         Product product = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
@@ -48,7 +48,7 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnBadRequest_ForNonExistentBasket()
     {
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         string url = string.Format(null, EndpointBase, Guid.NewGuid());
 
@@ -64,8 +64,8 @@ public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFix
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnBadRequest_ForBasketOfAnotherUser()
     {
-        (Guid UserId, Guid GuestId) customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
-        (Guid UserId, Guid GuestId) otherUser = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanCheckout]);
+        (Guid UserId, Guid GuestId) customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
+        (Guid UserId, Guid GuestId) otherUser = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         Ingredient ingredient = DataGenerator.CreateIngredient();
         Product product = DataGenerator.CreateProduct([ingredient], []);

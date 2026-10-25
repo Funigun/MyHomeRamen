@@ -15,7 +15,7 @@ public sealed class ClearBasketAuthorizationPolicy(ICurrentUser currentUser) : I
 {
     public async Task<bool> Authorize(ClearBasketCommand request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(currentUser.CanRemoveProduct());
+        return await Task.FromResult(currentUser.CanManageBasket());
     }
 }
 

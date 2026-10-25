@@ -1,173 +1,139 @@
+@using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
-@using MyHomeRamen.Blazor.Features.Menu.Common.Services
-@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses
-@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Ingredients.Responses
-@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.Responses
+@using MyHomeRamen.Blazor.Features.Menu.Products.Models
+@using MyHomeRamen.Blazor.Features.Menu.Products
 
-@inject MenuApiClient MenuApiClient
+@inject IStringLocalizer<ProductsResources> Text
 
-<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
-    <MudGrid>
-        <MudItem xs="12">
-            <MudTextField Label="Name"
-                          @bind-Value="_model.Name"
-                          For="@(() => _model.Name)"
-                          Variant="Variant.Outlined"
-                          Disabled="Mode == FormMode.View"
-                          Required="true" />
-        </MudItem>
-        <MudItem xs="12">
-            <MudTextField Label="Description"
-                          @bind-Value="_model.Description"
-                          For="@(() => _model.Description)"
-                          Variant="Variant.Outlined"
-                          Lines="4"
-                          Disabled="Mode == FormMode.View" />
-        </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudNumericField Label="Price"
-                             @bind-Value="_model.Price"
-                             For="@(() => _model.Price)"
-                             Variant="Variant.Outlined"
-                             Adornment="Adornment.Start"
-                             AdornmentText="$"
-                             Min="0.5m"
-                             Max="100.0m"
-                             Disabled="Mode == FormMode.View"
-                             Required="true" />
-        </MudItem>
-        <MudItem xs="12" sm="6">
-            <MudSelect T="CategoryOption"
-                       Label="Category"
-                       @bind-Value="_model.CategoryId"
-                       For="@(() => _model.CategoryId)"
-                       Variant="Variant.Outlined"
-                       Disabled="Mode == FormMode.View"
-                       Required="true">
-                @foreach (CategoryOption category in _categories)
-                {
-                    <MudSelectItem Value="@category">@category.Name</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-        <MudItem xs="12">
-            <MudSelect T="IngredientOption"
-                       Label="Base Ingredients"
-                       @bind-SelectedValues="_model.IngredientIds"
-                       MultiSelection="true"
-                       Variant="Variant.Outlined"
-                       Disabled="Mode == FormMode.View">
-                @foreach (IngredientOption ingredient in _ingredients)
-                {
-                    <MudSelectItem Value="@ingredient">@ingredient.Name</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-        <MudItem xs="12">
-            <MudSelect T="IngredientOption"
-                       Label="Custom Ingredients"
-                       @bind-SelectedValues="_model.CustomIngredientIds"
-                       MultiSelection="true"
-                       Variant="Variant.Outlined"
-                       Disabled="Mode == FormMode.View">
-                @foreach (IngredientOption ingredient in _ingredients)
-                {
-                    <MudSelectItem Value="@ingredient">@ingredient.Name</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-        @if (_errorMessage is not null)
+<MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudStack Spacing="3">
+        <MudTextField @bind-Value="Model.Name"
+                      For="@(() => Model.Name)"
+                      Label="@Text["Name"]"
+                      Variant="Variant.Outlined"
+                      Disabled="IsSubmitting"
+                      Error="@HasError(nameof(Model.Name))"
+                      ErrorText="@GetError(nameof(Model.Name))" />
+        <MudTextField @bind-Value="Model.Description"
+                      For="@(() => Model.Description)"
+                      Label="@Text["Description"]"
+                      Variant="Variant.Outlined"
+                      Lines="4"
+                      Disabled="IsSubmitting"
+                      Error="@HasError(nameof(Model.Description))"
+                      ErrorText="@GetError(nameof(Model.Description))" />
+        <MudNumericField @bind-Value="Model.Price"
+                         For="@(() => Model.Price)"
+                         Label="@Text["Price"]"
+                         Variant="Variant.Outlined"
+                         Adornment="Adornment.Start"
+                         AdornmentText="$"
+                         Min="0.5m"
+                         Max="100.0m"
+                         Disabled="IsSubmitting"
+                         Error="@HasError(nameof(Model.Price))"
+                         ErrorText="@GetError(nameof(Model.Price))" />
+        <MudSelect T="Guid"
+                   @bind-Value="Model.CategoryId"
+                   Label="@Text["Category"]"
+                   Variant="Variant.Outlined"
+                   Disabled="IsSubmitting"
+                   Error="@HasError(nameof(Model.CategoryId))"
+                   ErrorText="@GetError(nameof(Model.CategoryId))">
+            @foreach (CategoryOption category in Categories)
+            {
+                <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect T="Guid"
+                   @bind-SelectedValues="Model.IngredientIds"
+                   Label="@Text["Ingredients"]"
+                   MultiSelection="true"
+                   Variant="Variant.Outlined"
+                   Disabled="IsSubmitting"
+                   Error="@HasError(nameof(Model.IngredientIds))"
+                   ErrorText="@GetError(nameof(Model.IngredientIds))">
+            @foreach (IngredientOption ingredient in Ingredients)
+            {
+                <MudSelectItem Value="@ingredient.Id">@ingredient.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect T="Guid"
+                   @bind-SelectedValues="Model.CustomIngredientIds"
+                   Label="@Text["CustomIngredients"]"
+                   MultiSelection="true"
+                   Variant="Variant.Outlined"
+                   Disabled="IsSubmitting">
+            @foreach (IngredientOption ingredient in Ingredients)
+            {
+                <MudSelectItem Value="@ingredient.Id">@ingredient.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
-            <MudItem xs="12">
-                <MudAlert Severity="Severity.Error" Dense="true">@_errorMessage</MudAlert>
-            </MudItem>
+            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
         }
-        @if (Mode != FormMode.View)
-        {
-            <MudItem xs="12">
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           FullWidth="true"
-                           Disabled="_isBusy"
-                           OnClick="SubmitAsync">
-                    @if (_isBusy)
-                    {
-                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                        <MudText Class="ms-2">Saving</MudText>
-                    }
-                    else
-                    {
-                        <MudText>@(Mode == FormMode.Create ? "Create Product" : "Save Changes")</MudText>
-                    }
-                </MudButton>
-            </MudItem>
-        }
-    </MudGrid>
+
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="flex-wrap">
+            <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="IsSubmitting" OnClick="SubmitAsync">
+                @if (IsSubmitting)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                    @Text["Saving"]
+                }
+                else
+                {
+                    @Text[IsEdit ? "Save" : "Create"]
+                }
+            </MudButton>
+        </MudStack>
+    </MudStack>
 </MudForm>
 
 @code {
+    [Parameter, EditorRequired] public ProductFormModel Model { get; set; } = default!;
+    [Parameter, EditorRequired] public IReadOnlyList<CategoryOption> Categories { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlyList<IngredientOption> Ingredients { get; set; } = [];
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
+    [Parameter, EditorRequired] public EventCallback<ProductFormModel> OnSubmit { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+
     private MudForm _form = default!;
-    private ProductModel _model = new();
-    private readonly ProductValidator _validator = new();
-    private bool _isBusy;
-    private string? _errorMessage;
-    private IEnumerable<CategoryOption> _categories = [];
-    private IEnumerable<IngredientOption> _ingredients = [];
+    private ProductFormModelValidator _validator = default!;
 
-    [Parameter] public FormMode Mode { get; set; } = FormMode.Create;
-    [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
-    [Parameter] public ProductModel? Model { get; set; }
-    [Parameter] public Guid ProductId { get; set; }
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        if (Model is not null)
-        {
-            _model = Model;
-        }
-
-        GetCategoriesByTypeResponse categoriesResponse = await MenuApiClient.GetCategoriesByTypeAsync((int)CategoryType.Product);
-        _categories = categoriesResponse.Categories.Select(c => new CategoryOption(c.Id, c.Name));
-
-        IEnumerable<GetIngredientsForDropdownResponse> ingredientsResponse =
-            await MenuApiClient.GetIngredientsForDropdownAsync();
-        _ingredients = ingredientsResponse.Select(i => new IngredientOption(i.Id, i.Name));
+        _validator = new ProductFormModelValidator(Text);
     }
 
     private async Task SubmitAsync()
     {
         await _form.ValidateAsync();
-
-        if (!_form.IsValid)
+        if (!_form.IsValid || IsSubmitting)
         {
             return;
         }
 
-        _isBusy = true;
-        _errorMessage = null;
+        await OnSubmit.InvokeAsync(Model);
+    }
 
-        try
-        {
-            if (Mode == FormMode.Create)
-            {
-                Guid productId = await MenuApiClient.CreateProductAsync(_model.ToCreateRequest());
-                await OnSuccess.InvokeAsync(productId);
-            }
-            else
-            {
-                UpdateProductResponse result = await MenuApiClient.UpdateProductAsync(ProductId, _model.ToEditRequest());
-                await OnSuccess.InvokeAsync(result.Id);
-            }
-        }
-        catch (HttpRequestException)
-        {
-            _errorMessage = Mode == FormMode.Edit
-                ? "Failed to update product. Please try again."
-                : "Failed to create product. Please try again.";
-        }
-        finally
-        {
-            _isBusy = false;
-        }
+    private Task CancelAsync() => OnCancel.InvokeAsync();
+
+    private bool HasError(string propertyName) => GetError(propertyName) is not null;
+
+    private string? GetError(string propertyName)
+    {
+        string[] errors = ValidationErrors
+            .Where(error => error.Key.Equals(propertyName, StringComparison.Ordinal)
+                || error.Key.EndsWith($".{propertyName}", StringComparison.Ordinal))
+            .SelectMany(error => error.Value)
+            .ToArray();
+
+        return errors.Length > 0 ? string.Join(" ", errors) : null;
     }
 }

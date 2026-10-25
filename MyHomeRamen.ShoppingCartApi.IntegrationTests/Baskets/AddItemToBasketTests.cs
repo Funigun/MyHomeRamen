@@ -25,8 +25,8 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
 
     public async ValueTask InitializeAsync()
     {
-        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
-        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
+        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         _guestBasket = DataGenerator.CreateBasket([], _guest.UserId);
         _customerBasket = DataGenerator.CreateBasket([], _customer.UserId);
@@ -97,7 +97,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenRequestIsInvalid(AddItemToBasketRequest request)
     {
         // Arrange
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         using HttpClient client = apiFactory.CreateClient();
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
@@ -143,7 +143,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
     public async Task AddItemToBasket_ShouldReturnBadRequest_WhenProductDoesNotExist()
     {
         // Arrange
-        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanAddProduct]);
+        (Guid UserId, Guid GuestId) user = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         AddItemToBasketRequest request = new(
             Guid.NewGuid(),

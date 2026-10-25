@@ -1,0 +1,145 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Products.Components
+@using MyHomeRamen.Blazor.Features.Menu.Products.Models
+@using MyHomeRamen.Blazor.Features.Menu.Products.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject ProductsApiClient ProductsApiClient
+@inject IStringLocalizer<ProductsResources> Text
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="flex-wrap gap-2">
+        <MudText Typo="Typo.h1">@Text["Heading"]</MudText>
+        @if (_allowedActions?.CanCreate == true)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Href="@ProductsRoutes.Create">
+                @Text["Create"]
+            </MudButton>
+        }
+    </MudStack>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@_loadError.Message</MudAlert>
+    }
+    else
+    {
+        @if (_actionError.HasError)
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-4">@_actionError.Message</MudAlert>
+        }
+
+        @if (_productPendingDelete is not null)
+        {
+            <ProductDeleteConfirmation ProductId="_productPendingDelete.Id"
+                                       Message='@Text["DeleteConfirmMessage", _productPendingDelete.Name]'
+                                       ConfirmText='@Text["Delete"]'
+                                       CancelText='@Text["Cancel"]'
+                                       OnConfirm="DeleteAsync"
+                                       OnCancel="CancelDelete" />
+        }
+
+        <ProductTable Items="_items"
+                      CanEdit="_allowedActions?.CanEdit == true"
+                      CanDelete="_allowedActions?.CanDelete == true"
+                      Paging="_paging"
+                      OnPageChanged="OnPageChangedAsync"
+                      OnEdit="OnEdit"
+                      OnDelete="BeginDelete" />
+    }
+</MudPaper>
+
+@code {
+    private readonly List<ProductViewModel> _items = [];
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _actionError = new();
+    private ProductAllowedActions? _allowedActions;
+    private ProductViewModel? _productPendingDelete;
+    private PageState _paging = PageState.Default();
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            ApiResult<GetProductsForManageResponse> result =
+                await ProductsApiClient.GetForManageAsync(_paging.CurrentPage, _paging.PageSize);
+            _loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"]);
+
+            if (result is ApiResult<GetProductsForManageResponse>.Success success)
+            {
+                _items.Clear();
+                _items.AddRange(success.Value.Products.Select(ProductViewModel.FromResponse));
+                _allowedActions = success.Value.AllowedActions;
+                _paging = _paging with { TotalCount = success.Value.TotalCount };
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OnPageChangedAsync(int page)
+    {
+        _paging = _paging with { CurrentPage = page };
+        await LoadAsync();
+    }
+
+    private void OnEdit(Guid id)
+    {
+        if (_allowedActions?.CanEdit == true)
+        {
+            NavigationManager.NavigateTo(ProductsRoutes.Edit(id));
+        }
+    }
+
+    private void BeginDelete(Guid id)
+    {
+        if (_allowedActions?.CanDelete == true)
+        {
+            _productPendingDelete = _items.FirstOrDefault(product => product.Id == id);
+            _actionError.Clear();
+        }
+    }
+
+    private void CancelDelete() => _productPendingDelete = null;
+
+    private async Task DeleteAsync(Guid id)
+    {
+        if (_allowedActions?.CanDelete != true)
+        {
+            return;
+        }
+
+        _actionError.Clear();
+        ApiResult<bool> result = await ProductsApiClient.DeleteAsync(id);
+        if (_actionError.Apply(result, Text["UnexpectedError"], Text["UnexpectedError"]))
+        {
+            return;
+        }
+
+        _productPendingDelete = null;
+        Snackbar.Add(Text["DeleteSuccess"], Severity.Success);
+        await LoadAsync();
+    }
+}

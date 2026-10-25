@@ -23,9 +23,12 @@ public sealed class CheckoutModel
 
     public ICollection<CheckoutBasketItemModel> Items { get; set; } = [];
 
+    public AllowedActionsDto AllowedActions { get; private set; } = new(false, false, false);
+
     public CheckoutModel FromDetailsResponse(GetCurrentBasketDetailsResponse response)
     {
         BasketId = response.BasketId;
+        AllowedActions = response.AllowedActions;
 
         ShoppingCartConfirmed = false;
         ShippingAddressConfirmed = false;

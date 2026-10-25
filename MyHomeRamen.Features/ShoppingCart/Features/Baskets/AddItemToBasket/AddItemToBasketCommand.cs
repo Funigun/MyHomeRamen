@@ -19,7 +19,7 @@ public sealed class AddItemToBasketAuthorizationPolicy(ICurrentUser currentUser)
 {
     public async Task<bool> Authorize(AddItemToBasketCommand request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(currentUser.CanAddProduct());
+        return await Task.FromResult(currentUser.CanManageBasket());
     }
 }
 

@@ -7,7 +7,6 @@ public static class MenuPermissionConstants
     public const string CanAddProduct = "Product.Add";
     public const string CanEditProduct = "Product.Edit";
     public const string CanDeleteProduct = "Product.Delete";
-    public const string CanEditProductsRecipes = "Product.EditRecipes";
     public const string CanManageCategories = "Category.Manage";
     public const string CanAddCategory = "Category.Add";
     public const string CanEditCategory = "Category.Edit";
@@ -24,7 +23,7 @@ public static class MenuPermissionConstants
     public static IEnumerable<string> AvailablePermissions =>
     [
         CanManageFavourites, CanManageProducts, CanAddProduct, CanEditProduct, CanDeleteProduct,
-        CanEditProductsRecipes, CanManageCategories, CanAddCategory, CanEditCategory, CanDeleteCategory,
+        CanManageCategories, CanAddCategory, CanEditCategory, CanDeleteCategory,
         CanManageIngredients, CanAddIngredient, CanEditIngredient, CanDeleteIngredient, CanManageMenu,
         CanCreateMenu, CanEditMenu, CanDeleteMenu
     ];

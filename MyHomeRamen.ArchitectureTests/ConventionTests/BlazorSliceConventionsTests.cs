@@ -8,8 +8,14 @@ namespace MyHomeRamen.ArchitectureTests.ConventionTests;
 
 public sealed class BlazorSliceConventionsTests(ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
 {
-    // Restaurants is the reference module; other modules are not migrated yet.
-    private const string FeaturesNamespace = "MyHomeRamen.Blazor.Features.Restaurants";
+    // Restaurants and Menu Products, Categories, and Ingredients use slice architecture.
+    private static readonly string[] FeaturesNamespaces =
+    [
+        "MyHomeRamen.Blazor.Features.Restaurants",
+        "MyHomeRamen.Blazor.Features.Menu.Ingredients",
+        "MyHomeRamen.Blazor.Features.Menu.Products",
+        "MyHomeRamen.Blazor.Features.Menu.Categories"
+    ];
 
     [Fact]
     public void RoutableComponents_ShouldHave_PageSuffix()
@@ -89,7 +95,8 @@ public sealed class BlazorSliceConventionsTests(ArchitectureBuilder architecture
     private IEnumerable<Type> GetFeatureTypes() =>
         ArchitectureBuilder.BlazorServerAssembly
             .GetTypes()
-            .Where(type => type.Namespace is not null && type.Namespace.StartsWith(FeaturesNamespace, StringComparison.Ordinal));
+            .Where(type => type.Namespace is not null && FeaturesNamespaces.Any(featureNamespace =>
+                type.Namespace.StartsWith(featureNamespace, StringComparison.Ordinal)));
 
     private static bool ReturnsApiResult(Type returnType) =>
         returnType.IsGenericType

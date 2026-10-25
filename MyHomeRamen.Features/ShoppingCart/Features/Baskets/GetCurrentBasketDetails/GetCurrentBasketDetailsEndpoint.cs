@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Contracts;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
@@ -11,7 +12,7 @@ public sealed record CurrentBasketDetailsDto(
     Guid BasketId,
     IEnumerable<BasketDetailsItemDto> Items);
 
-public sealed record GetCurrentBasketDetailsResponse(Guid BasketId, IEnumerable<BasketDetailsItemDto> Items);
+public sealed record GetCurrentBasketDetailsResponse(Guid BasketId, IEnumerable<BasketDetailsItemDto> Items, AllowedActionsDto AllowedActions);
 
 public sealed record BasketDetailsItemDto(
     Guid Id,

@@ -1,0 +1,88 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Payments.Common.Services
+@using MyHomeRamen.Blazor.Features.Payments.Common.Services.Contracts.PaymentMethods.Responses
+@using MyHomeRamen.Blazor.Features.Payments.PaymentMethods.Models
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.PaymentDetails
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.Summary
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
+@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Responses
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject PaymentApiClient PaymentApiClient
+@inject ShoppingCartApiClient ShoppingCartApiClient
+@inject IStringLocalizer<BasketResources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+<MudPaper Outlined="true" Class="mt-2 mx-auto" Style="width: min(100%, 900px)">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mt-2" />
+        <MudText Class="pa-4">@Text["Loading"]</MudText>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="ma-4">@_loadError.Message</MudAlert>
+    }
+    else if (_checkoutModel.Items.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="ma-4">@Text["EmptyBasket"]</MudAlert>
+    }
+    else
+    {
+        <MudStepper OnPreviewInteraction="OnPreviewInteraction">
+            <MudStep Title="Shopping cart" @bind-Completed="_checkoutModel.ShoppingCartConfirmed">
+                <BasketDetailsStep Model="_checkoutModel" />
+            </MudStep>
+            <MudStep Title="Shipping" @bind-Completed="_checkoutModel.ShippingAddressConfirmed">
+                <ShippingDetailsStep @ref="_shippingDetailsStep" Model="_checkoutModel" />
+            </MudStep>
+            <MudStep Title="Payment" @bind-Completed="_checkoutModel.PaymentMethodConfirmed">
+                <PaymentDetailsStep @ref="_paymentDetailsStep" Model="_checkoutModel" AvailableMethods="_availableMethods" />
+            </MudStep>
+            <MudStep Title="Summary">
+                <CheckoutSummaryStep CheckoutModel="_checkoutModel" AvailableMethods="_availableMethods" />
+            </MudStep>
+        </MudStepper>
+    }
+</MudPaper>
+
+@code {
+    private readonly ApiErrorState _loadError = new();
+    private CheckoutModel _checkoutModel = new();
+    private bool _isLoading = true;
+    private ShippingDetailsStep _shippingDetailsStep = default!;
+    private PaymentDetailsStep _paymentDetailsStep = default!;
+    private IEnumerable<AvailableMethodModel> _availableMethods = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        IEnumerable<GetAvailableMethodsResponse> methods = await PaymentApiClient.GetAvailableMethodsAsync();
+        ApiResult<GetCurrentBasketDetailsResponse> basketResult = await ShoppingCartApiClient.GetCurrentBasketDetailsAsync();
+        _loadError.Apply(basketResult, Text["LoadError"], Text["UnexpectedError"]);
+        _availableMethods = methods.Select(AvailableMethodModel.FromResponse).ToList();
+        if (basketResult is ApiResult<GetCurrentBasketDetailsResponse>.Success basket)
+        {
+            _checkoutModel.FromDetailsResponse(basket.Value);
+        }
+        _isLoading = false;
+    }
+
+    private async Task OnPreviewInteraction(StepperInteractionEventArgs arg)
+    {
+        if (arg.Action != StepAction.Complete)
+        {
+            return;
+        }
+        if (arg.StepIndex == 1 && !await _shippingDetailsStep.ValidateAndSaveAsync())
+        {
+            arg.Cancel = true;
+        }
+        if (arg.StepIndex == 2 && !await _paymentDetailsStep.ValidateAndSaveAsync())
+        {
+            arg.Cancel = true;
+        }
+    }
+}

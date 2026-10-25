@@ -1,39 +1,43 @@
-@using MyHomeRamen.Blazor.Features.Menu.Categories
-@using MyHomeRamen.Blazor.Features.Menu.Categories.Components
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Models
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
-@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Requests
 
-@inject MenuApiClient MenuApiClient
+@inject IStringLocalizer<CategoryManagementResources> Text
 
 <MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
     <MudGrid>
         <MudItem xs="12">
-            <MudTextField Label="Name" @bind-Value="_model.Name" For="@(() => _model.Name)"
+            <MudTextField Label="@Text["Name"]" @bind-Value="_model.Name" For="@(() => _model.Name)"
                           Variant="Variant.Outlined"
+                          Disabled="IsSubmitting"
+                          Error="@HasError(nameof(_model.Name))"
+                          ErrorText="@GetError(nameof(_model.Name))"
                           Required="true" />
         </MudItem>
-        @if (_errorMessage is not null)
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
             <MudItem xs="12">
-                <MudAlert Severity="Severity.Error" Dense="true">@_errorMessage</MudAlert>
+                <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
             </MudItem>
         }
         <MudItem xs="12">
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        FullWidth="true"
-                       Disabled="_isBusy"
+                       Disabled="IsSubmitting"
                        OnClick="SubmitAsync">
-                @if (_isBusy)
+                @if (IsSubmitting)
                 {
                     <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">Processing</MudText>
+                    <MudText Class="ms-2">@Text["Saving"]</MudText>
                 }
                 else
                 {
-                    <MudText>Create Category</MudText>
+                    <MudText>@Text["Create"]</MudText>
                 }
             </MudButton>
+            <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="OnCancel">@Text["Cancel"]</MudButton>
         </MudItem>
     </MudGrid>
 </MudForm>
@@ -41,42 +45,46 @@
 @code {
     private MudForm _form = default!;
     private readonly CategoryModel _model = new();
-    private readonly CategoryValidator _validator = new();
-    private bool _isBusy;
-    private string? _errorMessage;
-
+    private CategoryValidator _validator = default!;
     [Parameter] public CategoryType CategoryType { get; set; }
-    [Parameter] public EventCallback<Guid> OnSuccess { get; set; }
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
+    [Parameter] public EventCallback<CreateCategoryRequest> OnSubmit { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
 
     protected override void OnParametersSet()
     {
         _model.CategoryType = CategoryType;
     }
 
+    protected override void OnInitialized()
+    {
+        _validator = new CategoryValidator(Text);
+    }
+
     private async Task SubmitAsync()
     {
-        await _form.Validate();
+        await _form.ValidateAsync();
 
-        if (!_form.IsValid)
+        if (!_form.IsValid || IsSubmitting)
         {
             return;
         }
 
-        _isBusy = true;
-        _errorMessage = null;
+        await OnSubmit.InvokeAsync(_model.ToCreateRequest());
+    }
 
-        try
-        {
-            Guid id = await MenuApiClient.CreateCategoryAsync(_model.ToCreateRequest());
-            await OnSuccess.InvokeAsync(id);
-        }
-        catch (HttpRequestException)
-        {
-            _errorMessage = "Failed to create category. Please try again.";
-        }
-        finally
-        {
-            _isBusy = false;
-        }
+    private bool HasError(string propertyName) => GetError(propertyName) is not null;
+
+    private string? GetError(string propertyName)
+    {
+        string[] errors = ValidationErrors
+            .Where(error => error.Key.Equals(propertyName, StringComparison.Ordinal)
+                || error.Key.EndsWith($".{propertyName}", StringComparison.Ordinal))
+            .SelectMany(error => error.Value)
+            .ToArray();
+
+        return errors.Length > 0 ? string.Join(" ", errors) : null;
     }
 }

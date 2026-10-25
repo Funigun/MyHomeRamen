@@ -1,12 +1,17 @@
-@using MyHomeRamen.Blazor.Features.Menu.Common.Services
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Shared
+@using MyHomeRamen.Blazor.Features.Menu.Categories
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Shared
+@using MyHomeRamen.Blazor.Features.Menu.Products
+@using MyHomeRamen.Blazor.Features.Menu.Products.Shared
 @using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Authentication
-@using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider
 
-@inject MenuNavigationService MenuNavigationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IAuthorizationService AuthorizationService
+@inject IStringLocalizer<ProductsResources> ProductText
+@inject IStringLocalizer<CategoryManagementResources> CategoryText
 
 <MudNavMenu>
     @if (_canViewCompanyDetails || _canViewSocialMedia || _canManageRestaurants || _canCreateRestaurant)
@@ -43,14 +48,20 @@
         <MudNavGroup Title="Menu Management" Icon="@Icons.Material.Filled.RestaurantMenu" Expanded="false">
             @if (_canManageProducts)
             {
-                <MudNavLink Href="@MenuNavigationService.Routes.Admin.ProductsManagement" Match="NavLinkMatch.All">
-                    Products Management
+                <MudNavLink Href="@ProductsRoutes.Index" Match="NavLinkMatch.All">
+                    @ProductText["Heading"]
+                </MudNavLink>
+                <MudNavLink Href="@CategoryRoutes.ProductCategories" Match="NavLinkMatch.All">
+                    @CategoryText["ProductHeading"]
                 </MudNavLink>
             }
             @if (_canManageIngredients)
             {
-                <MudNavLink Href="@MenuNavigationService.Routes.Admin.IngredientsManagement" Match="NavLinkMatch.All">
+                <MudNavLink Href="@IngredientRoutes.Index" Match="NavLinkMatch.All">
                     Ingredients Management
+                </MudNavLink>
+                <MudNavLink Href="@CategoryRoutes.IngredientCategories" Match="NavLinkMatch.All">
+                    @CategoryText["IngredientHeading"]
                 </MudNavLink>
             }
         </MudNavGroup>

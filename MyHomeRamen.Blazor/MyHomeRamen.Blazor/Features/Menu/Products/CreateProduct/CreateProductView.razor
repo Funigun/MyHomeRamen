@@ -1,0 +1,127 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Shared
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses
+@using MyHomeRamen.Blazor.Features.Menu.Products.Components
+@using MyHomeRamen.Blazor.Features.Menu.Products.Models
+@using MyHomeRamen.Blazor.Features.Menu.Products.Shared
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject CategoryApiClient CategoryApiClient
+@inject ProductsApiClient ProductsApiClient
+@inject IngredientApiClient IngredientApiClient
+@inject IStringLocalizer<ProductsResources> Text
+@inject NavigationManager NavigationManager
+@inject MyHomeRamen.Blazor.Features.Menu.Common.Services.MenuNavigationService MenuNavigationService
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["CreateHeading"]</MudText>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["LoadingFormOptions"]</MudText>
+        </MudStack>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@_loadError.Message</MudAlert>
+    }
+    else
+    {
+        <ProductForm Model="_model"
+                     Categories="_categories"
+                     Ingredients="_ingredients"
+                     IsSubmitting="_isSubmitting"
+                     ErrorMessage="@_submitError.Message"
+                     ValidationErrors="_submitError.ValidationErrors"
+                     OnSubmit="CreateAsync"
+                     OnCancel="Cancel" />
+    }
+</MudPaper>
+
+@code {
+    private readonly ProductFormModel _model = new();
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _submitError = new();
+    private IReadOnlyList<CategoryOption> _categories = [];
+    private IReadOnlyList<IngredientOption> _ingredients = [];
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOptionsAsync();
+    }
+
+    private async Task LoadOptionsAsync()
+    {
+        try
+        {
+            ApiResult<GetCategoriesByTypeResponse> categoriesResult =
+                await CategoryApiClient.GetByTypeAsync((int)CategoryType.Product);
+            if (_loadError.Apply(categoriesResult, Text["LoadOptionsError"], Text["UnexpectedError"])
+                || categoriesResult is not ApiResult<GetCategoriesByTypeResponse>.Success categoriesSuccess)
+            {
+                return;
+            }
+
+            ApiResult<GetIngredientsForDropdownResponse> ingredientsResult =
+                await IngredientApiClient.GetDropdownAsync();
+            if (_loadError.Apply(ingredientsResult, Text["LoadOptionsError"], Text["UnexpectedError"])
+                || ingredientsResult is not ApiResult<GetIngredientsForDropdownResponse>.Success ingredientsSuccess)
+            {
+                return;
+            }
+
+            _categories = categoriesSuccess.Value.Categories
+                .Select(category => new CategoryOption(category.Id, category.Name))
+                .ToArray();
+            _ingredients = ingredientsSuccess.Value.Ingredients
+                .Select(ingredient => new IngredientOption(ingredient.Id, ingredient.Name))
+                .ToArray();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CreateAsync(ProductFormModel model)
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<ProductMutationResponse> result = await ProductsApiClient.CreateAsync(model.ToCreateRequest());
+            if (_submitError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["CreateSuccess"], Severity.Success);
+            if (result is ApiResult<ProductMutationResponse>.Success success)
+            {
+                MenuNavigationService.ToProductDetail(success.Value.Id);
+            }
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private Task Cancel()
+    {
+        NavigationManager.NavigateTo(ProductsRoutes.Index);
+        return Task.CompletedTask;
+    }
+}
