@@ -24,7 +24,8 @@ public sealed class GetIngredientsForDropdownAuthorizationPolicy(ICurrentUser cu
     public async Task<bool> Authorize(GetIngredientsForDropdownQuery request, CancellationToken cancellationToken)
     {
         bool canManageIngredients = currentUser.CanManageIngredients() && currentUser.CanEditIngredient();
-        bool canManageProducts = currentUser.CanManageProducts() && currentUser.CanEditProduct();
+        bool canManageProducts = currentUser.CanManageProducts()
+            && (currentUser.CanAddProduct() || currentUser.CanEditProduct());
 
         return canManageIngredients || canManageProducts;
     }

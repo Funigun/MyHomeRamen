@@ -1,0 +1,100 @@
+using MyHomeRamen.Domain.Abstractions;
+using MyHomeRamen.Domain.Restaurants.Companies.ValueObjects;
+using MyHomeRamen.Domain.Restaurants.Restaurants;
+
+namespace MyHomeRamen.Domain.Restaurants.Companies;
+
+public sealed class Company : Aggregate<CompanyId>
+{
+    private readonly List<SocialMedia> _media = [];
+    private readonly List<Restaurant> _restaurants = [];
+
+    public string Name { get; private set; } = string.Empty;
+
+    public string NormalizedName { get; private set; } = string.Empty;
+
+    public string? Description { get; private set; } = string.Empty;
+
+    public string? LogoUrl { get; private set; } = string.Empty;
+
+    public BusinessDetails BusinessDetails { get; private set; } = default!;
+
+    public IReadOnlyList<SocialMedia> Media => _media.ToList();
+
+    public IReadOnlyList<Restaurant> Restaurants => _restaurants.ToList();
+
+    private Company() { }
+
+    public static Company Create(
+        string name,
+        string? description,
+        string? logoUrl,
+        string legalName,
+        string taxId)
+        => Create(new CompanyId(Guid.CreateVersion7()), name, description, logoUrl, legalName, taxId);
+
+    public static Company Create(
+        CompanyId id,
+        string name,
+        string? description,
+        string? logoUrl,
+        string legalName,
+        string taxId)
+    {
+        Company companyDetails = new()
+        {
+            Id = id,
+            Name = name,
+            NormalizedName = NormalizeName(name),
+            Description = description,
+            LogoUrl = logoUrl,
+            BusinessDetails = BusinessDetails.Create(legalName, taxId)
+        };
+
+        CompanyValidator.Validate(companyDetails);
+        return companyDetails;
+    }
+
+    public static string NormalizeName(string name)
+    {
+        return string.Concat(name.Where(char.IsLetterOrDigit)).ToUpperInvariant();
+    }
+
+    public void AddSocialMedia(SocialMedia socialMedia)
+    {
+        _media.Add(socialMedia);
+    }
+
+    public void AddRestaurant(Restaurant restaurant)
+    {
+        _restaurants.Add(restaurant);
+    }
+
+    public void UpdateSocialMedia(SocialMediaId socialMediaId, string name, string logoUrl, string url)
+    {
+        SocialMedia socialMedia = FindSocialMedia(socialMediaId);
+        socialMedia.Update(name, logoUrl, url);
+    }
+
+    public void RemoveSocialMedia(SocialMediaId socialMediaId)
+    {
+        SocialMedia socialMedia = FindSocialMedia(socialMediaId);
+        _media.Remove(socialMedia);
+    }
+
+    private SocialMedia FindSocialMedia(SocialMediaId socialMediaId)
+        => _media.FirstOrDefault(media => media.Id == socialMediaId)
+           ?? throw new InvalidOperationException("Social media does not belong to this company.");
+
+    public void UpdateBusinessDetails(string legalName, string taxId)
+    {
+        BusinessDetails = BusinessDetails.Create(legalName, taxId);
+    }
+    public void UpdateDetails(string? description, string? logoUrl, string legalName, string taxId)
+    {
+        Description = description;
+        LogoUrl = logoUrl;
+        BusinessDetails = BusinessDetails.Create(legalName, taxId);
+        CompanyValidator.Validate(this);
+    }
+}

@@ -55,6 +55,42 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Products);
+        Assert.False(result.AllowedActions.CanCreate);
+        Assert.False(result.AllowedActions.CanEdit);
+        Assert.False(result.AllowedActions.CanDelete);
+    }
+
+    [Fact]
+    public async Task GetProductsForManage_ShouldReturnIndependentAllowedActions()
+    {
+        // Arrange
+        (string KeycloakUserId, Guid UserId) userId = await apiFactory.IdentityTestData.SeedUser(
+            [
+                PermissionConstants.CanManageProducts,
+                PermissionConstants.CanAddProduct,
+                PermissionConstants.CanDeleteProduct
+            ],
+            "get-products-actions-user");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage(Endpoint);
+        httpRequest.AddAuthorizationHeader(userId);
+
+        try
+        {
+            // Act
+            HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+            GetProductsForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
+
+            // Assert
+            await responseMessage.AssertStatusCode(HttpStatusCode.OK);
+            Assert.NotNull(result);
+            Assert.True(result.AllowedActions.CanCreate);
+            Assert.False(result.AllowedActions.CanEdit);
+            Assert.True(result.AllowedActions.CanDelete);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(userId.UserId);
+        }
     }
 
     [Fact]

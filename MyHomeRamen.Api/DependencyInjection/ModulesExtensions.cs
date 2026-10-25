@@ -1,4 +1,6 @@
-﻿using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features.Identity.ExternalApi;
+using MyHomeRamen.Features.Identity.Services;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Menu.Services;
 using MyHomeRamen.Features.Payments.ExternalApi;
@@ -51,6 +53,7 @@ internal static class ModulesExtensions
         {
             services.AddIdentityPersistance(configurationProvider);
             services.AddKeycloakAdminService(configuration);
+            services.AddScoped<IIdentityService, IdentityService>();
             
             return services;
         }

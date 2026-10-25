@@ -15,7 +15,7 @@ public sealed class GetCurrentBasketSummaryAuthorizationPolicy(ICurrentUser curr
 {
     public async Task<bool> Authorize(GetCurrentBasketSummaryQuery request, CancellationToken cancellationToken)
     {
-        return await Task.FromResult(currentUser.CanViewBasket());
+        return await Task.FromResult(currentUser.CanManageBasket());
     }
 }
 
@@ -47,16 +47,17 @@ public sealed class GetCurrentBasketSummaryHandler(IShoppingCartDbContext dbCont
 
         return basket is null
             ? throw new InvalidOperationException("Basket was not found.")
-            : new GetCurrentBasketSummaryResponse(basket.Id, basket.Items);
+            : new GetCurrentBasketSummaryResponse(basket.Id, basket.Items, currentUser.BasketAllowedActions());
     }
 }
 
 internal static class Mappings
 {
-    public static GetCurrentBasketSummaryResponse ToResponse(this Basket basket)
+    public static GetCurrentBasketSummaryResponse ToResponse(this Basket basket, ICurrentUser currentUser)
         => new(
             basket.Id.Value,
-            basket.Items.Select(item => item.ToDto()));
+            basket.Items.Select(item => item.ToDto()),
+            currentUser.BasketAllowedActions());
 
     public static BasketSummaryItemDto ToDto(this BasketItem item)
         => new(

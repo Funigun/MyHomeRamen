@@ -5,12 +5,11 @@ namespace MyHomeRamen.Worker.Common;
 
 public static class QuartzConfiguration
 {
-    public static IServiceCollection AddQuartzServices(this IServiceCollection services, Action<IServiceCollectionQuartzConfigurator>? configure = null)
+    public static IServiceCollection AddQuartzServices(this IServiceCollection services, Action<IQuartzBuilder>? configure = null)
     {
         services.Configure<QuartzOptions>(options =>
         {
-            options.Scheduling.IgnoreDuplicates = true;
-            options.Scheduling.OverWriteExistingData = true;
+            options.Scheduling.OverwriteExistingData = true;
         });
 
         services.AddQuartz(q =>

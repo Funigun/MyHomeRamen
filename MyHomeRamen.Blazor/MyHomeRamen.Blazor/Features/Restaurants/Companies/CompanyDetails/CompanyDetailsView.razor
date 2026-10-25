@@ -1,0 +1,150 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.CompanyDetails.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.CompanyDetails.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject CompanyApiClient CompanyApiClient
+@inject IStringLocalizer<CompanyDetailsResources> Text
+
+<MudPaper Elevation="3" Class="pa-4 pa-md-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
+
+    @if (isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-8">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-6">@loadError.Message</MudAlert>
+    }
+    else if (companyDetails is not null)
+    {
+        <MudStack Spacing="4" Class="mt-6">
+            <MudText Typo="Typo.h4">@companyDetails.Name</MudText>
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2">@Text["Description"]</MudText>
+                    <MudText>@DisplayValue(companyDetails.Description)</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2">@Text["LogoUrl"]</MudText>
+                    <MudText>@DisplayValue(companyDetails.LogoUrl)</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2">@Text["LegalName"]</MudText>
+                    <MudText>@DisplayValue(companyDetails.BusinessDetails.LegalName)</MudText>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.subtitle2">@Text["TaxId"]</MudText>
+                    <MudText>@DisplayValue(companyDetails.BusinessDetails.TaxId)</MudText>
+                </MudItem>
+            </MudGrid>
+
+            @if (isEditing)
+            {
+                <CompanyDetailsForm Model="editModel!"
+                                    IsSubmitting="isSubmitting"
+                                    ValidationErrors="submitError.ValidationErrors"
+                                    ErrorMessage="@submitError.Message"
+                                    OnSubmit="UpdateDetailsAsync"
+                                    OnCancel="CancelEdit" />
+            }
+            else if (CanEdit)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="BeginEdit">
+                    @Text["Edit"]
+                </MudButton>
+            }
+        </MudStack>
+    }
+</MudPaper>
+
+@code {
+    private CompanyDetailsViewModel? companyDetails;
+    private CompanyDetailsFormModel? editModel;
+    private readonly ApiErrorState loadError = new();
+    private readonly ApiErrorState submitError = new();
+    private bool isLoading = true;
+    private bool isEditing;
+    private bool isSubmitting;
+
+    private bool CanEdit => companyDetails?.CanEditCompanyDetails == true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDetailsAsync();
+    }
+
+    private async Task LoadDetailsAsync()
+    {
+        isLoading = true;
+
+        try
+        {
+            ApiResult<CompanyDetailsResponse> result = await CompanyApiClient.GetDetailsAsync();
+            loadError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]);
+            companyDetails = result is ApiResult<CompanyDetailsResponse>.Success success
+                ? CompanyDetailsViewModel.FromResponse(success.Value)
+                : null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void BeginEdit()
+    {
+        if (companyDetails is null || !CanEdit)
+        {
+            return;
+        }
+
+        submitError.Clear();
+        editModel = CompanyDetailsFormModel.FromViewModel(companyDetails);
+        isEditing = true;
+    }
+
+    private void CancelEdit()
+    {
+        if (isSubmitting)
+        {
+            return;
+        }
+
+        isEditing = false;
+        submitError.Clear();
+    }
+
+    private async Task UpdateDetailsAsync(CompanyDetailsFormModel model)
+    {
+        if (isSubmitting || !CanEdit)
+        {
+            return;
+        }
+
+        isSubmitting = true;
+
+        try
+        {
+            ApiResult<bool> result = await CompanyApiClient.UpdateDetailsAsync(model.ToRequest());
+            if (submitError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            await LoadDetailsAsync();
+            isEditing = false;
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    private string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? Text["NotProvided"] : value;
+}

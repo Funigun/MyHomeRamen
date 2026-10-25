@@ -1,0 +1,18 @@
+@attribute [Route(CompanyRoutes.Setup)]
+@attribute [AllowAnonymous]
+@layout CompanySetupLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.ConfigureCompanySetup
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+
+@inject IStringLocalizer<CompanySetupResources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+
+<CompanySetupView Status="Status" />
+
+@code {
+    [Parameter, EditorRequired]
+    public CompanySetupStatusResponse Status { get; set; } = default!;
+}

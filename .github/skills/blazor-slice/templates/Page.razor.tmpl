@@ -1,0 +1,14 @@
+@attribute [Route({Aggregate}Routes.{Route})]
+@attribute [Authorize(Policy = AdminSectionConstants.{Policy})]
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.{Slice}
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<{Slice}Resources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+
+<{Slice}View />

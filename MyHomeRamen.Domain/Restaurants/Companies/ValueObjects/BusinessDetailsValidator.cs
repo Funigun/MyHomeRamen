@@ -8,22 +8,22 @@ internal static class BusinessDetailsValidator
     {
         if (string.IsNullOrWhiteSpace(businessDetails.LegalName))
         {
-            throw CompanyDetailsErrors.LegalNameRequired();
+            throw CompanyErrors.LegalNameRequired();
         }
 
-        if (businessDetails.LegalName.Length > CompanyDetailsConstants.MaxLegalNameLength)
+        if (businessDetails.LegalName.Length > CompanyConstants.MaxLegalNameLength)
         {
-            throw CompanyDetailsErrors.LegalNameTooLong();
+            throw CompanyErrors.LegalNameTooLong();
         }
 
         if (string.IsNullOrWhiteSpace(businessDetails.TaxId))
         {
-            throw CompanyDetailsErrors.TaxIdRequired();
+            throw CompanyErrors.TaxIdRequired();
         }
 
-        if (businessDetails.TaxId.Length > CompanyDetailsConstants.MaxTaxIdLength)
+        if (businessDetails.TaxId.Length > CompanyConstants.MaxTaxIdLength)
         {
-            throw CompanyDetailsErrors.TaxIdTooLong();
+            throw CompanyErrors.TaxIdTooLong();
         }
     }
 }

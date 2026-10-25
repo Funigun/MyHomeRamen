@@ -1,4 +1,4 @@
-﻿using MyHomeRamen.Domain.ShoppingCart.BasketItems;
+using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 

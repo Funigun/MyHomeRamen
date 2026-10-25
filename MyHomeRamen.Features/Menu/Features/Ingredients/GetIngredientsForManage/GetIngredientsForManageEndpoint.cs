@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Contracts;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
 
@@ -13,7 +14,12 @@ public sealed record GetIngredientsForManageRequest(string? Name, Guid[]? Catego
 
 public sealed record IngredientForManageDto(Guid Id, string Name, string Description);
 
-public sealed record GetIngredientsForManageResponse(int Page, int PageSize, int TotalCount, IEnumerable<IngredientForManageDto> Ingredients);
+public sealed record GetIngredientsForManageResponse(
+    int Page,
+    int PageSize,
+    int TotalCount,
+    IEnumerable<IngredientForManageDto> Ingredients,
+    AllowedActionsDto AllowedActions);
 
 public sealed class GetIngredientsForManageEndpoint : IEndpoint
 {

@@ -1,7 +1,7 @@
 using MudBlazor.Services;
-using MyHomeRamen.Blazor.Common.Configuration;
 using MyHomeRamen.Blazor.Components;
-using MyHomeRamen.Blazor.Presentation;
+using MyHomeRamen.Blazor.Components.Configuration;
+using MyHomeRamen.Blazor.Infrastructure.Authentication;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -29,12 +29,14 @@ try
                     .AddInteractiveServerComponents()
                     .AddInteractiveWebAssemblyComponents();
 
+    builder.Services.AddLocalization();
     builder.Services.AddApiServices(infrastructurePrefix);
     builder.Services.AddNavigationServices();
 
     builder.Services.AddHttpContextAccessor()
                     .AddAuthenticationHandlers()
                     .AddKeycloackAuthentication(builder)
+                    .AddBlazorAuthorization()
                     .AddCascadingAuthenticationState();
 
     builder.Services.AddMudServices();
@@ -55,6 +57,9 @@ try
 
     app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
     app.UseHttpsRedirection();
+
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     app.UseAntiforgery();
 

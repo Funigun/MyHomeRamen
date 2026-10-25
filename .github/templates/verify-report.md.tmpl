@@ -1,0 +1,16 @@
+# Verify Report — {Feature}
+
+**Plan:** {PlanPath}
+**Overall:** PASS | FAIL | BLOCKED:tooling
+
+| Step | Command | Result | Notes |
+|------|---------|--------|-------|
+| Diff check: tests | git diff | PASS/FAIL | Every planned unit/integration test file present |
+| Diff check: migration | git diff | PASS/FAIL/N/A | Migration files present when plan requires |
+| Build | dotnet build MyHomeRamen.slnx | PASS/FAIL | |
+| Unit tests | dotnet test MyHomeRamen.UnitTests | PASS/FAIL | |
+| Architecture tests | dotnet test MyHomeRamen.ArchitectureTests | PASS/FAIL | |
+| Integration tests | dotnet test {Module}Api.IntegrationTests | PASS/FAIL/N/A | Only when plan requires |
+
+## Failure tail
+<last ~40 lines of the first failing step, or "none">

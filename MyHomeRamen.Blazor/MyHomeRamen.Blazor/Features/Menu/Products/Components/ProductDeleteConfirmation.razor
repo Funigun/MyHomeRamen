@@ -1,0 +1,18 @@
+<MudAlert Severity="Severity.Warning" Class="mt-4">
+    <MudText>@Message</MudText>
+    <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-3">
+        <MudButton Variant="Variant.Text" OnClick="OnCancel">@CancelText</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(() => OnConfirm.InvokeAsync(ProductId))">
+            @ConfirmText
+        </MudButton>
+    </MudStack>
+</MudAlert>
+
+@code {
+    [Parameter] public Guid ProductId { get; set; }
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public string CancelText { get; set; } = string.Empty;
+    [Parameter] public string ConfirmText { get; set; } = string.Empty;
+    [Parameter] public EventCallback<Guid> OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+}

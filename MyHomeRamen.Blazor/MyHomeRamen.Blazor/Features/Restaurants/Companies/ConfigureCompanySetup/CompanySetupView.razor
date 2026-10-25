@@ -1,0 +1,189 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.ConfigureCompanySetup.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.ConfigureCompanySetup.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject CompanyApiClient CompanyApiClient
+@inject IStringLocalizer<CompanySetupResources> Text
+@inject NavigationManager NavigationManager
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h3">@Text["Heading"]</MudText>
+        <MudText>@Text["Description"]</MudText>
+        <MudText Typo="Typo.caption">@Text["StepProgress", CurrentStep, 3]</MudText>
+        <MudProgressLinear Value="@SetupProgress" />
+
+        @if (!_currentStatus.IsOwnerConfigured)
+        {
+            <MudAlert Severity="Severity.Info" Dense="true">@Text["CompanyOwnerStep"]</MudAlert>
+        }
+        else if (!_currentStatus.CompanyExists)
+        {
+            <MudAlert Severity="Severity.Info" Dense="true">@Text["CompanyStep"]</MudAlert>
+        }
+        else if (!_currentStatus.RestaurantExists)
+        {
+            <MudAlert Severity="Severity.Info" Dense="true">@Text["RestaurantStep"]</MudAlert>
+        }
+
+        @if (_statusError.HasError)
+        {
+            <MudAlert Severity="Severity.Error">@(_statusError.Message ?? Text["LoadError"])</MudAlert>
+            <MudButton Variant="Variant.Outlined" OnClick="RefreshStatusAsync">@Text["Retry"]</MudButton>
+        }
+
+        @if (!_currentStatus.IsOwnerConfigured)
+        {
+            <RegisterCompanyOwnerForm IsSubmitting="@(_isSubmitting || _statusError.HasError)"
+                                      ErrorMessage="@_submitError.Message"
+                                      ValidationErrors="MappedValidationErrors"
+                                      OnSubmit="RegisterOwnerAsync" />
+        }
+        else if (!_currentStatus.CompanyExists)
+        {
+            <ConfigureCompanyForm IsSubmitting="@(_isSubmitting || _statusError.HasError)"
+                                  ErrorMessage="@_submitError.Message"
+                                  ValidationErrors="MappedValidationErrors"
+                                  OnSubmit="ConfigureCompanyAsync" />
+        }
+        else if (!_currentStatus.RestaurantExists)
+        {
+            <CreateInitialRestaurantForm IsSubmitting="@(_isSubmitting || _statusError.HasError)"
+                                         ErrorMessage="@_submitError.Message"
+                                         ValidationErrors="MappedValidationErrors"
+                                         OnSubmit="CreateInitialRestaurantAsync" />
+        }
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired]
+    public CompanySetupStatusResponse Status { get; set; } = default!;
+
+    private readonly ApiErrorState _submitError = new();
+    private readonly ApiErrorState _statusError = new();
+    private CompanySetupStatusResponse _currentStatus = default!;
+    private bool _isSubmitting;
+    private IReadOnlyDictionary<string, string[]> MappedValidationErrors =>
+        _submitError.ValidationErrors
+            .GroupBy(error => error.Key.Split('.').Last(), StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                group => group.Key,
+                group => group.SelectMany(error => error.Value).ToArray(),
+                StringComparer.OrdinalIgnoreCase);
+
+    private int CurrentStep => !_currentStatus.IsOwnerConfigured
+        ? 1
+        : !_currentStatus.CompanyExists
+            ? 2
+            : 3;
+    private double SetupProgress
+    {
+        get
+        {
+            int completedSteps = _currentStatus.IsOwnerConfigured ? 1 : 0;
+            if (_currentStatus.IsOwnerConfigured && _currentStatus.CompanyExists)
+            {
+                completedSteps++;
+            }
+
+            if (_currentStatus.IsOwnerConfigured && _currentStatus.CompanyExists && _currentStatus.RestaurantExists)
+            {
+                completedSteps++;
+            }
+
+            return completedSteps * 100d / 3;
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        _currentStatus = Status;
+    }
+
+    private Task RegisterOwnerAsync(RegisterCompanyOwnerFormModel model) =>
+        SubmitStepAsync(
+            () => CompanyApiClient.RegisterOwnerAsync(model.ToRequest()),
+            isOwnerStep: true,
+            clearOwnerCredentials: () =>
+            {
+                model.Password = string.Empty;
+                model.ConfirmPassword = string.Empty;
+            });
+
+    private Task ConfigureCompanyAsync(ConfigureCompanyFormModel model) =>
+        SubmitStepAsync(() => CompanyApiClient.ConfigureCompanyAsync(model.ToRequest()));
+
+    private Task CreateInitialRestaurantAsync(CreateInitialRestaurantFormModel model) =>
+        SubmitStepAsync(() => CompanyApiClient.CreateInitialRestaurantAsync(model.ToRequest()));
+
+    private async Task SubmitStepAsync(
+        Func<Task<ApiResult<bool>>> submit,
+        bool isOwnerStep = false,
+        Action? clearOwnerCredentials = null)
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            _submitError.Clear();
+            ApiResult<bool> result = await submit();
+
+            if (_submitError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]))
+            {
+                int stepBeforeRefresh = CurrentStep;
+                await RefreshStatusAsync();
+                if (CurrentStep > stepBeforeRefresh)
+                {
+                    _submitError.Clear();
+                }
+
+                if (isOwnerStep && _currentStatus.IsOwnerConfigured)
+                {
+                    clearOwnerCredentials?.Invoke();
+                }
+
+                return;
+            }
+
+            if (isOwnerStep)
+            {
+                _currentStatus = _currentStatus with { IsOwnerConfigured = true };
+                clearOwnerCredentials?.Invoke();
+                return;
+            }
+
+            await RefreshStatusAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task RefreshStatusAsync()
+    {
+        ApiResult<CompanySetupStatusResponse> result = await CompanyApiClient.GetSetupStatusAsync();
+        if (_statusError.Apply(result, Text["LoadError"], Text["UnexpectedError"]))
+        {
+            return;
+        }
+
+        if (result is ApiResult<CompanySetupStatusResponse>.Success success)
+        {
+            _currentStatus = success.Value;
+            if (_currentStatus.IsComplete)
+            {
+                NavigationManager.NavigateTo(AuthenticationRoutes.Login, forceLoad: true);
+            }
+        }
+    }
+}

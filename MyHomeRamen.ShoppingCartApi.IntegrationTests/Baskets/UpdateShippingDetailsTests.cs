@@ -1,4 +1,4 @@
-﻿namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
+namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 internal sealed class UpdateShippingDetailsTests
 {

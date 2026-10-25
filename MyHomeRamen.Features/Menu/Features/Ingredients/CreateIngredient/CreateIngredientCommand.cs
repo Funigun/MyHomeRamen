@@ -15,9 +15,7 @@ public sealed record CreateIngredientCommand(CreateIngredientRequest CreateIngre
 public sealed class CreateIngredientAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<CreateIngredientCommand>
 {
     public async Task<bool> Authorize(CreateIngredientCommand request, CancellationToken cancellationToken)
-    {
-        return currentUser.CanManageIngredients() && currentUser.CanAddIngredient();
-    }
+        => await Task.FromResult(currentUser.CanManageIngredients() && currentUser.CanAddIngredient());
 }
 
 public sealed class CreateIngredientValidator : AbstractValidator<CreateIngredientCommand>

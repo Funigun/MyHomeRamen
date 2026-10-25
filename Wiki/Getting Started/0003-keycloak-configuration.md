@@ -1,63 +1,85 @@
-# Keycloak Configuration
+# Keycloak configuration
 
-As described in [ADR-0002: Users Authentication](../Users%20ADR/0002-users-authentication.md), **My Home Ramen** uses **Keycloak** as the central authentication server. 
-While Keycloak handles identity management and authentication flows (login, registration), authorization logic is largely handled within our own services (see `0005-keycloak-integration.md` for implementation details).
+My Home Ramen uses Keycloak for sign-in, token issuance, and backend user
+provisioning. Application permissions are stored and checked by the backend;
+see the [authorization guide](../Authorization/README.md).
 
-## Integration Overview
+## Tracked realm files
 
-The Keycloak integration follows the same "infrastructure prefix" convention used throughout the Aspire orchestration.
-Resources and configuration settings are named consistently (e.g., `my-home-ramen-realm`, `my-home-ramen-client`) to ensure clear mapping between the application and the identity provider.
+Aspire configures Keycloak in
+`MyHomeRamen.AppHost\InfrastructureConfiguration\RegistrationExtensions.cs`
+and imports the `MyHomeRamen.AppHost\Configurations\Keycloak` directory.
+That directory currently contains:
 
-## Realm Configuration
+- `realm.json`: application realm `my-home-ramen-realm`; currently declares
+  client `blazor-client`.
+- `realm-import.json`: Keycloak master-realm export.
 
-The project includes a pre-configured realm export file located at:  
-`MyHomeRamen.AppHost/Configurations/Keycloak/keycloak-config.json`
+The files currently do **not** show the admin service-account client described
+in earlier versions of this guide. Verify the effective realm/client setup
+before expecting local registration to work.
 
-This file is automatically imported by the Keycloak container on startup (via `RegistrationExtensions.cs`), ensuring that the local development environment is bootstrapped with:
-- **Realm**: `my-home-ramen-realm`
-- **Clients**: e.g., `my-home-ramen-client` (Frontend), `my-home-ramen-admin-client` (Admin API)
-- **Roles & Scopes**: Pre-defined roles and scopes required by the application.
+## Configuration flow
 
-## AppHost Configuration
+The AppHost passes realm and audience settings to the API and realm and Blazor
+client credentials to the Blazor app. Aspire provides the Keycloak endpoint to
+services. API JWT bearer validation uses the configured authority, audience,
+and issuer. The backend admin client uses client credentials to call Keycloak's
+Admin REST API.
 
-To connect to the Keycloak instance, the `MyHomeRamen.AppHost` project requires specific settings in `appsettings.Development.json` under the `Authorization` section.
+Development settings currently include:
 
 ```json
 "Authorization": {
-  "BaseUrl": "http://localhost:8080",
   "Realm": "my-home-ramen-realm",
   "Audience": "my-home-ramen-client"
 }
 ```
 
-- **BaseUrl**: The URL to the Keycloak instance. By default, the Aspire orchestration configures Keycloak to run on port `8080`.
-- **Realm**: The name of the realm to use. This **must** match the `"realm"` property defined in `keycloak-config.json`.
-- **Audience**: The expected audience claim for tokens, typically referencing the main frontend client.
+The tracked realm currently names its Blazor client `blazor-client`, while the
+development API audience is `my-home-ramen-client`. Confirm that the imported
+realm, OIDC client ID, token audience mapper, and API audience are aligned.
+Do not assume matching client names or an audience mapper unless the effective
+Keycloak configuration confirms them.
 
-## User Secrets (Credentials)
+The Blazor app expects:
 
-Sensitive information, such as client secrets, should not be stored in `appsettings.json`. Instead, use **User Secrets** for the AppHost project.
+- `Authentication:Blazor:ClientId`
+- `Authentication:Blazor:ClientSecret`
 
-You need to configure the Client/Secret pairs for both the Blazor frontend (to perform authentication) and the Keycloak Admin client (used by the Identity API to manage users).
+The backend admin integration expects:
 
-Run the following commands in the `MyHomeRamen.AppHost` directory (or use "Manage User Secrets" in Visual Studio):
+- `Authentication:KeycloakAdmin:ClientId`
+- `Authentication:KeycloakAdmin:ClientSecret`
+- `Authorization:Realm`
+
+Store secrets in AppHost User Secrets or another supported secret provider,
+not in committed settings. Set values to match actual Keycloak clients:
 
 ```powershell
-# Blazor Client Configuration
-dotnet user-secrets set "Authentication:Blazor:ClientId" "my-home-ramen-client"
-dotnet user-secrets set "Authentication:Blazor:ClientSecret" "[YOUR_BLAZOR_CLIENT_SECRET]"
-
-# Keycloak Admin Client Configuration
-dotnet user-secrets set "Authentication:KeycloakAdmin:ClientId" "my-home-ramen-admin-client"
-dotnet user-secrets set "Authentication:KeycloakAdmin:ClientSecret" "[YOUR_ADMIN_CLIENT_SECRET]"
+dotnet user-secrets set "Authentication:Blazor:ClientId" "<blazor-client-id>"
+dotnet user-secrets set "Authentication:Blazor:ClientSecret" "<blazor-client-secret>"
+dotnet user-secrets set "Authentication:KeycloakAdmin:ClientId" "<admin-client-id>"
+dotnet user-secrets set "Authentication:KeycloakAdmin:ClientSecret" "<admin-client-secret>"
 ```
 
-> **Note**: Since the `keycloak-config.json` file often masks secrets (e.g., `**********`), you may need to retrieve the actual generated secrets from the Keycloak Admin Console (`http://localhost:8080`) after the initial container startup, or coordinate with the team to get the development secrets.
+The admin client must have service accounts enabled and sufficient realm
+permissions to create users. Current tracked realm imports do not document or
+provision this client, so configure it in the effective realm or update the
+tracked import before relying on registration.
 
-## Aspire Orchestration
+## Configuration drift to resolve
 
-Once configured, the **Aspire AppHost** reads these values and injects them as environment variables or configuration settings into the dependent services:
+Before treating local Keycloak setup as reproducible, align and verify:
 
-- **Blazor Frontend**: Receives `ClientId` and `ClientSecret` to configure OIDC authentication.
-- **Identity API**: Receives Admin credentials to perform user management tasks.
-- **API Service**: Receives Authority (BaseUrl + Realm) configuration to validate incoming tokens.
+1. The Blazor OIDC client ID and secret with the imported realm client.
+2. API audience configuration with the access token's actual `aud` claim.
+3. The backend admin client, service account, and required realm permissions.
+4. Realm import and callback/redirect URIs for the local Blazor URLs.
+
+The older application-scopes ADR describes Keycloak scopes and roles as
+authorization inputs. That decision was superseded by
+[ADR-0004](../Users%20ADR/0004-company-restaurant-roles-and-authorization.md);
+current API permission checks use the Identity database. See
+[authentication flow](../Authorization/authentication-flow.md) for request
+flows and component responsibilities.

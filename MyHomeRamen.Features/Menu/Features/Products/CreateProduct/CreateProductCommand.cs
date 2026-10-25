@@ -16,9 +16,7 @@ public sealed record CreateProductCommand(CreateProductRequest CreateProductRequ
 public sealed class CreateProductAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<CreateProductCommand>
 {
     public async Task<bool> Authorize(CreateProductCommand request, CancellationToken cancellationToken)
-    {
-        return currentUser.CanManageProducts() && currentUser.CanAddProduct();
-    }
+        => await Task.FromResult(currentUser.CanManageProducts() && currentUser.CanAddProduct());
 }
 
 public sealed class CreateProductValidator : AbstractValidator<CreateProductCommand>

@@ -16,20 +16,26 @@ public sealed record CurrentUser : ICurrentUser
 
     public IReadOnlyCollection<string> Permissions { get; private set; } = [];
 
+    public IReadOnlyCollection<PermissionGrant> PermissionGrants { get; private set; } = [];
+
     internal void Update(
         string identityId,
         Guid userId,
         IEnumerable<Claim> claims,
         bool isAuthenticated,
         bool isGuest,
-        IReadOnlyCollection<string> permissions)
+        IReadOnlyCollection<PermissionGrant> permissionGrants)
     {
         IdentityId = identityId;
         UserId = userId;
         Claims = claims;
         IsAuthenticated = isAuthenticated;
         IsGuest = isGuest;
-        Permissions = permissions;
+        PermissionGrants = permissionGrants;
+        Permissions = permissionGrants.Where(grant => grant.RestaurantId is null)
+                                      .Select(grant => grant.Name)
+                                      .Distinct(StringComparer.Ordinal)
+                                      .ToArray();
     }
 
     public static CurrentUser Anonymous { get; } = new()

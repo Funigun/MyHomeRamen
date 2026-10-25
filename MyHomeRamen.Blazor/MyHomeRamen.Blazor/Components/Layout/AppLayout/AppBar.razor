@@ -1,7 +1,7 @@
-@using MyHomeRamen.Blazor.Common.Configuration
 @using MyHomeRamen.Blazor.Features.Account.Common.Services;
 @using MyHomeRamen.Blazor.Features.Admin.Common.Services;
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.BasketMenu
+@using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider
 
 
 @inject RestaurantConfiguration RestaurantConfiguration
@@ -18,7 +18,7 @@
             <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/menu"))">Menu</MudButton>
             <MudSpacer />
             
-            @if(_isAdmin)
+            @if (_canViewAdminPanel)
             {
                 <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.AdminPanel))">Admin Panel</MudButton>
             }
@@ -39,12 +39,12 @@
 @code {
     private bool _isAuthenticated = false;
     private string _userName = string.Empty;
-    private bool _isAdmin = false;
+    private bool _canViewAdminPanel;
 
     protected override async Task OnInitializedAsync()
     {
         _isAuthenticated = await AuthenticationStateProvider.IsAuthenticated();
-        _isAdmin = await AuthenticationStateProvider.IsAdmin();
+        _canViewAdminPanel = await AuthenticationStateProvider.CanViewAdminPanel();
     }
 
     private void Navigate(string url)

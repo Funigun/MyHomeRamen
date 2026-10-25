@@ -1,6 +1,7 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Contracts;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
@@ -25,9 +26,16 @@ public record GetCategoryByTypeQueryOptions(CategoryType CategoryType)
 
 public sealed class GetCategoriesByTypeAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetCategoriesByTypeQuery>
 {
-    public async Task<bool> Authorize(GetCategoriesByTypeQuery request, CancellationToken cancellationToken)
+    public Task<bool> Authorize(GetCategoriesByTypeQuery request, CancellationToken cancellationToken)
     {
-        return currentUser.CanManageCategories();
+        bool isAuthorized = request.Request.CategoryType switch
+        {
+            (int)CategoryType.Product => currentUser.CanManageCategories() || currentUser.CanManageProducts(),
+            (int)CategoryType.Ingredient => currentUser.CanManageCategories() || currentUser.CanManageIngredients(),
+            _ => currentUser.CanManageCategories()
+        };
+
+        return Task.FromResult(isAuthorized);
     }
 }
 
@@ -40,7 +48,7 @@ public sealed class GetCategoriesByTypeValidator : AbstractValidator<GetCategori
     }
 }
 
-public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext)
+public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext, ICurrentUser currentUser)
                   : IRequestHandler<GetCategoriesByTypeQuery, GetCategoriesByTypeResponse>
 {
     public async Task<GetCategoriesByTypeResponse> Handle(GetCategoriesByTypeQuery query, CancellationToken cancellationToken)
@@ -49,6 +57,11 @@ public sealed class GetCategoriesByTypeHandler(IMenuDbContext dbContext)
 
         IEnumerable<CategoryByTypeDto> categories = await dbContext.Category.Query().GetByTypeDto(options, cancellationToken);
 
-        return new GetCategoriesByTypeResponse(categories);
+        return new GetCategoriesByTypeResponse(
+            categories,
+            new AllowedActionsDto(
+                CanCreate: currentUser.CanAddCategory(),
+                CanEdit: currentUser.CanEditCategory(),
+                CanDelete: currentUser.CanDeleteCategory()));
     }
 }

@@ -1,0 +1,13 @@
+@attribute [Route(IngredientRoutes.Index)]
+@attribute [Authorize(Policy = AdminSectionConstants.IngredientsManagement)]
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<IngredientsResources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+
+<IngredientsView />

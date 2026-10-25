@@ -1,0 +1,122 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Shared
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Components
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Models
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject CategoryApiClient CategoryApiClient
+@inject IngredientApiClient IngredientApiClient
+@inject IStringLocalizer<IngredientsResources> Text
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["EditHeading"]</MudText>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@_loadError.Message</MudAlert>
+    }
+    else if (_model is not null)
+    {
+        <IngredientForm Model="_model"
+                        Categories="_categories"
+                        IsEdit="true"
+                        IsSubmitting="_isSubmitting"
+                        ErrorMessage="@_submitError.Message"
+                        ValidationErrors="_submitError.ValidationErrors"
+                        OnSubmit="UpdateAsync"
+                        OnCancel="Cancel" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid Id { get; set; }
+
+    private IngredientFormModel? _model;
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _submitError = new();
+    private IReadOnlyList<IngredientCategoryOption> _categories = [];
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+
+        try
+        {
+            ApiResult<GetCategoriesByTypeResponse> categoriesResult =
+                await CategoryApiClient.GetByTypeAsync((int)CategoryType.Ingredient);
+            if (_loadError.Apply(categoriesResult, Text["LoadError"], Text["UnexpectedError"])
+                || categoriesResult is not ApiResult<GetCategoriesByTypeResponse>.Success categoriesSuccess)
+            {
+                return;
+            }
+
+            ApiResult<GetIngredientByIdResponse> ingredientResult = await IngredientApiClient.GetByIdAsync(Id);
+            if (_loadError.Apply(ingredientResult, Text["LoadError"], Text["UnexpectedError"])
+                || ingredientResult is not ApiResult<GetIngredientByIdResponse>.Success ingredientSuccess)
+            {
+                return;
+            }
+
+            _categories = categoriesSuccess.Value.Categories
+                .Select(category => new IngredientCategoryOption(category.Id, category.Name))
+                .ToArray();
+            _model = IngredientFormModel.FromResponse(ingredientSuccess.Value);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task UpdateAsync(IngredientFormModel model)
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+
+        try
+        {
+            ApiResult<bool> result = await IngredientApiClient.UpdateAsync(Id, model.ToUpdateRequest());
+            if (_submitError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["UpdateSuccess"], Severity.Success);
+            NavigationManager.NavigateTo(IngredientRoutes.Index);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private Task Cancel()
+    {
+        NavigationManager.NavigateTo(IngredientRoutes.Index);
+        return Task.CompletedTask;
+    }
+}

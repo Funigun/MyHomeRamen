@@ -24,8 +24,8 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
 
     public async ValueTask InitializeAsync()
     {
-        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
-        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
+        _guest = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
+        _customer = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         Product guestProduct = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], []);
         Product customerProduct = DataGenerator.CreateProduct([DataGenerator.CreateIngredient()], [DataGenerator.CreateIngredient()]);  
@@ -65,6 +65,9 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
         Assert.NotNull(details);
         Assert.Equal(_customerBasket.Id.Value, details.BasketId);
         Assert.NotEmpty(details.Items);
+        Assert.True(details.AllowedActions.CanCreate);
+        Assert.True(details.AllowedActions.CanEdit);
+        Assert.False(details.AllowedActions.CanDelete);
 
         BasketDetailsItemDto firstItem = details.Items.First();
         Assert.NotEqual(Guid.Empty, firstItem.Id);
@@ -99,7 +102,7 @@ public sealed class GetCurrentBasketDetailsTests(WebApiFactory apiFactory) : ICl
     public async Task GetCurrentBasketDetails_ShouldReturnNotFound_WhenUserHasNoActiveBasket()
     {
         // Arrange
-        (Guid UserId, Guid GuestId) userWithoutBasket = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.CanViewBasket]);
+        (Guid UserId, Guid GuestId) userWithoutBasket = await apiFactory.IdentityTestData.SeedGuest([PermissionConstants.ManageBasket]);
 
         await apiFactory.ShoppingCartDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 

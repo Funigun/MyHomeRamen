@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
@@ -11,6 +11,8 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
 internal sealed class DataGenerator
 {
+    private DataGenerator() { }
+
     internal static Ingredient CreateIngredient()
         => new Faker<Ingredient>()
            .CustomInstantiator(f =>

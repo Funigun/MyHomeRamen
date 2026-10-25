@@ -2,4 +2,7 @@ using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Responses;
 
-public sealed record GetCurrentBasketDetailsResponse(Guid BasketId, IEnumerable<BasketDetailsItemDto> Items);
+public sealed record GetCurrentBasketDetailsResponse(
+    Guid BasketId,
+    IEnumerable<BasketDetailsItemDto> Items,
+    AllowedActionsDto AllowedActions);

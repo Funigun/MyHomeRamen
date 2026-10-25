@@ -1,0 +1,86 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.ConfigureCompanySetup.Models
+
+@inject IStringLocalizer<CompanySetupResources> Text
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h5">@Text["OwnerSection"]</MudText>
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.UserName" @bind-Value:after="RefreshValidation" For="() => _model.UserName" Label="@Text["UserName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.UserName))" ErrorText="@GetError(nameof(_model.UserName))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.Email" @bind-Value:after="RefreshValidation" For="() => _model.Email" Label="@Text["Email"]" Variant="Variant.Outlined" InputType="InputType.Email" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Email))" ErrorText="@GetError(nameof(_model.Email))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.FirstName" @bind-Value:after="RefreshValidation" For="() => _model.FirstName" Label="@Text["FirstName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.FirstName))" ErrorText="@GetError(nameof(_model.FirstName))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.LastName" @bind-Value:after="RefreshValidation" For="() => _model.LastName" Label="@Text["LastName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.LastName))" ErrorText="@GetError(nameof(_model.LastName))" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_model.PhoneNumber" @bind-Value:after="RefreshValidation" For="() => _model.PhoneNumber" Label="@Text["PhoneNumber"]" Variant="Variant.Outlined" InputType="InputType.Telephone" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.PhoneNumber))" ErrorText="@GetError(nameof(_model.PhoneNumber))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.Password" @bind-Value:after="RefreshValidation" For="() => _model.Password" Label="@Text["Password"]" Variant="Variant.Outlined" InputType="InputType.Password" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Password))" ErrorText="@GetError(nameof(_model.Password))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.ConfirmPassword" @bind-Value:after="RefreshValidation" For="() => _model.ConfirmPassword" Label="@Text["ConfirmPassword"]" Variant="Variant.Outlined" InputType="InputType.Password" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.ConfirmPassword))" ErrorText="@GetError(nameof(_model.ConfirmPassword))" />
+            </MudItem>
+        </MudGrid>
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+        }
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(IsSubmitting || !_validationResult.IsValid)" OnClick="SubmitAsync">
+            @if (IsSubmitting)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                @Text["Saving"]
+            }
+            else
+            {
+                @Text["RegisterOwner"]
+            }
+        </MudButton>
+    </MudStack>
+</MudForm>
+
+@code {
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
+    [Parameter, EditorRequired] public EventCallback<RegisterCompanyOwnerFormModel> OnSubmit { get; set; }
+
+    private readonly RegisterCompanyOwnerFormModel _model = new();
+    private MudForm _form = default!;
+    private RegisterCompanyOwnerFormModelValidator _validator = default!;
+    private FluentValidation.Results.ValidationResult _validationResult = new();
+
+    protected override void OnInitialized()
+    {
+        _validator = new RegisterCompanyOwnerFormModelValidator(Text);
+        RefreshValidation();
+    }
+
+    private void RefreshValidation() => _validationResult = _validator.Validate(_model);
+
+    private async Task SubmitAsync()
+    {
+        RefreshValidation();
+        await _form.ValidateAsync();
+        if (!_validationResult.IsValid || !_form.IsValid || IsSubmitting)
+        {
+            return;
+        }
+
+        await OnSubmit.InvokeAsync(_model);
+    }
+
+    private bool HasError(string propertyName) => ValidationErrors.ContainsKey(propertyName);
+
+    private string? GetError(string propertyName) => ValidationErrors.TryGetValue(propertyName, out string[]? errors)
+        ? string.Join(" ", errors)
+        : null;
+}

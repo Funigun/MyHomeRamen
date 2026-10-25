@@ -23,14 +23,12 @@ internal sealed class DbInitializerJob(IIdentityDbContext userContext, IMenuDbCo
 {
     private static FormattableString CreateRawSql(string sql) => FormattableStringFactory.Create(sql);
 
-    public async Task Execute(IJobExecutionContext context)
+    public async ValueTask Execute(IJobExecutionContext context, CancellationToken cancellationToken)
     {
-        CancellationToken cancellationToken = context.CancellationToken;
-
         Dictionary<IUnitOfWork, DatabaseUserConfig> unitOfWorkContexts = new()
         {
             { userContext, DatabaseUserConfig.Create("Identity", configuration) },
-            { restaurantDbContext, DatabaseUserConfig.Create("Restaurants", configuration) },
+            { restaurantDbContext, DatabaseUserConfig.Create("Restaurant", configuration) },
             { menuDbContext, DatabaseUserConfig.Create("Menu", configuration) },
             { shoppingCartDbContext, DatabaseUserConfig.Create("ShoppingCart", configuration) },
             { paymentsDbContext, DatabaseUserConfig.Create("Payment", configuration) },

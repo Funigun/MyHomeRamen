@@ -1,6 +1,5 @@
 using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Requests;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses;
-using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Ingredients.Requests;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Ingredients.Responses;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.Requests;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.Responses;
@@ -27,22 +26,13 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return result?.Id ?? throw new InvalidOperationException("Failed to deserialize category creation response.");
     }
 
-    public async Task<Guid> CreateIngredientAsync(CreateIngredientRequest request, CancellationToken ct = default)
-    {
-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync("/api/menu/ingredients", request, ct);
-        response.EnsureSuccessStatusCode();
-
-        CreateIngredientResponse? result = await response.Content.ReadFromJsonAsync<CreateIngredientResponse>(ct);
-        return result?.Id ?? throw new InvalidOperationException("Failed to deserialize ingredient creation response.");
-    }
-
     public async Task<GetCategoriesByTypeResponse> GetCategoriesByTypeAsync(int categoryType, CancellationToken ct = default)
     {
         GetCategoriesByTypeResponse? result = await httpClient
             .GetFromJsonAsync<GetCategoriesByTypeResponse>(
                 $"/api/menu/categories/by-type?categoryType={categoryType}", ct);
 
-        return result ?? new([]);
+        return result ?? new([], new CategoryAllowedActions(false, false, false));
     }
 
     public async Task<IEnumerable<GetIngredientsForDropdownResponse>> GetIngredientsForDropdownAsync(CancellationToken ct = default)
@@ -52,33 +42,6 @@ public sealed class MenuApiClient(HttpClient httpClient)
                 "/api/menu/ingredients/dropdown", ct);
 
         return result ?? [];
-    }
-
-    public async Task<GetIngredientsForManageResponse?> GetIngredientsForManageAsync(
-        string? name = null,
-        IEnumerable<Guid>? categoryIds = null,
-        int pageNumber = 1,
-        int pageSize = 10,
-        CancellationToken ct = default)
-    {
-        List<string> queryParts = [];
-
-        if (!string.IsNullOrWhiteSpace(name))
-        {
-            queryParts.Add($"name={Uri.EscapeDataString(name)}");
-        }
-
-        if (categoryIds is not null)
-        {
-            queryParts.AddRange(categoryIds.Select(id => $"categoryIds={id}"));
-        }
-
-        queryParts.Add($"pageNumber={pageNumber}");
-        queryParts.Add($"pageSize={pageSize}");
-
-        string url = $"/api/menu/ingredients/manage?{string.Join("&", queryParts)}";
-
-        return await httpClient.GetFromJsonAsync<GetIngredientsForManageResponse>(url, ct);
     }
 
     public async Task<GetProductsForManageResponse?> GetProductsForManageAsync(
@@ -132,11 +95,6 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return await httpClient.GetFromJsonAsync<GetProductsForManageResponse>(url, ct);
     }
 
-    public async Task<GetIngredientByIdResponse?> GetIngredientByIdAsync(Guid id, CancellationToken ct = default)
-    {
-        return await httpClient.GetFromJsonAsync<GetIngredientByIdResponse>($"/api/menu/ingredients/{id}", ct);
-    }
-
     public async Task<GetProductByIdForManageResponse?> GetProductByIdForManageAsync(Guid id, CancellationToken ct = default)
     {
         return await httpClient.GetFromJsonAsync<GetProductByIdForManageResponse>($"/api/menu/products/{id}/manage", ct);
@@ -151,20 +109,6 @@ public sealed class MenuApiClient(HttpClient httpClient)
     {
         using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/menu/categories/{id}", ct);
         response.EnsureSuccessStatusCode();
-    }
-
-    public async Task DeleteIngredientAsync(Guid id, CancellationToken ct = default)
-    {
-        using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/menu/ingredients/{id}", ct);
-        response.EnsureSuccessStatusCode();
-    }
-
-    public async Task<UpdateIngredientResponse> UpdateIngredientAsync(Guid id, UpdateIngredientRequest request, CancellationToken ct = default)
-    {
-        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"/api/menu/ingredients/{id}", request, ct);
-        response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<UpdateIngredientResponse>(ct)
-            ?? throw new InvalidOperationException("Empty response from UpdateIngredient endpoint.");
     }
 
     public async Task UpdateCategoriesOrderAsync(UpdateCategoriesOrderRequest request, CancellationToken ct = default)

@@ -8,8 +8,6 @@ public static class PermissionConstants
     public const string CanAddProduct = "Product.Add";
     public const string CanEditProduct = "Product.Edit";
     public const string CanDeleteProduct = "Product.Delete";
-    public const string CanEditProductsRecipes = "Product.EditRecipes";
-
     public const string CanManageCategories = "Category.Manage";
     public const string CanAddCategory = "Category.Add";
     public const string CanEditCategory = "Category.Edit";
@@ -32,7 +30,6 @@ public static class PermissionConstants
         CanAddProduct,
         CanEditProduct,
         CanDeleteProduct,
-        CanEditProductsRecipes,
         CanManageCategories,
         CanAddCategory,
         CanEditCategory,

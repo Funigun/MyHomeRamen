@@ -49,6 +49,43 @@ public sealed class GetIngredientsForManageTests(WebApiFactory apiFactory) : ICl
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Ingredients);
+        Assert.False(result.AllowedActions.CanCreate);
+        Assert.False(result.AllowedActions.CanEdit);
+        Assert.False(result.AllowedActions.CanDelete);
+    }
+
+    [Theory]
+    [InlineData(PermissionConstants.CanAddIngredient, true, false, false)]
+    [InlineData(PermissionConstants.CanEditIngredient, false, true, false)]
+    [InlineData(PermissionConstants.CanDeleteIngredient, false, false, true)]
+    public async Task GetIngredientsForManage_ShouldReturnAllowedActions_ForGrantedPermission(
+        string permission,
+        bool canCreate,
+        bool canEdit,
+        bool canDelete)
+    {
+        (string KeycloakUserId, Guid UserId) user = await apiFactory.IdentityTestData.SeedUser(
+            [PermissionConstants.CanManageIngredients, permission],
+            $"get-ingredients-manage-{Guid.NewGuid()}");
+
+        try
+        {
+            using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/manage");
+            httpRequest.AddAuthorizationHeader(user);
+
+            HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+            GetIngredientsForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetIngredientsForManageResponse>(TestContext.Current.CancellationToken);
+
+            await responseMessage.AssertStatusCode(HttpStatusCode.OK);
+            Assert.NotNull(result);
+            Assert.Equal(canCreate, result.AllowedActions.CanCreate);
+            Assert.Equal(canEdit, result.AllowedActions.CanEdit);
+            Assert.Equal(canDelete, result.AllowedActions.CanDelete);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(user.UserId);
+        }
     }
 
     [Fact]

@@ -2,6 +2,7 @@ using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Contracts;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
@@ -32,9 +33,7 @@ public sealed record GetIngredientsForManageQueryOptions(string? Name, IEnumerab
 public sealed class GetIngredientsForManageAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetIngredientsForManageQuery>
 {
     public async Task<bool> Authorize(GetIngredientsForManageQuery request, CancellationToken cancellationToken)
-    {
-        return currentUser.CanManageIngredients();
-    }
+        => await Task.FromResult(currentUser.CanManageIngredients());
 }
 
 public sealed class GetIngredientsForManageValidator : AbstractValidator<GetIngredientsForManageQuery>
@@ -49,7 +48,7 @@ public sealed class GetIngredientsForManageValidator : AbstractValidator<GetIngr
     }
 }
 
-public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext) : IRequestHandler<GetIngredientsForManageQuery, GetIngredientsForManageResponse>
+public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetIngredientsForManageQuery, GetIngredientsForManageResponse>
 {
     public async Task<GetIngredientsForManageResponse> Handle(GetIngredientsForManageQuery query, CancellationToken cancellationToken)
     {
@@ -58,13 +57,18 @@ public sealed class GetIngredientsForManageHandler(IMenuDbContext dbContext) : I
         GetIngredientsForManageQueryOptions options = new(query.Request.Name, categoryIds, query.PageParameters);
 
         PagedResult<IngredientForManageDto> result = await dbContext.Ingredient.Query().ForManage(options, cancellationToken);
+        bool canManageIngredients = currentUser.CanManageIngredients();
 
         return new GetIngredientsForManageResponse
         (
             Page: query.PageParameters.PageNumber,
             PageSize: query.PageParameters.PageSize,
             TotalCount: result.TotalItems,
-            Ingredients: result.Items
+            Ingredients: result.Items,
+            AllowedActions: new AllowedActionsDto(
+                CanCreate: canManageIngredients && currentUser.CanAddIngredient(),
+                CanEdit: canManageIngredients && currentUser.CanEditIngredient(),
+                CanDelete: canManageIngredients && currentUser.CanDeleteIngredient())
         );
     }
 }

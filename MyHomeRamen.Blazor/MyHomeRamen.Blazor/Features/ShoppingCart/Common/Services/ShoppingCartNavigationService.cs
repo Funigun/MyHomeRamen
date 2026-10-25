@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Shared;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services;
 
@@ -6,11 +7,8 @@ public sealed class ShoppingCartNavigationService(NavigationManager navigation)
 {
     public static class Routes
     {
-        public static class Public
-        {
-            public static string Checkout() => $"/checkout";
-        }
+        public const string Checkout = BasketRoutes.Checkout;
     }
 
-    public void ToCheckout() => navigation.NavigateTo(Routes.Public.Checkout());
+    public void ToCheckout() => navigation.NavigateTo(Routes.Checkout);
 }

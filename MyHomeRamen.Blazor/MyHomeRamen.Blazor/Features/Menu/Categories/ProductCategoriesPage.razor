@@ -1,0 +1,13 @@
+@attribute [Route(CategoryRoutes.ProductCategories)]
+@attribute [Authorize(Policy = AdminSectionConstants.ProductsManagement)]
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Shared
+@using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<CategoryManagementResources> Text
+
+<PageTitle>@Text["ProductPageTitle"]</PageTitle>
+<CategoryManagementView CategoryKind="CategoryType.Product" />

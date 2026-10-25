@@ -11,6 +11,7 @@ internal static class ConfigurationConstants
     internal const string ShoppingCartModuleName = "ShoppingCart";
     internal const string PaymentModuleName = "Payment";
     internal const string IdentityModuleName = "Identity";
+    internal const string RestaurantModuleName = "Restaurants";
 
     internal const string DbInitializerWorkerName = "DbInitializer";
 

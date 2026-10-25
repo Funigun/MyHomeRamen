@@ -1,0 +1,51 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.Components
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.Models
+@using MyHomeRamen.Blazor.Features.{Module}.{Aggregates}.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject {Aggregate}ApiClient {Aggregate}ApiClient
+@inject IStringLocalizer<{Slice}Resources> Text
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="mt-4">@_loadError.Message</MudAlert>
+    }
+    else
+    {
+        <{Aggregate}Grid Items="_items" />
+    }
+</MudPaper>
+
+@code {
+    private readonly List<{Aggregate}ViewModel> _items = [];
+    private readonly ApiErrorState _loadError = new();
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ApiResult<Get{Aggregates}Response> result = await {Aggregate}ApiClient.GetAsync();
+            _loadError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]);
+            if (result is ApiResult<Get{Aggregates}Response>.Success success)
+            {
+                _items.AddRange({Aggregate}ViewModel.FromResponse(success.Value));
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

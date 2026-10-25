@@ -18,12 +18,12 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("restaurants")
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Companies.CompanyDetails", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Companies.Company", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -54,7 +54,15 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
 
                     b.ToTable("Companies", "restaurants");
                 });
@@ -64,7 +72,7 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CompanyDetailsId")
+                    b.Property<Guid?>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LogoUrl")
@@ -84,7 +92,7 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyDetailsId");
+                    b.HasIndex("CompanyId");
 
                     b.ToTable("CompanySocialMedia", "restaurants");
                 });
@@ -136,6 +144,9 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -159,14 +170,16 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.ToTable("Restaurants", "restaurants");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Companies.CompanyDetails", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Companies.Company", b =>
                 {
                     b.OwnsOne("MyHomeRamen.Domain.Restaurants.Companies.ValueObjects.BusinessDetails", "BusinessDetails", b1 =>
                         {
-                            b1.Property<Guid>("CompanyDetailsId")
+                            b1.Property<Guid>("CompanyId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("LegalName")
@@ -181,12 +194,12 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
                                 .HasColumnType("nvarchar(50)")
                                 .HasColumnName("TaxId");
 
-                            b1.HasKey("CompanyDetailsId");
+                            b1.HasKey("CompanyId");
 
                             b1.ToTable("Companies", "restaurants");
 
                             b1.WithOwner()
-                                .HasForeignKey("CompanyDetailsId");
+                                .HasForeignKey("CompanyId");
                         });
 
                     b.Navigation("BusinessDetails")
@@ -195,9 +208,9 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
 
             modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Companies.SocialMedia", b =>
                 {
-                    b.HasOne("MyHomeRamen.Domain.Restaurants.Companies.CompanyDetails", null)
+                    b.HasOne("MyHomeRamen.Domain.Restaurants.Companies.Company", null)
                         .WithMany("Media")
-                        .HasForeignKey("CompanyDetailsId")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -211,6 +224,11 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
 
             modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Restaurants.Restaurant", b =>
                 {
+                    b.HasOne("MyHomeRamen.Domain.Restaurants.Companies.Company", null)
+                        .WithMany("Restaurants")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.OwnsOne("MyHomeRamen.Domain.Restaurants.Restaurants.ValueObjects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("RestaurantId")
@@ -362,9 +380,11 @@ namespace MyHomeRamen.Persistance.Restaurants.Migrations
                     b.Navigation("WorkHours");
                 });
 
-            modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Companies.CompanyDetails", b =>
+            modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Companies.Company", b =>
                 {
                     b.Navigation("Media");
+
+                    b.Navigation("Restaurants");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Restaurants.Restaurants.Restaurant", b =>

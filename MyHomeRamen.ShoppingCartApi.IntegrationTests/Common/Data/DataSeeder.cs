@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using Bogus.Premium;
 
 namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;

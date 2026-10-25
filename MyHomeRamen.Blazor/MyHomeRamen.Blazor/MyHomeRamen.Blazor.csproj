@@ -9,4 +9,8 @@
     <ProjectReference Include="..\MyHomeRamen.Blazor.Client\MyHomeRamen.Blazor.Client.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Infrastructure\Localization\" />
+  </ItemGroup>
+
 </Project>

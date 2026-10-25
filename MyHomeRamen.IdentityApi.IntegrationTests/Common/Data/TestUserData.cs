@@ -25,7 +25,7 @@ internal static class TestUserFactory
             .Where(permission => permissionNames.Contains(permission.Name))
             .Select(permission => permission.Id);
 
-        Role role = Role.Create(roleName, $"{roleName} role for testing purposes", permissionIds);
+        Role role = Role.CreateCustom(roleName, $"{roleName} role for testing purposes", permissionIds);
         string keycloakUserId = $"test-keycloak-{Guid.NewGuid():N}";
         User user = User.Create(
             keycloakUserId,
@@ -33,8 +33,8 @@ internal static class TestUserFactory
             firstName,
             lastName,
             $"{userName}@example.com",
-            "123456789",
-            role);
+            "123456789");
+        user.AssignRole(role);
 
         dbContext.Role.Add(role);
         dbContext.User.Add(user);

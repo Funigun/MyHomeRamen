@@ -25,8 +25,6 @@ public sealed class KeycloakClaimsTransformation(IIdentityDbContext usersDbConte
 
         if (keycloakId != null)
         {
-            Guid userId = (await usersDbContext.User.Query().GetIdByKeycloakId(keycloakId.Value, CancellationToken.None))!.Value;
-            
             Claim? domainIdClaim = identity.Claims.FirstOrDefault(claim => claim.Type == ClaimConstants.DomainIdClaim);
 
             if (domainIdClaim != null)
@@ -34,7 +32,12 @@ public sealed class KeycloakClaimsTransformation(IIdentityDbContext usersDbConte
                 identity.RemoveClaim(domainIdClaim);
             }
 
-            identity.AddClaim(new Claim(ClaimConstants.DomainIdClaim, userId.ToString()));
+            Guid? userId = await usersDbContext.User.Query().GetIdByKeycloakId(keycloakId.Value, CancellationToken.None);
+
+            if (userId is not null && userId != Guid.Empty)
+            {
+                identity.AddClaim(new Claim(ClaimConstants.DomainIdClaim, userId.Value.ToString()));
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ using MyHomeRamen.Features.Identity.Features.Permissions.Common;
 using MyHomeRamen.Features.Identity.Features.Users.Common;
 using MyHomeRamen.Persistance.Identity.Converters;
 using MyHomeRamen.Domain.Abstractions;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MyHomeRamen.Persistance.Identity;
 
@@ -26,6 +27,8 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     public DbSet<Permission> Permissions { get; set; }
 
     public DbSet<RolePermission> RolePermissions { get; set; }
+
+    public DbSet<UserRole> UserRoles { get; set; }
 
     public IUserRepository User => _serviceProvider.GetService<IUserRepository>() ?? throw new InvalidOperationException("UserRepository is not registered in the service provider.");
     public IRoleRepository Role => _serviceProvider.GetService<IRoleRepository>() ?? throw new InvalidOperationException("RoleRepository is not registered in the service provider.");
@@ -50,12 +53,22 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
 
     private void UpdateEntities()
     {
+        DateTimeOffset changeDate = DateTime.UtcNow;
+
         foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
         {
             switch (entry.State)
             {
                 case EntityState.Added:
                     entry.Entity.CreatedBy = _currentUser.UserId.ToString();
+                    entry.Entity.CreatedOn = changeDate;
+                    entry.Entity.ModifiedBy = _currentUser.UserId.ToString();
+                    entry.Entity.ModifiedOn = changeDate;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.ModifiedBy = _currentUser.UserId.ToString();
+                    entry.Entity.ModifiedOn = changeDate;
                     break;
             }
         }
@@ -84,16 +97,29 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
                      .ValueGeneratedNever();
             });
 
-        b.HasMany(u => u.Roles)
-             .WithMany()
-             .UsingEntity("UserRoles");
+            b.HasMany(u => u.UserRoles)
+             .WithOne(userRole => userRole.User)
+             .HasForeignKey(userRole => userRole.UserId);
+        });
+
+        modelBuilder.Entity<UserRole>(b =>
+        {
+            b.ToTable("UserRoles");
+            b.HasKey(userRole => userRole.Id);
+            b.Property(userRole => userRole.Id).ValueGeneratedNever();
+            b.Property(userRole => userRole.UserId).IsRequired();
+            b.Property(userRole => userRole.RoleId).IsRequired();
+            b.HasIndex(userRole => new { userRole.UserId, userRole.RoleId }).IsUnique();
+            b.HasOne(userRole => userRole.Role)
+             .WithMany(role => role.UserRoles)
+             .HasForeignKey(userRole => userRole.RoleId);
         });
 
         modelBuilder.Entity<Role>(b =>
         {
             b.ToTable("Roles");
-            b.HasKey(u => u.Id);
-            b.Property(u => u.Id).ValueGeneratedNever();
+            b.HasKey(role => role.Id);
+            b.Property(role => role.Id).ValueGeneratedNever();
             b.HasMany(role => role.RolePermissions)
              .WithOne()
              .HasForeignKey(rolePermission => rolePermission.RoleId);
@@ -130,6 +156,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
         configurationBuilder.Properties<RoleId>().HaveConversion<RoleIdConverter>();
         configurationBuilder.Properties<PermissionId>().HaveConversion<PermissionIdConverter>();
         configurationBuilder.Properties<RolePermissionId>().HaveConversion<RolePermissionIdConverter>();
+        configurationBuilder.Properties<UserRoleId>().HaveConversion<UserRoleIdConverter>();
     }
 
     public async Task<bool> EnsureCreated(CancellationToken cancellationToken)
@@ -158,7 +185,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     {
         if (!await Roles.AnyAsync(cancellationToken))
         {
-            IEnumerable<Role> roles = RoleConstants.AvailableRoles.Select(roleName => Domain.Identity.Roles.Role.Create(roleName, $"{roleName} role"));
+            IEnumerable<Role> roles = RoleConstants.AvailableRoles.Select(roleName => Domain.Identity.Roles.Role.CreateCustom(roleName, $"{roleName} role"));
 
             await Roles.AddRangeAsync(roles, cancellationToken);
             await SaveChangesAsync(cancellationToken);

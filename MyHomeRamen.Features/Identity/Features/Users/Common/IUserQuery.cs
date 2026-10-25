@@ -16,5 +16,7 @@ public interface IUserQuery
 
     Task<Guid?> GetIdByKeycloakId(string userId, CancellationToken cancellationToken);
 
+    Task<bool> IsCompanyOwnerConfigured(CancellationToken cancellationToken);
+
     Task<User> SystemAccount(CancellationToken cancellationToken);
 }

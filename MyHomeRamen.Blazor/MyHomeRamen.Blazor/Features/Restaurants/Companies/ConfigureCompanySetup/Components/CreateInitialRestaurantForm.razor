@@ -1,0 +1,101 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.ConfigureCompanySetup.Models
+
+@inject IStringLocalizer<CompanySetupResources> Text
+
+<MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h5">@Text["RestaurantSection"]</MudText>
+        <MudGrid Spacing="2">
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_model.Name" @bind-Value:after="RefreshValidation" For="() => _model.Name" Label="@Text["RestaurantName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Name))" ErrorText="@GetError(nameof(_model.Name))" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_model.Street" @bind-Value:after="RefreshValidation" For="() => _model.Street" Label="@Text["Street"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Street))" ErrorText="@GetError(nameof(_model.Street))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.City" @bind-Value:after="RefreshValidation" For="() => _model.City" Label="@Text["City"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.City))" ErrorText="@GetError(nameof(_model.City))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.ZipCode" @bind-Value:after="RefreshValidation" For="() => _model.ZipCode" Label="@Text["ZipCode"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.ZipCode))" ErrorText="@GetError(nameof(_model.ZipCode))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="double" @bind-Value="_model.Latitude" @bind-Value:after="RefreshValidation" For="() => _model.Latitude" Label="@Text["Latitude"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Min="-90" Max="90" Error="@HasError(nameof(_model.Latitude))" ErrorText="@GetError(nameof(_model.Latitude))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="double" @bind-Value="_model.Longitude" @bind-Value:after="RefreshValidation" For="() => _model.Longitude" Label="@Text["Longitude"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Min="-180" Max="180" Error="@HasError(nameof(_model.Longitude))" ErrorText="@GetError(nameof(_model.Longitude))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.Phone" @bind-Value:after="RefreshValidation" For="() => _model.Phone" Label="@Text["RestaurantPhone"]" Variant="Variant.Outlined" InputType="InputType.Telephone" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Phone))" ErrorText="@GetError(nameof(_model.Phone))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.Email" @bind-Value:after="RefreshValidation" For="() => _model.Email" Label="@Text["RestaurantEmail"]" Variant="Variant.Outlined" InputType="InputType.Email" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Email))" ErrorText="@GetError(nameof(_model.Email))" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudText Typo="Typo.h6">@Text["BankAccountSection"]</MudText>
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.AccountNumber" @bind-Value:after="RefreshValidation" For="() => _model.AccountNumber" Label="@Text["BankAccountNumber"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.AccountNumber))" ErrorText="@GetError(nameof(_model.AccountNumber))" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudTextField @bind-Value="_model.BankName" @bind-Value:after="RefreshValidation" For="() => _model.BankName" Label="@Text["BankName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.BankName))" ErrorText="@GetError(nameof(_model.BankName))" />
+            </MudItem>
+            <MudItem xs="12">
+                <MudTextField @bind-Value="_model.RoutingNumber" @bind-Value:after="RefreshValidation" For="() => _model.RoutingNumber" Label="@Text["RoutingNumber"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.RoutingNumber))" ErrorText="@GetError(nameof(_model.RoutingNumber))" />
+            </MudItem>
+        </MudGrid>
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+        }
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(IsSubmitting || !_validationResult.IsValid)" OnClick="SubmitAsync">
+            @if (IsSubmitting)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                @Text["Saving"]
+            }
+            else
+            {
+                @Text["CreateRestaurant"]
+            }
+        </MudButton>
+    </MudStack>
+</MudForm>
+
+@code {
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
+    [Parameter, EditorRequired] public EventCallback<CreateInitialRestaurantFormModel> OnSubmit { get; set; }
+
+    private readonly CreateInitialRestaurantFormModel _model = new();
+    private MudForm _form = default!;
+    private CreateInitialRestaurantFormModelValidator _validator = default!;
+    private FluentValidation.Results.ValidationResult _validationResult = new();
+
+    protected override void OnInitialized()
+    {
+        _validator = new CreateInitialRestaurantFormModelValidator(Text);
+        RefreshValidation();
+    }
+
+    private void RefreshValidation() => _validationResult = _validator.Validate(_model);
+
+    private async Task SubmitAsync()
+    {
+        RefreshValidation();
+        await _form.ValidateAsync();
+        if (!_validationResult.IsValid || !_form.IsValid || IsSubmitting)
+        {
+            return;
+        }
+
+        await OnSubmit.InvokeAsync(_model);
+    }
+
+    private bool HasError(string propertyName) => ValidationErrors.ContainsKey(propertyName);
+
+    private string? GetError(string propertyName) => ValidationErrors.TryGetValue(propertyName, out string[]? errors)
+        ? string.Join(" ", errors)
+        : null;
+}

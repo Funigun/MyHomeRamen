@@ -1,0 +1,34 @@
+using FluentValidation;
+using MyHomeRamen.Features.Common.Endpoints.Policies;
+using MyHomeRamen.Features.{Module}.Abstractions;
+using MyHomeRamen.Features.Common.Mediator;
+
+namespace MyHomeRamen.Features.{Module}.Features.{Aggregate}.{Feature};
+
+// {Cqrs} = Command | Query. Use Unit instead of {Feature}Response when no response.
+public sealed record {Feature}{Cqrs}() : I{Cqrs}<{Feature}Response>;
+
+public sealed record {Feature}Dto();
+
+public sealed class {Feature}AuthorizationPolicy() : IAuthorizationPolicy<{Feature}{Cqrs}>
+{
+    public async Task<bool> Authorize({Feature}{Cqrs} {cqrs}, CancellationToken cancellationToken)
+    {
+        return false;
+    }
+}
+
+public sealed class {Feature}ValidationPolicy : AbstractValidator<{Feature}{Cqrs}>
+{
+    public {Feature}ValidationPolicy(I{Module}DbContext dbContext)
+    {
+    }
+}
+
+public sealed class {Feature}Handler(I{Module}DbContext dbContext) : IRequestHandler<{Feature}{Cqrs}, {Feature}Response>
+{
+    public async Task<{Feature}Response> Handle({Feature}{Cqrs} {cqrs}, CancellationToken cancellationToken)
+    {
+        return new {Feature}Response();
+    }
+}

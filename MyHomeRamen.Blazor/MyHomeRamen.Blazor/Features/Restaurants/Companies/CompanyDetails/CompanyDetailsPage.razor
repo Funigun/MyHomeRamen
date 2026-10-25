@@ -1,0 +1,15 @@
+@attribute [Route(CompanyRoutes.Details)]
+@attribute [Authorize(Policy = AdminSectionConstants.CompanyManagement)]
+
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.CompanyDetails
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<CompanyDetailsResources> Text
+
+<PageTitle>@Text["Title"]</PageTitle>
+
+<CompanyDetailsView />

@@ -10,6 +10,8 @@
 
             <BasketItemsTable Items="Model.Items"
                               BasketId="Model.BasketId"
+                              CanEdit="Model.AllowedActions.CanEdit"
+                              CanCreate="Model.AllowedActions.CanCreate"
                               OnItemsChanged="HandleItemsChangedAsync" />
 
         </MudStack>

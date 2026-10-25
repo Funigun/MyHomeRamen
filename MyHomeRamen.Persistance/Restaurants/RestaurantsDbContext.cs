@@ -28,7 +28,7 @@ public sealed class RestaurantsDbContext(DbContextOptions<RestaurantsDbContext> 
         _serviceProvider = serviceProvider;
     }
 
-    public DbSet<CompanyDetails> Companies { get; set; }
+    public DbSet<Company> Companies { get; set; }
 
     public DbSet<Restaurant> Restaurants { get; set; }
 
@@ -77,7 +77,7 @@ public sealed class RestaurantsDbContext(DbContextOptions<RestaurantsDbContext> 
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-        configurationBuilder.Properties<CompanyDetailsId>().HaveConversion<CompanyDetailsIdConverter>();
+        configurationBuilder.Properties<CompanyId>().HaveConversion<CompanyIdConverter>();
         configurationBuilder.Properties<SocialMediaId>().HaveConversion<SocialMediaIdConverter>();
         configurationBuilder.Properties<RestaurantId>().HaveConversion<RestaurantIdConverter>();
         configurationBuilder.Properties<ClosingPeriodId>().HaveConversion<ClosingPeriodIdConverter>();

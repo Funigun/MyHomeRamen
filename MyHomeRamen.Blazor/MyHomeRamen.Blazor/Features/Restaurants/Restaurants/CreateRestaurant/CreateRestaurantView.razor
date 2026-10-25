@@ -1,0 +1,66 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject RestaurantApiClient RestaurantApiClient
+@inject IStringLocalizer<RestaurantsResources> Text
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4 flex-wrap gap-2">
+        <MudText Typo="Typo.h1">@Text["CreateTitle"]</MudText>
+        <MudButton Variant="Variant.Text"
+                   StartIcon="@Icons.Material.Filled.ArrowBack"
+                   Disabled="_isSubmitting"
+                   OnClick="NavigateToRestaurants">
+            @Text["BackToRestaurants"]
+        </MudButton>
+    </MudStack>
+
+    <RestaurantForm IsSubmitting="_isSubmitting"
+                    ErrorMessage="@_submitError.Message"
+                    ValidationErrors="_submitError.ValidationErrors"
+                    OnSubmit="CreateAsync"
+                    OnCancel="NavigateToRestaurants" />
+</MudPaper>
+
+@code {
+    private bool _isSubmitting;
+    private readonly ApiErrorState _submitError = new();
+
+    private async Task CreateAsync(CreateRestaurantFormModel model)
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            ApiResult<bool> result = await RestaurantApiClient.CreateAsync(model.ToRequest());
+            if (_submitError.Apply(result, Text["CreateValidationError"], Text["CreateError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["Created"], Severity.Success);
+            NavigationManager.NavigateTo(RestaurantRoutes.Index);
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private Task NavigateToRestaurants()
+    {
+        NavigationManager.NavigateTo(RestaurantRoutes.Index);
+        return Task.CompletedTask;
+    }
+}

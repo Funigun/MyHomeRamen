@@ -1,5 +1,6 @@
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Responses
+@using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject ShoppingCartApiClient ShoppingCartApiClient
 
@@ -117,9 +118,12 @@
         _errorMessage = null;
         try
         {
-            AddItemToBasketResponse result = await ShoppingCartApiClient.AddItemToBasketAsync(Model.ToAddItemToBasketRequest());
-            await OnItemAdded.InvokeAsync(result);
-            MudDialog.Close(result);
+            ApiResult<AddItemToBasketResponse> result = await ShoppingCartApiClient.AddItemToBasketAsync(Model.ToAddItemToBasketRequest());
+            if (result is ApiResult<AddItemToBasketResponse>.Success success)
+            {
+                await OnItemAdded.InvokeAsync(success.Value);
+                MudDialog.Close(success.Value);
+            }
         }
         catch (HttpRequestException)
         {

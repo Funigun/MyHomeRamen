@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Initial configuration</value></data>
+  <data name="Heading" xml:space="preserve"><value>Set up your ramen company</value></data>
+  <data name="Description" xml:space="preserve"><value>Register the owner, configure the company, and add the first restaurant in separate steps.</value></data>
+  <data name="OwnerSection" xml:space="preserve"><value>Owner account</value></data>
+  <data name="CompanySection" xml:space="preserve"><value>Company</value></data>
+  <data name="RestaurantSection" xml:space="preserve"><value>First restaurant</value></data>
+  <data name="SectionAlreadyConfigured" xml:space="preserve"><value>This section is already configured.</value></data>
+  <data name="CompanyOwnerStep" xml:space="preserve"><value>Register the company owner to continue.</value></data>
+  <data name="CompanyStep" xml:space="preserve"><value>The owner is registered. Configure company details to continue.</value></data>
+  <data name="RestaurantStep" xml:space="preserve"><value>The company is configured. Add the first restaurant to finish setup.</value></data>
+  <data name="StepProgress" xml:space="preserve"><value>Step {0} of {1}</value></data>
+  <data name="UserName" xml:space="preserve"><value>Username</value></data>
+  <data name="FirstName" xml:space="preserve"><value>First name</value></data>
+  <data name="LastName" xml:space="preserve"><value>Last name</value></data>
+  <data name="Email" xml:space="preserve"><value>Email</value></data>
+  <data name="PhoneNumber" xml:space="preserve"><value>Owner phone number</value></data>
+  <data name="Password" xml:space="preserve"><value>Password</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>Confirm password</value></data>
+  <data name="CompanyName" xml:space="preserve"><value>Company name</value></data>
+  <data name="CompanyLegalName" xml:space="preserve"><value>Legal name</value></data>
+  <data name="CompanyTaxId" xml:space="preserve"><value>Tax ID</value></data>
+  <data name="RestaurantName" xml:space="preserve"><value>Restaurant name</value></data>
+  <data name="Street" xml:space="preserve"><value>Street</value></data>
+  <data name="City" xml:space="preserve"><value>City</value></data>
+  <data name="ZipCode" xml:space="preserve"><value>ZIP code</value></data>
+  <data name="Latitude" xml:space="preserve"><value>Latitude</value></data>
+  <data name="Longitude" xml:space="preserve"><value>Longitude</value></data>
+  <data name="RestaurantPhone" xml:space="preserve"><value>Restaurant phone</value></data>
+  <data name="RestaurantEmail" xml:space="preserve"><value>Restaurant email</value></data>
+  <data name="BankAccountSection" xml:space="preserve"><value>Bank account</value></data>
+  <data name="BankAccountNumber" xml:space="preserve"><value>Account number</value></data>
+  <data name="BankName" xml:space="preserve"><value>Bank name</value></data>
+  <data name="RoutingNumber" xml:space="preserve"><value>Routing number</value></data>
+  <data name="CompleteSetup" xml:space="preserve"><value>Complete setup</value></data>
+  <data name="RegisterOwner" xml:space="preserve"><value>Register owner</value></data>
+  <data name="SaveCompany" xml:space="preserve"><value>Save company</value></data>
+  <data name="CreateRestaurant" xml:space="preserve"><value>Create restaurant</value></data>
+  <data name="Saving" xml:space="preserve"><value>Saving...</value></data>
+  <data name="Required" xml:space="preserve"><value>This field is required.</value></data>
+  <data name="EmailInvalid" xml:space="preserve"><value>Enter a valid email address.</value></data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve"><value>Passwords do not match.</value></data>
+  <data name="LatitudeInvalid" xml:space="preserve"><value>Latitude must be between -90 and 90.</value></data>
+  <data name="LongitudeInvalid" xml:space="preserve"><value>Longitude must be between -180 and 180.</value></data>
+  <data name="ValidationFailure" xml:space="preserve"><value>Review the highlighted fields and correct invalid values.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>Setup could not be completed. Please try again.</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Setup status could not be loaded.</value></data>
+  <data name="Loading" xml:space="preserve"><value>Checking initial setup...</value></data>
+  <data name="Retry" xml:space="preserve"><value>Retry</value></data>
+</root>

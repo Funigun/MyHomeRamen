@@ -1,0 +1,77 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Companies.SocialMedia.Models
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject IStringLocalizer<SocialMediaResources> Text
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue" ValidationDelay="0">
+            <MudStack Spacing="2">
+                <MudTextField Label="@Text["Name"]" @bind-Value="Model.Name" For="@(() => Model.Name)" Required="true" Variant="Variant.Outlined" Disabled="_isBusy" Error="@HasError(nameof(Model.Name))" ErrorText="@GetError(nameof(Model.Name))" />
+                <MudTextField Label="@Text["LogoUrl"]" @bind-Value="Model.LogoUrl" For="@(() => Model.LogoUrl)" Required="true" Variant="Variant.Outlined" Disabled="_isBusy" Error="@HasError(nameof(Model.LogoUrl))" ErrorText="@GetError(nameof(Model.LogoUrl))" />
+                <MudTextField Label="@Text["Url"]" @bind-Value="Model.Url" For="@(() => Model.Url)" Required="true" Variant="Variant.Outlined" Disabled="_isBusy" Error="@HasError(nameof(Model.Url))" ErrorText="@GetError(nameof(Model.Url))" />
+                @if (SubmitError.HasError)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">@SubmitError.Message</MudAlert>
+                }
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@Text["Cancel"]</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="_isBusy" OnClick="SubmitAsync">
+            @if (_isBusy)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+            }
+            else
+            {
+                <span>@Text["Save"]</span>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter, EditorRequired] public SocialMediaFormModel Model { get; set; } = default!;
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public ApiErrorState SubmitError { get; set; } = new();
+    [Parameter] public Func<SocialMediaFormModel, Task<bool>> OnSubmit { get; set; } = default!;
+
+    private MudForm _form = default!;
+    private readonly SocialMediaFormModelValidator _validator = new();
+    private bool _isBusy;
+
+    private async Task SubmitAsync()
+    {
+        await _form.Validate();
+        if (!_form.IsValid || _isBusy)
+        {
+            return;
+        }
+
+        _isBusy = true;
+
+        try
+        {
+            if (await OnSubmit(Model))
+            {
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private bool HasError(string propertyName) => SubmitError.ValidationErrors.ContainsKey(propertyName);
+
+    private string? GetError(string propertyName) => SubmitError.ValidationErrors.TryGetValue(propertyName, out string[]? errors)
+        ? string.Join(" ", errors)
+        : null;
+}

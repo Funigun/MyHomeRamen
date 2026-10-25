@@ -8,12 +8,13 @@ using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Contracts;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetPaymentDetails;
 
 public sealed record PaymentDetailsDto(string PaymentMethodId, string PaymentChannelId);
 
-public sealed record PaymentDetailsResponse(string PaymentMethodId, string PaymentChannelId);
+public sealed record PaymentDetailsResponse(string PaymentMethodId, string PaymentChannelId, AllowedActionsDto AllowedActions);
 
 public sealed class GetPaymentDetailsEndpoint : IEndpoint
 {

@@ -1,4 +1,4 @@
-using MyHomeRamen.Blazor.Common.Models;
+using MyHomeRamen.Blazor.Components.Models;
 using MyHomeRamen.Blazor.Features.Account.Components.Validators;
 
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.ShippingDetails;

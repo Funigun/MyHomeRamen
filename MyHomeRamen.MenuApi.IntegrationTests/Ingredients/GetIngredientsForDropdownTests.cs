@@ -46,6 +46,30 @@ public sealed class GetIngredientsForDropdownTests(WebApiFactory apiFactory) : I
     }
 
     [Fact]
+    public async Task GetIngredientsForDropdown_ShouldReturnOk_ForProductCreator()
+    {
+        // Arrange
+        (string KeycloakUserId, Guid UserId) userId = await apiFactory.IdentityTestData.SeedUser(
+            [PermissionConstants.CanManageProducts, PermissionConstants.CanAddProduct],
+            "get-ingredients-dropdown-product-creator");
+        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage("/api/menu/ingredients/dropdown");
+        httpRequest.AddAuthorizationHeader(userId);
+
+        try
+        {
+            // Act
+            HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
+
+            // Assert
+            await responseMessage.AssertStatusCode(HttpStatusCode.OK);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(userId.UserId);
+        }
+    }
+
+    [Fact]
     public async Task GetIngredientsForDropdown_ShouldReturnUnauthorized_ForUnauthenticatedUser()
     {
         // Arrange
