@@ -55,6 +55,12 @@
     <File Path=".github/agents/drax-front-planning.agent.md" />
     <File Path=".github/agents/drax-front-reviewer.agent.md" />
   </Folder>
+  <Folder Name="/_github/agents/templates/">
+    <File Path=".github/templates/backend-plan.md.tmpl" />
+    <File Path=".github/templates/code-review.md.tmpl" />
+    <File Path=".github/templates/features-preview-plan.md.tmpl" />
+    <File Path=".github/templates/verify-report.md.tmpl" />
+  </Folder>
   <Folder Name="/_github/instructions/">
     <File Path=".github/instructions/backend-tests.instructions.md" />
     <File Path=".github/instructions/backend.instructions.md" />
