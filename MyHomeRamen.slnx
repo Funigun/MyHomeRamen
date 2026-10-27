@@ -84,6 +84,7 @@
   </Folder>
   <Folder Name="/_github/wiki/">
     <File Path=".github/wiki/architecture.md" />
+    <File Path="Wiki/Domain Model Analysis.md" />
   </Folder>
   <Folder Name="/_github/workflows/">
     <File Path=".github/workflows/pr-checks.yml" />
