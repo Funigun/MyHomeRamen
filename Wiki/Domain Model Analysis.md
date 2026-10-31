@@ -2,286 +2,292 @@
 
 ## Purpose
 
-This is a discussion draft, not an approved domain-model change. It explains the current model, a proposed direction, and decisions needed before implementation.
+Discussion draft, not an approved implementation contract. It records the current model, the agreed direction, and the decisions still open. Items marked **Open** must be decided by the developer before the work that depends on them starts.
+
+## Scope
+
+The project is a learning project (modular monolith, SignalR, SSE, background jobs) that may be commercialized later. Scope is deliberately limited:
+
+- **Now:** backend prepared for Company and Restaurant ownership. UI behaves as one Company, many restaurants chosen by route (admin) or landing page (customer).
+- **Parked:** Company selector, multi-Company admin UI, custom ramen builder, MenuCard scheduling, price versioning, Company-scoped roles (`Role` keeps nullable `RestaurantId`).
 
 ## The short version
 
-Keep Menu as the source of product identity, but separate a Company product from each restaurant's offer and customer-facing menu cards. A Restaurant may have multiple Menu cards (for example, lunch and dinner); each Menu has its own menu sections and listed offers. Here, "global product" means shared across restaurants in one Company, not shared across every Company on the platform. The Company product owns the base price; a restaurant offer may add a non-negative fixed amount. Effective price is `BasePrice + PriceAddition`, so Company base-price changes flow through to every restaurant offer without changing its addition.
+- Company owns the **catalog**: `Product` and `Ingredient` (plus `Category`). The catalog holds no prices.
+- **Prices exist only at restaurant level**, so each restaurant sets local prices:
+  - `RestaurantProductOffer.Price` is the price of a product at a restaurant.
+  - `RestaurantIngredientPrice.Price` is the price of an ingredient as an **extra** at a restaurant. No price record means the extra is not offered there.
+- Base ingredients are included in the offer price. Only custom (extra) ingredients are priced.
+- Line price = `OfferPrice + sum(restaurant prices of selected extras)`. Offer price must be `> 0`; extra price must be `>= 0`.
+- Each Restaurant owns multiple `MenuCard`s with ordered `MenuSection`s listing offers.
+- Customers pick a restaurant on a public landing page. The restaurant ID is stored on the Basket and sent with every basket, checkout, and order request. The server validates it.
+- Menu and Shopping Cart reach Restaurants data through `IRestaurantService` (external contract, same pattern as `IPaymentService`).
+- Basket keeps a price snapshot only to detect and explain changes. Checkout charges the current price after a notice.
+- Order keeps restaurant, currency, quantity, and final charged line price.
 
-Keep basket data temporary, but retain a price snapshot so the customer can be notified when the current restaurant price changes. Re-check the offer at checkout, show changed-price information, and apply the current effective price. Order-model changes are outside this refactor.
+## Simplicity decisions
 
-Example: the same ramen exists once in a Company's catalog and can be offered by Restaurant A and Restaurant B. Each restaurant can list that offer on one or more of its Menu cards and may set a fixed non-negative addition to the Company base price. A basket points to one restaurant's offer and saves its displayed price for change detection. If that price changes, the menu and basket surface a warning, and checkout shows the change before applying the current price.
+| Dropped / deferred | Instead |
+|---|---|
+| Base price plus signed adjustment | Absolute restaurant price. No base-price flow-through. |
+| Custom ramen builder (option groups, included picks) | Parked. Regular products with priced extras cover current needs. |
+| `ProductPriceVersion` / scheduled price changes | Immediate overwrite. |
+| Generic audit log | Standard created/updated actor/time fields. |
+| MenuCard schedule | `Name` + `IsActive` only. |
+| Cascade write on retirement | Offer hidden if offer or product is `Retired`; checked at read time. |
+| Company selector, Company-scoped roles | Parked. `CompanyId` is a column only. |
 
 ## What exists today
 
-| Area | Current model and evidence | Gap this analysis identifies |
+| Area | Current model and evidence | Gap |
 |---|---|---|
-| Menu | `Menu.Product` owns name, description, price, image, ingredients, and categories (`MyHomeRamen.Domain/Menu/Products/Product.cs`). | The product has no Company or Restaurant ID, and no restaurant offer entity or restaurant-specific price/availability is defined in the reviewed Menu ADR or product model. Company ownership and tenant filtering therefore need to be added, not merely assumed. |
-| Public menu categories | `Category` has `Name`, `SortOrder`, and `CategoryType`, but no Menu or Restaurant association (`MyHomeRamen.Domain/Menu/Categories/Category.cs`). `GetMenuCategoriesQuery` filters only `CategoryType.Product` and returns a flat `Id`/`Name` list; it accepts no Menu or Restaurant ID and does not project `SortOrder` (`MyHomeRamen.Features/Menu/Features/Categories/GetMenuCategories/GetMenuCategoriesQuery.cs`, `.../GetMenuCategoriesEndpoint.cs`). | The current category query cannot return the ordered sections for a selected Menu card. Product taxonomy categories and customer-facing menu sections need distinct, explicit roles. |
-| Basket | `ShoppingCart.Basket` has a user and copied product records, but no restaurant ID (`MyHomeRamen.Domain/ShoppingCart/Baskets/Basket.cs`). The copied product includes `OriginalId`, name, description, price, image, and ingredients (`MyHomeRamen.Domain/ShoppingCart/Products/Product.cs`). | The basket copy can become stale, and the model does not say which restaurant owns it or which price is authoritative. |
-| Order | `Orders.Order` stores product records. Each copied product has an `OriginalId`, name, original/calculated prices, paid state, and ingredients (`MyHomeRamen.Domain/Orders/Orders/Order.cs`, `MyHomeRamen.Domain/Orders/Products/Product.cs`). | The order and product models do not show a restaurant ID, explicit line quantity, currency, or tax/discount/fee breakdown. Confirm required historical and accounting fields before changing them. |
-| Module contracts | The ADRs expect modules to communicate through external services rather than depend on each other's domain models. | New Menu data must be exposed as contracts/DTOs; Shopping Cart and Orders should not reference Menu entities directly. |
+| Menu | `Menu.Product` owns name, description, `Price`, image, `BaseIngredients`, `CustomIngredients`, categories (`MyHomeRamen.Domain/Menu/Products/Product.cs`). | No Company or Restaurant ID, no offer, no restaurant pricing. `Price` must move to the offer. |
+| Public menu categories | `GetMenuCategoriesQuery` returns a flat `Id`/`Name` list, no restaurant or card input. | Cannot return ordered sections of a selected card. |
+| Available restaurants | `GetAvailableRestaurantsQuery` returns all restaurants for users who manage all, otherwise only `ManagedRestaurantIds()`. Policy requires `CanManageAnyRestaurant()`. | Staff-only. No public endpoint for customers. |
+| Restaurant admin routes | `EditRestaurantPage` exists at `RestaurantRoutes.EditTemplate` and is an empty stub. | Restaurant-context menu editing is not built. |
+| Cross-module service | `IPaymentService` (`Payments/ExternalApi`) implemented by `PaymentService` (`Payments/Services`), used by `UpdatePaymentDetailsCommand` in ShoppingCart. | Pattern to reuse for Restaurants. |
+| Basket | `ShoppingCart.Basket` has a user and copied products, no restaurant ID. | Copy can go stale; no owning restaurant; no authoritative price. |
+| Order | Product records with `OriginalId`, original/calculated prices, paid state, ingredients. | No restaurant ID, quantity, currency, or final line price. |
 
-These are observations about the reviewed files and ADRs, not proof that no restaurant context exists elsewhere in the application. Inventory API, persistence, and client flows before implementation.
+## Proposed model
 
-## Proposed model and behavior
-
-| Concept | Proposed responsibility | What changes |
+| Concept | Responsibility | Rules |
 |---|---|---|
-| Company Catalog Product | Shared product identity, information, and base price across that Company's restaurants. | Add Company ownership and tenant filtering. Do not expose one Company's catalog to another. |
-| Restaurant Product Offer (`AvailableProduct`, new) | Connect one product to one restaurant; own restaurant availability and a non-negative fixed `PriceAddition`. | Calculate `EffectivePrice = BasePrice + PriceAddition`; reject negative additions and resolve offers through restaurant context. A Company base-price change automatically changes every offer's effective price. |
-| Menu card (new) | A customer-facing menu owned by one Restaurant; a Restaurant may own multiple cards. | Give each card an identity and name, and query it explicitly rather than treating all product categories as one menu. Other lifecycle/scheduling fields remain to be decided. |
-| Menu section and listing (new) | Organize restaurant offers into customer-facing sections on a specific Menu card. | Introduce menu-specific sections and an association that lists an offer under a section. Keep existing `Category` for product taxonomy unless a later decision explicitly reuses it. |
-| Basket | Temporary selection for exactly one restaurant; retain offer/product references, selected option references, quantities, and the displayed effective price snapshot for each item. | Add/require restaurant context. Include selected-option prices in the snapshot; use it only to detect and explain changes. Checkout uses current effective prices. |
-| Order line | Existing purchase record; changes to its model are outside this refactor. | Preserve the current Orders model and keep module integration compatible. Historical snapshot completeness is a separate decision/work item. |
+| `Product` | Company catalog item: identity, info, base and custom ingredients, categories, `Active`/`Retired`. | Add `CompanyId`. Remove `Price`. Retire, never delete. |
+| `Ingredient` | Company catalog ingredient. | Add `CompanyId`. No price. |
+| `Category` | Product taxonomy. | Add `CompanyId`. Not the source of public menu sections. |
+| `RestaurantProductOffer` (new) | One product offered by one restaurant at one price. `RestaurantId`, denormalized `CompanyId`, `ProductId`, `Price`, `Active`/`Retired`. | Unique `(RestaurantId, ProductId)`. `Price > 0`. Restaurant and Product must share a Company (checked via `IRestaurantService`). Hidden if offer or product is `Retired`. |
+| `RestaurantIngredientPrice` (new) | Price of one ingredient as an extra at one restaurant. `RestaurantId`, `IngredientId`, `Price`. | Unique `(RestaurantId, IngredientId)`. `Price >= 0`. Missing record = extra not offered. |
+| `MenuCard` (new) | Customer-facing menu owned by one Restaurant. `Name`, `IsActive`. | Multiple per restaurant. |
+| `MenuSection` + `MenuSectionItem` (new) | Ordered sections; items place an offer in a section. | Unique `(MenuSectionId, RestaurantProductOfferId)`. |
+| Basket | One restaurant. Items: offer ID, selected extra ingredient IDs, quantity, price snapshot. | Product resolved through the offer. |
+| Order / line | `RestaurantId`, `Currency`; line `Quantity`, final price, offer reference. | Never rebuilt from current Menu data. |
 
-“Restaurant-exclusive product” does not need a separate product identity: it can be a Company catalog product offered by only one restaurant. Restaurant-specific name, image, availability, or other presentation belongs on the offer only if the business confirms those fields can vary by restaurant.
+An offer's status and price are shared by all of that Restaurant's cards; listings only control placement.
 
-### Restaurant menu cards and menu sections
+### Restaurant access for other modules
 
-A Restaurant may own multiple Menu cards. Each card contains its own ordered menu sections; sections list Restaurant Product Offers. A Restaurant Product Offer remains restaurant-scoped, so its availability and fixed price addition are shared across that Restaurant's Menu cards unless the business chooses menu-specific behavior.
+Add `IRestaurantService` in `Restaurants/ExternalApi` with an implementation in `Restaurants/Services`, registered like `IPaymentService`. Required capabilities (names are a proposal):
 
-Keep the existing `Category`/`CategoryType.Product` model for catalog taxonomy, not as the implicit source of every public menu's sections. Add a menu-specific section/listing model, or explicitly decide to evolve `Category` with Menu ownership; do not keep the current unscoped flat query as the public contract.
+- Does the restaurant exist and is it active (for customer flows)?
+- Which Company does the restaurant belong to (for `CompanyId` on write and the offer check)?
 
-`GetMenuCategoriesQuery` currently has no parameters and returns all product categories as `{ Id, Name }`. Refactor its read contract to require a selected Menu identity and return that Menu's ordered sections (with IDs/names and, if required, listing data). Validate that the selected Menu belongs to the requested Restaurant. Exact route, response shape, and whether a product may appear in multiple sections/cards remain open; no code changes are included in this analysis.
+Menu and Shopping Cart depend only on this interface, never on Restaurants domain types.
 
-### Company-scoped product management
+### Restaurant selection
 
-The accepted authorization design makes Company the tenant boundary and defines CompanyOwner as company-scoped (`Wiki/Users ADR/0004-company-restaurant-roles-and-authorization.md`). Shared catalog changes should therefore require a company-scoped permission, not a restaurant-scoped permission. Restaurant staff should not be able to change shared product data merely because they manage one restaurant.
+- **Staff:** `GetAvailableRestaurantsQuery` stays permission-filtered. Company owners see all; restaurant managers see their restaurants. A row opens the restaurant's edit/menu management route; the route ID is the context and the API re-validates it.
+- **Customers:** new public (anonymous) endpoint lists active restaurants with a minimal DTO. The landing page makes the customer pick one. The ID is stored on the Basket and sent with requests; the server validates it. Never reuse the staff query for customers.
 
-The ADR's initial permission catalog does not list Menu product-management permissions. Add company-scoped catalog permissions (for example, view/create/update/retire products) and make them assignable to a Company role; do not grant them to every CompanyOwner implicitly unless separately approved. The current `Role` entity only has nullable `RestaurantId`; reconcile that implementation with the accepted explicit Company/Restaurant role-scope design before building authorization around it.
+### Menu cards
 
-### Planned edits and retirement
+Refactor `GetMenuCategoriesQuery` (`api/menu/categories/menu`, anonymous, flat `Id`/`Name`) into card-scoped endpoints.
 
-Do not treat every edit as an immediate overwrite. Represent planned changes with a `ProductChange` model containing `ProductId`, optional `RestaurantId` (Company product change when absent; restaurant-specific change when present), changed field, old value, new value, effective date/time, lifecycle state, and audit fields. An authorized actor should be able to choose what changes, where it applies, and when it takes effect:
+Today the public page (`RestaurantMenuPage`) shows category chips from `GetMenuCategories`, then calls `GetProductsByCategory` for the selected category (`Id`, `Name`, `Description`, `Price`, `ImageUrl`, `Ingredients`). The new shape keeps the same UI idea (section chips, product cards) with sections replacing categories and offers replacing products.
 
-1. Change shared product facts or base price at Company scope, or change restaurant-specific offer fields and fixed price addition at Restaurant scope.
-2. Preview the affected restaurants and current versus proposed effective prices.
-3. Keep current values active until the scheduled effective date/time, then apply the scheduled values.
-4. Surface relevant product/availability changes on the menu with a warning color and exclamation mark. If a basket's saved price differs from the current effective price, show a warning badge on that basket item and explain the price change during checkout before applying the current price.
-5. Keep an audit trail of who scheduled, changed, canceled, or rescheduled a change.
+#### Permissions
 
-Menu-card, section, and listing assignments are Restaurant-scoped. Whether those changes are scheduled/audited, and whether they need a separate change model, remains open; the proposed `ProductChange` fields identify a Product and optional Restaurant, not a Menu or section.
+| Permission | Meaning |
+|---|---|
+| `MenuCard.View` | Read cards. Assigned to Guest and Customer roles. |
+| `MenuCard.Add`, `MenuCard.Edit`, `MenuCard.Delete` | CRUD actions. |
+| `MenuCard.Manage` | Admin gate. Admin actions require `Manage` plus one CRUD permission. |
+| `Offer.View/Add/Edit/Delete/Manage` | Same convention for offers; `View` assigned to Guest and Customer. |
+| `IngredientPrice.View/Add/Edit/Delete/Manage` | Same convention for per-restaurant extra-ingredient prices; `View` assigned to Guest and Customer. |
 
-Treat delete as retirement, not physical deletion. Retire a product across the Company only when it should leave every restaurant; otherwise disable or end-date the individual restaurant offer. At checkout, validate against the offer effective at that time and handle newly unavailable products explicitly. Retirement semantics and the response to an unavailable item still need confirmation.
+Naming uses `Add`, consistent with `Product.Add`. Grants carry an optional `RestaurantId`, so restaurant managers hold these per restaurant.
 
-The exact representation and lifecycle of `ProductChange` (including cancellation, rescheduling, and concurrent changes to the same field) still needs design. The scheduled-change model and audit trail are required; these details must not be replaced with immediate overwrites.
+#### Public endpoints (require `MenuCard.View`)
+
+`GET menu/cards/options` returns the cards a customer can choose from:
+
+```csharp
+public sealed record MenuCardOptionDto(Guid CompanyId, Guid RestaurantId, Guid MenuCardId, string Name);
+```
+
+Only active cards of active restaurants. Optional `restaurantId` filter is proposed.
+
+`GET menu/cards/{id}` returns one card with ordered sections and offers (proposal modelled on the current menu page):
+
+```csharp
+public sealed record MenuCardResponse(Guid MenuCardId, Guid RestaurantId, string Name, IEnumerable<MenuSectionDto> Sections);
+public sealed record MenuSectionDto(Guid Id, string Name, int SortOrder, IEnumerable<MenuOfferDto> Offers);
+public sealed record MenuOfferDto(Guid OfferId, Guid ProductId, string Name, string Description, decimal Price, string ImageUrl, IEnumerable<ProductIngredientDto> Ingredients);
+```
+
+Offer `Price` is the restaurant price. Inactive or retired offers are omitted. Customization (extras with prices) loads through an offer-based replacement of `GetProductById`; its DTO is defined in Phase 3.
+
+#### Public restaurants endpoint
+
+`GET restaurants/options` (anonymous or `Restaurant.View`-style, active restaurants only):
+
+```csharp
+public sealed record RestaurantOptionDto(Guid Id, string Name, string Street, string City, string ZipCode, double Latitude, double Longitude);
+```
+
+`Address` has `Street`, `City`, `ZipCode`, and `Location`; it has no building field. Phone/email are not exposed publicly unless you decide otherwise.
+
+### Edits and retirement
+
+- Edits to price, offer, card, section, and listing take effect immediately.
+- Delete means retirement. A restaurant may retire one offer without retiring the product.
+- Public responses hide unavailable/retired offers.
+- Checkout validates that offer and extras are still available.
 
 ### Basket lifecycle
 
-1. When adding an item, resolve the restaurant's current offer through the Menu contract.
-2. Store stable IDs, selected options, quantity, and the displayed effective price snapshot for the product and selected options. Keep any other preview data refreshable.
-3. Before checkout, re-check that the offer and selected options are available and obtain current prices from Menu.
-4. If price changed, identify the affected basket item, show the changed amount and apply the current effective price. If the item became unavailable, explain that and require the customer to remove or replace it.
+1. On add, resolve the restaurant's current offer and extra prices through a Menu external contract (interface name and shape defined in Phase 1 inventory).
+2. Store offer ID, extra ingredient IDs, quantity, and displayed line price snapshot.
+3. Before checkout, re-check offer and extras are active and priced; fetch current prices.
+4. Price changed: badge the item, notify on product card and at checkout, charge current price without confirmation. Unavailable: explain and require remove or replace.
+5. Adding from a different restaurant asks the user to confirm replacing the basket. Declining keeps the current basket.
 
-The user-facing warning is required on the menu, basket item, and checkout. The selected behavior is to apply the current price after showing the checkout notice; no separate accept/decline step was specified.
+### Minimal order changes
 
-### Existing order boundary (out of scope)
+`RestaurantId` and `Currency` on Order; `Quantity`, final charged price, and offer reference on each line. Tax, discount/fee breakdown, refunds are out of scope.
 
-Order-model changes are outside this refactor. Do not expand or migrate the Orders model here; keep the existing checkout integration compatible. A future Orders analysis should decide what information is required to read and explain historical orders independently of the current catalog.
+## Decisions
 
-Do not rebuild old orders from current Menu data. Historical snapshot completeness, correction/refund workflows, and accounting/retention fields need separate analysis.
+| Decision | Resolution |
+|---|---|
+| Catalog scope | Confirmed: Product, Ingredient, Category are Company-scoped; Company is the tenant boundary. |
+| Prices | Confirmed: restaurant-level only (offer price and per-restaurant extra price). Catalog has no price. |
+| Extras can be disabled per restaurant | Confirmed: no `RestaurantIngredientPrice` record means the extra is not offered. |
+| Base ingredients | Confirmed: included in the offer price. |
+| Custom ramen builder | Confirmed: parked. |
+| Price change timing | Confirmed: immediate overwrite. |
+| Auditing | Confirmed: standard created/updated fields. |
+| Lifecycle states | Confirmed: `Active`/`Retired` on product and offer, hidden at read time. |
+| Multiple cards per Restaurant | Confirmed. |
+| Offer listed twice in one section | Confirmed: no. |
+| Customer restaurant selection | Confirmed: landing page, restaurant ID attached to Basket and sent with requests. |
+| Staff restaurant list | Confirmed: existing permission-filtered query. |
+| Cross-module restaurant access | Confirmed: `IRestaurantService` in Restaurants `ExternalApi`. |
+| Basket restaurants | Confirmed: one per basket; replace-basket confirmation. |
+| Basket price change | Confirmed: snapshot for detection; notify; charge current price. |
+| Unavailable offers | Confirmed: hidden. |
+| Currency | Confirmed: one per Company; copied to each Order. |
+| `Role` | Confirmed: keeps nullable `RestaurantId`; no explicit Company scope now. |
+| Migrations | Confirmed: schema only, dev database recreated. |
+| UI scope | Confirmed: UI keeps single-Company behavior; no Company selector. |
+| `OriginalId` | Confirmed: keep as reference-only `ProductId`; `RestaurantProductOfferId` is the authoritative reference. |
+| Shopping Cart ADR status | Keep `Proposed`; reconcile conflicting `Accepted` body first. |
+| Taxes | Out of scope. |
+| B-1 Permissions | Confirmed: `MenuCard.*`, `Offer.*`, `IngredientPrice.*` with `Add/Edit/Delete/View/Manage`. Admin action requires `.Manage` plus one CRUD permission. Guest and Customer roles get `.View`. |
+| B-2 `CompanyId` source | Confirmed: `IRestaurantService`. |
+| B-3 Public menu endpoints | Confirmed: `GET menu/cards/options` and `GET menu/cards/{id}`, both protected by `MenuCard.View` (see Public menu endpoints). Exact `{id}` response DTO is a proposal derived from the current menu page. |
+| B-4 Offer shared across cards | Confirmed: yes, no card-specific pricing. |
+| B-5 Sections replace categories | Confirmed: `GetMenuCategories` (`api/menu/categories/menu`) is replaced by card sections. `Category` stays product taxonomy. |
+| B-6 Who sets prices | Confirmed: permission-based. `Offer.*` grants (restaurant-scoped via `PermissionGrant.RestaurantId`). Extra-ingredient prices use `IngredientPrice.*` grants. |
+| B-7 Public restaurants endpoint | Confirmed: `GET restaurants/options`, DTO below. |
+| B-8 Permission naming | Confirmed: `Add`, consistent with `Product.Add`. |
+| B-9 Extra-ingredient price permissions | Confirmed: `IngredientPrice.*`. |
 
-## Decisions to confirm before implementation
+## ADR evidence
 
-| Decision | Current resolution / open point | Why it matters |
-|---|---|---|
-| Does “global product” mean shared across all restaurants in one Company? | Confirmed: shared within Company; never across Company tenants. | Defines catalog ownership and prevents cross-tenant exposure. |
-| How is product price determined? | Confirmed: Company product owns base price; restaurant offer stores a non-negative fixed addition. Effective price is base plus addition, so base-price changes flow through automatically. Restaurant controls offer availability; menu-section listings decide which cards display it. | Determines price ownership, offer validation, and menu visibility. |
-| Can each Restaurant have multiple Menu cards? | Confirmed: yes. Model each card under one Restaurant, with menu-specific sections and listings. | Enables distinct customer-facing menus without duplicating Company products or restaurant price offers. |
-| How are menu sections/categories represented? | Proposed: add Menu-specific sections and offer listings; retain `Category` for product taxonomy. Reuse/evolution of `Category` remains an alternative to decide. | Separates product classification from the structure of each public menu. |
-| Can a product/offer appear on multiple cards or sections, and can availability/price addition differ per card? | Proposed: the Restaurant Product Offer and its price addition are shared across that Restaurant's cards; section listings control where it appears. Confirm whether card-specific pricing or availability is required. | Determines whether offers remain restaurant-scoped or become menu-scoped. |
-| What does the public menu-category query require? | Proposed: selected `MenuId` (and validated Restaurant context); return that Menu's ordered sections instead of every `CategoryType.Product` category. Route and DTO shape remain open. | Prevents unrelated categories and menus from leaking into the selected menu response. |
-| Are Menu card, section, and listing changes scheduled/audited? | Open: decide whether these changes are immediate or scheduled and whether they use a separate change model from `ProductChange`. | `ProductChange` currently identifies Product and optional Restaurant, not Menu or section. |
-| Who can create, edit, schedule, or retire shared products? | Confirmed: use assignable company-scoped catalog permissions. Exact permission names and which Company roles receive them remain to be designed. | Prevents restaurant-scoped users from changing shared catalog data and requires permissions not listed in the current initial catalog. |
-| Which changes can be scheduled, and who sees the warning? | Confirmed: schedule product/offer changes with `ProductChange` and audit fields. Show relevant change/availability warnings on the menu; show a badge for affected basket items and explain price changes at checkout. Approval requirements and any additional audiences remain open. | Changes impact different audiences; visibility and timing determine UI and notification behavior. |
-| What does “delete” mean, and at what scope? | Recommended, not yet confirmed: retire the Company product only when it should disappear everywhere; otherwise end the restaurant offer. Never hard-delete data needed by history. | Prevents one restaurant's choice from unexpectedly removing a product for all others. |
-| Can a scheduled change be canceled or rescheduled, and is approval required? | Audit every change. Cancellation, rescheduling, approval, and same-field concurrency rules remain open. | Determines lifecycle, authorization, concurrency, and operational notifications. |
-| What happens to a basket price after a scheduled price change? | Confirmed: keep a price snapshot for change detection; show a warning and apply the current effective price at checkout. No separate accept/decline step was specified. | Ensures customers see repricing and stale basket amounts are not charged. |
-| Can one basket contain products from multiple restaurants? | Confirmed: exactly one restaurant per basket. | Otherwise fulfillment, pricing, and order ownership need explicit multi-restaurant rules. |
-| Which product fields may vary by restaurant? | Confirmed: restaurant controls offer availability and may set a non-negative fixed price addition; Menu section listings control menu inclusion. Other presentation/content overrides remain to be decided. | Determines entity shape and prevents one restaurant's edits affecting another. |
-| Who owns modifiers/ingredients, and can their price or availability vary by restaurant? | Confirmed: use the same Company base + non-negative fixed addition rule as products. Restaurant-specific modifier availability/inclusion remains open. | Affects Menu contracts and basket validation. |
-| What must an order preserve? | Out of scope for this refactor. Do not change the Order model; analyze snapshot and accounting requirements separately. | Prevents order-model expansion from delaying the catalog and basket refactor. |
-| How are existing baskets associated with a restaurant and new offer IDs? | Inventory persisted records first; define deterministic backfill and an operator-repair path for ambiguous rows. | Do not infer or discard basket data when the old model has no restaurant association. |
-| What is the intended identity/lifecycle of `OriginalId` in copied products? | Confirm against API contracts, persistence, and usages before replacing it. | It may be the only link from a copied row to its Menu source. |
-| What status should the Shopping Cart ADR have? | Keep `Proposed` until decisions are approved; reconcile its conflicting `Accepted` body text before changing status. | The current file says `Proposed` in metadata and `Accepted` in the body. |
+- Menu ADR: Menu is product source of truth; allows basket display snapshots; requires checkout revalidation and price-change disclosure.
+- Shopping Cart ADR: `Proposed` metadata, `Accepted` body; says copied data must match Menu on add and before checkout yet requires no sync. Specify validation points in the contract.
+- Orders ADR: order created from Shopping Cart; no complete snapshot contract.
+- Identity ADR: Company is the tenant boundary; no Menu permissions listed.
 
-Confirmed rows record decisions provided for this analysis. Open items remain unresolved; implementation must not silently turn their recommendations into approved policy.
+## Implementation scope
 
-## ADR evidence and unresolved contract
-
-- Menu ADR (`Wiki/Menu ADR/0001-menu-domain.md`) makes Menu the product source of truth and expects Shopping Cart and Orders to keep copies. It says product changes during working hours are not expected and no synchronization mechanism is required.
-- Shopping Cart ADR (`Wiki/Shopping Cart ADR/0001-shopping-cart-domain.md`) has `Proposed` metadata and conflicting `Accepted` body text. Keep it Proposed pending decision approval. It says copied data must be consistent with Menu when adding items and before checkout, while also saying no synchronization mechanism is required. Specify those validation points and their failure/price-change responses in the contract.
-- Orders ADR (`Wiki/Orders ADR/0001-orders-domain.md`) describes order creation from Shopping Cart and consistency with Menu, but does not define the complete immutable snapshot contract.
-- The reviewed ADRs do not define restaurant ownership, restaurant-specific offers, or restaurant-specific price/availability.
-- Identity ADR (`Wiki/Users ADR/0004-company-restaurant-roles-and-authorization.md`) defines Company as the tenant boundary and CompanyOwner as company-scoped. It lists an initial permission catalog but no Menu product-management permissions.
-
-## Scope of likely implementation work
-
-Expected changes: Company-scoped catalog ownership and assignable permissions; Company base price plus restaurant-level fixed price additions; restaurant product offers; multiple Restaurant-owned Menu cards with menu sections and offer listings; a Menu-scoped public categories query; scheduled, audited `ProductChange` records; external Menu contracts; basket restaurant ownership and saved price snapshots; checkout revalidation and change warnings; persistence/migrations; API/client flows; authorization; and tests. Order-model changes and historical snapshot expansion are explicitly out of scope. Reconcile `Wiki/Domain Model Refactor Plan.md` with this boundary before implementation because its current phases include Order snapshot work.
-
-Do not begin destructive basket-data cleanup or remove existing snapshot fields until data inventory, migration behavior, and consumers are verified.
+1. `IRestaurantService` and the public restaurants endpoint.
+2. `CompanyId` on Product, Ingredient, Category, Payments; remove `Product.Price`.
+3. `RestaurantProductOffer` and `RestaurantIngredientPrice`.
+4. `MenuCard`, `MenuSection`, `MenuSectionItem`, card-scoped query.
+5. Basket restaurant/offer/extras/snapshot, checkout revalidation.
+6. Minimal Order fields.
+7. Customer landing page and minimal UI adaptation.
 
 ## Domain diagram
-
-`NEW MODEL` and `NEW FIELD` identify proposed additions. `REVISED FIELD` identifies a renamed or redefined current field. Company and Restaurant are owned by the Restaurants module; Menu stores their IDs, not references to their domain entities.
-
-`MENU_CATEGORY` and `MENU_CATEGORY_ITEM` separate each Menu card's presentation sections/listings from existing product taxonomy categories. Restaurant offer pricing remains shared across cards unless menu-specific pricing is approved. `RESTAURANT_PRODUCT_OPTION` shows one possible link for restaurant-specific option price additions; the exact option availability/inclusion model remains open. Basket keeps current copied display data and its existing line-price snapshot for change detection, while adding restaurant/offer context. Checkout passes validated data to Orders through the module contract; diagram does not imply a direct Menu-to-Orders domain reference. Order model remains unchanged.
 
 ```mermaid
 erDiagram
     COMPANY ||--o{ PRODUCT : owns
-    RESTAURANT ||--o{ MENU : owns
-    MENU ||--o{ MENU_CATEGORY : groups
-    MENU_CATEGORY ||--o{ MENU_CATEGORY_ITEM : lists
-    RESTAURANT_PRODUCT_OFFER ||--o{ MENU_CATEGORY_ITEM : placed_as
+    COMPANY ||--o{ INGREDIENT : owns
+    RESTAURANT ||--o{ MENU_CARD : owns
+    MENU_CARD ||--o{ MENU_SECTION : groups
+    MENU_SECTION ||--o{ MENU_SECTION_ITEM : lists
+    RESTAURANT_PRODUCT_OFFER ||--o{ MENU_SECTION_ITEM : placed_as
     PRODUCT ||--o{ RESTAURANT_PRODUCT_OFFER : offered_as
     RESTAURANT ||--o{ RESTAURANT_PRODUCT_OFFER : offers
-    PRODUCT ||--o{ MENU_OPTION : has
-    RESTAURANT_PRODUCT_OFFER ||--o{ RESTAURANT_PRODUCT_OPTION : configures
-    MENU_OPTION ||--o{ RESTAURANT_PRODUCT_OPTION : priced_for
+    RESTAURANT ||--o{ RESTAURANT_INGREDIENT_PRICE : prices
+    INGREDIENT ||--o{ RESTAURANT_INGREDIENT_PRICE : priced_as_extra
+    PRODUCT }o--o{ INGREDIENT : base_or_custom
     PRODUCT }o--o{ CATEGORY : classified_by
-    PRODUCT ||--o{ PRODUCT_CHANGE : changed_by
-    RESTAURANT o|--o{ PRODUCT_CHANGE : optional_scope
     BASKET ||--|{ BASKET_ITEM : contains
     RESTAURANT_PRODUCT_OFFER ||--o{ BASKET_ITEM : selected_offer
     ORDER ||--|{ ORDER_PRODUCT : contains
 
-    COMPANY {
-        string companyId PK "Restaurants module reference"
-    }
-    RESTAURANT {
-        string restaurantId PK "Restaurants module reference"
-    }
-    MENU {
-        string menuId PK "NEW MODEL"
-        string restaurantId FK "NEW FIELD"
-        string name "NEW FIELD"
-    }
-    MENU_CATEGORY {
-        string menuCategoryId PK "NEW MODEL"
-        string menuId FK "NEW FIELD"
-        string name "NEW FIELD"
-        int sortOrder "NEW FIELD"
-    }
-    MENU_CATEGORY_ITEM {
-        string menuCategoryItemId PK "NEW MODEL"
-        string menuCategoryId FK "NEW FIELD"
-        string restaurantProductOfferId FK "NEW FIELD"
-        int sortOrder "NEW FIELD"
-    }
     PRODUCT {
         string productId PK "Existing Menu.Product"
         string companyId FK "NEW FIELD"
-        decimal basePrice "REVISED FIELD: current Price"
+        string status "NEW FIELD: Active or Retired"
         string name
         string description
         string imageUrl
     }
-    RESTAURANT_PRODUCT_OFFER {
-        string restaurantProductOfferId PK "NEW MODEL; AvailableProduct"
-        string restaurantId FK "NEW FIELD"
-        string productId FK "NEW FIELD"
-        boolean isAvailable "NEW FIELD"
-        decimal priceAddition "NEW FIELD: must be non-negative"
-        decimal effectivePrice "Derived: basePrice plus priceAddition"
+    INGREDIENT {
+        string ingredientId PK "Existing"
+        string companyId FK "NEW FIELD"
     }
     CATEGORY {
-        string categoryId PK "Existing product taxonomy"
-        string name "Existing"
-        int sortOrder "Existing"
-        string categoryType "Existing"
+        string categoryId PK "Existing"
+        string companyId FK "NEW FIELD"
     }
-    MENU_OPTION {
-        string optionId PK "Existing Menu.Ingredient identity"
-        decimal basePrice "Existing Price; Company catalog price"
-    }
-    RESTAURANT_PRODUCT_OPTION {
-        string restaurantProductOptionId PK "NEW MODEL; exact shape TBD"
-        string restaurantProductOfferId FK "NEW FIELD"
-        string optionId FK "NEW FIELD"
-        decimal priceAddition "NEW FIELD: must be non-negative"
-        decimal effectivePrice "Derived: basePrice plus priceAddition"
-    }
-    PRODUCT_CHANGE {
-        string productChangeId PK "NEW MODEL"
+    RESTAURANT_PRODUCT_OFFER {
+        string restaurantProductOfferId PK "NEW MODEL"
+        string restaurantId FK "NEW FIELD"
+        string companyId FK "denormalized, contract-validated"
         string productId FK "NEW FIELD"
-        string restaurantId FK "NEW FIELD; nullable"
-        string changedField "NEW FIELD"
-        string oldValue "NEW FIELD"
-        string newValue "NEW FIELD"
-        datetime effectiveAt "NEW FIELD"
-        string status "NEW FIELD"
-        string createdBy "NEW audit field"
-        datetime createdOn "NEW audit field"
-        string modifiedBy "NEW nullable audit field"
-        datetime modifiedOn "NEW nullable audit field"
+        string status "Active or Retired"
+        decimal price "absolute, must be > 0"
+    }
+    RESTAURANT_INGREDIENT_PRICE {
+        string restaurantId FK "NEW MODEL"
+        string ingredientId FK "unique with restaurantId"
+        decimal price "extra price, >= 0"
+    }
+    MENU_CARD {
+        string menuCardId PK "NEW MODEL"
+        string restaurantId FK
+        string name
+        bool isActive
+    }
+    MENU_SECTION {
+        string menuSectionId PK "NEW MODEL"
+        string menuCardId FK
+        string name
+        int sortOrder
+    }
+    MENU_SECTION_ITEM {
+        string menuSectionItemId PK "NEW MODEL"
+        string menuSectionId FK
+        string restaurantProductOfferId FK "unique with menuSectionId"
+        int sortOrder
     }
     BASKET {
         string basketId PK "Existing"
-        string userId FK "Existing"
         string restaurantId FK "NEW FIELD"
-        string status "Existing"
     }
     BASKET_ITEM {
         string basketItemId PK "Existing"
         string restaurantProductOfferId FK "NEW FIELD"
-        string productId FK "Existing OriginalId source reference"
-        string selectedOptionIds "NEW FIELD: stable option references"
+        string selectedExtraIngredientIds "NEW FIELD"
         int quantity "Existing"
-        decimal productPrice "Existing copied price snapshot"
-        decimal productTotalPrice "Existing copied total snapshot"
-        decimal price "Existing line-price snapshot; compare at checkout"
+        decimal price "line snapshot for change detection"
     }
     ORDER {
-        string orderId PK "Existing; unchanged in this refactor"
-        string userId FK "Existing"
+        string orderId PK "Existing"
+        string restaurantId FK "NEW FIELD"
+        string currency "NEW FIELD"
     }
     ORDER_PRODUCT {
         string orderProductId PK "Existing"
-        string originalId FK "Existing source reference"
-        decimal originalPrice "Existing"
-        decimal calculatedPrice "Existing"
+        string originalId "Existing reference"
+        string restaurantProductOfferId "NEW FIELD"
+        int quantity "NEW FIELD"
+        decimal finalChargedLinePrice "NEW FIELD"
     }
 ```
-
-For further processing:
-
-Verdict: The core design makes sense. Product → Restaurant Offer → Menu → Section → Listing is the standard pattern for multi-location catalogs. Keeping  Category  as taxonomy and adding menu-specific sections is correct. Fix the points below before implementation.
-
-Risks, most serious first
-
-1. Price rule  Base + non-negative addition  is too rigid.
-• A restaurant can never be cheaper than the Company base price. That rules out promos, cheaper locations and discounts.
-• Every base-price change silently raises all restaurant prices.
-• Consider a nullable  PriceOverride , or allow a signed addition bounded by a floor. Otherwise confirm the business really never needs this.
-2. Orders are out of scope, but baskets depend on them.
-• An order with no restaurantId, quantity or currency cannot be attributed to a restaurant.
-• I'd pull a minimal order change into scope:  RestaurantId , quantity, currency, and the final charged price per line.
-• Without it, the new basket-to-restaurant ownership is lost at checkout.
-3. Applying a higher price after only showing a notice is risky.
-• It is a consumer-protection and UX problem. I'd require an explicit confirmation when the price goes up.
-• A price decrease can be applied silently.
-4.  ProductChange  with  changedField  /  oldValue  /  newValue  strings is fragile.
-• There is no type safety, and  oldValue  goes stale if another change lands first.
-• Prefer typed, effective-dated rows, for example  ProductPriceVersion(productId, price, validFrom)  and  OfferVersion . The current price is then a query by timestamp.
-• A generic audit log can sit alongside those rows.
-• If you keep scheduled changes, you need a Quartz worker to apply them, plus idempotency and a conflict rule for two changes to the same field.
-5. Cross-module tenant invariant.
-• An offer must satisfy  restaurant.CompanyId == product.CompanyId , but Restaurants and Menu are separate modules.
-• Denormalize  CompanyId  on the offer and validate it through the Restaurants contract. Add a DB unique index on  (RestaurantId, ProductId) .
-6. Naming and clarity.
-• Use  MenuSection  instead of  MENU_CATEGORY , which is easy to confuse with  Category .
-• The  MENU  entity inside the Menu module is ambiguous.  MenuCard  would be clearer.
-•  MENU_OPTION  doesn't match the existing  Ingredient ; pick one name.
-• Use the same name for  AvailableProduct  and  RestaurantProductOffer .
-7. Smaller gaps
-• Add scheduling to the menu (active window and days), since lunch/dinner is the stated use case.
-• Give offers and products a status (Active, Retired) instead of an  isAvailable  boolean. Retiring a product should cascade to its offers.
-•  BASKET_ITEM.productId  is redundant with the offer. Keep the offer ID and resolve the product from it.
-• Currency and tax are missing everywhere.
-• Add a unique constraint on  (MenuSectionId, OfferId) .
-• Decide what happens to an offer that is listed but unavailable: hide it, or show it greyed out.
-• The Menu ADR line "no synchronization required" now contradicts this design. Update the ADR.
-
-I'd resolve points 1–3 first, since they change the core entities.

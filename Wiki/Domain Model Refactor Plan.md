@@ -1,79 +1,115 @@
-# Domain Model Refactor Plan: Catalog, Snapshots, and Restaurants
+# Domain Model Refactor Plan: Catalog, Offers, Menu Cards, Baskets, and Orders
 
 ## Goal
 
-Separate Company-scoped product identity from restaurant-specific offers, reduce mutable product duplication in baskets, and preserve complete immutable purchase facts in orders. Decide whether effective prices are Company-wide or restaurant-specific before assigning price ownership. Keep module boundaries intact: Shopping Cart and Orders obtain Menu data through the existing external service/contracts rather than referencing Menu domain entities directly.
+Implement `Domain Model Analysis.md`: Company-scoped catalog without prices, restaurant-level prices (offers and extra-ingredient prices), restaurant-owned menu cards, restaurant-scoped baskets, minimal order purchase facts. Backend is prepared for Company and Restaurant ownership; UI keeps single-Company behavior. Modules communicate only through external contracts (`IRestaurantService`, Menu contract), never domain entities.
 
-## Phase 1: Confirm contracts and inventory
+Design rules:
+- Line price = `OfferPrice + sum(extra ingredient prices at that restaurant)`. Offer `Price > 0`; extra `Price >= 0`.
+- Missing `RestaurantIngredientPrice` = extra not offered at that restaurant.
+- Changes apply immediately. No price versioning, scheduling, or audit log.
+- Status is `Active`/`Retired`; offer hidden if it or its product is `Retired`; no cascade write.
+- Dev database recreated: schema migrations only, no backfill.
+- Out of scope: tax, discounts, fees, refunds, custom ramen builder, Company selector, Company-scoped roles.
 
-1. Inspect Menu, Shopping Cart, and Orders aggregates, persistence configurations, migrations, API/service contracts, and integration tests. Record current basket/order restaurant ownership and the exact IDs and fields persisted for products and ingredients.
-2. Decide the open questions in `Domain Model Analysis.md`, especially price scope, scheduled-change visibility/effective dates, company-scoped product permissions, price-change checkout behavior, modifier ownership, and order tax/discount retention.
-3. Define explicit DTO contracts for:
-   - Menu product/catalog detail.
-   - Restaurant menu entry and effective availability, with price located according to the approved Company-wide or restaurant-specific pricing rule.
-   - Basket display projection and checkout validation result.
-   - Order line snapshot.
-4. Reconcile the Shopping Cart ADR status and replace any conflicting synchronization statements with one precise rule.
+## Blocking decisions
 
-**Exit criteria:** Contract distinguishes Company-scoped Product ID from Restaurant Menu Entry ID; price ownership and effective-date behavior are explicit; basket price is non-authoritative; order snapshot is self-sufficient for historical display and totals.
+The developer decides these. Implementers must not pick an option.
 
-## Phase 2: Model restaurant menus in Menu
+| ID | Decision | Blocks | Status |
+|---|---|---|---|
+| B-1 | Permissions: `MenuCard.*`, `Offer.*`, `IngredientPrice.*` (Add/Edit/Delete/View/Manage, matching `Product.Add`); Guest and Customer get `.View`; admin = `.Manage` + one CRUD | Phase 1 | Decided |
+| B-2 | `CompanyId` source: `IRestaurantService` | Phase 2 | Decided |
+| B-3 | Public endpoints `menu/cards/options` and `menu/cards/{id}`, `MenuCard.View` (DTOs in Analysis) | Phase 5 | Decided |
+| B-4 | Offer shared across cards, no card pricing | Phase 5 | Decided |
+| B-5 | Menu sections replace `GetMenuCategories`; `Category` stays taxonomy | Phase 5 | Decided |
+| B-6 | Price management by `Offer.*` permissions, restaurant-scoped grants | Phase 4 | Decided |
+| B-7 | `GET restaurants/options` with address fields | Phase 1 | Decided |
+| B-8 | Permission naming uses `Add`, consistent with `Product.Add` | Phase 1 | Decided |
+| B-9 | Ingredient extra prices use `IngredientPrice.*` | Phase 4 | Decided |
 
-1. Add or adapt a Company-scoped catalog and restaurant-scoped Menu Entry with Company ID, Restaurant ID, Product ID, availability, and only approved overrides. Put effective price at the approved scope; do not assume restaurant-specific pricing.
-2. Add uniqueness and validation rules for restaurant/product association, price, and availability windows as applicable.
-3. Update Menu queries/services so product discovery and pricing are always resolved for a restaurant; reject a request without valid restaurant context.
-4. Ensure one Company catalog product can be offered by multiple restaurants, with each offer resolving effective price and availability according to the approved pricing rule.
-5. Add the approved future-dated change behavior for product/offer edits and retirement, including an audit trail and clear effective-time semantics.
-6. Add persistence configuration, indexes, migrations, and focused domain/persistence tests following repository patterns.
+## Phase 1: Restaurants contract and customer entry
 
-**Exit criteria:** Menu can return an offer for a valid restaurant and Company context without exposing Menu persistence/domain types to other modules. Scheduled changes take effect at the approved time and scope.
+1. Add `IRestaurantService` in `Restaurants/ExternalApi`, implementation in `Restaurants/Services`, same pattern as `IPaymentService`. Capabilities: restaurant exists and is active; Company ID of a restaurant.
+2. Add anonymous-or-`Restaurant.View` `GET restaurants/options` (active only): `Id, Name, Street, City, ZipCode, Latitude, Longitude`.
+3. Add `MenuCard.*`, `Offer.*`, `IngredientPrice.*` permissions (Add/Edit/Delete/View/Manage); seed `.View` for Guest and Customer roles (`IngredientPrice.View` is needed to read extra prices). Seed all of them for the owner role created in the CompanyRegistration flow, which also creates the first restaurant.
+4. Reconcile Shopping Cart ADR (`Proposed` vs `Accepted` body). One rule: validate on add and at checkout.
+5. Inventory Menu, Shopping Cart, Orders contracts and integration tests.
 
-## Phase 3: Slim and scope basket state
+**Exit:** other modules can validate a restaurant without referencing Restaurants domain; customers can list restaurants; permissions defined.
 
-1. Add Restaurant ID to the basket root (if absent) and enforce that every line in a basket resolves to that restaurant's menu.
-2. Replace copied mutable product fields on basket lines with stable menu-entry/product IDs, selected option IDs, and quantities.
-3. Retain only the minimal preview data needed by existing UX. Mark it as refreshable projection data and never use it as checkout pricing authority.
-4. Update add/update/read flows to resolve Menu data through its external contract. At checkout, revalidate availability, options, and effective prices.
-5. Define an explicit response when price or availability changes; do not silently submit a basket against stale data.
-6. Add a data migration/backfill that maps existing copied products to product/menu-entry IDs. Preserve unresolved records for operator repair or apply an explicit, reviewed legacy fallback; do not silently discard basket lines.
+## Phase 2: Company catalog
 
-**Exit criteria:** Basket is restaurant-scoped; stale copied data cannot determine accepted checkout totals; existing basket data has a safe migration path.
+1. Add `CompanyId` to `Product`, `Ingredient`, `Category`, Payments; `Active`/`Retired` on `Product`. `CompanyId` comes from `IRestaurantService`.
+2. Remove `Product.Price` (prices move to offers). Update dependent queries and DTOs.
+3. Tenant filter on every read and write.
+4. Retire (never delete) products.
+5. Persistence configuration, migration, domain/persistence tests.
 
-## Phase 4: Freeze order purchase snapshots
+**Exit:** a Company's catalog is never exposed to another Company; catalog holds no prices.
 
-1. Ensure each order and order line retain Restaurant ID, source identifiers, customer-visible product/option snapshots, quantity, accepted unit/line prices, and currency.
-2. Persist tax, discounts, and fees at the granularity needed to reproduce/explain the accepted order total.
-3. At order creation, build snapshots from validated checkout data and verify totals before persistence.
-4. Keep order reads independent of current Menu lookups; use source IDs for traceability only.
-5. Add migration for any missing snapshot fields. For historical rows where facts cannot be recovered, preserve existing stored values and document unavoidable gaps rather than inventing current catalog data.
+## Phase 3: Restaurant offers and extra prices
 
-**Exit criteria:** Renaming, repricing, or removing a Menu product does not alter existing order display or totals.
+1. Add `RestaurantProductOffer`: `RestaurantId`, denormalized `CompanyId`, `ProductId`, `Price`, `Active`/`Retired`, audit fields. Unique `(RestaurantId, ProductId)`.
+2. Add `RestaurantIngredientPrice`: `RestaurantId`, `IngredientId`, `Price`. Unique `(RestaurantId, IngredientId)`.
+3. Validate Restaurant and Product/Ingredient share a Company via `IRestaurantService`.
+4. Validate `Price > 0` (offer), `Price >= 0` (extra). Hide offers where offer or product is `Retired`.
+5. Only ingredients listed as the product's custom ingredients may be selected as extras, and only if priced at that restaurant.
+6. Tests: shared product across restaurants with different prices, unpriced extra not offered, duplicate offer, retired product hides offer, cross-company rejection.
 
-## Phase 5: Authorization, API, and client updates
+**Exit:** Menu returns a priced offer with available extras for a valid restaurant without exposing Menu domain types.
 
-1. Propagate restaurant context through API requests, service contracts, basket operations, checkout, and order creation.
-2. Validate that authenticated callers can access the selected Company or restaurant. Enforce tenant/restaurant filters in every read and write path, not only in UI selection.
-3. Require company-scoped permissions for shared catalog changes. Define separately who can create or change restaurant offers; do not assume restaurant staff can change prices.
-4. Update DTOs and Blazor views to display the effective price and scheduled-change information, and handle repricing/unavailable checkout responses.
-5. Keep cross-module interactions behind contracts/integration boundaries; update architecture tests if contract placement or references change.
+## Phase 4: Price management
 
-**Exit criteria:** A caller cannot read or mutate another restaurant's offer/basket/order by changing an identifier.
+1. Commands to create/update/retire offers and set/remove extra prices, scoped to the restaurant.
+2. Authorization: `Offer.Manage` + one CRUD permission, scoped by the grant's `RestaurantId`. Extra-ingredient prices use `IngredientPrice.Manage` + one CRUD permission, same scoping.
+3. Tests: manager of restaurant A cannot change prices of restaurant B.
 
-## Phase 6: Verification and rollout
+**Exit:** a restaurant can set local prices and turn extras on or off.
 
-- Unit tests: shared product across restaurants; approved price-scope behavior; scheduled price/availability change before and after effective time; product offered by one restaurant only; unavailable entry; invalid option; basket price change; immutable order snapshot after catalog mutation.
-- Integration tests: restaurant-scoped Menu query and write; basket add/read/checkout revalidation; order creation from the validated basket; cross-restaurant access denial.
-- Migration tests: existing basket/order records remain readable and have deterministic backfill behavior.
-- Run architecture tests to confirm modules still communicate through approved contracts.
-- Deploy schema before dependent API behavior; use a compatibility window if old and new clients may overlap. Remove legacy snapshot fields only after all consumers and migrations are verified.
+## Phase 5: Menu cards and sections
 
-## Recommended rollout order
+1. Add `MenuCard` (`RestaurantId`, `Name`, `IsActive`), `MenuSection` (`MenuCardId`, `Name`, `SortOrder`), `MenuSectionItem` (`MenuSectionId`, offer ID, `SortOrder`). Unique `(MenuSectionId, RestaurantProductOfferId)`. Standard audit fields.
+2. Keep `Category` for product taxonomy (B-5).
+3. Replace `GetMenuCategories` (`api/menu/categories/menu`) with `GET menu/cards/options` (`CompanyId, RestaurantId, MenuCardId, Name`) and `GET menu/cards/{id}` (sections with offers), both `MenuCard.View`. Admin card/section commands require `MenuCard.Manage` + a CRUD permission. DTOs: see Analysis. Update `RestaurantMenuPage` to use section chips and offers.
+4. Tests: multiple cards per restaurant, duplicate listing rejected, wrong-restaurant card rejected.
 
-1. Finalize contract and decisions.
-2. Introduce restaurant menu entries and read APIs.
-3. Deploy additive schema and backfill IDs.
-4. Switch basket writes/checkout to restaurant-scoped references and revalidation.
-5. Ensure order snapshot completeness.
-6. Remove obsolete basket copies after compatibility and migration checks.
+**Exit:** public menu is card-scoped.
 
-Do not combine database cleanup with the first behavioral deployment. Additive changes and a compatibility window reduce rollback risk.
+## Phase 6: Basket
+
+1. Add `RestaurantId` to `Basket`; `RestaurantProductOfferId` and selected extra ingredient IDs to basket items. Keep copied display data and price snapshot; keep `OriginalId` as reference-only `ProductId`.
+2. Update add-to-basket to resolve offer and extra prices through the Menu contract and validate restaurant via `IRestaurantService`.
+3. Different restaurant: ask user to confirm replacing the basket; declining keeps the current one.
+4. Before checkout, revalidate offer and extras are active and priced; fetch current prices. Price change: badge item, notify on product card and checkout, charge current price. Unavailable: explain and require remove or replace.
+5. Schema migration only.
+
+**Exit:** basket is restaurant-scoped; copied data never decides totals.
+
+## Phase 7: Orders
+
+1. Add `RestaurantId` and `Currency` to `Order`; `Quantity`, final charged line price, offer reference to order lines. Keep `OriginalId`.
+2. Checkout passes validated data through the Orders contract; orders are never rebuilt from current Menu data.
+3. Schema migration only.
+
+**Exit:** repricing or retiring a product does not change existing orders.
+
+## Phase 8: API, minimal UI, verification
+
+1. Propagate restaurant context through API requests, basket, checkout, and order creation. Enforce tenant and restaurant filters on every read and write.
+2. Minimal Blazor: customer landing page with restaurant picker, restaurant ID carried to basket flows, effective price display, extras, price-change notices, replace-basket confirmation. Admin keeps the existing permission-filtered restaurant list and route-based restaurant context. No Company selector.
+3. Tests:
+   - Unit: line price calculation, retired hiding, unpriced extra rejected, basket price change, immutable order data.
+   - Integration: restaurant-scoped menu, basket add/switch/checkout revalidation, order creation, cross-restaurant and cross-company denial.
+   - Architecture: modules communicate only through contracts.
+
+**Exit:** a caller cannot read or mutate another restaurant's or company's data by changing an identifier.
+
+## Rollout order
+
+1. Phase 1, then Phase 2.
+2. Phases 3 and 4, then Phase 5.
+3. Phase 6, then Phase 7.
+4. Phase 8.
+
+Development database is reset after schema changes, so no backfill. Revisit if real data appears before release.
