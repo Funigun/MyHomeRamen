@@ -7,6 +7,8 @@ public sealed class ProductCustomizationModel
 {
     public Guid ProductId { get; init; }
 
+    public Guid RestaurantId { get; init; }
+
     public Guid OfferId { get; init; }
 
     public string Name { get; init; } = string.Empty;
@@ -23,16 +25,18 @@ public sealed class ProductCustomizationModel
 
     public AddItemToBasketRequest ToAddItemToBasketRequest() =>
         new(
-            ProductId,
+            RestaurantId,
+            OfferId,
             Quantity,
-            BaseIngredients.Select(i => i.ToRequest()).ToList(),
-            CustomIngredients.Where(i => i.IsSelected).Select(i => i.ToRequest()).ToList(),
+            CustomIngredients.Where(i => i.IsSelected).Select(i => i.Id).ToList(),
             string.IsNullOrWhiteSpace(Comments) ? null : Comments);
 
     public ProductCustomizationModel FromBasketItemDetailsModel(CheckoutBasketItemModel checkoutItemModel) =>
         new()
         {
-            ProductId = checkoutItemModel.Product.Id,
+            ProductId = checkoutItemModel.Product.OriginalId,
+            RestaurantId = checkoutItemModel.RestaurantId,
+            OfferId = checkoutItemModel.OfferId,
             Name = checkoutItemModel.Product.Name,
             Description = checkoutItemModel.Product.Description,
             Quantity = checkoutItemModel.Quantity,

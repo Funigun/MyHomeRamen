@@ -16,6 +16,10 @@ public sealed class Order : Aggregate<OrderId>
 
     public OrderStatus Status { get; private set; }
 
+    public Guid RestaurantId { get; private set; }
+
+    public string Currency { get; private set; } = string.Empty;
+
     public decimal TotalOriginalAmount { get; private set; }
 
     public decimal TotalCalculatedAmount { get; private set; }
@@ -32,18 +36,22 @@ public sealed class Order : Aggregate<OrderId>
     {
     }
 
-    private Order(OrderId id, IEnumerable<Product> productIds)
+    private Order(OrderId id, UserId userId, Guid restaurantId, string currency, IEnumerable<Product> productIds)
     {
         Id = id;
+        UserId = userId;
+        RestaurantId = restaurantId;
+        Currency = currency.ToUpperInvariant();
         ReferenceNumber = Guid.CreateVersion7();
-        TotalOriginalAmount = productIds.Sum(p => p.OriginalPrice);
+        TotalOriginalAmount = productIds.Sum(p => p.FinalChargedLinePrice);
+        TotalCalculatedAmount = TotalOriginalAmount;
         Status = OrderStatus.Created;
         _productIds.AddRange(productIds);
     }
 
-    public static Order CreateDineIn(OrderId id, IEnumerable<Product> productIds)
+    public static Order CreateDineIn(OrderId id, UserId userId, Guid restaurantId, string currency, IEnumerable<Product> productIds)
     {
-        Order order = new(id, productIds)
+        Order order = new(id, userId, restaurantId, currency, productIds)
         {
             Type = OrderType.DineIn
         };
@@ -53,9 +61,9 @@ public sealed class Order : Aggregate<OrderId>
         return order;
     }
 
-    public static Order CreateTakeOut(OrderId id, IEnumerable<Product> productIds)
+    public static Order CreateTakeOut(OrderId id, UserId userId, Guid restaurantId, string currency, IEnumerable<Product> productIds)
     {
-        Order order = new(id, productIds)
+        Order order = new(id, userId, restaurantId, currency, productIds)
         {
             Type = OrderType.TakeOut
         };
@@ -65,11 +73,18 @@ public sealed class Order : Aggregate<OrderId>
         return order;
     }
 
-    public static Order CreateDelivery(OrderId id, IEnumerable<Product> productIds)
+    public static Order CreateDelivery(
+        OrderId id,
+        UserId userId,
+        Guid restaurantId,
+        string currency,
+        OrderAddress deliveryAddress,
+        IEnumerable<Product> productIds)
     {
-        Order order = new(id, productIds)
+        Order order = new(id, userId, restaurantId, currency, productIds)
         {
-            Type = OrderType.Delivery
+            Type = OrderType.Delivery,
+            DeliveryAddress = deliveryAddress
         };
 
         OrderValidator.Validate(order);

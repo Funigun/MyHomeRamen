@@ -24,10 +24,43 @@ public sealed class MenuService(
             return null;
         }
 
+        RestaurantInfo? restaurant = await restaurantService.GetRestaurantAsync(restaurantId, cancellationToken);
+        if (restaurant is not { IsActive: true })
+        {
+            return null;
+        }
+
+        return await GetOfferForRestaurantAsync(restaurant, offerId, cancellationToken);
+    }
+
+    public async Task<MenuOfferResult?> GetOfferForBasketAsync(
+        Guid restaurantId,
+        Guid offerId,
+        CancellationToken cancellationToken)
+    {
+        RestaurantInfo? restaurant = await restaurantService.GetRestaurantAsync(restaurantId, cancellationToken);
+        if (restaurant is not { IsActive: true })
+        {
+            return null;
+        }
+
+        return await GetOfferForRestaurantAsync(restaurant, offerId, cancellationToken);
+    }
+
+    private async Task<MenuOfferResult?> GetOfferForRestaurantAsync(
+        RestaurantInfo restaurant,
+        Guid offerId,
+        CancellationToken cancellationToken)
+    {
         RestaurantProductOffer? offer = await dbContext.RestaurantProductOffer.Query()
             .ById(new RestaurantProductOfferId(offerId), cancellationToken);
 
-        if (offer is null)
+        if (offer is null
+            || offer.RestaurantId != restaurant.Id
+            || offer.CompanyId != restaurant.CompanyId
+            || offer.Product.CompanyId != restaurant.CompanyId
+            || offer.Status != RestaurantProductOfferStatus.Active
+            || offer.Product.Status != ProductStatus.Active)
         {
             return null;
         }
@@ -47,14 +80,15 @@ public sealed class MenuService(
             offer.Price,
             offer.Product.ImageUrl,
             offer.Product.BaseIngredients
-                .Select(ingredient => new MenuOfferIngredientResult(ingredient.Id.Value, ingredient.Name, 0))
+                .Select(ingredient => new MenuOfferIngredientResult(ingredient.Id.Value, ingredient.Name, 0, ingredient.Description))
                 .ToArray(),
             offer.Product.CustomIngredients
                 .Where(ingredient => pricesByIngredientId.ContainsKey(ingredient.Id.Value))
                 .Select(ingredient => new MenuOfferIngredientResult(
                     ingredient.Id.Value,
                     ingredient.Name,
-                    pricesByIngredientId[ingredient.Id.Value]))
+                    pricesByIngredientId[ingredient.Id.Value],
+                    ingredient.Description))
                 .ToArray());
     }
 

@@ -15,7 +15,7 @@ public class BasketItemValidationTests
         BasketItemId id = new(Guid.NewGuid());
         product ??= Product.Create(new ProductId(Guid.NewGuid()), new ProductId(Guid.NewGuid()), "Test Product Name", "Test Desc with valid description length matching domain requirements", 10m, "url", [], []);
 
-        return BasketItem.Create(id, product, quantity, comment);
+        return BasketItem.Create(id, Guid.NewGuid(), product, quantity, comment);
     }
 
     [Fact]
@@ -27,7 +27,8 @@ public class BasketItemValidationTests
         int quantity = 2;
         string comment = "Some comment";
 
-        // Act        BasketItem? item = BasketItem.Create(id, product, quantity, comment);
+        // Act
+        BasketItem? item = BasketItem.Create(id, Guid.NewGuid(), product, quantity, comment);
 
         // Assert
         Assert.Equal(id, item.Id);

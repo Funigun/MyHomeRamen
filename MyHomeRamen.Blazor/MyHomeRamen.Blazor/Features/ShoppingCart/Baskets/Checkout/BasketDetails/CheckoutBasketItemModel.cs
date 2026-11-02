@@ -7,9 +7,19 @@ public class CheckoutBasketItemModel
 {
     public Guid Id { get; set; }
 
+    public Guid RestaurantId { get; set; }
+
+    public Guid OfferId { get; set; }
+
     public int Quantity { get; set; }
 
     public decimal Price { get; set; }
+
+    public decimal? CurrentPrice { get; set; }
+
+    public bool IsPriceChanged { get; set; }
+
+    public bool IsAvailable { get; set; }
 
     public string? Comment { get; set; }
 
@@ -20,8 +30,13 @@ public class CheckoutBasketItemModel
         return new()
         {
             Id = basketDetailsItemDto.Id,
+            RestaurantId = basketDetailsItemDto.RestaurantId,
+            OfferId = basketDetailsItemDto.OfferId,
             Quantity = basketDetailsItemDto.Quantity,
             Price = basketDetailsItemDto.Price,
+            CurrentPrice = basketDetailsItemDto.CurrentPrice,
+            IsPriceChanged = basketDetailsItemDto.IsPriceChanged,
+            IsAvailable = basketDetailsItemDto.IsAvailable,
             Comment = basketDetailsItemDto.Comment,
             Product = CheckoutProductModel.FromDetailsDto(basketDetailsItemDto.Product)
         };
@@ -32,8 +47,13 @@ public class CheckoutBasketItemModel
         return new()
         {
             Id = response.BasketItemId,
+            RestaurantId = source.RestaurantId,
+            OfferId = source.OfferId,
             Quantity = source.Quantity,
             Price = source.Price,
+            CurrentPrice = source.CurrentPrice,
+            IsPriceChanged = source.IsPriceChanged,
+            IsAvailable = source.IsAvailable,
             Comment = source.Comment,
             Product = source.Product
         };

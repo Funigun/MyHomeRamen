@@ -12,20 +12,12 @@ internal static class Mappings
         {
             return new AddItemToBasketRequest
             (
-                item.Product.OriginalId,
+                ShoppingCartDataSet.RestaurantId,
+                item.RestaurantProductOfferId,
                 item.Quantity,
-                item.Product.BaseIngredients.Select(i => new Features.ShoppingCart.Features.Baskets.AddItemToBasket.BasketIngredientDto(i.Id.Value, i.Quantity)).ToList(),
-                item.Product.CustomIngredients.Select(i => new Features.ShoppingCart.Features.Baskets.AddItemToBasket.BasketIngredientDto(i.Id.Value, i.Quantity)).ToList(),
+                item.SelectedExtraIngredientIds.Select(id => id.Value).ToList(),
                 item.Comment
             );
-        }
-    }
-
-    extension(Ingredient ingredient)
-    {
-        internal Features.ShoppingCart.Features.Baskets.AddItemToBasket.BasketIngredientDto ToBasketIngredientDto()
-        {
-            return new Features.ShoppingCart.Features.Baskets.AddItemToBasket.BasketIngredientDto(ingredient.Id.Value, 1);
         }
     }
 }

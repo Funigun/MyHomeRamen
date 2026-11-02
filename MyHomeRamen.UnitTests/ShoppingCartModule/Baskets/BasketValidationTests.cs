@@ -14,13 +14,15 @@ public class BasketValidationTests
     {
         // Arrange
         UserId userId = new(Guid.NewGuid());
+        Guid restaurantId = Guid.NewGuid();
 
         // Act
-        Basket basket = Basket.Create(DefaultId, userId);
+        Basket basket = Basket.Create(DefaultId, userId, restaurantId);
 
         // Assert
         Assert.Equal(DefaultId, basket.Id);
         Assert.Equal(userId, basket.UserId);
+        Assert.Equal(restaurantId, basket.RestaurantId);
         Assert.Empty(basket.Items);
         Assert.Equal(BasketStatus.Active, basket.Status);
     }
@@ -29,7 +31,14 @@ public class BasketValidationTests
     public void Create_Should_ThrowDomainException_When_UserIsNull()
     {
         // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => Basket.Create(DefaultId, Guid.Empty));
+        DomainException exception = Assert.Throws<DomainException>(() => Basket.Create(DefaultId, Guid.Empty, Guid.NewGuid()));
         Assert.Equal(BasketErrors.BasketUserRequired().Message, exception.Message);
+    }
+
+    [Fact]
+    public void Create_Should_ThrowDomainException_When_RestaurantIsEmpty()
+    {
+        DomainException exception = Assert.Throws<DomainException>(() => Basket.Create(DefaultId, Guid.NewGuid(), Guid.Empty));
+        Assert.Equal(BasketErrors.BasketRestaurantRequired().Message, exception.Message);
     }
 }

@@ -8,15 +8,18 @@ using MyHomeRamen.Features.Common.Mediator;
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 
 public sealed record AddItemToBasketRequest(
-    Guid ProductId,
+    Guid RestaurantId,
+    Guid OfferId,
     int Quantity,
-    List<BasketIngredientDto> BaseIngredients,
-    List<BasketIngredientDto> CustomIngredients,
-    string? Comments);
+    List<Guid> ExtraIngredientIds,
+    string? Comments,
+    bool ReplaceExistingBasket = false);
 
-public sealed record BasketIngredientDto(Guid Id, int Quantity);
-
-public sealed record AddItemToBasketResponse(Guid BasketId, Guid BasketItemId);
+public sealed record AddItemToBasketResponse(
+    Guid BasketId,
+    Guid BasketItemId,
+    bool RequiresBasketReplacement = false,
+    Guid? CurrentRestaurantId = null);
 
 public sealed class AddItemToBasketEndpoint : IEndpoint
 {
@@ -26,7 +29,7 @@ public sealed class AddItemToBasketEndpoint : IEndpoint
             .MapStandardPost<AddItemToBasketResponse>("api/shoppingcart/basket/items", HandleAsync)
             .WithName("AddItemToBasketEndpoint")
             .WithTags("Baskets")
-            .WithDescription("Adds a product with selected ingredients to the current user's basket.")
+            .WithDescription("Adds a restaurant offer with selected extras to the current user's basket.")
             .AllowAnonymous();
     }
 
@@ -37,6 +40,11 @@ public sealed class AddItemToBasketEndpoint : IEndpoint
     {
         AddItemToBasketCommand command = new(request);
         AddItemToBasketResponse response = await handler.Handle(command, cancellationToken);
+
+        if (response.RequiresBasketReplacement)
+        {
+            return Results.Ok(response);
+        }
 
         return Results.Created($"/api/shoppingcart/basket/items/{response.BasketItemId}", response);
     }

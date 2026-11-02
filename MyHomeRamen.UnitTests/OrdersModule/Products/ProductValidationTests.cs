@@ -9,6 +9,7 @@ public class ProductValidationTests
 {
     private static readonly ProductId DefaultId = new(Guid.NewGuid());
     private static readonly ProductId DefaultOriginalId = new(Guid.NewGuid());
+    private static readonly Guid DefaultOfferId = Guid.NewGuid();
     private const string DefaultName = "Delicious Ramen";
     private const decimal DefaultPrice = 25.0m;
 
@@ -20,13 +21,25 @@ public class ProductValidationTests
         List<Ingredient> customIngredients = [];
 
         // Act
-        Product product = Product.Create(DefaultId, DefaultOriginalId, DefaultName, DefaultPrice, baseIngredients, customIngredients);
+        Product product = Product.Create(
+            DefaultId,
+            DefaultOriginalId,
+            DefaultOfferId,
+            DefaultName,
+            DefaultPrice,
+            2,
+            50m,
+            baseIngredients,
+            customIngredients);
 
         // Assert
         Assert.Equal(DefaultId, product.Id);
         Assert.Equal(DefaultOriginalId, product.OriginalId);
+        Assert.Equal(DefaultOfferId, product.RestaurantProductOfferId);
         Assert.Equal(DefaultName, product.Name);
         Assert.Equal(DefaultPrice, product.OriginalPrice);
+        Assert.Equal(2, product.Quantity);
+        Assert.Equal(50m, product.FinalChargedLinePrice);
         Assert.Equal(baseIngredients, product.BaseIngredients);
         Assert.Equal(customIngredients, product.CustomIngredients);
     }
@@ -108,8 +121,11 @@ public class ProductValidationTests
         return Product.Create(
             DefaultId,
             DefaultOriginalId,
+            DefaultOfferId,
             name ?? DefaultName,
             price ?? DefaultPrice,
+            2,
+            50m,
             baseIngredients ?? [],
             customIngredients ?? []);
     }

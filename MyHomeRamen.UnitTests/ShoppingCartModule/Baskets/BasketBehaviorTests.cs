@@ -16,7 +16,7 @@ public class BasketBehaviorTests
     {
         // Arrange
         UserId userId = new(Guid.NewGuid());
-        Basket basket = Basket.Create(DefaultBasketId, userId);
+        Basket basket = Basket.Create(DefaultBasketId, userId, Guid.NewGuid());
         BasketItem item = CreateBasketItem();
 
         // Act
@@ -32,7 +32,7 @@ public class BasketBehaviorTests
     {
         // Arrange
         UserId userId = new(Guid.NewGuid());
-        Basket basket = Basket.Create(DefaultBasketId, userId);
+        Basket basket = Basket.Create(DefaultBasketId, userId, Guid.NewGuid());
 
         // Act & Assert
         DomainException exception = Assert.Throws<DomainException>(() => basket.AddItem(null!));
@@ -44,7 +44,7 @@ public class BasketBehaviorTests
     {
         // Arrange
         UserId userId = new(Guid.NewGuid());
-        Basket basket = Basket.Create(DefaultBasketId, userId);
+        Basket basket = Basket.Create(DefaultBasketId, userId, Guid.NewGuid());
 
         for (int i = 0; i < BasketConstants.MaxProductsCount; i++)
         {
@@ -70,6 +70,7 @@ public class BasketBehaviorTests
 
         return BasketItem.Create(
             new BasketItemId(Guid.NewGuid()),
+            Guid.NewGuid(),
             product,
             1,
             null);

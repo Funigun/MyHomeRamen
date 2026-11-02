@@ -13,6 +13,9 @@ public class BasketConfiguration : IEntityTypeConfiguration<Basket>
         builder.Property(x => x.UserId)
                .IsRequired();
 
+        builder.Property(x => x.RestaurantId)
+               .IsRequired();
+
         builder.HasMany(x => x.Items)
                .WithOne();
 

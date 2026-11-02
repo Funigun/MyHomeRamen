@@ -3,8 +3,9 @@ using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets
 namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Requests;
 
 public sealed record AddItemToBasketRequest(
-    Guid ProductId,
+    Guid RestaurantId,
+    Guid OfferId,
     int Quantity,
-    List<BasketIngredientDto> BaseIngredients,
-    List<BasketIngredientDto> CustomIngredients,
-    string? Comments);
+    List<Guid> ExtraIngredientIds,
+    string? Comments,
+    bool ReplaceExistingBasket = false);

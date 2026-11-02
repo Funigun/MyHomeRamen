@@ -11,7 +11,7 @@ public sealed record MenuProductResult(
     IReadOnlyList<MenuIngredientResult> BaseIngredients,
     IReadOnlyList<MenuIngredientResult> CustomIngredients);
 
-public sealed record MenuOfferIngredientResult(Guid Id, string Name, decimal Price);
+public sealed record MenuOfferIngredientResult(Guid Id, string Name, decimal Price, string Description = "");
 
 public sealed record MenuOfferResult(
     Guid RestaurantId,

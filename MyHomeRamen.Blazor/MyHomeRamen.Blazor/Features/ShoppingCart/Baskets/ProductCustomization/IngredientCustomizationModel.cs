@@ -34,7 +34,7 @@ public sealed class IngredientCustomizationModel
     public static IngredientCustomizationModel FromBasketDetailsDto(CheckoutIngredientModel dto) =>
         new()
         {
-            Id = dto.Id,
+            Id = dto.OriginalId,
             Name = dto.Name,
             Description = dto.Description,
             Price = dto.Price,

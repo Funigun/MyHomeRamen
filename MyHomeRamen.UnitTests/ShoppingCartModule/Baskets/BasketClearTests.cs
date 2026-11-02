@@ -14,7 +14,7 @@ public sealed class BasketClearTests
     {
         // Arrange
         UserId userId = new(Guid.NewGuid());
-        Basket basket = Basket.Create(DefaultBasketId, userId);
+        Basket basket = Basket.Create(DefaultBasketId, userId, Guid.NewGuid());
         basket.AddItem(CreateBasketItem());
         basket.AddItem(CreateBasketItem());
 
@@ -30,7 +30,7 @@ public sealed class BasketClearTests
     {
         // Arrange
         UserId userId = new(Guid.NewGuid());
-        Basket basket = Basket.Create(DefaultBasketId, userId);
+        Basket basket = Basket.Create(DefaultBasketId, userId, Guid.NewGuid());
 
         // Act
         basket.Clear();
@@ -53,6 +53,7 @@ public sealed class BasketClearTests
 
         return BasketItem.Create(
             new BasketItemId(Guid.NewGuid()),
+            Guid.NewGuid(),
             product,
             1,
             null);

@@ -5,7 +5,9 @@ namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 public interface IBasketLoader
 {
-    Task<Basket> GetForUserTrackedAsync(UserId userId, CancellationToken cancellationToken);
+    Task<Basket?> GetForUserTrackedAsync(UserId userId, CancellationToken cancellationToken);
+
+    Task<Basket?> GetForUserWithCheckoutTrackedAsync(UserId userId, CancellationToken cancellationToken);
 
     Task<Basket> GetByIdForUserTrackedAsync(BasketId basketId, UserId userId, CancellationToken cancellationToken);
 

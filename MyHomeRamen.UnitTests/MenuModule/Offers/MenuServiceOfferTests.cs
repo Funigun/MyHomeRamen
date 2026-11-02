@@ -151,7 +151,7 @@ public sealed class MenuServiceOfferTests
             "Valid product name",
             "A valid product description for testing.",
             string.Empty,
-            new Collection<Ingredient>(),
+            [],
             new Collection<Ingredient>(customIngredients.ToList()),
-            new Collection<Category>());
+            []);
 }

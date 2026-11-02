@@ -18,7 +18,7 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("orders")
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -104,6 +104,12 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nchar(3)")
+                        .IsFixedLength();
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -111,6 +117,9 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.Property<Guid>("ReferenceNumber")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RestaurantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Status")
@@ -188,6 +197,10 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
                     b.Property<DateTimeOffset>("CreatedOn")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<decimal>("FinalChargedLinePrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -211,6 +224,12 @@ namespace MyHomeRamen.Persistance.Orders.Migrations
 
                     b.Property<bool>("Paid")
                         .HasColumnType("bit");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("RestaurantProductOfferId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 

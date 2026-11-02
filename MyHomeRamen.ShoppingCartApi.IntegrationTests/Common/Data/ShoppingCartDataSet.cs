@@ -6,6 +6,9 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
 
 internal sealed class ShoppingCartDataSet : DataSet
 {
+    internal static readonly Guid RestaurantId = Guid.Parse("5942e0d8-c7ec-4171-8d54-deb0f5d7db90");
+    internal static readonly Guid OtherRestaurantId = Guid.Parse("5942e0d8-c7ec-4171-8d54-deb0f5d7db91");
+    internal static readonly Guid OfferId = Guid.Parse("6942e0d8-c7ec-4171-8d54-deb0f5d7db90");
     internal static readonly IEnumerable<Guid> OriginalProductIds = [ Guid.Parse("9942e0d8-c7ec-4171-8d54-deb0f5d7db90"), Guid.Parse("9942e0d8-c7ec-4171-8d54-deb0f5d7db91"), Guid.Parse("9942e0d8-c7ec-4171-8d54-deb0f5d7db92"), Guid.Parse("9942e0d8-c7ec-4171-8d54-deb0f5d7db93")];
     internal static readonly Dictionary<Guid, Guid> PaymentMethods = new()
     {

@@ -18,7 +18,7 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("basket")
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -88,6 +88,9 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("RestaurantProductOfferId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BasketId");
@@ -114,6 +117,9 @@ namespace MyHomeRamen.Persistance.ShoppingCart.Migrations
 
                     b.Property<DateTimeOffset?>("ModifiedOn")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RestaurantId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

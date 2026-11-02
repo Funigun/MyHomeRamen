@@ -3,6 +3,8 @@ using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Identity.Services;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Menu.Services;
+using MyHomeRamen.Features.Orders.ExternalApi;
+using MyHomeRamen.Features.Orders.Services;
 using MyHomeRamen.Features.Payments.ExternalApi;
 using MyHomeRamen.Features.Payments.Services;
 using MyHomeRamen.Features.Restaurants.ExternalApi;
@@ -33,6 +35,8 @@ internal static class ModulesExtensions
         internal IServiceCollection AddOrdersModule(DatabaseConfigurationProvider configurationProvider)
         {
             services.AddOrdersPersistance(configurationProvider);
+            services.AddScoped<IOrdersService, OrdersService>();
+
             return services;
         }
 

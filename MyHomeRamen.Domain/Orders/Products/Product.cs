@@ -12,11 +12,17 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
     public ProductId OriginalId { get; private set; }
 
+    public Guid RestaurantProductOfferId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     public decimal OriginalPrice { get; private set; }
 
     public decimal CalculatedPrice { get; private set; }
+
+    public int Quantity { get; private set; }
+
+    public decimal FinalChargedLinePrice { get; private set; }
 
     public bool Paid { get; private set; }
 
@@ -28,20 +34,47 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
     {
     }
 
-    private Product(ProductId id, ProductId originalId, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
+    private Product(
+        ProductId id,
+        ProductId originalId,
+        Guid restaurantProductOfferId,
+        int quantity,
+        decimal finalChargedLinePrice,
+        List<Ingredient> baseIngredients,
+        List<Ingredient> customIngredients)
     {
         Id = id;
         OriginalId = originalId;
+        RestaurantProductOfferId = restaurantProductOfferId;
+        Quantity = quantity;
+        FinalChargedLinePrice = finalChargedLinePrice;
         _baseIngredients = baseIngredients;
         _customIngredients = customIngredients;
     }
 
-    public static Product Create(ProductId id, ProductId originalId, string name, decimal price, List<Ingredient> baseIngredients, List<Ingredient> customIngredients)
+    public static Product Create(
+        ProductId id,
+        ProductId originalId,
+        Guid restaurantProductOfferId,
+        string name,
+        decimal price,
+        int quantity,
+        decimal finalChargedLinePrice,
+        List<Ingredient> baseIngredients,
+        List<Ingredient> customIngredients)
     {
-        Product product = new(id, originalId, baseIngredients, customIngredients)
+        Product product = new(
+            id,
+            originalId,
+            restaurantProductOfferId,
+            quantity,
+            finalChargedLinePrice,
+            baseIngredients,
+            customIngredients)
         {
             Name = name,
             OriginalPrice = price,
+            CalculatedPrice = finalChargedLinePrice
         };
 
         ProductValidator.Validate(product);

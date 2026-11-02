@@ -7,11 +7,23 @@ namespace MyHomeRamen.Persistance.ShoppingCart;
 
 public partial class BasketRepository : IBasketLoader
 {
-    public async Task<Basket> GetForUserTrackedAsync(UserId userId, CancellationToken cancellationToken)
+    public async Task<Basket?> GetForUserTrackedAsync(UserId userId, CancellationToken cancellationToken)
         => await shoppingCartDbContext.ShoppingCarts
             .Where(b => b.UserId == userId && b.Status == BasketStatus.Active)
             .Include(b => b.Items)
-            .FirstAsync(cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<Basket?> GetForUserWithCheckoutTrackedAsync(UserId userId, CancellationToken cancellationToken)
+        => await shoppingCartDbContext.ShoppingCarts
+            .Where(b => b.UserId == userId && b.Status == BasketStatus.Active)
+            .Include(b => b.Items)
+                .ThenInclude(item => item.Product)
+                    .ThenInclude(product => product.BaseIngredients)
+            .Include(b => b.Items)
+                .ThenInclude(item => item.Product)
+                    .ThenInclude(product => product.CustomIngredients)
+            .Include(b => b.ShippingDetails)
+            .FirstOrDefaultAsync(cancellationToken);
 
     public async Task<Basket> GetByIdForUserTrackedAsync(BasketId basketId, UserId userId, CancellationToken cancellationToken)
         => await shoppingCartDbContext.ShoppingCarts

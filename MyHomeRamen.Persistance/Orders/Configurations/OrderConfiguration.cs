@@ -18,6 +18,14 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
                .HasConversion<string>()
                .IsRequired();
 
+        builder.Property(x => x.RestaurantId)
+               .IsRequired();
+
+        builder.Property(x => x.Currency)
+               .HasMaxLength(3)
+               .IsFixedLength()
+               .IsRequired();
+
         builder.Property(x => x.TotalOriginalAmount)
                .IsRequired()
                .HasPrecision(18, 2);

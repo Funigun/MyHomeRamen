@@ -7,6 +7,11 @@ public interface IMenuService
         Guid offerId,
         CancellationToken cancellationToken);
 
+    Task<MenuOfferResult?> GetOfferForBasketAsync(
+        Guid restaurantId,
+        Guid offerId,
+        CancellationToken cancellationToken);
+
     Task<MenuProductResult?> GetProductWithSelectedIngredientsAsync(
         Guid productId,
         List<Guid> selectedBaseIngredientIds,

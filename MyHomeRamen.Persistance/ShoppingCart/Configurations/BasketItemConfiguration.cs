@@ -14,6 +14,11 @@ public class BasketItemConfiguration : IEntityTypeConfiguration<BasketItem>
         builder.Property(x => x.Quantity)
                .IsRequired();
 
+        builder.Property(x => x.RestaurantProductOfferId)
+               .IsRequired();
+
+        builder.Ignore(x => x.SelectedExtraIngredientIds);
+
         builder.Property(x => x.Price)
                .HasPrecision(18, 2)
                .IsRequired();

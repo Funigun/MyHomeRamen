@@ -2,6 +2,7 @@ namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Bas
 
 public sealed record BasketDetailsItemProductDto(
     Guid Id,
+    Guid OriginalId,
     string Name,
     string Description,
     string ImageUrl,

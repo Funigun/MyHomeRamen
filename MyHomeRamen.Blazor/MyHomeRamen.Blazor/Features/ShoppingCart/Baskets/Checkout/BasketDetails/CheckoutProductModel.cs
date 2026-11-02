@@ -6,6 +6,8 @@ public class CheckoutProductModel
 {
     public Guid Id { get; set; }
 
+    public Guid OriginalId { get; set; }
+
     public string Name { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
@@ -21,6 +23,7 @@ public class CheckoutProductModel
         return new()
         {
             Id = basketDetailsProductDto.Id,
+            OriginalId = basketDetailsProductDto.OriginalId,
             Name = basketDetailsProductDto.Name,
             Description = basketDetailsProductDto.Description,
             ImageUrl = basketDetailsProductDto.ImageUrl,

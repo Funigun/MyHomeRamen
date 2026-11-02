@@ -24,10 +24,31 @@ else
                 <MudStack Spacing="0">
                     <MudText Typo="Typo.body2">@context.Product.Name</MudText>
                     <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Product.Description</MudText>
+                    @if (!context.IsAvailable)
+                    {
+                        <MudChip T="string" Color="Color.Error" Size="Size.Small">Unavailable - remove or replace</MudChip>
+                    }
+                    else if (context.IsPriceChanged)
+                    {
+                        <MudChip T="string" Color="Color.Warning" Size="Size.Small">Price changed</MudChip>
+                    }
                 </MudStack>
             </MudTd>
             <MudTd DataLabel="Qty">@context.Quantity</MudTd>
-            <MudTd DataLabel="Price">@context.Price.ToString("C")</MudTd>
+            <MudTd DataLabel="Price">
+                @if (context.IsAvailable && context.CurrentPrice.HasValue)
+                {
+                    @context.CurrentPrice.Value.ToString("C")
+                    @if (context.IsPriceChanged)
+                    {
+                        <MudAlert Severity="Severity.Warning" Dense="true">Price changed; current price applies.</MudAlert>
+                    }
+                }
+                else
+                {
+                    @context.Price.ToString("C")
+                }
+            </MudTd>
             <MudTd DataLabel="Comment">@context.Comment</MudTd>
             <MudTd DataLabel="Actions">
                 <MudStack Row="true" Spacing="1">

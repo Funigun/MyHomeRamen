@@ -6,6 +6,10 @@ public class CheckoutIngredientModel
 {
     public Guid Id { get; set; }
 
+    public Guid OriginalId { get; set; }
+
+    public int Quantity { get; set; }
+
     public string Name { get; set; } = string.Empty;
 
     public string Description { get; set; } = string.Empty;
@@ -17,6 +21,8 @@ public class CheckoutIngredientModel
         return new()
         {
             Id = basketDetailsIngredientDto.Id,
+            OriginalId = basketDetailsIngredientDto.OriginalId,
+            Quantity = basketDetailsIngredientDto.Quantity,
             Name = basketDetailsIngredientDto.Name,
             Description = basketDetailsIngredientDto.Description,
             Price = basketDetailsIngredientDto.Price

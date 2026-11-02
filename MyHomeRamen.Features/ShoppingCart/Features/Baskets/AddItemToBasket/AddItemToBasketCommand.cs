@@ -1,4 +1,5 @@
 using FluentValidation;
+using MyHomeRamen.Domain.Common.Basket;
 using MyHomeRamen.Domain.ShoppingCart.BasketItems;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Ingredients;
@@ -7,6 +8,7 @@ using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.ExternalApi;
+using MyHomeRamen.Features.Restaurants.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Mediator;
@@ -27,74 +29,97 @@ public sealed class AddItemToBasketValidator : AbstractValidator<AddItemToBasket
 {
     public AddItemToBasketValidator(IMenuService menuService)
     {
-        RuleFor(x => x.AddItemToBasketRequest.ProductId)
+        RuleFor(x => x.AddItemToBasketRequest.RestaurantId)
+            .NotEmpty();
+
+        RuleFor(x => x.AddItemToBasketRequest.OfferId)
             .NotEmpty();
 
         RuleFor(x => x.AddItemToBasketRequest.Quantity)
             .MustBeValidBasketItemQuantity();
 
-        RuleFor(x => x.AddItemToBasketRequest.BaseIngredients)
+        RuleFor(x => x.AddItemToBasketRequest.ExtraIngredientIds)
             .NotNull();
 
-        RuleForEach(x => x.AddItemToBasketRequest.BaseIngredients)
-            .ChildRules(ingredient =>
-            {
-                ingredient.RuleFor(i => i.Id).NotEmpty();
-                ingredient.RuleFor(i => i.Quantity).MustBeValidBasketItemQuantity();
-            });
+        RuleForEach(x => x.AddItemToBasketRequest.ExtraIngredientIds)
+            .NotEmpty();
 
-        RuleFor(x => x.AddItemToBasketRequest.CustomIngredients)
-            .NotNull();
-
-        RuleForEach(x => x.AddItemToBasketRequest.CustomIngredients)
-            .ChildRules(ingredient =>
-            {
-                ingredient.RuleFor(i => i.Id).NotEmpty();
-                ingredient.RuleFor(i => i.Quantity).MustBeValidBasketItemQuantity();
-            });
+        RuleFor(x => x.AddItemToBasketRequest.ExtraIngredientIds)
+            .Must(ids => ids is null || ids.Distinct().Count() == ids.Count)
+            .WithMessage("Selected extras must be unique.");
 
         RuleFor(x => x.AddItemToBasketRequest.Comments)
             .MustBeValidBasketItemComment();
 
         RuleFor(x => x)
             .MustAsync(async (cmd, ct) =>
-                await menuService.ValidateProductConfigurationAsync(
-                    cmd.AddItemToBasketRequest.ProductId,
-                    cmd.AddItemToBasketRequest.BaseIngredients.Select(i => i.Id).ToList(),
-                    cmd.AddItemToBasketRequest.CustomIngredients.Select(i => i.Id).ToList(),
-                    ct))
-            .WithMessage("Product configuration is invalid: product does not exist or the selected ingredients are not valid for this product.");
+            {
+                AddItemToBasketRequest request = cmd.AddItemToBasketRequest;
+                MenuOfferResult? offer = await menuService.GetOfferForBasketAsync(request.RestaurantId, request.OfferId, ct);
+                return offer is not null
+                    && request.ExtraIngredientIds is not null
+                    && request.ExtraIngredientIds.All(id => offer.AvailableExtras.Any(extra => extra.Id == id));
+            })
+            .WithMessage("Restaurant offer is unavailable or one or more selected extras are not offered.");
     }
 }
 
-public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser, IMenuService menuService)
+public sealed class AddItemToBasketHandler(
+    IShoppingCartDbContext dbContext,
+    ICurrentUser currentUser,
+    IMenuService menuService,
+    IRestaurantService restaurantService)
                   : IRequestHandler<AddItemToBasketCommand, AddItemToBasketResponse>
 {
     public async Task<AddItemToBasketResponse> Handle(AddItemToBasketCommand command, CancellationToken cancellationToken)
     {
-        UserId userId = new(currentUser.UserId);
+        AddItemToBasketRequest request = command.AddItemToBasketRequest;
+        RestaurantInfo? restaurant = await restaurantService.GetRestaurantAsync(request.RestaurantId, cancellationToken);
+        if (restaurant is not { IsActive: true })
+        {
+            throw BasketErrors.RestaurantUnavailable();
+        }
 
+        MenuOfferResult? menuOffer = await menuService.GetOfferForBasketAsync(
+            request.RestaurantId,
+            request.OfferId,
+            cancellationToken);
+        if (menuOffer is null)
+        {
+            throw BasketErrors.OfferUnavailable();
+        }
+
+        UserId userId = new(currentUser.UserId);
         Basket? basket = await dbContext.Basket.Load().GetForUserTrackedAsync(userId, cancellationToken);
+
+        if (basket is not null && basket.RestaurantId != restaurant.Id && !request.ReplaceExistingBasket)
+        {
+            return new AddItemToBasketResponse(
+                basket.Id.Value,
+                Guid.Empty,
+                RequiresBasketReplacement: true,
+                CurrentRestaurantId: basket.RestaurantId);
+        }
+
+        if (basket is not null && basket.RestaurantId != restaurant.Id)
+        {
+            basket.Abandon();
+            basket = null;
+        }
 
         if (basket is null)
         {
-            basket = Basket.Create(new BasketId(Guid.CreateVersion7()), userId);
+            basket = Basket.Create(new BasketId(Guid.CreateVersion7()), userId, restaurant.Id);
             dbContext.Basket.Add(basket);
         }
 
-        MenuProductResult menuProduct = (await menuService.GetProductWithSelectedIngredientsAsync(
-            command.AddItemToBasketRequest.ProductId,
-            command.AddItemToBasketRequest.BaseIngredients.Select(i => i.Id).ToList(),
-            command.AddItemToBasketRequest.CustomIngredients.Select(i => i.Id).ToList(),
-            cancellationToken))!;
-
-        Product product = menuProduct.ToShoppingCartProduct(command.AddItemToBasketRequest.BaseIngredients, command.AddItemToBasketRequest.CustomIngredients);
+        Product product = menuOffer.ToShoppingCartProduct(request.ExtraIngredientIds);
 
         dbContext.Product.Add(product);
         dbContext.Ingredient.AddRange(product.BaseIngredients);
         dbContext.Ingredient.AddRange(product.CustomIngredients);
 
-        BasketItem basketItem = product.ToBasketItem(command.AddItemToBasketRequest.Quantity, command.AddItemToBasketRequest.Comments);
+        BasketItem basketItem = product.ToBasketItem(menuOffer.OfferId, request.Quantity, request.Comments);
 
         basket.AddItem(basketItem);
         dbContext.BasketItem.Add(basketItem);
@@ -107,57 +132,54 @@ public sealed class AddItemToBasketHandler(IShoppingCartDbContext dbContext, ICu
 
 internal static class Mappings
 {
-    internal static Product ToShoppingCartProduct(
-        this MenuProductResult result,
-        IEnumerable<BasketIngredientDto> baseIngredients,
-        IEnumerable<BasketIngredientDto> customIngredients)
+    internal static Product ToShoppingCartProduct(this MenuOfferResult result, IReadOnlyCollection<Guid> selectedExtraIngredientIds)
     {
-        List<Ingredient> base_ = result.BaseIngredients
-            .Select(i =>
-            {
-                int qty = baseIngredients.FirstOrDefault(r => r.Id == i.Id)?.Quantity ?? 1;
-                return Ingredient.Create(
-                    new IngredientId(Guid.CreateVersion7()),
-                    new IngredientId(i.Id),
-                    i.Name,
-                    i.Description,
-                    i.Price,
-                    qty);
-            })
+        List<Ingredient> baseIngredients = result.BaseIngredients
+            .Select(ingredient => Ingredient.Create(
+                new IngredientId(Guid.CreateVersion7()),
+                new IngredientId(ingredient.Id),
+                ingredient.Name,
+                ingredient.Description,
+                0,
+                1))
             .ToList();
 
-        List<Ingredient> custom = result.CustomIngredients
-            .Select(i =>
-            {
-                int qty = customIngredients.FirstOrDefault(r => r.Id == i.Id)?.Quantity ?? 1;
-                return Ingredient.Create(
-                    new IngredientId(Guid.CreateVersion7()),
-                    new IngredientId(i.Id),
-                    i.Name,
-                    i.Description,
-                    i.Price,
-                    qty);
-            })
+        List<Ingredient> customIngredients = result.AvailableExtras
+            .Where(ingredient => selectedExtraIngredientIds.Contains(ingredient.Id))
+            .Select(ingredient => Ingredient.Create(
+                new IngredientId(Guid.CreateVersion7()),
+                new IngredientId(ingredient.Id),
+                ingredient.Name,
+                ingredient.Description,
+                ingredient.Price,
+                1))
             .ToList();
+
+        if (customIngredients.Count != selectedExtraIngredientIds.Count)
+        {
+            throw BasketErrors.OfferUnavailable();
+        }
 
         return Product.Create(
             new ProductId(Guid.CreateVersion7()),
-            new ProductId(result.Id),
+            new ProductId(result.ProductId),
             result.Name,
             result.Description,
             result.Price,
             result.ImageUrl,
-            base_,
-            custom);
+            baseIngredients,
+            customIngredients);
     }
 
     internal static BasketItem ToBasketItem(
         this Product product,
+        Guid offerId,
         int quantity,
         string? comment)
     {
         return BasketItem.Create(
             new BasketItemId(Guid.CreateVersion7()),
+            offerId,
             product,
             quantity,
             comment);

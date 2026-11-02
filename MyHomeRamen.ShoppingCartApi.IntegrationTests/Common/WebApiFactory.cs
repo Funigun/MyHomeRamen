@@ -7,6 +7,7 @@ using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Payments.ExternalApi;
+using MyHomeRamen.Features.Restaurants.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.BasketItems.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
@@ -93,6 +94,7 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
             services.ReconfigureClaimsTransformation();
 
             MockMenuService(services);
+            MockRestaurantService(services);
             MockPaymentsService(services);
 
         })
@@ -146,7 +148,49 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
                     customIngredients));
             });
 
+        menuService.GetOfferForBasketAsync(
+                Arg.Is<Guid>(id => id == ShoppingCartDataSet.RestaurantId || id == ShoppingCartDataSet.OtherRestaurantId),
+                Arg.Is<Guid>(id => id == ShoppingCartDataSet.OfferId),
+                Arg.Any<CancellationToken>())
+            .Returns(callInfo =>
+            {
+                Guid restaurantId = callInfo.ArgAt<Guid>(0);
+                return Task.FromResult<MenuOfferResult?>(new MenuOfferResult(
+                    restaurantId,
+                    ShoppingCartDataSet.OfferId,
+                    ShoppingCartDataSet.OriginalProductIds.First(),
+                    "Test Product",
+                    "Test Product Description",
+                    10m,
+                    string.Empty,
+                    [],
+                    []));
+            });
+
         services.AddSingleton(menuService);
+    }
+
+    private static void MockRestaurantService(IServiceCollection services)
+    {
+        ServiceDescriptor[] descriptors = services
+            .Where(descriptor => descriptor.ServiceType == typeof(IRestaurantService))
+            .ToArray();
+        foreach (ServiceDescriptor descriptor in descriptors)
+        {
+            services.Remove(descriptor);
+        }
+
+        IRestaurantService restaurantService = Substitute.For<IRestaurantService>();
+        restaurantService.GetRestaurantAsync(
+                Arg.Is<Guid>(id => id == ShoppingCartDataSet.RestaurantId || id == ShoppingCartDataSet.OtherRestaurantId),
+                Arg.Any<CancellationToken>())
+            .Returns(callInfo =>
+            {
+                Guid restaurantId = callInfo.ArgAt<Guid>(0);
+                return Task.FromResult<RestaurantInfo?>(new RestaurantInfo(restaurantId, Guid.NewGuid(), true));
+            });
+
+        services.AddSingleton(restaurantService);
     }
 
     private static void MockPaymentsService(IServiceCollection services)

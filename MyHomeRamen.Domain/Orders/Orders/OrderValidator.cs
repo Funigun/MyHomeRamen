@@ -6,9 +6,28 @@ internal static class OrderValidator
 {
     internal static void Validate(Order order)
     {
+        CheckRestaurantAndCurrency(order);
         CheckProducts(order);
         CheckAmount(order);
         CheckDeliveryFee(order);
+    }
+
+    private static void CheckRestaurantAndCurrency(Order order)
+    {
+        if (order.UserId.Value == Guid.Empty)
+        {
+            throw OrderErrors.UserRequired();
+        }
+
+        if (order.RestaurantId == Guid.Empty)
+        {
+            throw OrderErrors.RestaurantRequired();
+        }
+
+        if (order.Currency.Length != 3 || order.Currency.Any(character => !char.IsAsciiLetter(character)))
+        {
+            throw OrderErrors.CurrencyRequired();
+        }
     }
 
     private static void CheckProducts(Order order)
@@ -21,6 +40,14 @@ internal static class OrderValidator
         if (order.Products.Count > OrderConstants.MaxProductsCount)
         {
             throw OrderErrors.TooManyProducts();
+        }
+
+        if (order.Products.Any(product =>
+            product.RestaurantProductOfferId == Guid.Empty
+            || product.Quantity < 1
+            || product.FinalChargedLinePrice < 0))
+        {
+            throw OrderErrors.InvalidOrderLine();
         }
     }
 
@@ -39,6 +66,11 @@ internal static class OrderValidator
 
     private static void CheckDeliveryFee(Order order)
     {
+        if (order.Type == OrderType.Delivery && order.DeliveryAddress is null)
+        {
+            throw OrderErrors.DeliveryAddressRequired();
+        }
+
         if (order.Type == OrderType.Delivery && order.TotalOriginalAmount < OrderConstants.MinDeliveryAmount)
         {
             throw OrderErrors.DeliveryAmountTooSmall();

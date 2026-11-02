@@ -70,14 +70,14 @@ internal sealed class DataGenerator
 
     internal static BasketItem CreateBasketItem(Product product)
     => new Faker<BasketItem>()
-       .CustomInstantiator(f => BasketItem.Create(Guid.NewGuid(), product, 1, ""))
+       .CustomInstantiator(f => BasketItem.Create(Guid.NewGuid(), ShoppingCartDataSet.OfferId, product, 1, ""))
        .Generate();
 
     internal static Basket CreateBasket(IEnumerable<BasketItem> basketItems, UserId user, ShippingDetails? shippingDetails = null, PaymentDetails? paymentDetails = null)
         => new Faker<Basket>()
            .CustomInstantiator(f =>
            {
-               Basket basket = Basket.Create(Guid.NewGuid(), user);
+               Basket basket = Basket.Create(Guid.NewGuid(), user, ShoppingCartDataSet.RestaurantId);
 
                foreach (BasketItem item in basketItems)
                {

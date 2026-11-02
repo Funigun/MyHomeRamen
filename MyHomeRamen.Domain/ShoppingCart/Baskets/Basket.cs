@@ -13,6 +13,8 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
     public UserId UserId { get; private set; }
 
+    public Guid RestaurantId { get; private set; }
+
     public BasketStatus Status { get; private set; }
 
     public PaymentDetails.PaymentDetails? PaymentDetails { get; private set; } = default!;
@@ -23,16 +25,17 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
 
     private Basket() { }
 
-    private Basket(BasketId id, UserId userId)
+    private Basket(BasketId id, UserId userId, Guid restaurantId)
     {
         Id = id;
         UserId = userId;
+        RestaurantId = restaurantId;
         Status = BasketStatus.Active;
     }
 
-    public static Basket Create(BasketId id, UserId userId)
+    public static Basket Create(BasketId id, UserId userId, Guid restaurantId)
     {
-        Basket basket = new(id, userId);
+        Basket basket = new(id, userId, restaurantId);
 
         BasketValidator.Validate(basket);
 
@@ -92,5 +95,15 @@ public sealed class Basket : AuditableEntity, IEntity<BasketId>
     }
 
     public void CheckOut() => Status = BasketStatus.CheckedOut;
+
+    public void Abandon()
+    {
+        if (Status != BasketStatus.Active)
+        {
+            throw BasketErrors.BasketNotActive();
+        }
+
+        Status = BasketStatus.Abandoned;
+    }
     
 }

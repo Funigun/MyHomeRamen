@@ -15,11 +15,21 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
        .IsRequired()
        .HasMaxLength(ProductConstants.MaxNameLength);
 
+        builder.Property(x => x.RestaurantProductOfferId)
+               .IsRequired();
+
         builder.Property(x => x.OriginalPrice)
                .IsRequired()
                .HasPrecision(18, 2);
 
         builder.Property(x => x.CalculatedPrice)
+               .IsRequired()
+               .HasPrecision(18, 2);
+
+        builder.Property(x => x.Quantity)
+               .IsRequired();
+
+        builder.Property(x => x.FinalChargedLinePrice)
                .IsRequired()
                .HasPrecision(18, 2);
 

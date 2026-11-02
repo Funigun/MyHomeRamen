@@ -2,7 +2,12 @@ namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Bas
 
 public sealed record BasketDetailsItemDto(
     Guid Id,
+    Guid RestaurantId,
+    Guid OfferId,
     int Quantity,
     decimal Price,
+    decimal? CurrentPrice,
+    bool IsPriceChanged,
+    bool IsAvailable,
     string? Comment,
     BasketDetailsItemProductDto Product);
