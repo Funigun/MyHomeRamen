@@ -9,6 +9,8 @@ public sealed class PaymentMethod : AuditableEntity, IEntity<PaymentMethodId>
 
     public PaymentMethodId Id { get; private set; }
 
+    public Guid CompanyId { get; private set; }
+
     public string Name { get; private set; } = default!;
 
     public string ImageUrl { get; private set; } = default!;
@@ -21,11 +23,12 @@ public sealed class PaymentMethod : AuditableEntity, IEntity<PaymentMethodId>
 
     private PaymentMethod() { }
 
-    public static PaymentMethod Create(PaymentMethodId id, string name, string imageUrl, bool isActive, int displayOrder)
+    public static PaymentMethod Create(PaymentMethodId id, Guid companyId, string name, string imageUrl, bool isActive, int displayOrder)
     {
         PaymentMethod paymentMethod = new()
         {
             Id = id,
+            CompanyId = companyId,
             Name = name,
             ImageUrl = imageUrl,
             IsActive = isActive,

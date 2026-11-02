@@ -7,6 +7,21 @@ using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.CreateInitialRestaurant;
 
+public sealed record CreateInitialRestaurantRequest(
+    string Name,
+    string Street,
+    string City,
+    string ZipCode,
+    double Latitude,
+    double Longitude,
+    string Phone,
+    string Email,
+    string AccountNumber,
+    string BankName,
+    string RoutingNumber);
+
+public sealed record CreateInitialRestaurantResponse(Guid RestaurantId);
+
 public sealed class CreateInitialRestaurantEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)

@@ -6,7 +6,6 @@ using MyHomeRamen.Features.Restaurants.Features.Companies.Common;
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.SocialMedias.GetAvailableSocialMedia;
 
 public sealed record SocialMediaAvailableDto(string Name, string LogoUrl, string Url);
-public sealed record GetAvailableSocialMediaResponse(IEnumerable<SocialMediaAvailableDto> Items);
 public sealed record GetAvailableSocialMediaQuery : IQuery<GetAvailableSocialMediaResponse>;
 
 public sealed class GetAvailableSocialMediaHandler(IRestaurantDbContext dbContext) : IRequestHandler<GetAvailableSocialMediaQuery, GetAvailableSocialMediaResponse>

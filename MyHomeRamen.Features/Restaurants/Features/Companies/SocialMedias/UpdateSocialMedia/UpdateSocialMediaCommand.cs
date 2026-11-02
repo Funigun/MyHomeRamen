@@ -8,7 +8,6 @@ using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.SocialMedias.UpdateSocialMedia;
 
-public sealed record UpdateSocialMediaRequest(string Name, string LogoUrl, string Url);
 public sealed record UpdateSocialMediaCommand(Guid SocialMediaId, UpdateSocialMediaRequest Request) : ICommand<Unit>;
 
 public sealed class UpdateSocialMediaAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<UpdateSocialMediaCommand>

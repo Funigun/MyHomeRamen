@@ -2,6 +2,9 @@ namespace MyHomeRamen.Domain.Common.Order;
 
 public static class OrderErrors
 {
+    public static DomainException CompanyRequired()
+        => new("Payment order company identifier must not be empty.");
+
     public static DomainException OrderMustHaveProducts()
         => new("Order must have at least one product.");
 

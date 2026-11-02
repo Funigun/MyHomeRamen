@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
@@ -7,6 +8,7 @@ using MyHomeRamen.IntegrationTests.Authentication;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.MenuApi.IntegrationTests.Common;
 using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
+using MyHomeRamen.Persistance.Menu;
 
 namespace MyHomeRamen.MenuApi.IntegrationTests.Products;
 
@@ -37,13 +39,10 @@ public sealed class DeleteProductTests(WebApiFactory apiFactory) : IClassFixture
     public async ValueTask DisposeAsync()
     {
         await apiFactory.IdentityTestData.DeleteUser(_userId.UserId);
-        Product? remainingProduct = await apiFactory.MenuDbContext.Product.Query().ById(
+        Product remainingProduct = await apiFactory.MenuDbContext.Product.Load().ById(
             _product.Id,
             TestContext.Current.CancellationToken);
-        if (remainingProduct is not null)
-        {
-            apiFactory.MenuDbContext.Product.Delete(remainingProduct);
-        }
+        apiFactory.MenuDbContext.Product.Delete(remainingProduct);
 
         apiFactory.MenuDbContext.Ingredient.Delete(_ingredient);
         apiFactory.MenuDbContext.Category.Delete(_productCategory);
@@ -63,9 +62,12 @@ public sealed class DeleteProductTests(WebApiFactory apiFactory) : IClassFixture
 
         // Assert
         await responseMessage.AssertStatusCode(HttpStatusCode.NoContent);
-        Assert.False(await apiFactory.MenuDbContext.Product.Exists(
+        await using MenuDbContext menuDbContext = apiFactory.CreateMenuDbContextForTenant(apiFactory.RestaurantId, TestTenant.CompanyId);
+        Product? retiredProduct = await menuDbContext.Products.SingleOrDefaultAsync(
             product => product.Id == _product.Id,
-            TestContext.Current.CancellationToken));
+            TestContext.Current.CancellationToken);
+        Assert.NotNull(retiredProduct);
+        Assert.Equal(ProductStatus.Retired, retiredProduct.Status);
     }
 
     [Fact]

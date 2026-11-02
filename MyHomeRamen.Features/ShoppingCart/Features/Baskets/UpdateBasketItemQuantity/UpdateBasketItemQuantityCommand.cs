@@ -10,8 +10,6 @@ using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateBasketItemQuantity;
 
-public sealed record UpdateBasketItemQuantityRequest(int Quantity);
-
 public sealed record UpdateBasketItemQuantityCommand(
     BasketId BasketId,
     BasketItemId BasketItemId,

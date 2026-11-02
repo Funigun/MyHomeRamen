@@ -18,7 +18,7 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("menu")
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -90,7 +90,10 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
 
                     b.Property<string>("CategoryType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -115,12 +118,18 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId", "Name", "CategoryType")
+                        .IsUnique();
+
                     b.ToTable("Categories", "menu");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Menu.Ingredients.Ingredient", b =>
                 {
                     b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CreatedBy")
@@ -146,18 +155,174 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("Ingredients", "menu");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.MenuCards.MenuCard", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("RestaurantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MenuCards", "menu");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.MenuSectionItems.MenuSectionItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("MenuSectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("RestaurantProductOfferId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RestaurantProductOfferId");
+
+                    b.HasIndex("MenuSectionId", "RestaurantProductOfferId")
+                        .IsUnique();
+
+                    b.ToTable("MenuSectionItems", "menu");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.MenuSections.MenuSection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("MenuCardId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuCardId");
+
+                    b.ToTable("MenuSections", "menu");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.Offers.RestaurantProductOffer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RestaurantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Ingredients", "menu");
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("CompanyId", "Status");
+
+                    b.HasIndex("RestaurantId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("RestaurantProductOffers", "menu");
                 });
 
             modelBuilder.Entity("MyHomeRamen.Domain.Menu.Products.Product", b =>
                 {
                     b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("CreatedBy")
@@ -188,13 +353,54 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("Products", "menu");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.RestaurantIngredientPrices.RestaurantIngredientPrice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("IngredientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("ModifiedOn")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("RestaurantId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Products", "menu");
+                    b.HasIndex("IngredientId");
+
+                    b.HasIndex("RestaurantId", "IngredientId")
+                        .IsUnique();
+
+                    b.ToTable("RestaurantIngredientPrices", "menu");
                 });
 
             modelBuilder.Entity("CategoryIngredient", b =>
@@ -255,6 +461,68 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
                         .HasForeignKey("Product1Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.MenuSectionItems.MenuSectionItem", b =>
+                {
+                    b.HasOne("MyHomeRamen.Domain.Menu.MenuSections.MenuSection", "MenuSection")
+                        .WithMany("Items")
+                        .HasForeignKey("MenuSectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyHomeRamen.Domain.Menu.Offers.RestaurantProductOffer", "RestaurantProductOffer")
+                        .WithMany()
+                        .HasForeignKey("RestaurantProductOfferId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("MenuSection");
+
+                    b.Navigation("RestaurantProductOffer");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.MenuSections.MenuSection", b =>
+                {
+                    b.HasOne("MyHomeRamen.Domain.Menu.MenuCards.MenuCard", "MenuCard")
+                        .WithMany("Sections")
+                        .HasForeignKey("MenuCardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MenuCard");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.Offers.RestaurantProductOffer", b =>
+                {
+                    b.HasOne("MyHomeRamen.Domain.Menu.Products.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.RestaurantIngredientPrices.RestaurantIngredientPrice", b =>
+                {
+                    b.HasOne("MyHomeRamen.Domain.Menu.Ingredients.Ingredient", "Ingredient")
+                        .WithMany()
+                        .HasForeignKey("IngredientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Ingredient");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.MenuCards.MenuCard", b =>
+                {
+                    b.Navigation("Sections");
+                });
+
+            modelBuilder.Entity("MyHomeRamen.Domain.Menu.MenuSections.MenuSection", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,8 @@
 using MyHomeRamen.Blazor.Features.Menu.Categories.Shared;
 using MyHomeRamen.Blazor.Features.Menu.Ingredients.Shared;
 using MyHomeRamen.Blazor.Features.Menu.Products.Shared;
+using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
+using MyHomeRamen.Blazor.Features.Menu.Offers.Shared;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 using MyHomeRamen.ServiceDefaults;
 
@@ -25,6 +27,20 @@ internal static class DependencyInjection
             .AddHttpMessageHandler<GuestCookieForwardingHandler>();
 
         services.AddHttpClient<ProductsApiClient>(client =>
+            {
+                client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>()
+            .AddHttpMessageHandler<GuestCookieForwardingHandler>();
+
+        services.AddHttpClient<MenuCardsApiClient>(client =>
+            {
+                client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
+            })
+            .AddHttpMessageHandler<AuthHeaderHandler>()
+            .AddHttpMessageHandler<GuestCookieForwardingHandler>();
+
+        services.AddHttpClient<OffersApiClient>(client =>
             {
                 client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");
             })

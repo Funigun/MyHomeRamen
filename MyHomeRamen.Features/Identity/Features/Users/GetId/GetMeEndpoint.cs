@@ -8,6 +8,11 @@ using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
 
+public sealed record GetMeResponse(
+    Guid UserId,
+    string? FirstName,
+    AdminNavigationAccess AdminNavigation);
+
 public sealed class GetMeEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)

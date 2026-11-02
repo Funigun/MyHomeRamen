@@ -8,6 +8,7 @@ using MyHomeRamen.Domain.Payments.PaymentGateways;
 using MyHomeRamen.Domain.Payments.PaymentMethods;
 using MyHomeRamen.Domain.Payments.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Tenancy;
 using MyHomeRamen.Features.Payments.Features.Abstractions;
 using MyHomeRamen.Features.Payments.Features.Orders.Common;
 using MyHomeRamen.Features.Payments.Features.PaymentChannels.Common;
@@ -21,6 +22,7 @@ public sealed class PaymentsDbContext(DbContextOptions<PaymentsDbContext> option
 {
     private readonly ICurrentUser _currentUser = default!;
     private readonly IServiceProvider _serviceProvider = default!;
+    private ICompanyContext _companyContext = new CompanyContext();
 
     public PaymentsDbContext(DbContextOptions<PaymentsDbContext> options, ICurrentUser currentUser) : this(options)
     {
@@ -33,6 +35,18 @@ public sealed class PaymentsDbContext(DbContextOptions<PaymentsDbContext> option
         _currentUser = currentUser;
         _serviceProvider = serviceProvider;
     }
+
+    public PaymentsDbContext(
+        DbContextOptions<PaymentsDbContext> options,
+        ICurrentUser currentUser,
+        IServiceProvider serviceProvider,
+        ICompanyContext companyContext) : this(options, currentUser, serviceProvider)
+    {
+        _companyContext = companyContext;
+    }
+
+    public Guid CompanyId => _companyContext.CompanyId
+        ?? throw new InvalidOperationException("A valid restaurant context is required for Payments data access.");
 
     public DbSet<PaymentMethod> PaymentMethods { get; set; }
 
@@ -52,6 +66,7 @@ public sealed class PaymentsDbContext(DbContextOptions<PaymentsDbContext> option
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        ValidateCompanyOwnership();
         UpdateEntities();
         return await base.SaveChangesAsync(cancellationToken);
     }
@@ -73,6 +88,24 @@ public sealed class PaymentsDbContext(DbContextOptions<PaymentsDbContext> option
                     entry.Entity.ModifiedBy = _currentUser.UserId.ToString();
                     entry.Entity.ModifiedOn = currentDateTime;
                     break;
+            }
+        }
+    }
+
+    private void ValidateCompanyOwnership()
+    {
+        foreach (Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<AuditableEntity> entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            Guid? entityCompanyId = entry.Entity switch
+            {
+                PaymentMethod paymentMethod => paymentMethod.CompanyId,
+                Order order => order.CompanyId,
+                _ => null
+            };
+
+            if (entityCompanyId.HasValue && entityCompanyId != _companyContext.CompanyId)
+            {
+                throw new InvalidOperationException("Payments data must be written within its owning company context.");
             }
         }
     }
@@ -108,6 +141,10 @@ public sealed class PaymentsDbContext(DbContextOptions<PaymentsDbContext> option
     {
         modelBuilder.HasDefaultSchema("payments");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(PaymentsDbContext).Assembly, type => type.Namespace != null && type.Namespace.Contains("Payments.Configurations", StringComparison.OrdinalIgnoreCase));
+        modelBuilder.Entity<PaymentMethod>().HasQueryFilter(entity =>
+            _companyContext.CompanyId.HasValue && entity.CompanyId == _companyContext.CompanyId.Value);
+        modelBuilder.Entity<Order>().HasQueryFilter(entity =>
+            _companyContext.CompanyId.HasValue && entity.CompanyId == _companyContext.CompanyId.Value);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

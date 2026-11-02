@@ -11,6 +11,8 @@ using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateBasketItemQuantity;
 
+public sealed record UpdateBasketItemQuantityRequest(int Quantity);
+
 public sealed class UpdateBasketItemQuantityEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)

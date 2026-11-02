@@ -8,7 +8,6 @@ using MyHomeRamen.Features.Restaurants.Features.Companies.Common;
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.SocialMedias.GetSocialMediaForManage;
 
 public sealed record SocialMediaManageDto(Guid Id, string Name, string LogoUrl, string Url);
-public sealed record GetSocialMediaForManageResponse(IEnumerable<SocialMediaManageDto> Items, bool CanEditMedia);
 public sealed record GetSocialMediaForManageQuery : IQuery<GetSocialMediaForManageResponse>;
 
 public sealed class GetSocialMediaForManageAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetSocialMediaForManageQuery>

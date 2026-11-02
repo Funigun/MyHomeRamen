@@ -11,10 +11,10 @@ public class ProductValidationTests
 {
     private const string DefaultName = "Delicious Ramen Soup";
     private const string DefaultDescription = "This is a very delicious ramen soup that everyone loves to eat.";
-    private const decimal DefaultPrice = 50.0m;
     private const string DefaultImageUrl = "http://example.com/ramen.jpg";
 
     private static readonly ProductId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultCompanyId = Guid.CreateVersion7();
 
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
@@ -25,13 +25,13 @@ public class ProductValidationTests
         Collection<Category> categories = [];
 
         // Act
-        Product product = Product.Create(DefaultId, DefaultName, DefaultDescription, DefaultPrice, DefaultImageUrl, baseIngredients, customIngredients, categories);
+        Product product = Product.Create(DefaultId, DefaultCompanyId, DefaultName, DefaultDescription, DefaultImageUrl, baseIngredients, customIngredients, categories);
 
         // Assert
         Assert.Equal(DefaultId, product.Id);
         Assert.Equal(DefaultName, product.Name);
         Assert.Equal(DefaultDescription, product.Description);
-        Assert.Equal(DefaultPrice, product.Price);
+        Assert.Equal(DefaultCompanyId, product.CompanyId);
         Assert.Equal(DefaultImageUrl, product.ImageUrl);
         Assert.Equal(baseIngredients, product.BaseIngredients);
         Assert.Equal(customIngredients, product.CustomIngredients);
@@ -83,28 +83,6 @@ public class ProductValidationTests
     }
 
     [Fact]
-    public void Create_Should_ThrowDomainException_When_PriceIsTooSmall()
-    {
-        // Arrange
-        decimal price = ProductConstants.MinPrice - 0.01m;
-
-        // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => CreateProduct(price: price));
-        Assert.Equal(ProductErrors.PriceTooSmall().Message, exception.Message);
-    }
-
-    [Fact]
-    public void Create_Should_ThrowDomainException_When_PriceIsTooHigh()
-    {
-         // Arrange
-        decimal price = ProductConstants.MaxPrice + 0.01m;
-
-        // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => CreateProduct(price: price));
-        Assert.Equal(ProductErrors.PriceTooHigh().Message, exception.Message);
-    }
-
-    [Fact]
     public void Create_Should_ThrowDomainException_When_BaseIngredientsAreNotUnique()
     {
         // Arrange
@@ -133,7 +111,7 @@ public class ProductValidationTests
     {
         // Arrange
         // CategoryType.Ingredient (2) is invalid for products
-        Category category = Category.Create(new CategoryId(Guid.NewGuid()), "IngCat", 1, CategoryType.Ingredient);
+        Category category = Category.Create(new CategoryId(Guid.NewGuid()), DefaultCompanyId, "IngCat", 1, CategoryType.Ingredient);
         Collection<Category> categories = [category];
 
         // Act & Assert
@@ -145,7 +123,7 @@ public class ProductValidationTests
     public void Create_Should_ThrowDomainException_When_CategoriesAreNotUnique()
     {
         // Arrange
-        Category category = Category.Create(new CategoryId(Guid.NewGuid()), "ProdCat", 1, CategoryType.Product);
+        Category category = Category.Create(new CategoryId(Guid.NewGuid()), DefaultCompanyId, "ProdCat", 1, CategoryType.Product);
         Collection<Category> categories = [category, category];
 
         // Act & Assert
@@ -156,16 +134,15 @@ public class ProductValidationTests
     private static Product CreateProduct(
         string? name = null,
         string? description = null,
-        decimal? price = null,
         Collection<Ingredient>? baseIngredients = null,
         Collection<Ingredient>? customIngredients = null,
         Collection<Category>? categories = null)
     {
         return Product.Create(
             DefaultId,
+            DefaultCompanyId,
             name ?? DefaultName,
             description ?? DefaultDescription,
-            price ?? DefaultPrice,
             DefaultImageUrl,
             baseIngredients ?? [],
             customIngredients ?? [],
@@ -176,9 +153,9 @@ public class ProductValidationTests
     {
         return Ingredient.Create(
             new IngredientId(Guid.NewGuid()),
+            DefaultCompanyId,
             "Ingredient",
             "Description",
-            10.0m,
             []);
     }
 }

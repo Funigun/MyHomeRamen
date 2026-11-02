@@ -100,11 +100,6 @@ public sealed class MenuApiClient(HttpClient httpClient)
         return await httpClient.GetFromJsonAsync<GetProductByIdForManageResponse>($"/api/menu/products/{id}/manage", ct);
     }
 
-    public async Task<GetProductByIdResponse?> GetProductByIdAsync(Guid id, CancellationToken ct = default)
-    {
-        return await httpClient.GetFromJsonAsync<GetProductByIdResponse>($"/api/menu/products/{id}", ct);
-    }
-
     public async Task DeleteCategoryAsync(Guid id, CancellationToken ct = default)
     {
         using HttpResponseMessage response = await httpClient.DeleteAsync($"/api/menu/categories/{id}", ct);
@@ -125,19 +120,4 @@ public sealed class MenuApiClient(HttpClient httpClient)
             ?? throw new InvalidOperationException("Empty response from UpdateProduct endpoint.");
     }
 
-    public async Task<IEnumerable<GetMenuCategoriesResponse>> GetMenuCategoriesAsync(CancellationToken ct = default)
-    {
-        IEnumerable<GetMenuCategoriesResponse>? result = await httpClient
-            .GetFromJsonAsync<IEnumerable<GetMenuCategoriesResponse>>("/api/menu/categories/menu", ct);
-
-        return result ?? [];
-    }
-
-    public async Task<IEnumerable<GetProductsByCategoryResponse>> GetProductsByCategoryAsync(Guid categoryId, CancellationToken ct = default)
-    {
-        IEnumerable<GetProductsByCategoryResponse>? result = await httpClient
-            .GetFromJsonAsync<IEnumerable<GetProductsByCategoryResponse>>($"/api/menu/products?categoryId={categoryId}", ct);
-
-        return result ?? [];
-    }
 }

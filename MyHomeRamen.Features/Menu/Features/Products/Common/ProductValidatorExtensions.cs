@@ -33,15 +33,6 @@ internal static class ProductValidatorExtensions
                             .WithMessage($"Product description maximum length is {ProductConstants.MaxDescriptionLength}.");
     }
 
-    public static IRuleBuilderOptions<T, decimal> MustBeValidProductPrice<T>(this IRuleBuilder<T, decimal> ruleBuilder)
-    {
-        return ruleBuilder.GreaterThanOrEqualTo(ProductConstants.MinPrice)
-                            .WithMessage($"Product price cannot be less than or equal to {ProductConstants.MinPrice}.")
-
-                          .LessThanOrEqualTo(ProductConstants.MaxPrice)
-                            .WithMessage($"Product price cannot be greater than or equal to {ProductConstants.MaxPrice}.");
-    }
-
     public static IRuleBuilderOptions<T, string> MustNotExceedProductNameLength<T>(this IRuleBuilder<T, string> ruleBuilder)
     {
         return ruleBuilder.MaximumLength(ProductConstants.MaxNameLength)

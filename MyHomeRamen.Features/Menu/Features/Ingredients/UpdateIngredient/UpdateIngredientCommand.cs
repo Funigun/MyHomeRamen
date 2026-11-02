@@ -33,9 +33,6 @@ public sealed class UpdateIngredientValidator : AbstractValidator<UpdateIngredie
         RuleFor(x => x.UpdateIngredientRequest.Description)
             .MustMeetDescriptionLengthRequirements();
 
-        RuleFor(x => x.UpdateIngredientRequest.Price)
-            .MustBeValidIngredientPrice();
-
         RuleFor(x => x)
             .MustHaveUniqueIngredientNameExcluding(dbContext, c => c.UpdateIngredientRequest.Name, c => c.Id)
             .OverridePropertyName(nameof(UpdateIngredientCommand.UpdateIngredientRequest) + "." + nameof(UpdateIngredientCommand.UpdateIngredientRequest.Name));
@@ -54,7 +51,7 @@ public sealed class UpdateIngredientHandler(IMenuDbContext dbContext) : IRequest
 
         IEnumerable<Category> categories = await dbContext.Category.Load().ByIds(request.UpdateIngredientRequest.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
 
-        ingredient.Update(request.UpdateIngredientRequest.Name, request.UpdateIngredientRequest.Description, request.UpdateIngredientRequest.Price, categories);
+        ingredient.Update(request.UpdateIngredientRequest.Name, request.UpdateIngredientRequest.Description, categories);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

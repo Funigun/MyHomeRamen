@@ -6,6 +6,11 @@ internal static class PaymentMethodValidator
 {
     internal static void Validate(PaymentMethod paymentMethod)
     {
+        if (paymentMethod.CompanyId == Guid.Empty)
+        {
+            throw PaymentMethodErrors.CompanyRequired();
+        }
+
         CheckName(paymentMethod);
         CheckDisplayOrder(paymentMethod.DisplayOrder);
     }

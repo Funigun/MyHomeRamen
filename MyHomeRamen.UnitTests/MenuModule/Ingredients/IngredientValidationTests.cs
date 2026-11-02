@@ -9,9 +9,9 @@ namespace MyHomeRamen.UnitTests.MenuModule.Ingredients;
 public class IngredientValidationTests
 {
     private static readonly IngredientId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultCompanyId = Guid.CreateVersion7();
     private const string DefaultName = "Fresh Garlic";
     private const string DefaultDescription = "Organic fresh garlic.";
-    private const decimal DefaultPrice = 5.0m;
 
     [Fact]
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
@@ -20,13 +20,13 @@ public class IngredientValidationTests
         Collection<Category> categories = [];
 
         // Act
-        Ingredient ingredient = Ingredient.Create(DefaultId, DefaultName, DefaultDescription, DefaultPrice, categories);
+        Ingredient ingredient = Ingredient.Create(DefaultId, DefaultCompanyId, DefaultName, DefaultDescription, categories);
 
         // Assert
         Assert.Equal(DefaultId, ingredient.Id);
         Assert.Equal(DefaultName, ingredient.Name);
         Assert.Equal(DefaultDescription, ingredient.Description);
-        Assert.Equal(DefaultPrice, ingredient.Price);
+        Assert.Equal(DefaultCompanyId, ingredient.CompanyId);
         Assert.Equal(categories, ingredient.Categories);
     }
 
@@ -75,33 +75,11 @@ public class IngredientValidationTests
     }
 
     [Fact]
-    public void Create_Should_ThrowDomainException_When_PriceIsTooSmall()
-    {
-        // Arrange
-        decimal price = IngredientConstants.MinPrice - 0.01m;
-
-        // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => CreateIngredient(price: price));
-        Assert.Equal(IngredientErrors.PriceTooSmall().Message, exception.Message);
-    }
-
-    [Fact]
-    public void Create_Should_ThrowDomainException_When_PriceIsTooHigh()
-    {
-        // Arrange
-        decimal price = IngredientConstants.MaxPrice + 0.01m;
-
-        // Act & Assert
-        DomainException exception = Assert.Throws<DomainException>(() => CreateIngredient(price: price));
-        Assert.Equal(IngredientErrors.PriceTooHigh().Message, exception.Message);
-    }
-
-    [Fact]
     public void Create_Should_ThrowDomainException_When_CategoryTypeIsNotValid()
     {
         // Arrange
         // CategoryType.Product (1) is invalid for ingredients
-        Category category = Category.Create(new CategoryId(Guid.NewGuid()), "ProdCat", 1, CategoryType.Product);
+        Category category = Category.Create(new CategoryId(Guid.NewGuid()), DefaultCompanyId, "ProdCat", 1, CategoryType.Product);
         Collection<Category> categories = [category];
 
         // Act & Assert
@@ -113,7 +91,7 @@ public class IngredientValidationTests
     public void Create_Should_ThrowDomainException_When_CategoriesAreNotUnique()
     {
         // Arrange
-        Category category = Category.Create(new CategoryId(Guid.NewGuid()), "IngCat", 1, CategoryType.Ingredient);
+        Category category = Category.Create(new CategoryId(Guid.NewGuid()), DefaultCompanyId, "IngCat", 1, CategoryType.Ingredient);
         Collection<Category> categories = [category, category];
 
         // Act & Assert
@@ -124,14 +102,13 @@ public class IngredientValidationTests
     private static Ingredient CreateIngredient(
         string? name = null,
         string? description = null,
-        decimal? price = null,
         Collection<Category>? categories = null)
     {
         return Ingredient.Create(
             DefaultId,
+            DefaultCompanyId,
             name ?? DefaultName,
             description ?? DefaultDescription,
-            price ?? DefaultPrice,
             categories ?? []);
     }
 }

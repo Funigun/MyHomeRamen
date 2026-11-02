@@ -8,7 +8,6 @@ using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Query.GetRestaurantById;
 
 public sealed record GetRestaurantByIdQuery(Guid RestaurantId) : IQuery<GetRestaurantByIdResponse>;
-public sealed record GetRestaurantByIdResponse(RestaurantDetailsDto Restaurant);
 
 public sealed class GetRestaurantByIdAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetRestaurantByIdQuery>
 {

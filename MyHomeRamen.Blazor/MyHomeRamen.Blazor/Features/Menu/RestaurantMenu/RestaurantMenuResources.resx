@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Title" xml:space="preserve"><value>Menu</value></data>
+  <data name="ChooseMenu" xml:space="preserve"><value>Choose a menu card</value></data>
+  <data name="NoMenus" xml:space="preserve"><value>No menus are currently available.</value></data>
+  <data name="NoSections" xml:space="preserve"><value>No sections are available for this menu.</value></data>
+  <data name="NoOffers" xml:space="preserve"><value>No offers found in this section.</value></data>
+  <data name="ChooseSection" xml:space="preserve"><value>Choose a section</value></data>
+  <data name="CustomizeAndAdd" xml:space="preserve"><value>Customize &amp; Add</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Menu could not be loaded.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="BadRequest" xml:space="preserve"><value>Menu request was invalid.</value></data>
+  <data name="ProductLoadError" xml:space="preserve"><value>Product details could not be loaded.</value></data>
+</root>

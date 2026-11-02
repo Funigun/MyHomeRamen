@@ -31,15 +31,6 @@ internal static class IngredientValidatorExtensions
                             .WithMessage($"Ingredient description maximum length is {IngredientConstants.MaxDescriptionLength}.");
     }
 
-    public static IRuleBuilderOptions<T, decimal> MustBeValidIngredientPrice<T>(this IRuleBuilder<T, decimal> ruleBuilder)
-    {
-        return ruleBuilder.GreaterThanOrEqualTo(IngredientConstants.MinPrice)
-                            .WithMessage($"Ingredient price cannot be less than or equal to {IngredientConstants.MinPrice}.")
-
-                          .LessThanOrEqualTo(IngredientConstants.MaxPrice)
-                            .WithMessage($"Ingredient price cannot be greater than or equal to {IngredientConstants.MaxPrice}.");
-    }
-
     public static IRuleBuilderOptions<T, string> MustNotExceedIngredientNameLength<T>(this IRuleBuilder<T, string> ruleBuilder)
     {
         return ruleBuilder.MaximumLength(IngredientConstants.MaxNameLength)

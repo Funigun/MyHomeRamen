@@ -37,7 +37,7 @@ public sealed class CreateCategoryHandler(IMenuDbContext dbContext) : IRequestHa
     {
         int nextSortOrder = await dbContext.Category.Query().GetNextSortOrder((CategoryType)command.Request.CategoryType, cancellationToken);
 
-        Category category = command.Request.ToDomain(nextSortOrder);
+        Category category = command.Request.ToDomain(dbContext.CompanyId, nextSortOrder);
 
         dbContext.Category.Add(category);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -48,6 +48,6 @@ public sealed class CreateCategoryHandler(IMenuDbContext dbContext) : IRequestHa
 
 internal static class Mappings
 {
-    public static Category ToDomain(this CreateCategoryRequest request, int nextSortOrder)
-        => Category.Create(Guid.NewGuid(), request.Name, nextSortOrder, (CategoryType)request.CategoryType);
+    public static Category ToDomain(this CreateCategoryRequest request, Guid companyId, int nextSortOrder)
+        => Category.Create(Guid.NewGuid(), companyId, request.Name, nextSortOrder, (CategoryType)request.CategoryType);
 }

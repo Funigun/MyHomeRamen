@@ -2,6 +2,12 @@
 
 public static class ProductErrors
 {
+    public static DomainException CompanyRequired()
+        => new("Product company identifier must not be empty.");
+
+    public static DomainException RelatedCompanyMismatch()
+        => new("Product, ingredients, and categories must belong to the same company.");
+
     public static DomainException NameTooShort()
         => new($"Product name is too short. Minimum length is {ProductConstants.MinNameLength}");
 

@@ -10,6 +10,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.CompanyId).IsRequired();
+
         builder.Property(x => x.Amount)
                .IsRequired()
                .HasPrecision(18, 2);

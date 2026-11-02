@@ -2,6 +2,11 @@ namespace MyHomeRamen.Features.Menu.ExternalApi;
 
 public interface IMenuService
 {
+    Task<MenuOfferResult?> GetOfferAsync(
+        Guid restaurantId,
+        Guid offerId,
+        CancellationToken cancellationToken);
+
     Task<MenuProductResult?> GetProductWithSelectedIngredientsAsync(
         Guid productId,
         List<Guid> selectedBaseIngredientIds,

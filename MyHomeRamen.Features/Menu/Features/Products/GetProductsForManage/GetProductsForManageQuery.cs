@@ -23,18 +23,16 @@ public sealed record GetProductsForManageQueryOptions(GetProductsForManageReques
             Filter = product => 
                 (string.IsNullOrWhiteSpace(Request.Name) || product.Name.ToLower().Contains(Request.Name.ToLower())) &&
                 (CategoryIds == null || product.Categories.Any(category => CategoryIds.Contains(category.Id))) &&
-                (IngredientIds == null || product.BaseIngredients.Any(ingredient => IngredientIds.Contains(ingredient.Id)) || product.CustomIngredients.Any(ingredient => IngredientIds.Contains(ingredient.Id))) &&
-                (Request.PriceFrom == null || product.Price >= Request.PriceFrom.Value) &&
-                (Request.PriceTo == null || product.Price <= Request.PriceTo.Value),
+                (IngredientIds == null || product.BaseIngredients.Any(ingredient => IngredientIds.Contains(ingredient.Id)) || product.CustomIngredients.Any(ingredient => IngredientIds.Contains(ingredient.Id))),
             OrderBy = Request.OrderBy switch
             {
-                "Price" => product => product.Price,
+                "Status" => product => product.Status,
                 _ => product => product.Name
             },
             OrderDirection = "asc",
             PageNumber = PageParameters.PageNumber,
             PageSize = PageParameters.PageSize,
-            Selector = product => new ProductForManageDto(product.Id.Value, product.Name, product.Description, product.Price)
+            Selector = product => new ProductForManageDto(product.Id.Value, product.Name, product.Description, product.Status.ToString())
         }
     );
 
@@ -56,19 +54,6 @@ public sealed class GetProductsForManageValidator : AbstractValidator<GetProduct
                 .MustNotExceedProductNameLength();
         });
 
-        RuleFor(x => x.Request.PriceFrom)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("PriceFrom must be a non-negative value.")
-            .When(x => x.Request.PriceFrom.HasValue);
-
-        RuleFor(x => x.Request.PriceTo)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("PriceTo must be a non-negative value.")
-            .When(x => x.Request.PriceTo.HasValue);
-
-        RuleFor(x => x)
-            .Must(x => !x.Request.PriceFrom.HasValue || !x.Request.PriceTo.HasValue || x.Request.PriceFrom <= x.Request.PriceTo)
-            .WithMessage("PriceFrom must not exceed PriceTo.");
     }
 }
 

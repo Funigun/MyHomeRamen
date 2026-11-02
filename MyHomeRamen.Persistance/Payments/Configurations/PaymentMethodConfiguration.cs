@@ -12,6 +12,10 @@ public class PaymentMethodConfiguration : IEntityTypeConfiguration<PaymentMethod
     {
         builder.HasKey(method => method.Id);
 
+        builder.Property(method => method.CompanyId).IsRequired();
+
+        builder.HasIndex(method => new { method.CompanyId, method.Name }).IsUnique();
+
         builder.Property(method => method.Name)
             .IsRequired()
             .HasMaxLength(PaymentMethodConstants.MaxNameLength);

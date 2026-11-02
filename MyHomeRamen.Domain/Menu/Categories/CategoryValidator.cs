@@ -6,6 +6,11 @@ internal static class CategoryValidator
 {
     internal static void Validate(Category category)
     {
+        if (category.CompanyId == Guid.Empty)
+        {
+            throw CategoryErrors.CompanyRequired();
+        }
+
         CheckName(category);
         CheckSortOrder(category.SortOrder);
         CheckCategoryType(category);

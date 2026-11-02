@@ -6,6 +6,7 @@ using MyHomeRamen.Api.Middlewares;
 using MyHomeRamen.Api.WebPresentation;
 using MyHomeRamen.Features;
 using MyHomeRamen.Features.Common.Configurations;
+using MyHomeRamen.Features.Common.Tenancy;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.Infrastructure.Messaging;
 using MyHomeRamen.ServiceDefaults;
@@ -29,6 +30,7 @@ try
     builder.Services.AddScoped<RestaurantConfigurationProvider>();
     builder.Services.AddScoped<DatabaseConfigurationProvider>();
     builder.Services.AddScoped<AuthorizationConfiguration>();
+    builder.Services.AddScoped<ICompanyContext, CompanyContext>();
     RestaurantConfigurationProvider configurationProvider = new(builder.Configuration);
     DatabaseConfigurationProvider databaseConfigurationProvider = new(builder.Configuration);
     AuthorizationConfiguration authorizationConfiguration = new(builder.Configuration);
@@ -106,6 +108,7 @@ try
     app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseMiddleware<UserLoginMiddleware>();
+    app.UseMiddleware<CompanyContextMiddleware>();
     app.UseSerilogRequestLogging();
     app.MapDefaultEndpoints();
     app.MapEndpoints();

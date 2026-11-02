@@ -5,7 +5,6 @@ using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
 using MyHomeRamen.Features.Menu.Features.Categories.GetCategoriesByType;
-using MyHomeRamen.Features.Menu.Features.Categories.GetMenuCategories;
 using MyHomeRamen.Persistance.Common;
 
 namespace MyHomeRamen.Persistance.Menu;
@@ -17,15 +16,10 @@ public partial class CategoryRepository : ICategoryQuery
         string cacheKey = $"CategoryByTypeDto:{options.CategoryType}";
         TimeSpan cacheExpirationTime = TimeSpan.FromSeconds(5, 30);
         IEnumerable<string> cacheTags = [$"categories:{options.CategoryType}"];
-        
+
         CachePolicy policy = CachePolicy.LocalCache<MenuCacheModule>(cacheKey, cacheExpirationTime, cacheTags);
 
         return await QueryList(menuDbContext.Categories, options, policy, cancellationToken);
-    }
-
-    public async Task<IEnumerable<CategoryForMenuDto>> GetMenuCategories(GetMenuCategoriesQueryOptions options, CancellationToken cancellationToken)
-    {
-        return await QueryList(menuDbContext.Categories, options, cancellationToken);
     }
 
     public async Task<int> GetNextSortOrder(CategoryType categoryType, CancellationToken cancellationToken)
@@ -34,16 +28,16 @@ public partial class CategoryRepository : ICategoryQuery
 
         return any ? await menuDbContext.Categories.AsNoTracking()
                                                    .Where(c => c.CategoryType == categoryType)
-                                                   .MaxAsync(c => c.SortOrder, cancellationToken) + 1 
+                                                   .MaxAsync(c => c.SortOrder, cancellationToken) + 1
                    : CategoryConstants.MinSortOrder;
     }
 
     public async Task<IEnumerable<Category>> GetByIds(IEnumerable<CategoryId> categoryIds, CancellationToken cancellationToken)
     {
-        DbQueryOptions<Category, Category> options = new() 
-        { 
+        DbQueryOptions<Category, Category> options = new()
+        {
             Filter = c => categoryIds.Contains(c.Id), 
-            Selector = c => Category.Create(c.Id, c.Name, c.SortOrder, c.CategoryType)
+            Selector = c => Category.Create(c.Id, c.CompanyId, c.Name, c.SortOrder, c.CategoryType)
         };
 
         return await QueryList(menuDbContext.Categories, options, cancellationToken);

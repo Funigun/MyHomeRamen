@@ -19,9 +19,15 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
             .ByName(RoleConstants.CompanyOwner, cancellationToken);
         Role? adminRole = await apiFactory.IdentityDbContext.Role.Load()
             .ByName(RoleConstants.RestaurantAdmin, cancellationToken);
+        Role? guestRole = await apiFactory.IdentityDbContext.Role.Load()
+            .ByName(RoleConstants.Guest, cancellationToken);
+        Role? customerRole = await apiFactory.IdentityDbContext.Role.Load()
+            .ByName(RoleConstants.Customer, cancellationToken);
 
         Assert.NotNull(companyOwnerRole);
         Assert.NotNull(adminRole);
+        Assert.NotNull(guestRole);
+        Assert.NotNull(customerRole);
         Assert.Null(companyOwnerRole.RestaurantId);
         Assert.Null(adminRole.RestaurantId);
 
@@ -32,6 +38,7 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
             .ToArray();
         string[] expectedCompanyOwnerPermissions = RestaurantsPermissionConstants.CompanyOwnerPermissions
             .Select(permission => $"Restaurants:{permission}")
+            .Concat(MenuPermissionConstants.AvailablePermissions.Select(permission => $"Menu:{permission}"))
             .OrderBy(permission => permission, StringComparer.Ordinal)
             .ToArray();
         string[] actualAdminPermissions = adminRole.RolePermissions
@@ -46,6 +53,19 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
 
         Assert.Equal(expectedCompanyOwnerPermissions, actualCompanyOwnerPermissions);
         Assert.Equal(expectedAdminPermissions, actualAdminPermissions);
+
+        foreach (Role role in new[] { guestRole, customerRole })
+        {
+            string[] actualPermissions = role.RolePermissions
+                .Select(rolePermission => permissions.Single(permission => permission.Id == rolePermission.PermissionId))
+                .Select(permission => $"{permission.Module}:{permission.Name}")
+                .ToArray();
+
+            foreach (string expectedPermission in MenuPermissionConstants.CustomerViewPermissions)
+            {
+                Assert.Contains($"Menu:{expectedPermission}", actualPermissions);
+            }
+        }
 
         HashSet<string> resourceScopedPermissionNames =
             RestaurantsPermissionConstants.ResourceScopedPermissions.ToHashSet(StringComparer.Ordinal);

@@ -55,7 +55,6 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
         UpdateIngredientRequest request = new(
             $"Updated_With_Valid_Name",
             "Updated description text here",
-            3.99m,
             [_ingredientCategory.Id.Value]);
 
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePutMessage($"/api/menu/ingredients/{_ingredient.Id}");
@@ -82,7 +81,6 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
         Assert.NotNull(assertResult);
         Assert.Equal(request.Name, assertResult.Name);
         Assert.Equal(request.Description, assertResult.Description);
-        Assert.Equal(request.Price, assertResult.Price);
     }
 
     [Fact]
@@ -158,18 +156,15 @@ public sealed class UpdateIngredientTests(WebApiFactory apiFactory) : IClassFixt
         Faker faker = new();
         string validName = faker.Random.String2(IngredientConstants.MinNameLength, IngredientConstants.MaxNameLength);
         string validDescription = faker.Random.String2(IngredientConstants.MinDescriptionLength, IngredientConstants.MaxDescriptionLength);
-        decimal validPrice = faker.Finance.Amount(IngredientConstants.MinPrice, IngredientConstants.MaxPrice);
         IEnumerable<Guid> validCategoryIds = [Guid.NewGuid()];
 
         return
         [
-            new UpdateIngredientRequest(string.Empty, validDescription, validPrice, validCategoryIds),
-            new UpdateIngredientRequest(faker.Random.String2(1, IngredientConstants.MinNameLength - 1), validDescription, validPrice, validCategoryIds),
-            new UpdateIngredientRequest(faker.Random.String2(IngredientConstants.MaxNameLength + 1, IngredientConstants.MaxNameLength + 10), validDescription, validPrice, validCategoryIds),
-            new UpdateIngredientRequest(validName, faker.Random.String2(IngredientConstants.MaxDescriptionLength + 1, IngredientConstants.MaxDescriptionLength + 10), validPrice, validCategoryIds),
-            new UpdateIngredientRequest(validName, validDescription, IngredientConstants.MinPrice - 0.01m, validCategoryIds),
-            new UpdateIngredientRequest(validName, validDescription, IngredientConstants.MaxPrice + 0.01m, validCategoryIds),
-            new UpdateIngredientRequest(validName, validDescription, validPrice, []),
+            new UpdateIngredientRequest(string.Empty, validDescription, validCategoryIds),
+            new UpdateIngredientRequest(faker.Random.String2(1, IngredientConstants.MinNameLength - 1), validDescription, validCategoryIds),
+            new UpdateIngredientRequest(faker.Random.String2(IngredientConstants.MaxNameLength + 1, IngredientConstants.MaxNameLength + 10), validDescription, validCategoryIds),
+            new UpdateIngredientRequest(validName, faker.Random.String2(IngredientConstants.MaxDescriptionLength + 1, IngredientConstants.MaxDescriptionLength + 10), validCategoryIds),
+            new UpdateIngredientRequest(validName, validDescription, []),
         ];
     }
 

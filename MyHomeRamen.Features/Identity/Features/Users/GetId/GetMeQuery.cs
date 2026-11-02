@@ -11,11 +11,6 @@ public sealed record GetMeQuery : IQuery<GetMeResponse>;
 
 public sealed record AdminNavigationAccess(bool CanSeeAdminPanel, IReadOnlyCollection<string> Sections);
 
-public sealed record GetMeResponse(
-    Guid UserId,
-    string? FirstName,
-    AdminNavigationAccess AdminNavigation);
-
 public sealed class GetMeAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetMeQuery>
 {
     public Task<bool> Authorize(GetMeQuery request, CancellationToken cancellationToken)

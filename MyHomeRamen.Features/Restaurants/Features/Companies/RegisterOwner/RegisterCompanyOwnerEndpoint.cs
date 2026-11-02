@@ -7,6 +7,17 @@ using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.RegisterOwner;
 
+public sealed record RegisterCompanyOwnerRequest(
+    string UserName,
+    string FirstName,
+    string LastName,
+    string Email,
+    string PhoneNumber,
+    string Password,
+    string ConfirmPassword);
+
+public sealed record RegisterCompanyOwnerResponse(Guid UserId);
+
 public sealed class RegisterCompanyOwnerEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)

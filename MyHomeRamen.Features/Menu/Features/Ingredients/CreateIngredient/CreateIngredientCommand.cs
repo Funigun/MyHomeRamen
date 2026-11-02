@@ -29,9 +29,6 @@ public sealed class CreateIngredientValidator : AbstractValidator<CreateIngredie
         RuleFor(x => x.CreateIngredientRequest.Description)
             .MustMeetDescriptionLengthRequirements();
 
-        RuleFor(x => x.CreateIngredientRequest.Price)
-            .MustBeValidIngredientPrice();
-
         RuleFor(x => x.CreateIngredientRequest.CategoryIds)
             .NotEmpty()
             .WithMessage("At least one category must be selected.");
@@ -45,7 +42,7 @@ public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : IRequest
         IEnumerable<Category> categories = await dbContext.Category.Query()
                                                                    .GetByIds(command.CreateIngredientRequest.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
 
-        Ingredient ingredient = command.CreateIngredientRequest.ToDomain(categories);
+        Ingredient ingredient = command.CreateIngredientRequest.ToDomain(dbContext.CompanyId, categories);
 
         dbContext.Ingredient.Add(ingredient);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -56,13 +53,13 @@ public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : IRequest
 
 internal static class Mappings
 {
-    public static Ingredient ToDomain(this CreateIngredientRequest request, IEnumerable<Category> categories)
+    public static Ingredient ToDomain(this CreateIngredientRequest request, Guid companyId, IEnumerable<Category> categories)
     {
         return Ingredient.Create(
             Guid.NewGuid(),
+            companyId,
             request.Name,
             request.Description,
-            request.Price,
             new Collection<Category>(categories.ToList()));
     }
 }

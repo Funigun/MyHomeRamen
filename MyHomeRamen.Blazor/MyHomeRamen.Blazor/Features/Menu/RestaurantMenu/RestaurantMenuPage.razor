@@ -1,0 +1,10 @@
+@page "/menu"
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu
+
+@inject IStringLocalizer<RestaurantMenuResources> Localizer
+
+<PageTitle>@Localizer["Title"]</PageTitle>
+
+<RestaurantMenuView />

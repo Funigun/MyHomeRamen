@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Command.CreateRestaurant;
 
+public sealed record CreateRestaurantRequest(string Name, bool IsActive, string Street, string City, string ZipCode, double Latitude, double Longitude, string Phone, string Email, string AccountNumber, string BankName, string RoutingNumber);
+
+public sealed record CreateRestaurantResponse(Guid Id);
+
 public sealed class CreateRestaurantEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
@@ -25,4 +29,3 @@ public sealed class CreateRestaurantEndpoint : IEndpoint
         return Results.Created($"/api/restaurants/restaurants/{response.Id}", response);
     }
 }
-

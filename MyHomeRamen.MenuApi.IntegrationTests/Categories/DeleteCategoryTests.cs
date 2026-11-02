@@ -53,9 +53,9 @@ public sealed class DeleteCategoryTests(WebApiFactory apiFactory) : IClassFixtur
         const CategoryType categoryType = CategoryType.Product;
         int numOfExistingCategories = 1;
 
-        Category cat1 = Category.Create(Guid.NewGuid(), $"DelTest1_{Guid.NewGuid():N}", numOfExistingCategories + 1, categoryType);
-        Category cat2 = Category.Create(Guid.NewGuid(), $"DelTest2_{Guid.NewGuid():N}", numOfExistingCategories + 2, categoryType);
-        Category cat3 = Category.Create(Guid.NewGuid(), $"DelTest3_{Guid.NewGuid():N}", numOfExistingCategories + 3, categoryType);
+        Category cat1 = Category.Create(Guid.NewGuid(), TestTenant.CompanyId, $"DelTest1_{Guid.NewGuid():N}", numOfExistingCategories + 1, categoryType);
+        Category cat2 = Category.Create(Guid.NewGuid(), TestTenant.CompanyId, $"DelTest2_{Guid.NewGuid():N}", numOfExistingCategories + 2, categoryType);
+        Category cat3 = Category.Create(Guid.NewGuid(), TestTenant.CompanyId, $"DelTest3_{Guid.NewGuid():N}", numOfExistingCategories + 3, categoryType);
 
         apiFactory.MenuDbContext.Category.AddRange([cat1, cat2, cat3]);
         await apiFactory.MenuDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);

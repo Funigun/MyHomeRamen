@@ -7,6 +7,7 @@ namespace MyHomeRamen.UnitTests.MenuModule.Categories;
 public sealed class CategoryValidationTests
 {
     private static readonly CategoryId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultCompanyId = Guid.CreateVersion7();
     private const string DefaultName = "Soups";
     private const int DefaultSortOrder = 1;
     private const CategoryType DefaultCategoryType = CategoryType.Product;
@@ -15,10 +16,11 @@ public sealed class CategoryValidationTests
     public void Create_Should_SetPropertiesCorrectly_When_InputIsValid()
     {
         // Act
-        Category category = Category.Create(DefaultId, DefaultName, DefaultSortOrder, DefaultCategoryType);
+        Category category = Category.Create(DefaultId, DefaultCompanyId, DefaultName, DefaultSortOrder, DefaultCategoryType);
 
         // Assert
         Assert.Equal(DefaultId, category.Id);
+        Assert.Equal(DefaultCompanyId, category.CompanyId);
         Assert.Equal(DefaultName, category.Name);
         Assert.Equal(DefaultSortOrder, category.SortOrder);
         Assert.Equal(DefaultCategoryType, category.CategoryType);
@@ -101,6 +103,7 @@ public sealed class CategoryValidationTests
     {
         return Category.Create(
             DefaultId,
+            DefaultCompanyId,
             name ?? DefaultName,
             sortOrder ?? DefaultSortOrder,
             categoryType ?? DefaultCategoryType);

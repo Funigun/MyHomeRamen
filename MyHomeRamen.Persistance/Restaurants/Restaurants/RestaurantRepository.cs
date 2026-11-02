@@ -1,6 +1,10 @@
 using MyHomeRamen.Domain.Restaurants.Restaurants;
 using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
+using MyHomeRamen.Features.Restaurants.ExternalApi;
+using MyHomeRamen.Features.Restaurants.Features.Restaurants.Query.GetRestaurantOptions;
+using MyHomeRamen.Domain.Restaurants.Companies;
+using MyHomeRamen.Domain.Restaurants.Restaurants;
 using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Persistance.Common;
 
@@ -38,6 +42,28 @@ public sealed partial class RestaurantRepository(RestaurantsDbContext restaurant
                               restaurant.ContactDetails == null ? null : restaurant.ContactDetails.Email))
                           .ToListAsync(cancellationToken);
     }
-}
 
+    public async Task<RestaurantInfo?> ForExternalApi(Guid restaurantId, CancellationToken cancellationToken)
+        => await restaurantsDbContext.Restaurants.AsNoTracking()
+            .Where(restaurant => restaurant.Id.Value == restaurantId)
+            .Select(restaurant => new RestaurantInfo(
+                restaurant.Id.Value,
+                EF.Property<CompanyId>(restaurant, "CompanyId").Value,
+                restaurant.IsActive))
+            .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<IEnumerable<RestaurantOptionDto>> ActiveOptions(CancellationToken cancellationToken)
+        => await restaurantsDbContext.Restaurants.AsNoTracking()
+            .Where(restaurant => restaurant.IsActive)
+            .OrderBy(restaurant => restaurant.Name)
+            .Select(restaurant => new RestaurantOptionDto(
+                restaurant.Id.Value,
+                restaurant.Name,
+                restaurant.Address.Street,
+                restaurant.Address.City,
+                restaurant.Address.ZipCode,
+                restaurant.Address.Location.Latitude,
+                restaurant.Address.Location.Longitude))
+            .ToListAsync(cancellationToken);
+}
 

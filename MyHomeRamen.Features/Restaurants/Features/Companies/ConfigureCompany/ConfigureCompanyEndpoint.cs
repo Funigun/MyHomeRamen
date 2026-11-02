@@ -7,6 +7,10 @@ using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.ConfigureCompany;
 
+public sealed record ConfigureCompanyRequest(string Name, string LegalName, string TaxId);
+
+public sealed record ConfigureCompanyResponse(Guid CompanyId);
+
 public sealed class ConfigureCompanyEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)

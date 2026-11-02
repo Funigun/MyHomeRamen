@@ -11,7 +11,6 @@ namespace MyHomeRamen.Features.Menu.Features.Ingredients.UpdateIngredient;
 public sealed record UpdateIngredientRequest(
     string Name,
     string Description,
-    decimal Price,
     IEnumerable<Guid> CategoryIds);
 
 public sealed record UpdateIngredientResponse(Guid Id);
@@ -24,7 +23,7 @@ public sealed class UpdateIngredientEndpoint : IEndpoint
             .MapStandardPut<UpdateIngredientResponse>("api/menu/ingredients/{id}", HandleAsync)
             .WithName("UpdateIngredientEndpoint")
             .WithTags("Ingredients")
-            .WithDescription("Updates the name, description, price, and categories of an existing ingredient.")
+            .WithDescription("Updates the name, description, and categories of an existing ingredient.")
             .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 

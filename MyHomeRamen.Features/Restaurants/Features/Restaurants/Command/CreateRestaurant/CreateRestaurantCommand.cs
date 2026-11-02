@@ -9,8 +9,6 @@ using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Command.CreateRestaurant;
 
-public sealed record CreateRestaurantRequest(string Name, bool IsActive, string Street, string City, string ZipCode, double Latitude, double Longitude, string Phone, string Email, string AccountNumber, string BankName, string RoutingNumber);
-public sealed record CreateRestaurantResponse(Guid Id);
 public sealed record CreateRestaurantCommand(CreateRestaurantRequest Request) : ICommand<CreateRestaurantResponse>;
 
 public sealed class CreateRestaurantAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<CreateRestaurantCommand>

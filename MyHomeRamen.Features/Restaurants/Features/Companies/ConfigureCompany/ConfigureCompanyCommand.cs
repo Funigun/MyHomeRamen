@@ -7,10 +7,6 @@ using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.ConfigureCompany;
 
-public sealed record ConfigureCompanyRequest(string Name, string LegalName, string TaxId);
-
-public sealed record ConfigureCompanyResponse(Guid CompanyId);
-
 public sealed record ConfigureCompanyCommand(ConfigureCompanyRequest Request)
     : ICommand<ConfigureCompanyResponse>;
 

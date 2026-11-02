@@ -31,8 +31,7 @@ public sealed class DeleteProductHandler(IMenuDbContext dbContext) : IRequestHan
     {
         Product product = await dbContext.Product.Load().ById(command.Id, cancellationToken);
 
-        // TODO: Handle related deletion side effects in separate work.
-        dbContext.Product.Delete(product);
+        product.Retire();
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

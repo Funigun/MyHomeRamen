@@ -7,11 +7,16 @@ internal static class ProductValidator
 {
     internal static void ValidateProduct(Product product)
     {
+        if (product.CompanyId == Guid.Empty)
+        {
+            throw ProductErrors.CompanyRequired();
+        }
+
         CheckName(product);
         CheckDescription(product);
-        CheckPrice(product);
         CheckIngredients(product);
         CheckCategories(product);
+        CheckRelatedCompanies(product);
     }
 
     private static void CheckName(Product product)
@@ -37,19 +42,6 @@ internal static class ProductValidator
         if (product.Description.Length > ProductConstants.MaxDescriptionLength)
         {
             throw ProductErrors.DescriptionTooLong();
-        }
-    }
-
-    private static void CheckPrice(Product product)
-    {
-        if (product.Price < ProductConstants.MinPrice)
-        {
-            throw ProductErrors.PriceTooSmall();
-        }
-
-        if (product.Price > ProductConstants.MaxPrice)
-        {
-            throw ProductErrors.PriceTooHigh();
         }
     }
 
@@ -81,6 +73,18 @@ internal static class ProductValidator
         if (product.Categories.DistinctBy(category => category.Id).Count() != product.Categories.Count)
         {
             throw ProductErrors.CategoriesNotUnique();
+        }
+    }
+
+    private static void CheckRelatedCompanies(Product product)
+    {
+        bool ingredientCompanyMismatch = product.BaseIngredients.Concat(product.CustomIngredients)
+            .Any(ingredient => ingredient.CompanyId != product.CompanyId);
+        bool categoryCompanyMismatch = product.Categories.Any(category => category.CompanyId != product.CompanyId);
+
+        if (ingredientCompanyMismatch || categoryCompanyMismatch)
+        {
+            throw ProductErrors.RelatedCompanyMismatch();
         }
     }
 }

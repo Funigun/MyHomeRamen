@@ -1,4 +1,3 @@
-using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.Responses;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.Checkout.BasketDetails;
 using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Requests;
 
@@ -7,6 +6,8 @@ namespace MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization;
 public sealed class ProductCustomizationModel
 {
     public Guid ProductId { get; init; }
+
+    public Guid OfferId { get; init; }
 
     public string Name { get; init; } = string.Empty;
 
@@ -19,21 +20,6 @@ public sealed class ProductCustomizationModel
     public List<IngredientCustomizationModel> BaseIngredients { get; init; } = [];
 
     public List<IngredientCustomizationModel> CustomIngredients { get; init; } = [];
-
-    public static ProductCustomizationModel FromGetByIdResponse(GetProductByIdResponse response) =>
-        new()
-        {
-            ProductId = response.Id,
-            Name = response.Name,
-            Description = response.Description,
-            Quantity = 1,
-            BaseIngredients = response.BaseIngredients
-                .Select(i => IngredientCustomizationModel.FromDto(i, selectedByDefault: true))
-                .ToList(),
-            CustomIngredients = response.CustomIngredients
-                .Select(i => IngredientCustomizationModel.FromDto(i, selectedByDefault: true))
-                .ToList()
-        };
 
     public AddItemToBasketRequest ToAddItemToBasketRequest() =>
         new(

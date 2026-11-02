@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Query.GetAvailableRestaurants;
+
+public sealed record GetAvailableRestaurantsResponse(IEnumerable<RestaurantListItemDto> Restaurants, bool CanCreate);
 
 public sealed class GetAvailableRestaurantsEndpoint : IEndpoint
 {

@@ -52,7 +52,7 @@ public sealed class GetProductByIdForManageTests(WebApiFactory apiFactory) : ICl
         Assert.NotNull(result);
         Assert.Equal(_product.Id.Value, result.Id);
         Assert.Equal(_product.Name, result.Name);
-        Assert.Equal(_product.Price, result.Price);
+        Assert.Equal(_product.Description, result.Description);
     }
 
     [Fact]

@@ -20,7 +20,6 @@ internal static class Mappings
         new(
             product.Name,
             product.Description,
-            product.Price,
             product.Categories[0].Id,
             product.BaseIngredients.Select(i => (Guid)i.Id),
             product.CustomIngredients.Select(i => (Guid)i.Id)
@@ -30,7 +29,6 @@ internal static class Mappings
         new(
             ingredient.Name,
             ingredient.Description,
-            ingredient.Price,
             ingredient.Categories.Select(c => (Guid)c.Id)
         );
 
@@ -38,7 +36,6 @@ internal static class Mappings
         new(
             product.Name,
             product.Description,
-            product.Price,
             product.Categories[0].Id,
             product.BaseIngredients.Select(i => (Guid)i.Id),
             product.CustomIngredients.Select(i => (Guid)i.Id)

@@ -11,7 +11,6 @@ namespace MyHomeRamen.Features.Menu.Features.Products.CreateProduct;
 public sealed record CreateProductRequest(
     string Name,
     string? Description,
-    decimal Price,
     Guid CategoryId,
     IEnumerable<Guid> IngredientIds,
     IEnumerable<Guid> CustomIngredientIds);

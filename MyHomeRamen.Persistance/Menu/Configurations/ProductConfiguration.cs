@@ -11,6 +11,12 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.CompanyId)
+               .IsRequired();
+
+        builder.HasIndex(x => new { x.CompanyId, x.Name })
+               .IsUnique();
+
         builder.Property(x => x.Name)
                .IsRequired()
                .HasMaxLength(ProductConstants.MaxNameLength);
@@ -19,13 +25,13 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
                .IsRequired()
                .HasMaxLength(ProductConstants.MaxDescriptionLength);
 
-        builder.Property(x => x.Price)
-               .IsRequired()
-               .HasPrecision(18, 2);
-
         builder.Property(x => x.ImageUrl)
                .IsRequired()
                .HasMaxLength(2048);
+
+        builder.Property(x => x.Status)
+               .HasConversion<string>()
+               .IsRequired();
 
         builder.HasMany(x => x.BaseIngredients)
                .WithMany()

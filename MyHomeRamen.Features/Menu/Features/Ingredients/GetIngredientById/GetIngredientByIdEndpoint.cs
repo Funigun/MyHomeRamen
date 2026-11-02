@@ -12,14 +12,12 @@ public sealed record IngredientByIdDto(
     Guid Id,
     string Name,
     string Description,
-    decimal Price,
     IEnumerable<Guid> CategoryIds);
 
 public sealed record GetIngredientByIdResponse(
     Guid Id,
     string Name,
     string Description,
-    decimal Price,
     IEnumerable<Guid> CategoryIds);
 
 public sealed class GetIngredientByIdEndpoint : IEndpoint

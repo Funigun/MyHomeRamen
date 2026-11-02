@@ -185,30 +185,6 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
     }
 
     [Fact]
-    public async Task GetProductsForManage_ShouldReturnFilteredResults_ByPriceRange()
-    {
-        // Arrange
-        decimal priceFrom = _product.Price - 1m;
-        decimal priceTo = _product.Price + 1m;
-
-        using HttpRequestMessage httpRequest = HttpClientExtensions.CreateGetMessage($"{Endpoint}?priceFrom={priceFrom}&priceTo={priceTo}");
-        httpRequest.AddAuthorizationHeader(_userId);
-
-        // Act
-        HttpResponseMessage responseMessage = await apiFactory.HttpClient.SendAsync(httpRequest, TestContext.Current.CancellationToken);
-        GetProductsForManageResponse? result = await responseMessage.Content.ReadFromJsonAsync<GetProductsForManageResponse>(TestContext.Current.CancellationToken);
-
-        // Assert
-        await responseMessage.AssertStatusCode(HttpStatusCode.OK);
-        Assert.NotNull(result);
-        Assert.All(result.Products, p =>
-        {
-            Assert.True(p.Price >= priceFrom);
-            Assert.True(p.Price <= priceTo);
-        });
-    }
-
-    [Fact]
     public async Task GetProductsForManage_ShouldReturnPagedResults()
     {
         // Arrange

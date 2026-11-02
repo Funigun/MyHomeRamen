@@ -36,9 +36,6 @@ public sealed class UpdateProductValidator : AbstractValidator<UpdateProductComm
                 .MustMeetProductDescriptionLengthRequirements();
         });
 
-        RuleFor(x => x.UpdateProductRequest.Price)
-            .MustBeValidProductPrice();
-
         RuleFor(x => x)
             .MustHaveUniqueProductNameExcluding(dbContext, c => c.UpdateProductRequest.Name, c => c.Id)
             .OverridePropertyName(nameof(UpdateProductCommand.UpdateProductRequest) + "." + nameof(UpdateProductCommand.UpdateProductRequest.Name));
@@ -74,7 +71,7 @@ public sealed class UpdateProductHandler(IMenuDbContext dbContext) : IRequestHan
         IEnumerable<IngredientId> customIngredientIds = command.UpdateProductRequest.CustomIngredientIds.Select(id => (IngredientId)id);
         IEnumerable<Ingredient> customIngredients = await dbContext.Ingredient.Load().ByIds(customIngredientIds, cancellationToken);
 
-        product.Update(command.UpdateProductRequest.Name, command.UpdateProductRequest.Description ?? string.Empty, command.UpdateProductRequest.Price, category, ingredients, customIngredients);
+        product.Update(command.UpdateProductRequest.Name, command.UpdateProductRequest.Description ?? string.Empty, category, ingredients, customIngredients);
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

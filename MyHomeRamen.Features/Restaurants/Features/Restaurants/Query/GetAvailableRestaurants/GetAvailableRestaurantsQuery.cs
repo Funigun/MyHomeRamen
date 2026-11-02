@@ -8,8 +8,6 @@ namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Query.GetAvailab
 
 public sealed record GetAvailableRestaurantsQuery : IQuery<GetAvailableRestaurantsResponse>;
 
-public sealed record GetAvailableRestaurantsResponse(IEnumerable<RestaurantListItemDto> Restaurants, bool CanCreate);
-
 public sealed class GetAvailableRestaurantsAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetAvailableRestaurantsQuery>
 {
     public async Task<bool> Authorize(GetAvailableRestaurantsQuery request, CancellationToken cancellationToken) 

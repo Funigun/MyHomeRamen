@@ -2,6 +2,9 @@ namespace MyHomeRamen.Domain.Common.Category;
 
 public static class CategoryErrors
 {
+    public static DomainException CompanyRequired()
+        => new("Category company identifier must not be empty.");
+
     public static DomainException NameTooShort()
         => new($"Category name is too short. Minimum length is {CategoryConstants.MinNameLength}");
 

@@ -11,6 +11,12 @@ public class IngredientConfiguration : IEntityTypeConfiguration<Ingredient>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.CompanyId)
+               .IsRequired();
+
+        builder.HasIndex(x => new { x.CompanyId, x.Name })
+               .IsUnique();
+
         builder.Property(x => x.Name)
                .IsRequired()
                .HasMaxLength(IngredientConstants.MaxNameLength);
@@ -18,10 +24,6 @@ public class IngredientConfiguration : IEntityTypeConfiguration<Ingredient>
         builder.Property(x => x.Description)
                .IsRequired()
                .HasMaxLength(IngredientConstants.MaxDescriptionLength);
-
-        builder.Property(x => x.Price)
-               .IsRequired()
-               .HasPrecision(18, 2);
 
         builder.HasMany(x => x.Categories)
                .WithMany()

@@ -8,6 +8,8 @@ namespace MyHomeRamen.Features.Payments.Features.Abstractions;
 
 public interface IPaymentsDbContext : IUnitOfWork
 {
+    Guid CompanyId { get; }
+
     IPaymentMethodRepository PaymentMethod { get; }
 
     IPaymentChannelRepository PaymentChannel { get; }

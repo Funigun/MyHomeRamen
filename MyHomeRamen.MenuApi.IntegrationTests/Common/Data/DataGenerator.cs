@@ -16,6 +16,7 @@ internal static class DataGenerator
                return Category.Create
                               (
                                   Guid.NewGuid(),
+                                  TestTenant.CompanyId,
                                   name ?? f.RamenMenu().ProductCategory(),
                                   sortOrder,
                                   CategoryType.Product
@@ -41,6 +42,7 @@ internal static class DataGenerator
            return Category.Create
                           (
                               Guid.NewGuid(),
+                              TestTenant.CompanyId,
                               name ?? f.RamenMenu().IngredientCategory(),
                               1,
                               CategoryType.Ingredient
@@ -71,9 +73,9 @@ internal static class DataGenerator
                return Ingredient.Create
                       (
                           Guid.NewGuid(),
+                          TestTenant.CompanyId,
                           ingName,
                           ingDescription,
-                          f.Random.Number(),
                           [category]
                       );
            }).Generate();
@@ -87,9 +89,9 @@ internal static class DataGenerator
            return Product.Create
                   (
                       Guid.CreateVersion7(),
+                      TestTenant.CompanyId,
                       productName,
                       f.RamenMenu().ProductDescription(productName),
-                      Math.Round(f.Random.Decimal(ProductConstants.MinPrice, ProductConstants.MaxPrice), 2),
                       "",
                       baseIngredients,
                       customIngredients,

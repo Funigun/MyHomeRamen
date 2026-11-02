@@ -8,7 +8,7 @@ tags: ["domain", "shopping cart", "basket", "architecture"]
 
 ### Status
 
-**Accepted**
+**Proposed**
 
 ### Context
 
@@ -46,7 +46,7 @@ We create a `ShoppingCart` module by combining Clean and Vertical architecture s
 **The decision includes:**
 1. **Domain**: Domain model will be defined in `MyHomeRamen.Domain` project under `ShoppingCart` folder
 2. **Database**: `IMenuDbContext` will be defined in `MyHomeRamen.Domain` project with implementation in `MyHomeRamen.Persistance` project.
-3. **Synchonization**: Data must be consistent with `Menu` module when adding items to shopping cart and before proceeding to checkout. No synchronization mechanism is required at this moment.
+3. **Validation**: Copied product data must be validated against the `Menu` module when adding items to the shopping cart and again before checkout. No background synchronization mechanism is required.
 4. **Stick to assumptions**: Proper architecture tests will be created to ensure that `ShoppingCart` module does not depend directly on other modules (domain, business logic).
 
 
@@ -59,4 +59,3 @@ We create a `ShoppingCart` module by combining Clean and Vertical architecture s
 
 #### Negative
 - **NEG-001**: **Increased Responsibility**: Other modules must handle their own data integrity and consistency for product information.
-

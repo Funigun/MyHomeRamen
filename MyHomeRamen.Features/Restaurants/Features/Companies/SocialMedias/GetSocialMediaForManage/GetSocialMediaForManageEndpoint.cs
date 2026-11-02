@@ -5,8 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Restaurants.Features.Companies.Common;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.SocialMedias.GetSocialMediaForManage;
+
+public sealed record GetSocialMediaForManageResponse(IEnumerable<SocialMediaManageDto> Items, bool CanEditMedia);
 
 public sealed class GetSocialMediaForManageEndpoint : IEndpoint
 {

@@ -21,7 +21,6 @@ public sealed record GetProductByIdForManageQueryOptions(ProductId ProductId)
                 product.Id.Value,
                 product.Name,
                 product.Description,
-                product.Price,
                 product.Categories[0].Id.Value,
                 product.BaseIngredients.Select(ingredient => ingredient.Id.Value).ToList(),
                 product.CustomIngredients.Select(ingredient => ingredient.Id.Value).ToList())
@@ -57,5 +56,5 @@ public sealed class GetProductByIdForManageHandler(IMenuDbContext dbContext) : I
     }
 
     private static GetProductByIdForManageResponse ToResponse(ProductByIdForManageDto product)
-        => new(product.Id, product.Name, product.Description, product.Price, product.CategoryId, product.IngredientIds, product.CustomIngredientIds);
+        => new(product.Id, product.Name, product.Description, product.CategoryId, product.IngredientIds, product.CustomIngredientIds);
 }

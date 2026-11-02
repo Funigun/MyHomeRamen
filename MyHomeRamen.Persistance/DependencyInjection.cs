@@ -15,6 +15,9 @@ using MyHomeRamen.Features.Reservations.Features.Abstractions;
 using MyHomeRamen.Features.Reservations.Features.Bookings.Common;
 using MyHomeRamen.Features.Reservations.Features.Tables.Common;
 using MyHomeRamen.Persistance.Menu;
+using MyHomeRamen.Features.Menu.Features.Offers.Common;
+using MyHomeRamen.Features.Menu.Features.RestaurantIngredientPrices.Common;
+using MyHomeRamen.Features.Menu.Features.MenuCards.Common;
 using MyHomeRamen.Persistance.Orders;
 using MyHomeRamen.Persistance.Payments;
 using MyHomeRamen.Persistance.Reservations;
@@ -53,6 +56,9 @@ public static class DependencyInjection
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<MenuModule.Products.Common.IProductRepository, Menu.ProductRepository>();
         services.AddScoped<MenuModule.Ingredients.Common.IIngredientRepository, Menu.IngredientRepository>();
+        services.AddScoped<IRestaurantProductOfferRepository, Menu.RestaurantProductOfferRepository>();
+        services.AddScoped<IRestaurantIngredientPriceRepository, Menu.RestaurantIngredientPriceRepository>();
+        services.AddScoped<IMenuCardRepository, Menu.MenuCardRepository>();
 
         return services;
     }

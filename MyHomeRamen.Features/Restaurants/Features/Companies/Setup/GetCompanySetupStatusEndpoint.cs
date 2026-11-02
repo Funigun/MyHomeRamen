@@ -7,6 +7,11 @@ using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.Setup;
 
+public sealed record CompanySetupStatusResponse(bool IsOwnerConfigured, bool CompanyExists, bool RestaurantExists)
+{
+    public bool IsComplete => IsOwnerConfigured && CompanyExists && RestaurantExists;
+}
+
 public sealed class GetCompanySetupStatusEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)

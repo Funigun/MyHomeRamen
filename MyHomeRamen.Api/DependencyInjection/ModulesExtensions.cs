@@ -5,6 +5,8 @@ using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Menu.Services;
 using MyHomeRamen.Features.Payments.ExternalApi;
 using MyHomeRamen.Features.Payments.Services;
+using MyHomeRamen.Features.Restaurants.ExternalApi;
+using MyHomeRamen.Features.Restaurants.Services;
 using MyHomeRamen.Infrastructure.Keycloak;
 using MyHomeRamen.Persistance;
 
@@ -61,6 +63,7 @@ internal static class ModulesExtensions
         internal IServiceCollection AddRestaurantsModule(DatabaseConfigurationProvider configurationProvider)
         {
             services.AddRestaurantsPersistance(configurationProvider);
+            services.AddScoped<IRestaurantService, RestaurantService>();
 
             return services;
         }

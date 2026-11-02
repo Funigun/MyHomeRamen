@@ -12,7 +12,6 @@ namespace MyHomeRamen.Features.Menu.Features.Products.UpdateProduct;
 public sealed record UpdateProductRequest(
     string Name,
     string? Description,
-    decimal Price,
     Guid CategoryId,
     IEnumerable<Guid> IngredientIds,
     IEnumerable<Guid> CustomIngredientIds);
@@ -27,7 +26,7 @@ public sealed class UpdateProductEndpoint : IEndpoint
             .MapStandardPut<UpdateProductResponse>("api/menu/products/{id}", HandleAsync)
             .WithName("UpdateProductEndpoint")
             .WithTags("Products")
-            .WithDescription("Updates the name, description, price, category, and ingredients of an existing product.")
+            .WithDescription("Updates the name, description, category, and ingredients of an existing product.")
             .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 

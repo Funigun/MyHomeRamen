@@ -13,4 +13,5 @@ public static class IngredientConstants
     public const decimal MinPrice = 0.0m;
 
     public const decimal MaxPrice = 50.0m;
+
 }

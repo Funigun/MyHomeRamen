@@ -6,6 +6,11 @@ internal static class OrderValidator
 {
     internal static void Validate(Order order)
     {
+        if (order.CompanyId == Guid.Empty)
+        {
+            throw OrderErrors.CompanyRequired();
+        }
+
         CheckAmount(order);
     }
 

@@ -22,6 +22,21 @@ public static class PermissionConstants
     public const string CanCreateMenu = "Menu.Create";
     public const string CanEditMenu = "Menu.Edit";
     public const string CanDeleteMenu = "Menu.Delete";
+    public const string CanViewMenuCard = "MenuCard.View";
+    public const string CanAddMenuCard = "MenuCard.Add";
+    public const string CanEditMenuCard = "MenuCard.Edit";
+    public const string CanDeleteMenuCard = "MenuCard.Delete";
+    public const string CanManageMenuCards = "MenuCard.Manage";
+    public const string CanViewOffer = "Offer.View";
+    public const string CanAddOffer = "Offer.Add";
+    public const string CanEditOffer = "Offer.Edit";
+    public const string CanDeleteOffer = "Offer.Delete";
+    public const string CanManageOffers = "Offer.Manage";
+    public const string CanViewIngredientPrice = "IngredientPrice.View";
+    public const string CanAddIngredientPrice = "IngredientPrice.Add";
+    public const string CanEditIngredientPrice = "IngredientPrice.Edit";
+    public const string CanDeleteIngredientPrice = "IngredientPrice.Delete";
+    public const string CanManageIngredientPrices = "IngredientPrice.Manage";
 
     public static IEnumerable<string> AvailablePermissions =>
      [

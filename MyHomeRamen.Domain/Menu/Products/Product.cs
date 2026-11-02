@@ -14,13 +14,15 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
     public ProductId Id { get; private set; }
 
+    public Guid CompanyId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     public string Description { get; private set; } = string.Empty;
 
-    public decimal Price { get; private set; }
-
     public string ImageUrl { get; private set; } = string.Empty;
+
+    public ProductStatus Status { get; private set; }
 
     public IReadOnlyList<Ingredient> BaseIngredients => _baseIngredients.ToList();
 
@@ -32,22 +34,23 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
     {
     }
 
-    private Product(ProductId id, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients, Collection<Category> categories)
+    private Product(ProductId id, Guid companyId, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients, Collection<Category> categories)
     {
         Id = id;
+        CompanyId = companyId;
         _baseIngredients = baseIngredients;
         _customIngredients = customIngredients;
         _categories = categories;
     }
 
-    public static Product Create(ProductId id, string name, string description, decimal price, string imageUrl, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients, Collection<Category> categories)
+    public static Product Create(ProductId id, Guid companyId, string name, string description, string imageUrl, Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients, Collection<Category> categories)
     {
-        Product product = new(id, baseIngredients, customIngredients, categories)
+        Product product = new(id, companyId, baseIngredients, customIngredients, categories)
         {
             Name = name,
             Description = description,
-            Price = price,
-            ImageUrl = imageUrl
+            ImageUrl = imageUrl,
+            Status = ProductStatus.Active
         };
 
         ProductValidator.ValidateProduct(product);
@@ -55,7 +58,7 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
         return product;
     }
 
-    public void Update(string name, string description, decimal price, Category category, IEnumerable<Ingredient> ingredients, IEnumerable<Ingredient> customIngredients)
+    public void Update(string name, string description, Category category, IEnumerable<Ingredient> ingredients, IEnumerable<Ingredient> customIngredients)
     {
         if (category is null)
         {
@@ -64,7 +67,6 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
         Name = name;
         Description = description;
-        Price = price;
 
         _categories.Clear();
         _categories.Add(category);
@@ -83,4 +85,6 @@ public sealed class Product : AuditableEntity, IEntity<ProductId>
 
         ProductValidator.ValidateProduct(this);
     }
+
+    public void Retire() => Status = ProductStatus.Retired;
 }

@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Query.GetRestaurantById;
+
+public sealed record GetRestaurantByIdResponse(RestaurantDetailsDto Restaurant);
 
 public sealed class GetRestaurantByIdEndpoint : IEndpoint
 {
@@ -22,4 +25,3 @@ public sealed class GetRestaurantByIdEndpoint : IEndpoint
         return TypedResults.Ok(await handler.Handle(new GetRestaurantByIdQuery(restaurantId), cancellationToken));  
     }
 }
-

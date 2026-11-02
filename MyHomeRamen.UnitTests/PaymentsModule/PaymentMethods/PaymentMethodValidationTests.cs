@@ -7,6 +7,7 @@ namespace MyHomeRamen.UnitTests.PaymentsModule.PaymentMethods;
 public sealed class PaymentMethodValidationTests
 {
     private static readonly PaymentMethodId DefaultId = new(Guid.NewGuid());
+    private static readonly Guid DefaultCompanyId = Guid.CreateVersion7();
     private const string DefaultName = "Credit Card";
     private const string DefaultImageUrl = "https://example.com/credit-card.png";
     private const bool DefaultIsActive = true;
@@ -18,6 +19,7 @@ public sealed class PaymentMethodValidationTests
         // Act
         PaymentMethod paymentMethod = PaymentMethod.Create(
             DefaultId,
+            DefaultCompanyId,
             DefaultName,
             DefaultImageUrl,
             DefaultIsActive,
@@ -25,6 +27,7 @@ public sealed class PaymentMethodValidationTests
 
         // Assert
         Assert.Equal(DefaultId, paymentMethod.Id);
+        Assert.Equal(DefaultCompanyId, paymentMethod.CompanyId);
         Assert.Equal(DefaultName, paymentMethod.Name);
         Assert.Equal(DefaultImageUrl, paymentMethod.ImageUrl);
         Assert.Equal(DefaultIsActive, paymentMethod.IsActive);
@@ -72,6 +75,7 @@ public sealed class PaymentMethodValidationTests
     {
         return PaymentMethod.Create(
             DefaultId,
+            DefaultCompanyId,
             name ?? DefaultName,
             imageUrl ?? DefaultImageUrl,
             isActive ?? DefaultIsActive,

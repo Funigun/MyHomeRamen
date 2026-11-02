@@ -130,18 +130,16 @@ public sealed class CreateProductTests(WebApiFactory apiFactory) : IClassFixture
 
         return
         [
-            new CreateProductRequest(string.Empty, validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(faker.Random.String2(1, ProductConstants.MinNameLength - 1), validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(faker.Random.String2(ProductConstants.MaxNameLength + 1, ProductConstants.MaxNameLength + 10), validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, string.Empty, ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, faker.Random.String2(1, ProductConstants.MinDescriptionLength - 1), ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, faker.Random.String2(ProductConstants.MaxDescriptionLength + 1, ProductConstants.MaxDescriptionLength + 10), ProductConstants.MinPrice, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice - 0.01m, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductConstants.MaxPrice + 0.01m, validCategoryId, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice, Guid.Empty, validIngredientIds, []),
-            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice, validCategoryId, [], []),
-            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, [Guid.Empty]),
-            new CreateProductRequest(validName, validDescription, ProductConstants.MinPrice, validCategoryId, validIngredientIds, validIngredientIds),
+            new CreateProductRequest(string.Empty, validDescription, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(faker.Random.String2(1, ProductConstants.MinNameLength - 1), validDescription, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(faker.Random.String2(ProductConstants.MaxNameLength + 1, ProductConstants.MaxNameLength + 10), validDescription, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, string.Empty, validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, faker.Random.String2(1, ProductConstants.MinDescriptionLength - 1), validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, faker.Random.String2(ProductConstants.MaxDescriptionLength + 1, ProductConstants.MaxDescriptionLength + 10), validCategoryId, validIngredientIds, []),
+            new CreateProductRequest(validName, validDescription, Guid.Empty, validIngredientIds, []),
+            new CreateProductRequest(validName, validDescription, validCategoryId, [], []),
+            new CreateProductRequest(validName, validDescription, validCategoryId, validIngredientIds, [Guid.Empty]),
+            new CreateProductRequest(validName, validDescription, validCategoryId, validIngredientIds, validIngredientIds),
         ];
     }
 }

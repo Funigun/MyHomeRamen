@@ -2,6 +2,9 @@ namespace MyHomeRamen.Domain.Common.PaymentMethod;
 
 public static class PaymentMethodErrors
 {
+    public static DomainException CompanyRequired()
+        => new("Payment method company identifier must not be empty.");
+
     public static DomainException NameTooShort()
         => new($"Payment method name is too short. Minimum length is {PaymentMethodConstants.MinNameLength}");
 

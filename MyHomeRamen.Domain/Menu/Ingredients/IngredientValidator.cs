@@ -7,9 +7,13 @@ internal static class IngredientValidator
 {
     internal static void Validate(Ingredient ingredient)
     {
+        if (ingredient.CompanyId == Guid.Empty)
+        {
+            throw IngredientErrors.CompanyRequired();
+        }
+
         CheckName(ingredient);
         CheckDescription(ingredient);
-        CheckPrice(ingredient);
         CheckCategories(ingredient);
     }
 
@@ -39,19 +43,6 @@ internal static class IngredientValidator
         }
     }
 
-    private static void CheckPrice(Ingredient ingredient)
-    {
-        if (ingredient.Price < IngredientConstants.MinPrice)
-        {
-            throw IngredientErrors.PriceTooSmall();
-        }
-
-        if (ingredient.Price > IngredientConstants.MaxPrice)
-        {
-            throw IngredientErrors.PriceTooHigh();
-        }
-    }
-
     private static void CheckCategories(Ingredient ingredient)
     {
         if (ingredient.Categories.Any(category => category.CategoryType != CategoryType.Ingredient))
@@ -62,6 +53,11 @@ internal static class IngredientValidator
         if (ingredient.Categories.DistinctBy(category => category.Id).Count() != ingredient.Categories.Count)
         {
             throw IngredientErrors.CategoriesNotUnique();
+        }
+
+        if (ingredient.Categories.Any(category => category.CompanyId != ingredient.CompanyId))
+        {
+            throw IngredientErrors.CategoryCompanyMismatch();
         }
     }
 }

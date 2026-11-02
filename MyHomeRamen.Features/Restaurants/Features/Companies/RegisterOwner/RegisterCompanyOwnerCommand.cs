@@ -4,17 +4,6 @@ using MyHomeRamen.Features.Identity.ExternalApi;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.RegisterOwner;
 
-public sealed record RegisterCompanyOwnerRequest(
-    string UserName,
-    string FirstName,
-    string LastName,
-    string Email,
-    string PhoneNumber,
-    string Password,
-    string ConfirmPassword);
-
-public sealed record RegisterCompanyOwnerResponse(Guid UserId);
-
 public sealed record RegisterCompanyOwnerCommand(RegisterCompanyOwnerRequest Request) : ICommand<RegisterCompanyOwnerResponse>;
 
 public sealed class RegisterCompanyOwnerCommandValidator : AbstractValidator<RegisterCompanyOwnerCommand>

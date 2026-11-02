@@ -9,21 +9,6 @@ using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.CreateInitialRestaurant;
 
-public sealed record CreateInitialRestaurantRequest(
-    string Name,
-    string Street,
-    string City,
-    string ZipCode,
-    double Latitude,
-    double Longitude,
-    string Phone,
-    string Email,
-    string AccountNumber,
-    string BankName,
-    string RoutingNumber);
-
-public sealed record CreateInitialRestaurantResponse(Guid RestaurantId);
-
 public sealed record CreateInitialRestaurantCommand(CreateInitialRestaurantRequest Request)
     : ICommand<CreateInitialRestaurantResponse>;
 

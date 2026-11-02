@@ -31,9 +31,6 @@ public sealed class CreateProductValidator : AbstractValidator<CreateProductComm
                 .Cascade(CascadeMode.Stop)
                 .MustMeetProductDescriptionLengthRequirements();
 
-        RuleFor(x => x.CreateProductRequest.Price)
-            .MustBeValidProductPrice();
-
         RuleFor(x => x.CreateProductRequest.CategoryId)
             .MustBeExistingProductCategory(dbContext);
 
@@ -61,7 +58,7 @@ public sealed class CreateProductHandler(IMenuDbContext dbContext) : IRequestHan
 
         IEnumerable<Ingredient> customIngredients = await dbContext.Ingredient.Load().ByIds(command.CreateProductRequest.CustomIngredientIds.Select(id => (IngredientId)id), cancellationToken);
 
-        Product product = command.CreateProductRequest.ToDomain(category, ingredients, customIngredients);
+        Product product = command.CreateProductRequest.ToDomain(dbContext.CompanyId, category, ingredients, customIngredients);
 
         dbContext.Product.Add(product);
         await dbContext.SaveChangesAsync(cancellationToken);
@@ -72,13 +69,13 @@ public sealed class CreateProductHandler(IMenuDbContext dbContext) : IRequestHan
 
 internal static class Mappings
 {
-    public static Product ToDomain(this CreateProductRequest request, Category category, IEnumerable<Ingredient> ingredients, IEnumerable<Ingredient> customIngredients)
+    public static Product ToDomain(this CreateProductRequest request, Guid companyId, Category category, IEnumerable<Ingredient> ingredients, IEnumerable<Ingredient> customIngredients)
     {
         return Product.Create(
             Guid.NewGuid(),
+            companyId,
             request.Name,
             request.Description ?? string.Empty,
-            request.Price,
             string.Empty,
             new Collection<Ingredient>(ingredients.ToList()),
             new Collection<Ingredient>(customIngredients.ToList()),

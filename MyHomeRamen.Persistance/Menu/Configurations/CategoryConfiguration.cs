@@ -11,6 +11,12 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         builder.HasKey(x => x.Id);
 
+        builder.Property(x => x.CompanyId)
+               .IsRequired();
+
+        builder.HasIndex(x => new { x.CompanyId, x.Name, x.CategoryType })
+               .IsUnique();
+
         builder.Property(category => category.Name)
                .HasMaxLength(CategoryConstants.MaxNameLength)
                .IsRequired();

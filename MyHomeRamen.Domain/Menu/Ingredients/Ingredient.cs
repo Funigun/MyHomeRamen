@@ -9,11 +9,11 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
 
     public IngredientId Id { get; private set; }
 
+    public Guid CompanyId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     public string Description { get; private set; } = default!;
-
-    public decimal Price { get; private set; }
 
     public IReadOnlyList<Category> Categories => _categories.ToList();
 
@@ -21,19 +21,19 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
     {
     }
 
-    private Ingredient(IngredientId id, IEnumerable<Category> categories)
+    private Ingredient(IngredientId id, Guid companyId, IEnumerable<Category> categories)
     {
         Id = id;
+        CompanyId = companyId;
         _categories = categories.ToList();
     }
 
-    public static Ingredient Create(IngredientId id, string name, string description, decimal price, IEnumerable<Category> categories)
+    public static Ingredient Create(IngredientId id, Guid companyId, string name, string description, IEnumerable<Category> categories)
     {
-        Ingredient ingredient = new(id, categories)
+        Ingredient ingredient = new(id, companyId, categories)
         {
             Name = name,
-            Description = description,
-            Price = price
+            Description = description
         };
 
         IngredientValidator.Validate(ingredient);
@@ -41,11 +41,10 @@ public sealed class Ingredient : AuditableEntity, IEntity<IngredientId>
         return ingredient;
     }
 
-    public void Update(string name, string description, decimal price, IEnumerable<Category> categories)
+    public void Update(string name, string description, IEnumerable<Category> categories)
     {
         Name = name;
         Description = description;
-        Price = price;
         _categories.Clear();
 
         _categories = categories.ToList();

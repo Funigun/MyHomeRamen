@@ -7,6 +7,8 @@ using MyHomeRamen.Features.Common.Mediator;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.SocialMedias.CreateSocialMedia;
 
+public sealed record CreateSocialMediaRequest(string Name, string LogoUrl, string Url);
+
 public sealed class CreateSocialMediaEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)

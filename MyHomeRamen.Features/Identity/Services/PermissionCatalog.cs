@@ -8,7 +8,10 @@ internal static class PermissionCatalog
     public static IReadOnlyCollection<PermissionDefinition> Definitions { get; } =
     [
         .. CreateDefinitions("Identity", IdentityPermissionConstants.AvailablePermissions),
-        .. CreateDefinitions("Menu", MenuPermissionConstants.AvailablePermissions),
+        .. CreateDefinitions(
+            "Menu",
+            MenuPermissionConstants.AvailablePermissions,
+            MenuPermissionConstants.RestaurantScopedPermissions),
         .. CreateDefinitions("ShoppingCart", ShoppingCartPermissionConstants.AvailablePermissions),
         .. CreateDefinitions("Orders", OrdersPermissionConstants.AvailablePermissions),
         .. CreateDefinitions("Reservations", ReservationsPermissionConstants.AvailablePermissions),
@@ -21,10 +24,12 @@ internal static class PermissionCatalog
 
     public static IReadOnlySet<(string Module, string Name)> GuestPermissions { get; } 
         = ShoppingCartPermissionConstants.GuestPermissions.Select(permission => ("ShoppingCart", permission))
-                                                          .ToHashSet();
+            .Concat(MenuPermissionConstants.CustomerViewPermissions.Select(permission => ("Menu", permission)))
+            .ToHashSet();
 
     public static IReadOnlySet<(string Module, string Name)> CompanyOwnerPermissions { get; }
         = RestaurantsPermissionConstants.CompanyOwnerPermissions.Select(permission => ("Restaurants", permission))
+            .Concat(MenuPermissionConstants.AvailablePermissions.Select(permission => ("Menu", permission)))
                                                                  .ToHashSet();
 
     private static IEnumerable<PermissionDefinition> CreateDefinitions(

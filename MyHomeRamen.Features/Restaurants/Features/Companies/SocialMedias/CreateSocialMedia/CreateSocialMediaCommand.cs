@@ -8,7 +8,6 @@ using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.SocialMedias.CreateSocialMedia;
 
-public sealed record CreateSocialMediaRequest(string Name, string LogoUrl, string Url);
 public sealed record CreateSocialMediaCommand(CreateSocialMediaRequest Request) : ICommand<Unit>;
 
 public sealed class CreateSocialMediaAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<CreateSocialMediaCommand>

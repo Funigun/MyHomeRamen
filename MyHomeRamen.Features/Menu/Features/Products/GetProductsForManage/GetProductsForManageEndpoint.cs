@@ -14,11 +14,9 @@ public sealed record GetProductsForManageRequest(
     string? Name,
     Guid[]? CategoryIds,
     Guid[]? IngredientIds,
-    decimal? PriceFrom,
-    decimal? PriceTo,
     string? OrderBy);
 
-public sealed record ProductForManageDto(Guid Id, string Name, string? Description, decimal Price);
+public sealed record ProductForManageDto(Guid Id, string Name, string? Description, string Status);
 
 public sealed record GetProductsForManageResponse(
     int Page,

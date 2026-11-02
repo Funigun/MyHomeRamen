@@ -1,5 +1,6 @@
 using FluentValidation;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
+using MyHomeRamen.Domain.ShoppingCart.ShippingDetails;
 using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
@@ -13,10 +14,8 @@ public record UpdateShippingDetailsCommand(BasketId BasketId, UserId UserId, Upd
 
 public sealed class UpdateShippingDetailsAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<UpdateShippingDetailsCommand>
 {
-    public async Task<bool> Authorize(UpdateShippingDetailsCommand request, CancellationToken cancellationToken)
-    {
-        return await Task.FromResult(currentUser.CanManageBasket());
-    }
+    public Task<bool> Authorize(UpdateShippingDetailsCommand request, CancellationToken cancellationToken)
+        => Task.FromResult(currentUser.CanManageBasket());
 }
 
 public sealed class UpdateShippingDetailsValidationPolicy : AbstractValidator<UpdateShippingDetailsCommand>
@@ -70,5 +69,27 @@ public sealed class UpdateShippingDetailsHandler(IShoppingCartDbContext dbContex
 
         await dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;
+    }
+}
+
+public static class Mappings
+{
+    public static ShippingDetails ToDomain(this UpdateShippingDetailsRequest request)
+    {
+        if (request.PersonalPickup)
+        {
+            return ShippingDetails.CreatePersonalPickup();
+        }
+
+        ShippingAddress address = new
+        (
+            request.ShippingAddress!.Street,
+            request.ShippingAddress.Building,
+            request.ShippingAddress.Apartment,
+            request.ShippingAddress.City,
+            request.ShippingAddress.ZipCode
+        );
+
+        return ShippingDetails.CreateDelivery(address);
     }
 }

@@ -21,7 +21,6 @@ public sealed record GetIngredientByIdQueryOptions(IngredientId IngredientId)
                                ingredient.Id.Value,
                                ingredient.Name,
                                ingredient.Description,
-                               ingredient.Price,
                                ingredient.Categories.Select(category => category.Id.Value))
                        }
                    );
@@ -57,5 +56,5 @@ public sealed class GetIngredientByIdHandler(IMenuDbContext dbContext) : IReques
     }
 
     private static GetIngredientByIdResponse ToResponse(IngredientByIdDto ingredient)
-        => new(ingredient.Id, ingredient.Name, ingredient.Description, ingredient.Price, ingredient.CategoryIds);
+        => new(ingredient.Id, ingredient.Name, ingredient.Description, ingredient.CategoryIds);
 }

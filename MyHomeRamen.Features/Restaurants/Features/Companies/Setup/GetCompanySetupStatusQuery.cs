@@ -1,4 +1,3 @@
-using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
 using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Restaurants.Features.Abstractions;
@@ -6,11 +5,6 @@ using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 namespace MyHomeRamen.Features.Restaurants.Features.Companies.Setup;
 
 public sealed record GetCompanySetupStatusQuery : IQuery<CompanySetupStatusResponse>;
-
-public sealed record CompanySetupStatusResponse(bool IsOwnerConfigured, bool CompanyExists, bool RestaurantExists)
-{
-    public bool IsComplete => IsOwnerConfigured && CompanyExists && RestaurantExists;
-}
 
 public sealed class GetCompanySetupStatusHandler(
     IRestaurantDbContext restaurantDbContext,
