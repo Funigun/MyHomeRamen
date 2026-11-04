@@ -26,6 +26,27 @@ public sealed class MenuCardTests
     }
 
     [Fact]
+    public void Activate_ShouldSetActive_WhenCardIsInactive()
+    {
+        MenuCard card = CreateMenuCard(Guid.CreateVersion7());
+        card.SetActive(false);
+
+        card.Activate();
+
+        Assert.True(card.IsActive);
+    }
+
+    [Fact]
+    public void Activate_ShouldThrowDomainException_WhenCardIsAlreadyActive()
+    {
+        MenuCard card = CreateMenuCard(Guid.CreateVersion7());
+
+        DomainException exception = Assert.Throws<DomainException>(() => card.Activate());
+
+        Assert.Equal(MenuCardErrors.AlreadyActive().Message, exception.Message);
+    }
+
+    [Fact]
     public void AddOffer_ShouldThrowDomainException_WhenOfferIsAlreadyListed()
     {
         Guid restaurantId = Guid.CreateVersion7();

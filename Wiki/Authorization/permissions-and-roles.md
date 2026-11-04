@@ -8,10 +8,10 @@ token issuance; it does not define the application's permission catalog.
 | Type | Meaning | Key fields |
 |---|---|---|
 | `PermissionDefinition` | Declares a permission available to the application and its metadata. | `Module`, `Name`, `Description`, `IsResourceScoped` |
-| `PermissionGrant` | Represents a permission effective for a resolved user through assigned roles. | `Module`, `Name`, `IsResourceScoped`, optional `RestaurantId` |
+| `PermissionGrant` | Represents a permission effective for a resolved user through assigned roles. | `Module`, `Name`, `IsResourceScoped`, `RoleScope`, optional `RestaurantId` |
 
 A definition is not an assignment. A grant has no description; it represents
-effective access, including optional restaurant scope.
+effective access and carries its role's explicit scope.
 
 ## Where permissions are defined
 
@@ -31,9 +31,10 @@ have multiple assigned roles. `PermissionQuery.ByUserId` joins those
 assignments and creates the effective `PermissionGrant` collection used by
 `ICurrentUser`.
 
-Current built-in roles are `RestaurantAdmin`, `Guest`, `Customer`, and
-`CompanyOwner`. The catalog synchronizer provisions or refreshes their
-permission sets. User registration assigns `Customer` or `CompanyOwner`; guest
+`Guest`, `Customer`, and `CompanyOwner` are Company-scoped built-in roles
+provisioned or refreshed by catalog synchronization. Restaurant creation
+provisions a Restaurant-scoped `RestaurantAdmin` role with restaurant-scoped
+permissions. User registration assigns `Customer` or `CompanyOwner`; guest
 registration assigns `Guest`. Company-owner onboarding assigns both
 `Customer` and `CompanyOwner`.
 
@@ -41,21 +42,19 @@ registration assigns `Guest`. Company-owner onboarding assigns both
 tree does not contain role-management endpoints or handlers. Do not document
 custom-role creation or assignment as an available UI/API workflow yet.
 
-The in-progress company setup workflow creates a Company and its initial
-Restaurant after owner registration. It does not yet model company memberships
-or restaurant memberships as authorization assignments.
+The company setup workflow creates a Company and its initial Restaurant after
+owner registration. `UserRole` links users directly to roles.
 
 ## Scope behavior
 
-`Role.RestaurantId` is nullable. Null represents a global role; a value
-represents a restaurant-bound role. `PermissionGrant.RestaurantId` records the
-scope carried by the assigned role.
+`Role.Scope` is persisted explicitly as `RoleScope.Company` or
+`RoleScope.Restaurant`. Company roles have no `RestaurantId`; Restaurant roles
+require one. Do not infer Company scope from a nullable `RestaurantId`.
 
-For an unscoped grant, `HasPermission` accepts a permission check without a
-restaurant ID. For a scoped grant, `HasPermission` requires a resource-scoped
-permission and a matching restaurant ID. This is current code behavior; the
-refactor's company-membership and restaurant-membership model is documented
-separately in [ADR-0004](../Users%20ADR/0004-company-restaurant-roles-and-authorization.md).
+Company-scoped grants apply across that Company's restaurants. A
+Restaurant-scoped grant is effective only for a resource-scoped permission and
+matching restaurant ID. `RestaurantIdsFor` returns only explicitly assigned
+restaurant IDs.
 
 ## Adding a permission
 

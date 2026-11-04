@@ -84,7 +84,9 @@ else
         _isLoading = true;
         try
         {
-            ApiResult<ShippingDetailsResponse> result = await ShoppingCartApiClient.GetShippingDetailsAsync(Model.BasketId);
+            ApiResult<ShippingDetailsResponse> result = await ShoppingCartApiClient.GetShippingDetailsAsync(
+                Model.BasketId,
+                Model.RestaurantId);
             if (result is ApiResult<ShippingDetailsResponse>.Success success)
             {
                 Model.SetShippingDetails(success.Value);
@@ -156,6 +158,7 @@ else
                 : null;
             ApiResult<bool> result = await ShoppingCartApiClient.UpdateShippingDetailsAsync(
                 Model.BasketId,
+                Model.RestaurantId,
                 new UpdateShippingDetailsRequest(Model.ShippingDetails.PersonalPickup, Model.ShippingDetails.Delivery, address));
             if (result is ApiResult<bool>.Success)
             {

@@ -2,7 +2,7 @@
 name: drax-implementer
 description: Implement features and changes based on structured implementation plans and coding standards.
 tools: ['codebase', 'search', 'editFiles', 'execute']
-model: gpt-5.6-luna
+model: gpt-6-luna
 ---
 
 # Drax Implementer Agent

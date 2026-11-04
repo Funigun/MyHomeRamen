@@ -14,7 +14,7 @@ public sealed class ClearBasketEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardDelete("api/shoppingcart/baskets/{basketId}", HandleAsync)
+            .MapStandardDelete("api/shopping-cart/baskets/{basketId}", HandleAsync)
             .WithName("ClearBasketEndpoint")
             .WithTags("Baskets")
             .AllowAnonymous();

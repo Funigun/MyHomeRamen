@@ -120,6 +120,7 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
             b.ToTable("Roles");
             b.HasKey(role => role.Id);
             b.Property(role => role.Id).ValueGeneratedNever();
+            b.Property(role => role.Scope).HasConversion<string>().IsRequired();
             b.HasMany(role => role.RolePermissions)
              .WithOne()
              .HasForeignKey(rolePermission => rolePermission.RoleId);
@@ -178,17 +179,6 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
         if ((await Database.GetPendingMigrationsAsync(cancellationToken)).Any())
         {
             await Database.MigrateAsync(cancellationToken);
-        }
-    }
-
-    public async Task Seed(CancellationToken cancellationToken)
-    {
-        if (!await Roles.AnyAsync(cancellationToken))
-        {
-            IEnumerable<Role> roles = RoleConstants.AvailableRoles.Select(roleName => Domain.Identity.Roles.Role.CreateCustom(roleName, $"{roleName} role"));
-
-            await Roles.AddRangeAsync(roles, cancellationToken);
-            await SaveChangesAsync(cancellationToken);
         }
     }
 

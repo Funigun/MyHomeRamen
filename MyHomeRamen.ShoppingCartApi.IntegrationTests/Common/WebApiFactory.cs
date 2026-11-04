@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MyHomeRamen.Api;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Payments.ExternalApi;
@@ -79,6 +80,13 @@ public sealed class WebApiFactory(DbContainerFixture dbFixture, RedisFixture red
 
         HttpClient.Dispose();
         await base.DisposeAsync();
+    }
+
+    public new HttpClient CreateClient()
+    {
+        HttpClient client = base.CreateClient();
+        client.DefaultRequestHeaders.Add(HeaderConstants.RestaurantId, ShoppingCartDataSet.RestaurantId.ToString());
+        return client;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

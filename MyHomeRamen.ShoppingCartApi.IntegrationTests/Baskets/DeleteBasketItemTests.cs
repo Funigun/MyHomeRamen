@@ -2,7 +2,7 @@
 /*
 public sealed class DeleteBasketItemTests(WebApiFactory apiFactory)
 {
-    private const string EndpointBase = "/api/shoppingcart/baskets";
+    private const string EndpointBase = "/api/shopping-cart/baskets";
 
     private static string BuildUrl(Guid basketId, Guid basketItemId)
         => $"{EndpointBase}/{basketId}/items/{basketItemId}";

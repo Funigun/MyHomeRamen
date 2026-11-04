@@ -7,6 +7,7 @@ using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.DeleteBasketItem;
 
@@ -22,12 +23,16 @@ public sealed class DeleteBasketItemAuthorizationPolicy(ICurrentUser currentUser
 
 public sealed class DeleteBasketItemValidationPolicy : AbstractValidator<DeleteBasketItemCommand>
 {
-    public DeleteBasketItemValidationPolicy(IShoppingCartDbContext dbContext, ICurrentUser currentUser)
+    public DeleteBasketItemValidationPolicy(
+        IShoppingCartDbContext dbContext,
+        ICurrentUser currentUser,
+        ICompanyContext companyContext)
     {
         RuleFor(x => x.BasketId)
             .MustBeAccessibleBasket(
                 dbContext,
-                _ => new UserId(currentUser.UserId));
+                _ => new UserId(currentUser.UserId),
+                companyContext.RestaurantId);
 
         RuleFor(x => x.BasketItemId)
             .NotEmpty()
@@ -35,7 +40,9 @@ public sealed class DeleteBasketItemValidationPolicy : AbstractValidator<DeleteB
             {
                 UserId userId = new(currentUser.UserId);
                 Basket? basket = await dbContext.Basket.Load().GetByIdForUserTrackedAsync(command.BasketId, userId, ct);
-                return basket?.Items.Any(item => item.Id == basketItemId) ?? false;
+                return basket is not null
+                    && basket.RestaurantId == companyContext.RestaurantId
+                    && basket.Items.Any(item => item.Id == basketItemId);
             })
             .WithMessage("Basket item was not found in the specified basket.");
     }

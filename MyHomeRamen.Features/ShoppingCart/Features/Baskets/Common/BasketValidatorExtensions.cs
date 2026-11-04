@@ -24,26 +24,50 @@ internal static class BasketValidatorExtensions
                             .When(x => x is not null);
     }
 
-    public static IRuleBuilderOptions<T, BasketId> MustBeAccessibleBasket<T>(this IRuleBuilder<T, BasketId> ruleBuilder, IShoppingCartDbContext dbContext, Func<T, UserId> userIdSelector)
+    public static IRuleBuilderOptions<T, BasketId> MustBeAccessibleBasket<T>(
+        this IRuleBuilder<T, BasketId> ruleBuilder,
+        IShoppingCartDbContext dbContext,
+        Func<T, UserId> userIdSelector,
+        Guid? restaurantId)
     {
         return ruleBuilder.NotEmpty()
                             .WithMessage("Basket ID must not be empty.")
 
                           .MustAsync(async (command, basketId, cancellationToken) =>
                                 {
+                                    if (!restaurantId.HasValue)
+                                    {
+                                        return false;
+                                    }
+
                                     UserId userId = userIdSelector(command);
-                                    return await dbContext.Basket.Query().GetByIdForUserAsync(basketId, userId, cancellationToken) != null;
+                                    Basket? basket = await dbContext.Basket.Query()
+                                        .GetByIdForUserAsync(basketId, userId, cancellationToken);
+                                    return basket?.RestaurantId == restaurantId;
                                 })
-                            .WithMessage("Basket was not found or does not belong to the current user.");
+                            .WithMessage("Basket was not found or does not belong to the current user and restaurant.");
     }
 
-    public static IRuleBuilderOptions<T, TCommand> MustHaveAccessibleBasket<T, TCommand>(this IRuleBuilder<T, TCommand> ruleBuilder, IShoppingCartDbContext dbContext, Func<TCommand, BasketId> basketIdSelector, Func<TCommand, UserId> userIdSelector, string? propertyName = null)
+    public static IRuleBuilderOptions<T, TCommand> MustHaveAccessibleBasket<T, TCommand>(
+        this IRuleBuilder<T, TCommand> ruleBuilder,
+        IShoppingCartDbContext dbContext,
+        Func<TCommand, BasketId> basketIdSelector,
+        Func<TCommand, UserId> userIdSelector,
+        Guid? restaurantId,
+        string? propertyName = null)
     {
         IRuleBuilderOptions<T, TCommand> result = ruleBuilder.MustAsync(async (command, cancellationToken) =>
                            {
-                               return await dbContext.Basket.Query().GetByIdForUserAsync(basketIdSelector(command), userIdSelector(command), cancellationToken) != null;
+                               if (!restaurantId.HasValue)
+                               {
+                                   return false;
+                               }
+
+                               Basket? basket = await dbContext.Basket.Query()
+                                   .GetByIdForUserAsync(basketIdSelector(command), userIdSelector(command), cancellationToken);
+                               return basket?.RestaurantId == restaurantId;
                            })
-                            .WithMessage("Basket was not found or does not belong to the current user.");
+                            .WithMessage("Basket was not found or does not belong to the current user and restaurant.");
 
         return propertyName is null
             ? result

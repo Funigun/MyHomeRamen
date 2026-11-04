@@ -20,8 +20,10 @@ public sealed class OffersApiClient(HttpClient httpClient, ApiService apiService
         Guid restaurantId,
         CancellationToken cancellationToken)
     {
-        using HttpRequestMessage request = new(HttpMethod.Get, $"{BaseUrl}/{offerId}");
-        request.Headers.Add("X-Restaurant-Id", restaurantId.ToString());
+        using HttpRequestMessage request = RestaurantContextApiRequest.Create(
+            HttpMethod.Get,
+            $"{BaseUrl}/{offerId}",
+            restaurantId);
         using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
 

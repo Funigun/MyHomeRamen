@@ -14,7 +14,7 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
-    private const string EndpointBase = "/api/shoppingcart/basket/summary";
+    private const string EndpointBase = "/api/shopping-cart/basket/summary";
     private Basket _guestBasket = default!;
     private Basket _customerBasket = default!;
     private BasketItem _guestBasketItem = default!;
@@ -64,6 +64,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
 
         Assert.NotNull(getResponse);
         Assert.Equal(_customerBasket.Id.Value, getResponse.Id);
+        Assert.Equal(_customerBasket.RestaurantId, getResponse.RestaurantId);
         Assert.NotEmpty(getResponse.Items);
         Assert.True(getResponse.AllowedActions.CanCreate);
         Assert.True(getResponse.AllowedActions.CanEdit);
@@ -128,6 +129,7 @@ public sealed class GetCurrentBasketSummaryTests(WebApiFactory apiFactory) : ICl
 
         Assert.NotNull(getResponse);
         Assert.Equal(_guestBasket.Id.Value, getResponse.Id);
+        Assert.Equal(_guestBasket.RestaurantId, getResponse.RestaurantId);
         Assert.NotEmpty(getResponse.Items);
     }
 

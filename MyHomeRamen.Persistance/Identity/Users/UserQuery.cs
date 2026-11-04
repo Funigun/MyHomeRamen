@@ -41,7 +41,7 @@ public partial class UserRepository : IUserQuery
                         && user.KeycloakUserId != string.Empty
                         && user.UserRoles.Any(userRole =>
                             userRole.Role.Name == RoleConstants.CompanyOwner
-                            && userRole.Role.RestaurantId == null),
+                            && userRole.Role.Scope == RoleScope.Company),
                 cancellationToken);
 
     public async Task<int> GetNumberOfAddresses(Guid userId, CancellationToken cancellationToken)

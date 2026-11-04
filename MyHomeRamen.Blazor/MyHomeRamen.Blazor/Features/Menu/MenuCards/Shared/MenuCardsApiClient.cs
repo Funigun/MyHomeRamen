@@ -7,7 +7,6 @@ public sealed class MenuCardsApiClient(HttpClient httpClient, ApiService apiServ
 {
     private const string BaseUrl = "api/menu/cards";
     private const string FailureMessage = "Menu card request failed.";
-    private const string RestaurantIdHeader = "X-Restaurant-Id";
 
     public Task<ApiResult<GetMenuCardOptionsResponse>> GetOptionsAsync(
         CancellationToken cancellationToken = default)
@@ -33,8 +32,10 @@ public sealed class MenuCardsApiClient(HttpClient httpClient, ApiService apiServ
         Guid restaurantId,
         CancellationToken cancellationToken)
     {
-        using HttpRequestMessage request = new(HttpMethod.Get, $"{BaseUrl}/{menuCardId}");
-        request.Headers.Add(RestaurantIdHeader, restaurantId.ToString());
+        using HttpRequestMessage request = RestaurantContextApiRequest.Create(
+            HttpMethod.Get,
+            $"{BaseUrl}/{menuCardId}",
+            restaurantId);
         using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
 

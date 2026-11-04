@@ -7,5 +7,4 @@ public static class RoleConstants
     public const string Guest = "Guest";
     public const string Customer = "Customer";
 
-    public static IEnumerable<string> AvailableRoles => [CompanyOwner, RestaurantAdmin, Guest, Customer];
 }

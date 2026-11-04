@@ -13,7 +13,11 @@ public sealed record CurrentBasketDetailsDto(
     Guid RestaurantId,
     IEnumerable<BasketDetailsItemDto> Items);
 
-public sealed record GetCurrentBasketDetailsResponse(Guid BasketId, IEnumerable<BasketDetailsItemDto> Items, AllowedActionsDto AllowedActions);
+public sealed record GetCurrentBasketDetailsResponse(
+    Guid BasketId,
+    Guid RestaurantId,
+    IEnumerable<BasketDetailsItemDto> Items,
+    AllowedActionsDto AllowedActions);
 
 public sealed record BasketDetailsItemDto(
     Guid Id,
@@ -43,7 +47,7 @@ public sealed class GetCurrentBasketDetailsEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<GetCurrentBasketDetailsResponse>("api/shoppingcart/basket/details", HandleAsync)
+            .MapStandardGet<GetCurrentBasketDetailsResponse>("api/shopping-cart/basket/details", HandleAsync)
             .WithName("GetCurrentBasketDetailsEndpoint")
             .WithTags("Baskets")
             .WithDescription("Returns the active basket details for the current user or guest.")

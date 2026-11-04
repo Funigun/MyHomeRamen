@@ -30,9 +30,9 @@ That service resolves a domain user by `domain_id`, Keycloak ID, or guest ID,
 then loads the user's effective `PermissionGrant`s from assigned roles.
 
 `PermissionQuery.ByUserId` joins user-role assignments, role-permission
-assignments, roles, and permissions. The resulting grants carry optional
-`RestaurantId`; permissions are therefore resolved from current database state,
-not copied wholesale into Keycloak tokens.
+assignments, roles, and permissions. The resulting grants carry explicit
+`RoleScope` and optional `RestaurantId`; permissions are therefore resolved
+from current database state, not copied wholesale into Keycloak tokens.
 
 Guests are represented by application users too. For unauthenticated requests,
 Blazor may forward the `guest_id` cookie to the API; the API uses it to resolve
@@ -56,22 +56,23 @@ An unauthenticated request is normally rejected with 401. An authenticated
 user who lacks the required permission should receive 403. Specific feature
 endpoints may have additional behavior.
 
-## Restaurant scope
+## Company and Restaurant scope
 
-An unscoped grant (`RestaurantId == null`) applies without a restaurant ID.
-A restaurant-scoped grant applies to a specific restaurant when the permission
-is marked resource-scoped and the requested restaurant ID matches. Use
+A Company-scoped grant applies across the Company's restaurants. A
+Restaurant-scoped grant applies only when permission is resource-scoped and
+requested restaurant ID matches the role's `RestaurantId`. Use
 `HasPermission(module, permission, restaurantId)` for a specific resource.
 
 `HasAnyPermission` only answers whether any matching grant exists; it does not
 prove access to a particular restaurant. Use `RestaurantIdsFor` to get the
-restaurant IDs attached to scoped grants.
+restaurant IDs attached to Restaurant-scoped grants.
 
-## Refactor boundary
+`CompanyContextMiddleware` validates `X-Restaurant-Id` for menu, payment, and
+restaurant-scoped shopping-cart operations, then populates request-scoped
+`CompanyContext`. Menu-card options and current-basket discovery do not require
+the header. Basket add/checkout body restaurant IDs must match the header;
+basket-ID operations must match the basket's restaurant.
 
 The accepted [ADR-0004](../Users%20ADR/0004-company-restaurant-roles-and-authorization.md)
-defines company and restaurant memberships, active membership checks,
-restaurant context validation, and cache invalidation. Those rules must not be
-assumed implemented until corresponding code exists. Current implementation
-uses `User`, `Role`, user-role assignments, and optional `Role.RestaurantId`.
-
+also defines authorization-cache invalidation behavior; verify that separately
+before adding role-management workflows.

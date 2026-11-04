@@ -20,20 +20,20 @@ internal sealed class UpdateShippingDetailsEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
-        endpointBuilder.MapStandardPut("api/shopping-cart/{id}/update-shipping-details", Handle)
+        endpointBuilder.MapStandardPut("api/shopping-cart/baskets/{basketId}/shipping-details", Handle)
                        .AllowAnonymous()
                        .WithTags("Baskets")
                        .WithDescription("Updates the shipping details for active basket.");
     }
 
     internal static async Task<Results<Ok, BadRequest>> Handle(
-        [FromRoute] Guid id,
+        [FromRoute] Guid basketId,
         [FromBody] UpdateShippingDetailsRequest request,
         [FromServices] IRequestHandler<UpdateShippingDetailsCommand, Unit> handler,
         [FromServices] ICurrentUser currentUser,
         CancellationToken cancellationToken)
     {
-        UpdateShippingDetailsCommand command = new(new BasketId(id), new UserId(currentUser.UserId), request);
+        UpdateShippingDetailsCommand command = new(new BasketId(basketId), new UserId(currentUser.UserId), request);
         await handler.Handle(command, cancellationToken);
 
         return TypedResults.Ok();

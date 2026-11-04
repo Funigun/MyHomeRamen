@@ -5,6 +5,7 @@ using MyHomeRamen.Domain.Restaurants.Restaurants.ValueObjects;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Command.CreateRestaurant;
@@ -51,7 +52,9 @@ public sealed class CreateRestaurantValidator : AbstractValidator<CreateRestaura
     }
 }
 
-public sealed class CreateRestaurantHandler(IRestaurantDbContext dbContext) : IRequestHandler<CreateRestaurantCommand, CreateRestaurantResponse>
+public sealed class CreateRestaurantHandler(
+    IRestaurantDbContext dbContext,
+    IIdentityService identityService) : IRequestHandler<CreateRestaurantCommand, CreateRestaurantResponse>
 {
     public async Task<CreateRestaurantResponse> Handle(CreateRestaurantCommand command, CancellationToken cancellationToken)
     {
@@ -63,6 +66,7 @@ public sealed class CreateRestaurantHandler(IRestaurantDbContext dbContext) : IR
 
         dbContext.Restaurant.Add(restaurant);
         await dbContext.SaveChangesAsync(cancellationToken);
+        await identityService.CreateRestaurantAdminRoleAsync(restaurant.Id.Value, cancellationToken);
 
         return new(restaurant.Id.Value);
     }

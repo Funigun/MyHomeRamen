@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Menu.Offers;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Tenancy;
@@ -16,8 +17,8 @@ public sealed class OfferAuthorizationTests
         Guid requestedRestaurantId = Guid.CreateVersion7();
         TestCurrentUser currentUser = new(
         [
-            new PermissionGrant("Menu", MenuPermissionConstants.CanManageOffers, true, grantedRestaurantId),
-            new PermissionGrant("Menu", MenuPermissionConstants.CanAddOffer, true, grantedRestaurantId)
+            new PermissionGrant("Menu", MenuPermissionConstants.CanManageOffers, true, RoleScope.Restaurant, grantedRestaurantId),
+            new PermissionGrant("Menu", MenuPermissionConstants.CanAddOffer, true, RoleScope.Restaurant, grantedRestaurantId)
         ]);
         CompanyContext companyContext = CreateCompanyContext(requestedRestaurantId);
         CreateOfferAuthorizationPolicy policy = new(currentUser, companyContext);
@@ -35,8 +36,8 @@ public sealed class OfferAuthorizationTests
         Guid restaurantId = Guid.CreateVersion7();
         TestCurrentUser currentUser = new(
         [
-            new PermissionGrant("Menu", MenuPermissionConstants.CanManageOffers, true, restaurantId),
-            new PermissionGrant("Menu", MenuPermissionConstants.CanAddOffer, true, restaurantId)
+            new PermissionGrant("Menu", MenuPermissionConstants.CanManageOffers, true, RoleScope.Restaurant, restaurantId),
+            new PermissionGrant("Menu", MenuPermissionConstants.CanAddOffer, true, RoleScope.Restaurant, restaurantId)
         ]);
         CompanyContext companyContext = CreateCompanyContext(restaurantId);
         CreateOfferAuthorizationPolicy policy = new(currentUser, companyContext);

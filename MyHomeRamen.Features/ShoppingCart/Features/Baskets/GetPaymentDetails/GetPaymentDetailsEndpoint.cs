@@ -21,19 +21,19 @@ public sealed class GetPaymentDetailsEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<PaymentDetailsResponse>("api/shopping-cart/{id}/payment-details", HandleAsync)
+            .MapStandardGet<PaymentDetailsResponse>("api/shopping-cart/baskets/{basketId}/payment-details", HandleAsync)
             .AllowAnonymous()
             .WithName("GetPaymentDetailsEndpoint")
             .WithTags("Baskets");
     }
 
     private static async Task<Results<Ok<PaymentDetailsResponse>, NotFound>> HandleAsync(
-        [FromRoute(Name = "id")] Guid id,
+        [FromRoute] Guid basketId,
         [FromServices] ICurrentUser currentUser,
         [FromServices] IRequestHandler<GetPaymentDetailsQuery, PaymentDetailsResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetPaymentDetailsQuery query = new(new BasketId(id), new UserId(currentUser.UserId));
+        GetPaymentDetailsQuery query = new(new BasketId(basketId), new UserId(currentUser.UserId));
         PaymentDetailsResponse response = await handler.Handle(query, cancellationToken);
 
         return TypedResults.Ok(response);

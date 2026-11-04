@@ -99,6 +99,10 @@ namespace MyHomeRamen.Persistance.Identity.Migrations
                     b.Property<Guid?>("RestaurantId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Roles", "identity");

@@ -25,7 +25,12 @@ public sealed partial class PermissionRepository : IPermissionQuery
                                                                 identityDbContext.Roles.AsNoTracking(),
                                                                 rolePermission => rolePermission.RoleId,
                                                                 role => role.Id,
-                                                                (rolePermission, role) => new { rolePermission.PermissionId, role.RestaurantId }
+                                                                (rolePermission, role) => new
+                                                                {
+                                                                    rolePermission.PermissionId,
+                                                                    role.Scope,
+                                                                    role.RestaurantId
+                                                                }
                                                             )
                                                       .Join(
                                                                 identityDbContext.Permissions, 
@@ -35,6 +40,7 @@ public sealed partial class PermissionRepository : IPermissionQuery
                                                                     permission.Module,
                                                                     permission.Name,
                                                                     permission.IsResourceScoped,
+                                                                    rolePermission.Scope,
                                                                     rolePermission.RestaurantId)
                                                             )
                                                       .Distinct()

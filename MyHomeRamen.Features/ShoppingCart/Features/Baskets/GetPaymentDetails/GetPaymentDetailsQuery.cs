@@ -7,6 +7,7 @@ using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetPaymentDetails;
 
@@ -22,31 +23,40 @@ public sealed class GetPaymentDetailsAuthorizationPolicy(ICurrentUser currentUse
 
 public sealed class GetPaymentDetailsValidationPolicy : AbstractValidator<GetPaymentDetailsQuery>
 {
-    public GetPaymentDetailsValidationPolicy(IShoppingCartDbContext dbContext)
+    public GetPaymentDetailsValidationPolicy(IShoppingCartDbContext dbContext, ICompanyContext companyContext)
     {
         RuleFor(x => x.BasketId)
             .MustBeAccessibleBasket(
                 dbContext,
-                query => query.UserId);
+                query => query.UserId,
+                companyContext.RestaurantId);
     }
 }
 
-public sealed record GetPaymentDetailsQueryOptions(BasketId BasketId, UserId UserId)
+public sealed record GetPaymentDetailsQueryOptions(BasketId BasketId, UserId UserId, Guid? RestaurantId)
     : DbQueryOptions<Basket, PaymentDetailsDto>
     (
         new()
         {
-            Filter = basket => basket.Id == BasketId && basket.UserId == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.Id == BasketId
+                && basket.UserId == UserId
+                && basket.RestaurantId == RestaurantId
+                && basket.Status == BasketStatus.Active,
             Selector = basket => new PaymentDetailsDto(basket.PaymentDetails.PaymentMethodId, basket.PaymentDetails.PaymentChannelId)
         }
     );
 
-public sealed class GetPaymentDetailsHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetPaymentDetailsQuery, PaymentDetailsResponse>
+public sealed class GetPaymentDetailsHandler(
+    IShoppingCartDbContext dbContext,
+    ICurrentUser currentUser,
+    ICompanyContext companyContext) : IRequestHandler<GetPaymentDetailsQuery, PaymentDetailsResponse>
 {
     public async Task<PaymentDetailsResponse> Handle(GetPaymentDetailsQuery query, CancellationToken cancellationToken)
     {
         PaymentDetailsDto? paymentDetails = await dbContext.Basket.Query()
-            .GetPaymentDetailsAsync(new GetPaymentDetailsQueryOptions(query.BasketId, query.UserId), cancellationToken);
+            .GetPaymentDetailsAsync(
+                new GetPaymentDetailsQueryOptions(query.BasketId, query.UserId, companyContext.RestaurantId),
+                cancellationToken);
 
         return paymentDetails is null
             ? throw new InvalidOperationException("Basket was not found.")

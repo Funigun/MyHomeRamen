@@ -8,6 +8,7 @@ using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
 
@@ -21,12 +22,14 @@ public sealed class GetCurrentBasketDetailsAuthorizationPolicy(ICurrentUser curr
     }
 }
 
-public sealed record GetCurrentBasketDetailsQueryOptions(UserId UserId)
+public sealed record GetCurrentBasketDetailsQueryOptions(UserId UserId, Guid? RestaurantId)
     : DbQueryOptions<Basket, CurrentBasketDetailsDto>
     (
         new()
         {
-            Filter = basket => basket.UserId == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.UserId == UserId
+                && (!RestaurantId.HasValue || basket.RestaurantId == RestaurantId)
+                && basket.Status == BasketStatus.Active,
             Selector = basket => new CurrentBasketDetailsDto(
                 basket.Id.Value,
                 basket.RestaurantId,
@@ -51,14 +54,20 @@ public sealed record GetCurrentBasketDetailsQueryOptions(UserId UserId)
         }
     );
 
-public sealed class GetCurrentBasketDetailsHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser, IMenuService menuService)
+public sealed class GetCurrentBasketDetailsHandler(
+    IShoppingCartDbContext dbContext,
+    ICurrentUser currentUser,
+    IMenuService menuService,
+    ICompanyContext companyContext)
     : IRequestHandler<GetCurrentBasketDetailsQuery, GetCurrentBasketDetailsResponse?>
 {
     public async Task<GetCurrentBasketDetailsResponse?> Handle(GetCurrentBasketDetailsQuery request, CancellationToken cancellationToken)
     {
         UserId userId = new(currentUser.UserId);
 
-        CurrentBasketDetailsDto? basket = await dbContext.Basket.Query().GetCurrentBasketDetailsAsync(new GetCurrentBasketDetailsQueryOptions(userId), cancellationToken);
+        CurrentBasketDetailsDto? basket = await dbContext.Basket.Query().GetCurrentBasketDetailsAsync(
+            new GetCurrentBasketDetailsQueryOptions(userId, companyContext.RestaurantId),
+            cancellationToken);
 
         if (basket is null)
         {
@@ -85,7 +94,11 @@ public sealed class GetCurrentBasketDetailsHandler(IShoppingCartDbContext dbCont
             });
         }
 
-        return new GetCurrentBasketDetailsResponse(basket.BasketId, items, currentUser.BasketAllowedActions());
+        return new GetCurrentBasketDetailsResponse(
+            basket.BasketId,
+            basket.RestaurantId,
+            items,
+            currentUser.BasketAllowedActions());
     }
 }
 
@@ -94,6 +107,7 @@ internal static class Mappings
     public static GetCurrentBasketDetailsResponse ToResponse(this Basket basket, ICurrentUser currentUser)
         => new(
             basket.Id.Value,
+            basket.RestaurantId,
             basket.Items.Select(i => i.ToDto(basket.RestaurantId)),
             currentUser.BasketAllowedActions());
 

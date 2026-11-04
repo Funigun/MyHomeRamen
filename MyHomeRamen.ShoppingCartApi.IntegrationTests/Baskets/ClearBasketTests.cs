@@ -1,6 +1,7 @@
 using System.Net;
 using MyHomeRamen.Domain.ShoppingCart.Baskets;
 using MyHomeRamen.Domain.ShoppingCart.Users;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
@@ -9,7 +10,7 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
-    private const string EndpointBase = "/api/shoppingcart/baskets";
+    private const string EndpointBase = "/api/shopping-cart/baskets";
   
     private Basket _customerBasket = default!;
     private (Guid UserId, Guid GuestId) _customer;
@@ -75,6 +76,23 @@ public sealed class ClearBasketTests(WebApiFactory apiFactory) : IClassFixture<W
         HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         // Assert
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task ClearBasket_ShouldReturnBadRequest_WhenRestaurantHeaderDoesNotMatchBasket()
+    {
+        using HttpClient client = apiFactory.CreateClient();
+        client.DefaultRequestHeaders.Remove(HeaderConstants.RestaurantId);
+        client.DefaultRequestHeaders.Add(
+            HeaderConstants.RestaurantId,
+            ShoppingCartDataSet.OtherRestaurantId.ToString());
+        using HttpRequestMessage request = HttpClientExtensions.CreateDeleteMessage(
+            $"{EndpointBase}/{_customerBasket.Id.Value}");
+        request.AddAuthorizationHeader(_customer);
+
+        HttpResponseMessage response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+
         await response.AssertStatusCode(HttpStatusCode.BadRequest);
     }
 }

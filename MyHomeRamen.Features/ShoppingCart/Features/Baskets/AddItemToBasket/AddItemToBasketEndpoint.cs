@@ -26,7 +26,7 @@ public sealed class AddItemToBasketEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardPost<AddItemToBasketResponse>("api/shoppingcart/basket/items", HandleAsync)
+            .MapStandardPost<AddItemToBasketResponse>("api/shopping-cart/basket/items", HandleAsync)
             .WithName("AddItemToBasketEndpoint")
             .WithTags("Baskets")
             .WithDescription("Adds a restaurant offer with selected extras to the current user's basket.")
@@ -46,6 +46,6 @@ public sealed class AddItemToBasketEndpoint : IEndpoint
             return Results.Ok(response);
         }
 
-        return Results.Created($"/api/shoppingcart/basket/items/{response.BasketItemId}", response);
+        return Results.Created($"/api/shopping-cart/basket/items/{response.BasketItemId}", response);
     }
 }

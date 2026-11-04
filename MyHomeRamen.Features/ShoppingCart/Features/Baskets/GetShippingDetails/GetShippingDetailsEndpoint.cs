@@ -27,19 +27,19 @@ public sealed class GetShippingDetailsEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<ShippingDetailsResponse>("api/shopping-cart/{id}/shipping-details", HandleAsync)
+            .MapStandardGet<ShippingDetailsResponse>("api/shopping-cart/baskets/{basketId}/shipping-details", HandleAsync)
             .AllowAnonymous()
             .WithName("GetShippingDetailsEndpoint")
             .WithTags("Baskets");
     }
 
     private static async Task<Results<Ok<ShippingDetailsResponse>, NotFound>> HandleAsync(
-        [FromRoute(Name = "id")] Guid id,
+        [FromRoute] Guid basketId,
         [FromServices] ICurrentUser currentUser,
         [FromServices] IRequestHandler<GetShippingDetailsQuery, ShippingDetailsResponse> handler,
         CancellationToken cancellationToken)
     {
-        GetShippingDetailsQuery query = new(new BasketId(id), new UserId(currentUser.UserId));
+        GetShippingDetailsQuery query = new(new BasketId(basketId), new UserId(currentUser.UserId));
         ShippingDetailsResponse response = await handler.Handle(query, cancellationToken);
 
         return TypedResults.Ok(response);

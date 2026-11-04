@@ -28,7 +28,6 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
 
         IEnumerable<Permission> allCurrentPermissions = existingPermissions.Except(removedPermissions).Concat(addedPermissions);
         
-        await UpdateAdminRole(allCurrentPermissions, cancellationToken);
         await UpdateGuestRole(allCurrentPermissions, cancellationToken);
         await UpdateCustomerRole(allCurrentPermissions, cancellationToken);
         await UpdateCompanyOwnerRole(allCurrentPermissions, cancellationToken);
@@ -94,22 +93,6 @@ public sealed class PermissionCatalogSynchronizer(IIdentityDbContext identityDbC
         }
 
         return removedPermissions;
-    }
-
-    private async Task UpdateAdminRole(IEnumerable<Permission> allPermissions, CancellationToken cancellationToken)
-    {
-        IEnumerable<PermissionId> adminPermissionIds = allPermissions.Select(permission => permission.Id);
-
-        Role? adminRole = await identityDbContext.Role.Load().ByName(RoleConstants.RestaurantAdmin, cancellationToken);
-
-        if (adminRole is null)
-        {
-            identityDbContext.Role.Add(Role.CreateAdmin(adminPermissionIds));
-        }
-        else
-        {
-            adminRole.UpdatePermissions(adminPermissionIds);
-        }
     }
 
     private async Task UpdateGuestRole(IEnumerable<Permission> allCurrentPermissions, CancellationToken cancellationToken)

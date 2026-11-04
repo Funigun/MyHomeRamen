@@ -7,6 +7,7 @@ using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateBasketItemQuantity;
 
@@ -25,18 +26,20 @@ public sealed class UpdateBasketItemQuantityAuthorizationPolicy(ICurrentUser cur
 
 public sealed class UpdateBasketItemQuantityValidationPolicy : AbstractValidator<UpdateBasketItemQuantityCommand>
 {
-    public UpdateBasketItemQuantityValidationPolicy(IShoppingCartDbContext dbContext)
+    public UpdateBasketItemQuantityValidationPolicy(IShoppingCartDbContext dbContext, ICompanyContext companyContext)
     {
         RuleFor(x => x.Request.Quantity).MustBeValidBasketItemQuantity();
         RuleFor(x => x.BasketId)
-            .MustBeAccessibleBasket(dbContext, command => command.UserId);
+            .MustBeAccessibleBasket(dbContext, command => command.UserId, companyContext.RestaurantId);
         RuleFor(x => x.BasketItemId).NotEmpty();
         RuleFor(x => x)
             .MustAsync(async (command, cancellationToken) =>
             {
                 Basket? basket = await dbContext.Basket.Load()
                     .GetByIdForUserTrackedAsync(command.BasketId, command.UserId, cancellationToken);
-                return basket?.Items.Any(item => item.Id == command.BasketItemId) ?? false;
+                return basket is not null
+                    && basket.RestaurantId == companyContext.RestaurantId
+                    && basket.Items.Any(item => item.Id == command.BasketItemId);
             })
             .WithMessage("Basket item was not found in the specified basket.");
     }

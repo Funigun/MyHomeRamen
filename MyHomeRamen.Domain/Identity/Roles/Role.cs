@@ -14,6 +14,8 @@ public class Role : AuditableEntity, IEntity<RoleId>
 
     public string Description { get; private set; } = default!;
 
+    public RoleScope Scope { get; private set; }
+
     public Guid? RestaurantId { get; private set; }
 
     public bool IsRemovable { get; private set; } = true;
@@ -26,33 +28,35 @@ public class Role : AuditableEntity, IEntity<RoleId>
 
     private Role() { }
 
-    private Role(RoleId id, Guid? restaurantId, List<RolePermission> permissions, List<UserRole> userRoles)
+    private Role(RoleId id, RoleScope scope, Guid? restaurantId, List<RolePermission> permissions, List<UserRole> userRoles)
     {
         Id = id;
+        Scope = scope;
         RestaurantId = restaurantId;
         _permissions = permissions;
         _userRoles = userRoles;
     }
 
-    public static Role CreateAdmin(IEnumerable<PermissionId> permissions, Guid? restaurantId = null)
-        => CreateSystemRole(RoleConstants.RestaurantAdmin, "Administrator role with full access to the system.", permissions, restaurantId);
+    public static Role CreateAdmin(IEnumerable<PermissionId> permissions, Guid restaurantId)
+        => CreateSystemRole(RoleConstants.RestaurantAdmin, "Administrator role with access to one restaurant.", permissions, RoleScope.Restaurant, restaurantId);
 
-    public static Role CreateGuest(IEnumerable<PermissionId> permissions, Guid? restaurantId = null)
-        => CreateSystemRole(RoleConstants.Guest, "Guest role with limited access to the system.", permissions, restaurantId);
+    public static Role CreateGuest(IEnumerable<PermissionId> permissions)
+        => CreateSystemRole(RoleConstants.Guest, "Guest role with limited access to the system.", permissions, RoleScope.Company, null);
 
-    public static Role CreateCustomer(IEnumerable<PermissionId> permissions, Guid? restaurantId = null)
-        => CreateSystemRole(RoleConstants.Customer, "Customer role with extended access to the system.", permissions, restaurantId);
+    public static Role CreateCustomer(IEnumerable<PermissionId> permissions)
+        => CreateSystemRole(RoleConstants.Customer, "Customer role with extended access to the system.", permissions, RoleScope.Company, null);
 
-    public static Role CreateCompanyOwner(IEnumerable<PermissionId> permissions, Guid? restaurantId = null)
-        => CreateSystemRole(RoleConstants.CompanyOwner, "Company Owner role with extended access to the system.", permissions, restaurantId);
+    public static Role CreateCompanyOwner(IEnumerable<PermissionId> permissions)
+        => CreateSystemRole(RoleConstants.CompanyOwner, "Company Owner role with extended access to the system.", permissions, RoleScope.Company, null);
 
-    public static Role CreateCustom(string name, string description, Guid? restaurantId = null)
+    public static Role CreateCustom(string name, string description, RoleScope scope, Guid? restaurantId = null)
     {
         Role role = new()
         {
             Id = Guid.CreateVersion7(),
             Name = name,
             Description = description,
+            Scope = scope,
             RestaurantId = restaurantId
         };
 
@@ -60,13 +64,19 @@ public class Role : AuditableEntity, IEntity<RoleId>
         return role;
     }
 
-    public static Role CreateCustom(string name, string description, IEnumerable<PermissionId> permissions, Guid? restaurantId = null)
+    public static Role CreateCustom(
+        string name,
+        string description,
+        IEnumerable<PermissionId> permissions,
+        RoleScope scope,
+        Guid? restaurantId = null)
     {
         Role role = new()
         {
             Id = Guid.CreateVersion7(),
             Name = name,
             Description = description,
+            Scope = scope,
             RestaurantId = restaurantId
         };
 
@@ -91,13 +101,19 @@ public class Role : AuditableEntity, IEntity<RoleId>
         }
     }
 
-    private static Role CreateSystemRole(string name, string description, IEnumerable<PermissionId> permissions, Guid? restaurantId)
+    private static Role CreateSystemRole(
+        string name,
+        string description,
+        IEnumerable<PermissionId> permissions,
+        RoleScope scope,
+        Guid? restaurantId)
     {
         Role role = new()
         {
             Id = Guid.CreateVersion7(),
             Name = name,
             Description = description,
+            Scope = scope,
             RestaurantId = restaurantId,
             IsRemovable = false,
             IsEditable = false

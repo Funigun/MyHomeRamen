@@ -42,6 +42,16 @@ public sealed class MenuCard : AuditableEntity, IEntity<MenuCardId>
 
     public void SetActive(bool isActive) => IsActive = isActive;
 
+    public void Activate()
+    {
+        if (IsActive)
+        {
+            throw MenuCardErrors.AlreadyActive();
+        }
+
+        IsActive = true;
+    }
+
     public MenuSection AddSection(MenuSectionId id, string name, int sortOrder)
     {
         MenuSection section = MenuSection.Create(id, this, name, sortOrder);

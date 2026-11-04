@@ -18,7 +18,7 @@ public sealed class UpdateBasketItemQuantityEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardPut("api/shoppingcart/baskets/{basketId}/items/{basketItemId}/quantity", HandleAsync)
+            .MapStandardPut("api/shopping-cart/baskets/{basketId}/items/{basketItemId}/quantity", HandleAsync)
             .WithName("UpdateBasketItemQuantityEndpoint")
             .WithTags("Baskets")
             .AllowAnonymous();

@@ -93,7 +93,9 @@ else
         _isLoading = true;
         try
         {
-            ApiResult<PaymentDetailsResponse> result = await ShoppingCartApiClient.GetPaymentDetailsAsync(Model.BasketId);
+            ApiResult<PaymentDetailsResponse> result = await ShoppingCartApiClient.GetPaymentDetailsAsync(
+                Model.BasketId,
+                Model.RestaurantId);
             if (result is ApiResult<PaymentDetailsResponse>.Success success)
             {
                 Model.SetPaymentDetails(success.Value);
@@ -144,6 +146,7 @@ else
         {
             ApiResult<bool> result = await ShoppingCartApiClient.UpdatePaymentDetailsAsync(
                 Model.BasketId,
+                Model.RestaurantId,
                 new UpdatePaymentDetailsRequest(Model.PaymentDetails.PaymentMethodId, Model.PaymentDetails.PaymentChannelId));
             if (result is ApiResult<bool>.Success)
             {

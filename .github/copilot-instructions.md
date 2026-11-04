@@ -6,6 +6,11 @@ This project is an application for complete Ramen restaurant management built in
 It includes a REST API (minimal API), Blazor Server and WASM frontends and background workers that might use Quartz .Net for scheduling.
 Infrastructure includes Keycloak for identity management, RabbitMQ for messaging and Redis for caching.
 
+## Company and customer scope
+- Each database serves one Company with multiple Restaurants. Do not design cross-company tenancy or add a Company selector unless requested.
+- Guest and Customer roles are Company-scoped and apply across that Company's Restaurants.
+- Customer has Guest capabilities plus authenticated customer features, such as address management and future order history. Do not duplicate Guest behavior or create restaurant-specific copies of these roles.
+
 ## Solution structure
 ```
 MyHomeRamen.slnx

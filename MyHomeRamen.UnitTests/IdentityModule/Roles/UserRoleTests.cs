@@ -10,7 +10,7 @@ public sealed class UserRoleTests
     public void AssignRole_ShouldCreateAssociation_WhenRoleIsNotAssigned()
     {
         User user = CreateUser();
-        Role role = Role.CreateCustom("Customer", "Customer role");
+        Role role = Role.CreateCustom("Customer", "Customer role", RoleScope.Company);
 
         user.AssignRole(role);
 
@@ -23,7 +23,7 @@ public sealed class UserRoleTests
     public void AssignRole_ShouldRejectDuplicateRole_WhenAlreadyAssigned()
     {
         User user = CreateUser();
-        Role role = Role.CreateCustom("Customer", "Customer role");
+        Role role = Role.CreateCustom("Customer", "Customer role", RoleScope.Company);
         user.AssignRole(role);
 
         DomainException exception = Assert.Throws<DomainException>(() => user.AssignRole(role));

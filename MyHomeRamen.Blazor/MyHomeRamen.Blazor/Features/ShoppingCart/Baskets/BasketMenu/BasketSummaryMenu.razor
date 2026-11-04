@@ -30,6 +30,7 @@
 
 @code {
     private Guid _basketId;
+    private Guid _restaurantId;
     private List<BasketItemTableModel> _items = [];
     private bool _isLoading;
     private decimal _total;
@@ -68,6 +69,7 @@
         {
             GetCurrentBasketSummaryResponse response = success.Value;
             _basketId = response.Id;
+            _restaurantId = response.RestaurantId;
             _canEdit = response.AllowedActions.CanEdit;
             _items = response.Items.Select(BasketItemTableModel.FromResponse).ToList();
             _total = _items.Sum(i => i.Price * i.Quantity);
@@ -80,14 +82,14 @@
     private async Task HandleRemoveAsync(Guid id)
     {
         if (!_canEdit) return;
-        await ShoppingCartApiClient.RemoveItemAsync(_basketId, id);
+        await ShoppingCartApiClient.RemoveItemAsync(_basketId, id, _restaurantId);
         await LoadBasketAsync();
     }
 
     private async Task ClearBasketAsync()
     {
         if (!_canEdit) return;
-        await ShoppingCartApiClient.ClearBasketAsync(_basketId);
+        await ShoppingCartApiClient.ClearBasketAsync(_basketId, _restaurantId);
         await LoadBasketAsync();
     }
 
@@ -100,7 +102,7 @@
 
     private async Task UpdateQuantityAsync((Guid Id, int Quantity) args)
     {
-        await ShoppingCartApiClient.UpdateQuantityAsync(_basketId, args.Id, args.Quantity);
+        await ShoppingCartApiClient.UpdateQuantityAsync(_basketId, args.Id, args.Quantity, _restaurantId);
         await LoadBasketAsync();
     }
 

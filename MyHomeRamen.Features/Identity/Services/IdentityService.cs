@@ -1,9 +1,11 @@
 using FluentValidation;
 using FluentValidation.Results;
+using MyHomeRamen.Domain.Identity.Permissions;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Features.Identity.ExternalApi;
+using MyHomeRamen.Features.Identity.Permissions;
 using MyHomeRamen.Features.Identity.Services.Dto;
 
 namespace MyHomeRamen.Features.Identity.Services;
@@ -53,4 +55,32 @@ public sealed class IdentityService(
 
     public Task<bool> IsCompanyOwnerConfiguredAsync(CancellationToken cancellationToken)
         => identityDbContext.User.Query().IsCompanyOwnerConfigured(cancellationToken);
+
+    public async Task<Guid> CreateRestaurantAdminRoleAsync(Guid restaurantId, CancellationToken cancellationToken)
+    {
+        if (restaurantId == Guid.Empty)
+        {
+            throw new ArgumentException("Restaurant identifier must not be empty.", nameof(restaurantId));
+        }
+
+        IEnumerable<Permission> permissions = await identityDbContext.Permission.Load().All(cancellationToken);
+        IEnumerable<PermissionId> permissionIds = permissions
+            .Where(permission => PermissionCatalog.RestaurantAdminPermissions.Contains((permission.Module, permission.Name)))
+            .Select(permission => permission.Id);
+
+        Role? role = await identityDbContext.Role.Load()
+            .ByName(RoleConstants.RestaurantAdmin, cancellationToken, restaurantId);
+        if (role is null)
+        {
+            role = Role.CreateAdmin(permissionIds, restaurantId);
+            identityDbContext.Role.Add(role);
+        }
+        else
+        {
+            role.UpdatePermissions(permissionIds);
+        }
+
+        await identityDbContext.SaveChangesAsync(cancellationToken);
+        return role.Id.Value;
+    }
 }

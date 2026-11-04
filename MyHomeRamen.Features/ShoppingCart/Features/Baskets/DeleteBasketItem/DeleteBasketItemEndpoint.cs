@@ -14,7 +14,7 @@ public sealed class DeleteBasketItemEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardDelete("api/shoppingcart/baskets/{basketId}/items/{basketItemId}", HandleAsync)
+            .MapStandardDelete("api/shopping-cart/baskets/{basketId}/items/{basketItemId}", HandleAsync)
             .WithName("DeleteBasketItemEndpoint")
             .WithDescription("Removes a specific item from the basket.")
             .WithTags("Baskets")

@@ -104,7 +104,7 @@ else
         _errorMessage = null;
         try
         {
-            await ShoppingCartApiClient.RemoveItemAsync(BasketId, item.Id);
+            await ShoppingCartApiClient.RemoveItemAsync(BasketId, item.Id, item.RestaurantId);
             Items.Remove(item);
             await OnItemsChanged.InvokeAsync();
         }
@@ -141,7 +141,7 @@ else
         _errorMessage = null;
         try
         {
-            await ShoppingCartApiClient.RemoveItemAsync(BasketId, originalItem.Id);
+            await ShoppingCartApiClient.RemoveItemAsync(BasketId, originalItem.Id, originalItem.RestaurantId);
             Items.Remove(originalItem);
             Items.Add(CheckoutBasketItemModel.FromAddItemResponse(response, originalItem));
             await OnItemsChanged.InvokeAsync();

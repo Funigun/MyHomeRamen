@@ -94,7 +94,9 @@ public sealed class CreateInitialRestaurantCommandValidator : AbstractValidator<
     }
 }
 
-public sealed class CreateInitialRestaurantHandler(IRestaurantDbContext restaurantDbContext)
+public sealed class CreateInitialRestaurantHandler(
+    IRestaurantDbContext restaurantDbContext,
+    IIdentityService identityService)
     : IRequestHandler<CreateInitialRestaurantCommand, CreateInitialRestaurantResponse>
 {
     public async Task<CreateInitialRestaurantResponse> Handle(
@@ -114,6 +116,7 @@ public sealed class CreateInitialRestaurantHandler(IRestaurantDbContext restaura
         company.AddRestaurant(restaurant);
         restaurantDbContext.Restaurant.Add(restaurant);
         await restaurantDbContext.SaveChangesAsync(cancellationToken);
+        await identityService.CreateRestaurantAdminRoleAsync(restaurant.Id.Value, cancellationToken);
 
         return new CreateInitialRestaurantResponse(restaurant.Id.Value);
     }

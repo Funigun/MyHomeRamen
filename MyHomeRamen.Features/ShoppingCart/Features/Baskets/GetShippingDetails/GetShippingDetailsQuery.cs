@@ -8,6 +8,7 @@ using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetShippingDetails;
 
@@ -23,20 +24,24 @@ public sealed class GetShippingDetailsAuthorizationPolicy(ICurrentUser currentUs
 
 public sealed class GetShippingDetailsValidationPolicy : AbstractValidator<GetShippingDetailsQuery>
 {
-    public GetShippingDetailsValidationPolicy(IShoppingCartDbContext dbContext)
+    public GetShippingDetailsValidationPolicy(IShoppingCartDbContext dbContext, ICompanyContext companyContext)
     {
         RuleFor(x => x.BasketId)
             .MustBeAccessibleBasket(
                 dbContext,
-                query => query.UserId);
+                query => query.UserId,
+                companyContext.RestaurantId);
     }
 }
-public sealed record GetShippingDetailsQueryOptions(BasketId BasketId, UserId UserId)
+public sealed record GetShippingDetailsQueryOptions(BasketId BasketId, UserId UserId, Guid? RestaurantId)
     : DbQueryOptions<Basket, ShippingDetailsDto?>
     (
         new()
         {
-            Filter = basket => basket.Id == BasketId && basket.UserId == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.Id == BasketId
+                && basket.UserId == UserId
+                && basket.RestaurantId == RestaurantId
+                && basket.Status == BasketStatus.Active,
             Selector = basket => MapToShippingDetailsDto(basket.ShippingDetails)
         }
     )
@@ -67,12 +72,17 @@ public sealed record GetShippingDetailsQueryOptions(BasketId BasketId, UserId Us
     }
 }
 
-public sealed class GetShippingDetailsHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser) : IRequestHandler<GetShippingDetailsQuery, ShippingDetailsResponse>
+public sealed class GetShippingDetailsHandler(
+    IShoppingCartDbContext dbContext,
+    ICurrentUser currentUser,
+    ICompanyContext companyContext) : IRequestHandler<GetShippingDetailsQuery, ShippingDetailsResponse>
 {
     public async Task<ShippingDetailsResponse> Handle(GetShippingDetailsQuery query, CancellationToken cancellationToken)
     {
         ShippingDetailsDto? shippingDetails = await dbContext.Basket.Query()
-            .GetShippingDetailsAsync(new GetShippingDetailsQueryOptions(query.BasketId, query.UserId), cancellationToken);
+            .GetShippingDetailsAsync(
+                new GetShippingDetailsQueryOptions(query.BasketId, query.UserId, companyContext.RestaurantId),
+                cancellationToken);
 
         return shippingDetails is null
             ? throw new InvalidOperationException("Basket was not found.")

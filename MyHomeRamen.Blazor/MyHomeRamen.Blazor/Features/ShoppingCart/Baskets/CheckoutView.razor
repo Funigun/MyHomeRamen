@@ -59,13 +59,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        IEnumerable<GetAvailableMethodsResponse> methods = await PaymentApiClient.GetAvailableMethodsAsync();
         ApiResult<GetCurrentBasketDetailsResponse> basketResult = await ShoppingCartApiClient.GetCurrentBasketDetailsAsync();
         _loadError.Apply(basketResult, Text["LoadError"], Text["UnexpectedError"]);
-        _availableMethods = methods.Select(AvailableMethodModel.FromResponse).ToList();
         if (basketResult is ApiResult<GetCurrentBasketDetailsResponse>.Success basket)
         {
             _checkoutModel.FromDetailsResponse(basket.Value);
+            IEnumerable<GetAvailableMethodsResponse> methods = await PaymentApiClient.GetAvailableMethodsAsync(
+                basket.Value.RestaurantId);
+            _availableMethods = methods.Select(AvailableMethodModel.FromResponse).ToList();
         }
         _isLoading = false;
     }

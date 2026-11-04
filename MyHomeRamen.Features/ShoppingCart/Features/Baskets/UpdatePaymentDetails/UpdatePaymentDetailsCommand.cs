@@ -8,6 +8,7 @@ using MyHomeRamen.Features.Payments.ExternalApi;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdatePaymentDetails;
 
@@ -23,7 +24,10 @@ public sealed class UpdatePaymentDetailsAuthorizationPolicy(ICurrentUser current
 
 public sealed class UpdatePaymentDetailsValidationPolicy : AbstractValidator<UpdatePaymentDetailsCommand>
 {
-    public UpdatePaymentDetailsValidationPolicy(IShoppingCartDbContext dbContext, IPaymentService paymentService)
+    public UpdatePaymentDetailsValidationPolicy(
+        IShoppingCartDbContext dbContext,
+        IPaymentService paymentService,
+        ICompanyContext companyContext)
     {
         RuleFor(x => x.Request.PaymentMethodId)
             .Must(id => Guid.TryParse(id, out _))
@@ -41,6 +45,7 @@ public sealed class UpdatePaymentDetailsValidationPolicy : AbstractValidator<Upd
                 dbContext,
                 cmd => cmd.BasketId,
                 cmd => cmd.UserId,
+                companyContext.RestaurantId,
                 nameof(UpdatePaymentDetailsCommand.BasketId));
 
         RuleFor(x => x.Request)

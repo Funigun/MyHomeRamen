@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Restaurants.Features.Abstractions;
 using MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
@@ -15,7 +16,7 @@ public sealed class GetAvailableRestaurantsHandlerTests
         Guid restaurantId = Guid.NewGuid();
         (IRestaurantDbContext dbContext, IRestaurantQuery restaurantQuery) = CreateDbContext();
         ICurrentUser currentUser = new TestCurrentUser(
-            [new PermissionGrant("Restaurants", "Restaurant.Manage", true, restaurantId)]);
+            [new PermissionGrant("Restaurants", "Restaurant.Manage", true, RoleScope.Restaurant, restaurantId)]);
         GetAvailableRestaurantsHandler handler = new(dbContext, currentUser);
 
         await handler.Handle(new GetAvailableRestaurantsQuery(), CancellationToken.None);
@@ -26,11 +27,11 @@ public sealed class GetAvailableRestaurantsHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldIncludeAllRestaurants_WhenPermissionIsGlobal()
+    public async Task Handle_ShouldIncludeAllRestaurants_WhenPermissionIsCompanyScoped()
     {
         (IRestaurantDbContext dbContext, IRestaurantQuery restaurantQuery) = CreateDbContext();
         ICurrentUser currentUser = new TestCurrentUser(
-            [new PermissionGrant("Restaurants", "Restaurant.Manage", true, null)]);
+            [new PermissionGrant("Restaurants", "Restaurant.Manage", true, RoleScope.Company, null)]);
         GetAvailableRestaurantsHandler handler = new(dbContext, currentUser);
 
         await handler.Handle(new GetAvailableRestaurantsQuery(), CancellationToken.None);

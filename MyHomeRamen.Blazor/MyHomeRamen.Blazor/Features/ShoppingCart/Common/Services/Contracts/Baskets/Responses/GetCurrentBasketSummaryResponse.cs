@@ -4,6 +4,7 @@ namespace MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Bas
 
 public sealed record GetCurrentBasketSummaryResponse(
     Guid Id,
+    Guid RestaurantId,
     IEnumerable<BasketSummaryItemDto> Items,
     AllowedActionsDto AllowedActions);
 

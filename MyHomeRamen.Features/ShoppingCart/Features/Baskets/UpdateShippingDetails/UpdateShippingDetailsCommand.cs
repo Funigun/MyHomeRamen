@@ -7,6 +7,7 @@ using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.UpdateShippingDetails;
 
@@ -20,7 +21,7 @@ public sealed class UpdateShippingDetailsAuthorizationPolicy(ICurrentUser curren
 
 public sealed class UpdateShippingDetailsValidationPolicy : AbstractValidator<UpdateShippingDetailsCommand>
 {
-    public UpdateShippingDetailsValidationPolicy(IShoppingCartDbContext dbContext)
+    public UpdateShippingDetailsValidationPolicy(IShoppingCartDbContext dbContext, ICompanyContext companyContext)
     {
         RuleFor(x => x.Request)
             .Must(req => req.PersonalPickup || req.Delivery)
@@ -53,7 +54,8 @@ public sealed class UpdateShippingDetailsValidationPolicy : AbstractValidator<Up
             .MustHaveAccessibleBasket(
                 dbContext,
                 cmd => cmd.BasketId,
-                cmd => cmd.UserId);
+                cmd => cmd.UserId,
+                companyContext.RestaurantId);
     }
 }
 

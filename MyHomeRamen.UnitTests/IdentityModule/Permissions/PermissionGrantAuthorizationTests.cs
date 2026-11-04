@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Features.Common.Authorization;
 
 namespace MyHomeRamen.UnitTests.IdentityModule.Permissions;
@@ -10,7 +11,7 @@ public sealed class PermissionGrantAuthorizationTests
     {
         Guid restaurantId = Guid.NewGuid();
         ICurrentUser currentUser = CreateCurrentUser(
-            new PermissionGrant("Restaurants", "Restaurant.Manage", true, restaurantId));
+            new PermissionGrant("Restaurants", "Restaurant.Manage", true, RoleScope.Restaurant, restaurantId));
 
         Assert.True(currentUser.HasPermission("Restaurants", "Restaurant.Manage", restaurantId));
     }
@@ -19,25 +20,25 @@ public sealed class PermissionGrantAuthorizationTests
     public void HasPermission_ShouldDenyDifferentRestaurant_WhenGrantIsRestaurantScoped()
     {
         ICurrentUser currentUser = CreateCurrentUser(
-            new PermissionGrant("Restaurants", "Restaurant.Manage", true, Guid.NewGuid()));
+            new PermissionGrant("Restaurants", "Restaurant.Manage", true, RoleScope.Restaurant, Guid.NewGuid()));
 
         Assert.False(currentUser.HasPermission("Restaurants", "Restaurant.Manage", Guid.NewGuid()));
     }
 
     [Fact]
-    public void HasPermission_ShouldAllowAnyRestaurant_WhenGrantIsGlobal()
+    public void HasPermission_ShouldAllowAnyRestaurant_WhenGrantIsCompanyScoped()
     {
         ICurrentUser currentUser = CreateCurrentUser(
-            new PermissionGrant("Restaurants", "Restaurant.Manage", true, null));
+            new PermissionGrant("Restaurants", "Restaurant.Manage", true, RoleScope.Company, null));
 
         Assert.True(currentUser.HasPermission("Restaurants", "Restaurant.Manage", Guid.NewGuid()));
     }
 
     [Fact]
-    public void HasPermission_ShouldDenyScopedRoleGrant_WhenPermissionIsNotResourceScoped()
+    public void HasPermission_ShouldDenyRestaurantRoleGrant_WhenPermissionIsNotResourceScoped()
     {
         ICurrentUser currentUser = CreateCurrentUser(
-            new PermissionGrant("Restaurants", "Restaurants.Create", false, Guid.NewGuid()));
+            new PermissionGrant("Restaurants", "Restaurants.Create", false, RoleScope.Restaurant, Guid.NewGuid()));
 
         Assert.False(currentUser.HasPermission("Restaurants", "Restaurants.Create"));
     }
@@ -47,8 +48,8 @@ public sealed class PermissionGrantAuthorizationTests
     {
         Guid assignedRestaurantId = Guid.NewGuid();
         ICurrentUser currentUser = CreateCurrentUser(
-            new PermissionGrant("Restaurants", "Restaurant.Manage", true, assignedRestaurantId),
-            new PermissionGrant("Restaurants", "Restaurant.Manage", true, null));
+            new PermissionGrant("Restaurants", "Restaurant.Manage", true, RoleScope.Restaurant, assignedRestaurantId),
+            new PermissionGrant("Restaurants", "Restaurant.Manage", true, RoleScope.Company, null));
 
         Assert.Equal(new[] { assignedRestaurantId }, currentUser.RestaurantIdsFor("Restaurants", "Restaurant.Manage"));
     }

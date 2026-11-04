@@ -12,7 +12,7 @@ public sealed class CheckoutBasketEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardPost<CheckoutBasketResponse>("api/shoppingcart/basket/checkout", HandleAsync)
+            .MapStandardPost<CheckoutBasketResponse>("api/shopping-cart/basket/checkout", HandleAsync)
             .WithName("CheckoutBasketEndpoint")
             .WithTags("Baskets")
             .WithDescription("Revalidates the active restaurant basket and creates an order from current prices.")

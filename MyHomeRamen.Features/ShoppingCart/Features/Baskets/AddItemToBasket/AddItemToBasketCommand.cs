@@ -9,6 +9,7 @@ using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Restaurants.ExternalApi;
+using MyHomeRamen.Features.Common.Tenancy;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Mediator;
@@ -27,10 +28,12 @@ public sealed class AddItemToBasketAuthorizationPolicy(ICurrentUser currentUser)
 
 public sealed class AddItemToBasketValidator : AbstractValidator<AddItemToBasketCommand>
 {
-    public AddItemToBasketValidator(IMenuService menuService)
+    public AddItemToBasketValidator(IMenuService menuService, ICompanyContext companyContext)
     {
         RuleFor(x => x.AddItemToBasketRequest.RestaurantId)
-            .NotEmpty();
+            .NotEmpty()
+            .Must(restaurantId => restaurantId == companyContext.RestaurantId)
+            .WithMessage("RestaurantId must match the X-Restaurant-Id header.");
 
         RuleFor(x => x.AddItemToBasketRequest.OfferId)
             .NotEmpty();

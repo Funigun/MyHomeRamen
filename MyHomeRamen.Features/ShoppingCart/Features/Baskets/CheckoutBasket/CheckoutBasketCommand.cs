@@ -10,6 +10,7 @@ using MyHomeRamen.Features.Common.Mediator;
 using MyHomeRamen.Features.Menu.ExternalApi;
 using MyHomeRamen.Features.Orders.ExternalApi;
 using MyHomeRamen.Features.Restaurants.ExternalApi;
+using MyHomeRamen.Features.Common.Tenancy;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 
@@ -30,11 +31,13 @@ public sealed class CheckoutBasketAuthorizationPolicy(ICurrentUser currentUser)
 
 public sealed class CheckoutBasketValidator : AbstractValidator<CheckoutBasketCommand>
 {
-    public CheckoutBasketValidator()
+    public CheckoutBasketValidator(ICompanyContext companyContext)
     {
         RuleFor(command => command.Request.RestaurantId)
             .NotEmpty()
-            .WithMessage("RestaurantId must not be empty.");
+            .WithMessage("RestaurantId must not be empty.")
+            .Must(restaurantId => restaurantId == companyContext.RestaurantId)
+            .WithMessage("RestaurantId must match the X-Restaurant-Id header.");
 
         RuleFor(command => command.Request.Currency)
             .Must(currency => currency is { Length: 3 } && currency.All(char.IsAsciiLetter))

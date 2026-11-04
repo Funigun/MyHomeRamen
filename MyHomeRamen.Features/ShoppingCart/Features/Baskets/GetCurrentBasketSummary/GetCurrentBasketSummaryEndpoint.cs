@@ -8,9 +8,13 @@ using MyHomeRamen.Features.Common.Contracts;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 
-public sealed record CurrentBasketSummaryDto(Guid Id, IEnumerable<BasketSummaryItemDto> Items);
+public sealed record CurrentBasketSummaryDto(Guid Id, Guid RestaurantId, IEnumerable<BasketSummaryItemDto> Items);
 
-public sealed record GetCurrentBasketSummaryResponse(Guid Id, IEnumerable<BasketSummaryItemDto> Items, AllowedActionsDto AllowedActions);
+public sealed record GetCurrentBasketSummaryResponse(
+    Guid Id,
+    Guid RestaurantId,
+    IEnumerable<BasketSummaryItemDto> Items,
+    AllowedActionsDto AllowedActions);
 
 public sealed record BasketSummaryItemDto(
     Guid Id,
@@ -24,7 +28,7 @@ public sealed class GetCurrentBasketSummaryEndpoint : IEndpoint
     public void MapEndpoint(IEndpointRouteBuilder endpointBuilder)
     {
         endpointBuilder
-            .MapStandardGet<GetCurrentBasketSummaryResponse>("api/shoppingcart/basket/summary", HandleAsync)
+            .MapStandardGet<GetCurrentBasketSummaryResponse>("api/shopping-cart/basket/summary", HandleAsync)
             .WithName("GetCurrentBasketSummaryEndpoint")
             .WithTags("Baskets")
             .WithDescription("Returns the active basket and its items for shopping cart summary panel.")
@@ -32,12 +36,14 @@ public sealed class GetCurrentBasketSummaryEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        [FromServices] IRequestHandler<GetCurrentBasketSummaryQuery, GetCurrentBasketSummaryResponse> handler,
+        [FromServices] IRequestHandler<GetCurrentBasketSummaryQuery, GetCurrentBasketSummaryResponse?> handler,
         CancellationToken cancellationToken)
     {
         GetCurrentBasketSummaryQuery query = new();
-        GetCurrentBasketSummaryResponse response = await handler.Handle(query, cancellationToken);
+        GetCurrentBasketSummaryResponse? response = await handler.Handle(query, cancellationToken);
 
-        return Results.Ok(response);
+        return response is null
+            ? Results.NotFound()
+            : Results.Ok(response);
     }
 }

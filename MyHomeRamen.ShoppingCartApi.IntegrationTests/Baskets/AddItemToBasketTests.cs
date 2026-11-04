@@ -9,6 +9,7 @@ using MyHomeRamen.Domain.ShoppingCart.Users;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.AddItemToBasket;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketDetails;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.IntegrationTests.Extensions;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common;
 using MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.Data;
@@ -17,7 +18,7 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>, IAsyncLifetime
 {
-    private const string EndpointBase = "/api/shoppingcart/basket/items";
+    private const string EndpointBase = "/api/shopping-cart/basket/items";
     private Basket _guestBasket = default!;
     private Basket _customerBasket = default!;
     private BasketItem _guestBasketItem = default!;
@@ -70,7 +71,7 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
         Assert.NotNull(response.Headers.Location);
         Assert.Contains(responseBody.BasketItemId.ToString(), response.Headers.Location.ToString(), StringComparison.OrdinalIgnoreCase);
 
-        using HttpRequestMessage detailsRequest = HttpClientExtensions.CreateGetMessage("/api/shoppingcart/basket/details");
+        using HttpRequestMessage detailsRequest = HttpClientExtensions.CreateGetMessage("/api/shopping-cart/basket/details");
         detailsRequest.AddAuthorizationHeader(_customer);
         HttpResponseMessage detailsResponse = await client.SendAsync(detailsRequest, TestContext.Current.CancellationToken);
         await detailsResponse.AssertStatusCode(HttpStatusCode.OK);
@@ -187,6 +188,10 @@ public sealed class AddItemToBasketTests(WebApiFactory apiFactory) : IClassFixtu
             null);
 
         using HttpClient client = apiFactory.CreateClient();
+        client.DefaultRequestHeaders.Remove(HeaderConstants.RestaurantId);
+        client.DefaultRequestHeaders.Add(
+            HeaderConstants.RestaurantId,
+            ShoppingCartDataSet.OtherRestaurantId.ToString());
         using HttpRequestMessage httpRequest = HttpClientExtensions.CreatePostMessage(EndpointBase);
         httpRequest.AddAuthorizationHeader(_customer);
         httpRequest.WithJsonContent(request);

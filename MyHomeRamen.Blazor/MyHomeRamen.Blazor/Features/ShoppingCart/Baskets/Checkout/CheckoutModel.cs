@@ -9,6 +9,8 @@ public sealed class CheckoutModel
 {
     public Guid BasketId { get; set; }
 
+    public Guid RestaurantId { get; set; }
+
     public bool ShoppingCartConfirmed { get; set; }
 
     public bool ShippingAddressConfirmed { get; set; }
@@ -28,6 +30,7 @@ public sealed class CheckoutModel
     public CheckoutModel FromDetailsResponse(GetCurrentBasketDetailsResponse response)
     {
         BasketId = response.BasketId;
+        RestaurantId = response.RestaurantId;
         AllowedActions = response.AllowedActions;
 
         ShoppingCartConfirmed = false;

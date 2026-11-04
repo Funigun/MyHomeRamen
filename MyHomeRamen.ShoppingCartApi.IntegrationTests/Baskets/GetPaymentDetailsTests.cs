@@ -16,7 +16,7 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 public sealed class GetPaymentDetailsTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
-    private static readonly CompositeFormat EndpointBase = CompositeFormat.Parse("/api/shopping-cart/{0}/payment-details");
+    private static readonly CompositeFormat EndpointBase = CompositeFormat.Parse("/api/shopping-cart/baskets/{0}/payment-details");
 
     [Fact]
     public async Task GetPaymentDetails_ShouldReturnOk_ForBasketWithPaymentDetails()

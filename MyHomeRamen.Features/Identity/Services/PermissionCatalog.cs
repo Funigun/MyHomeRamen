@@ -32,6 +32,11 @@ internal static class PermissionCatalog
             .Concat(MenuPermissionConstants.AvailablePermissions.Select(permission => ("Menu", permission)))
                                                                  .ToHashSet();
 
+    public static IReadOnlySet<(string Module, string Name)> RestaurantAdminPermissions { get; }
+        = RestaurantsPermissionConstants.ResourceScopedPermissions.Select(permission => ("Restaurants", permission))
+            .Concat(MenuPermissionConstants.RestaurantScopedPermissions.Select(permission => ("Menu", permission)))
+            .ToHashSet();
+
     private static IEnumerable<PermissionDefinition> CreateDefinitions(
         string moduleName,
         IEnumerable<string> permissions,

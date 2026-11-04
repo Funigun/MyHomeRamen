@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using MyHomeRamen.Domain.Identity.Roles;
 
 namespace MyHomeRamen.Features.Common.Authorization;
 
@@ -22,19 +23,24 @@ public interface ICurrentUser
         => PermissionGrants.Any(grant =>
             grant.Module == module
             && grant.Name == permission
-            && (grant.RestaurantId is null
-                || (grant.IsResourceScoped && restaurantId.HasValue && grant.RestaurantId == restaurantId)));
+            && (grant.Scope == RoleScope.Company
+                || (grant.Scope == RoleScope.Restaurant
+                    && grant.IsResourceScoped
+                    && restaurantId.HasValue
+                    && grant.RestaurantId == restaurantId)));
 
     bool HasAnyPermission(string module, string permission)
         => PermissionGrants.Any(grant =>
             grant.Module == module
             && grant.Name == permission
-            && (grant.RestaurantId is null || grant.IsResourceScoped));
+            && (grant.Scope == RoleScope.Company
+                || (grant.Scope == RoleScope.Restaurant && grant.IsResourceScoped)));
 
     IReadOnlyCollection<Guid> RestaurantIdsFor(string module, string permission)
         => PermissionGrants.Where(grant =>
                 grant.Module == module
                 && grant.Name == permission
+                && grant.Scope == RoleScope.Restaurant
                 && grant.IsResourceScoped
                 && grant.RestaurantId.HasValue)
             .Select(grant => grant.RestaurantId!.Value)

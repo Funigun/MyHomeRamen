@@ -6,6 +6,7 @@ using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.ShoppingCart.Features.Baskets.Common;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.ClearBasket;
 
@@ -21,12 +22,13 @@ public sealed class ClearBasketAuthorizationPolicy(ICurrentUser currentUser) : I
 
 public sealed class ClearBasketValidationPolicy : AbstractValidator<ClearBasketCommand>
 {
-    public ClearBasketValidationPolicy(IShoppingCartDbContext dbContext)
+    public ClearBasketValidationPolicy(IShoppingCartDbContext dbContext, ICompanyContext companyContext)
     {
         RuleFor(x => x.BasketId)
             .MustBeAccessibleBasket(
                 dbContext,
-                command => command.UserId);
+                command => command.UserId,
+                companyContext.RestaurantId);
     }
 }
 

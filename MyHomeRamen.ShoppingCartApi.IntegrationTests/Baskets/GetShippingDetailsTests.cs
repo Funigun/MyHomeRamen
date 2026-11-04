@@ -14,7 +14,7 @@ namespace MyHomeRamen.ShoppingCartApi.IntegrationTests.Baskets;
 
 public sealed class GetShippingDetailsTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
-    private static readonly CompositeFormat EndpointBase = CompositeFormat.Parse("/api/shopping-cart/{0}/shipping-details");
+    private static readonly CompositeFormat EndpointBase = CompositeFormat.Parse("/api/shopping-cart/baskets/{0}/shipping-details");
 
     [Fact]
     public async Task GetShippingDetails_ShouldReturnOk_ForBasketWithShippingDetails()

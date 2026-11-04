@@ -19,10 +19,9 @@ catalog.
 
 These pages describe code currently in the repository. The accepted
 [company and restaurant authorization ADR](../Users%20ADR/0004-company-restaurant-roles-and-authorization.md)
-describes a broader membership-based design. Treat details not present in
+describes a broader role-scope design. Treat details not present in
 current code as design direction, not implemented behavior. ADR-0004 supersedes
 the older [application scopes ADR](../Users%20ADR/0003-application-scopes.md).
 
 The existing [Keycloak setup guide](../Getting%20Started/0003-keycloak-configuration.md)
 contains local setup steps and configuration caveats.
-

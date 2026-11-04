@@ -6,10 +6,11 @@ using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
 using MyHomeRamen.Features.ShoppingCart.Features.Abstractions;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Common.Tenancy;
 
 namespace MyHomeRamen.Features.ShoppingCart.Features.Baskets.GetCurrentBasketSummary;
 
-public sealed record GetCurrentBasketSummaryQuery : IQuery<GetCurrentBasketSummaryResponse>;
+public sealed record GetCurrentBasketSummaryQuery : IQuery<GetCurrentBasketSummaryResponse?>;
 
 public sealed class GetCurrentBasketSummaryAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetCurrentBasketSummaryQuery>
 {
@@ -19,14 +20,17 @@ public sealed class GetCurrentBasketSummaryAuthorizationPolicy(ICurrentUser curr
     }
 }
 
-public sealed record GetCurrentBasketSummaryQueryOptions(UserId UserId)
+public sealed record GetCurrentBasketSummaryQueryOptions(UserId UserId, Guid? RestaurantId)
     : DbQueryOptions<Basket, CurrentBasketSummaryDto>
     (
         new()
         {
-            Filter = basket => basket.UserId == UserId && basket.Status == BasketStatus.Active,
+            Filter = basket => basket.UserId == UserId
+                && (!RestaurantId.HasValue || basket.RestaurantId == RestaurantId)
+                && basket.Status == BasketStatus.Active,
             Selector = basket => new CurrentBasketSummaryDto(
                 basket.Id.Value,
+                basket.RestaurantId,
                 basket.Items.Select(item => new BasketSummaryItemDto(
                     item.Id.Value,
                     item.Product.Name,
@@ -36,18 +40,29 @@ public sealed record GetCurrentBasketSummaryQueryOptions(UserId UserId)
         }
     );
 
-public sealed class GetCurrentBasketSummaryHandler(IShoppingCartDbContext dbContext, ICurrentUser currentUser)
-                  : IRequestHandler<GetCurrentBasketSummaryQuery, GetCurrentBasketSummaryResponse>
+public sealed class GetCurrentBasketSummaryHandler(
+    IShoppingCartDbContext dbContext,
+    ICurrentUser currentUser,
+    ICompanyContext companyContext)
+    : IRequestHandler<GetCurrentBasketSummaryQuery, GetCurrentBasketSummaryResponse?>
 {
-    public async Task<GetCurrentBasketSummaryResponse> Handle(GetCurrentBasketSummaryQuery request, CancellationToken cancellationToken)
+    public async Task<GetCurrentBasketSummaryResponse?> Handle(
+        GetCurrentBasketSummaryQuery request,
+        CancellationToken cancellationToken)
     {
         UserId userId = new(currentUser.UserId);
 
-        CurrentBasketSummaryDto? basket = await dbContext.Basket.Query().GetCurrentBasketSummaryAsync(new GetCurrentBasketSummaryQueryOptions(userId), cancellationToken);
+        CurrentBasketSummaryDto? basket = await dbContext.Basket.Query().GetCurrentBasketSummaryAsync(
+            new GetCurrentBasketSummaryQueryOptions(userId, companyContext.RestaurantId),
+            cancellationToken);
 
         return basket is null
-            ? throw new InvalidOperationException("Basket was not found.")
-            : new GetCurrentBasketSummaryResponse(basket.Id, basket.Items, currentUser.BasketAllowedActions());
+            ? null
+            : new GetCurrentBasketSummaryResponse(
+                basket.Id,
+                basket.RestaurantId,
+                basket.Items,
+                currentUser.BasketAllowedActions());
     }
 }
 
@@ -56,6 +71,7 @@ internal static class Mappings
     public static GetCurrentBasketSummaryResponse ToResponse(this Basket basket, ICurrentUser currentUser)
         => new(
             basket.Id.Value,
+            basket.RestaurantId,
             basket.Items.Select(item => item.ToDto()),
             currentUser.BasketAllowedActions());
 

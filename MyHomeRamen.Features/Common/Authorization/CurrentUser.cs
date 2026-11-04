@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using MyHomeRamen.Domain.Identity.Roles;
 
 namespace MyHomeRamen.Features.Common.Authorization;
 
@@ -32,7 +33,7 @@ public sealed record CurrentUser : ICurrentUser
         IsAuthenticated = isAuthenticated;
         IsGuest = isGuest;
         PermissionGrants = permissionGrants;
-        Permissions = permissionGrants.Where(grant => grant.RestaurantId is null)
+        Permissions = permissionGrants.Where(grant => grant.Scope == RoleScope.Company)
                                       .Select(grant => grant.Name)
                                       .Distinct(StringComparer.Ordinal)
                                       .ToArray();

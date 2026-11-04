@@ -1,16 +1,21 @@
+using FluentValidation;
 using MyHomeRamen.Domain.Identity.Permissions;
 using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Domain.Identity.Users;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Identity.ExternalApi;
 using MyHomeRamen.Features.Identity.Permissions;
+using MyHomeRamen.Features.Identity.Services;
+using MyHomeRamen.Features.Identity.Services.Dto;
 using MyHomeRamen.IdentityApi.IntegrationTests.Common;
+using NSubstitute;
 
 namespace MyHomeRamen.IdentityApi.IntegrationTests.Permissions;
 
 public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
     [Fact]
-    public async Task Synchronize_ShouldGrantOwnerCompanyPermissionsAndAllPermissionsToAdmin()
+    public async Task Synchronize_ShouldProvisionCompanyRolesAndLeaveRestaurantAdminUnprovisioned()
     {
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
         IReadOnlyCollection<Permission> permissions =
@@ -25,11 +30,13 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
             .ByName(RoleConstants.Customer, cancellationToken);
 
         Assert.NotNull(companyOwnerRole);
-        Assert.NotNull(adminRole);
+        Assert.Null(adminRole);
         Assert.NotNull(guestRole);
         Assert.NotNull(customerRole);
+        Assert.Equal(RoleScope.Company, companyOwnerRole.Scope);
+        Assert.Equal(RoleScope.Company, guestRole.Scope);
+        Assert.Equal(RoleScope.Company, customerRole.Scope);
         Assert.Null(companyOwnerRole.RestaurantId);
-        Assert.Null(adminRole.RestaurantId);
 
         string[] actualCompanyOwnerPermissions = companyOwnerRole.RolePermissions
             .Select(rolePermission => permissions.Single(permission => permission.Id == rolePermission.PermissionId))
@@ -41,18 +48,7 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
             .Concat(MenuPermissionConstants.AvailablePermissions.Select(permission => $"Menu:{permission}"))
             .OrderBy(permission => permission, StringComparer.Ordinal)
             .ToArray();
-        string[] actualAdminPermissions = adminRole.RolePermissions
-            .Select(rolePermission => permissions.Single(permission => permission.Id == rolePermission.PermissionId))
-            .Select(permission => $"{permission.Module}:{permission.Name}")
-            .OrderBy(permission => permission, StringComparer.Ordinal)
-            .ToArray();
-        string[] expectedAdminPermissions = permissions
-            .Select(permission => $"{permission.Module}:{permission.Name}")
-            .OrderBy(permission => permission, StringComparer.Ordinal)
-            .ToArray();
-
         Assert.Equal(expectedCompanyOwnerPermissions, actualCompanyOwnerPermissions);
-        Assert.Equal(expectedAdminPermissions, actualAdminPermissions);
 
         foreach (Role role in new[] { guestRole, customerRole })
         {
@@ -65,6 +61,11 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
             {
                 Assert.Contains($"Menu:{expectedPermission}", actualPermissions);
             }
+
+            foreach (string expectedPermission in ShoppingCartPermissionConstants.GuestPermissions)
+            {
+                Assert.Contains($"ShoppingCart:{expectedPermission}", actualPermissions);
+            }
         }
 
         HashSet<string> resourceScopedPermissionNames =
@@ -74,6 +75,57 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
             Assert.Equal(
                 resourceScopedPermissionNames.Contains(restaurantPermission.Name),
                 restaurantPermission.IsResourceScoped);
+        }
+    }
+
+    [Fact]
+    public async Task CreateRestaurantAdminRoleAsync_ShouldCreateRestaurantScopedRoleWithOnlyRestaurantPermissions()
+    {
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        IKeycloakAdminService keycloakAdminService = Substitute.For<IKeycloakAdminService>();
+        IValidator<CompanyOwnerDto> companyOwnerValidator = Substitute.For<IValidator<CompanyOwnerDto>>();
+        IdentityService identityService = new(
+            keycloakAdminService,
+            apiFactory.IdentityDbContext,
+            companyOwnerValidator);
+        Guid restaurantId = Guid.CreateVersion7();
+
+        try
+        {
+            Guid roleId = await identityService.CreateRestaurantAdminRoleAsync(restaurantId, cancellationToken);
+            Guid repeatedRoleId = await identityService.CreateRestaurantAdminRoleAsync(restaurantId, cancellationToken);
+            Role? role = await apiFactory.IdentityDbContext.Role.Load()
+                .ByName(RoleConstants.RestaurantAdmin, cancellationToken, restaurantId);
+            IReadOnlyCollection<Permission> permissions =
+                (await apiFactory.IdentityDbContext.Permission.Load().All(cancellationToken)).ToArray();
+
+            Assert.NotNull(role);
+            Assert.Equal(roleId, repeatedRoleId);
+            Assert.Equal(RoleScope.Restaurant, role.Scope);
+            Assert.Equal(restaurantId, role.RestaurantId);
+
+            string[] actualPermissions = role.RolePermissions
+                .Select(rolePermission => permissions.Single(permission => permission.Id == rolePermission.PermissionId))
+                .Select(permission => $"{permission.Module}:{permission.Name}")
+                .OrderBy(permission => permission, StringComparer.Ordinal)
+                .ToArray();
+            string[] expectedPermissions = RestaurantsPermissionConstants.ResourceScopedPermissions
+                .Select(permission => $"Restaurants:{permission}")
+                .Concat(MenuPermissionConstants.RestaurantScopedPermissions.Select(permission => $"Menu:{permission}"))
+                .OrderBy(permission => permission, StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.Equal(expectedPermissions, actualPermissions);
+        }
+        finally
+        {
+            Role? role = await apiFactory.IdentityDbContext.Role.Load()
+                .ByName(RoleConstants.RestaurantAdmin, cancellationToken, restaurantId);
+            if (role is not null)
+            {
+                apiFactory.IdentityDbContext.Role.Delete(role);
+                await apiFactory.IdentityDbContext.SaveChangesAsync(cancellationToken);
+            }
         }
     }
 
@@ -92,6 +144,7 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
             $"Scoped Permission {Guid.CreateVersion7()}",
             "Test role for restaurant-scoped permission.",
             [permission.Id],
+            RoleScope.Restaurant,
             restaurantId);
         User user = User.Create(identityId, userName, "Scoped", "User", $"{userName}@example.com", "123456789");
         user.AssignRole(role);
@@ -109,6 +162,7 @@ public sealed class PermissionCatalogTests(WebApiFactory apiFactory) : IClassFix
                 && candidate.Name == RestaurantsPermissionConstants.RestaurantManage);
 
             Assert.True(grant.IsResourceScoped);
+            Assert.Equal(RoleScope.Restaurant, grant.Scope);
             Assert.Equal(restaurantId, grant.RestaurantId);
         }
         finally

@@ -12,4 +12,7 @@ public static class MenuCardErrors
 
     public static DomainException NameTooLong()
         => new($"Menu card name must not exceed {MenuCardConstants.MaxNameLength} characters.");
+
+    public static DomainException AlreadyActive()
+        => new("Menu card is already active.");
 }

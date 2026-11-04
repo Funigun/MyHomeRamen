@@ -29,13 +29,14 @@ For definitions in the code catalog, the synchronizer:
 - Updates changed descriptions and `IsResourceScoped` values.
 - Removes database permissions no longer present in catalog for modules still
   represented in the catalog.
-- Rebuilds permission links for `RestaurantAdmin`, `Guest`, `Customer`, and
+- Rebuilds permission links for Company-scoped `Guest`, `Customer`, and
   `CompanyOwner`, creating a built-in role if it does not exist.
 
-The admin role receives all catalog permissions. Other built-in role
-permission sets come from catalog subsets and customer-specific profile rules.
-Role synchronization updates those built-in assignments; it is not a Keycloak
-role update.
+`RestaurantAdmin` is provisioned separately for each restaurant during
+restaurant creation. It receives only restaurant-scoped Restaurants and Menu
+permissions. Company role permission sets come from catalog subsets and
+customer-specific profile rules. Role synchronization updates those built-in
+assignments; it is not a Keycloak role update.
 
 ## Operational notes
 
@@ -48,7 +49,6 @@ role update.
 - Role and permission changes become effective after the synchronizer and
   database saves complete.
 - This implementation does not document or implement the refactor ADR's
-  membership events or authorization-cache invalidation.
+  role-assignment events or authorization-cache invalidation.
 
 When changing synchronization behavior, update its tests and this page.
-
