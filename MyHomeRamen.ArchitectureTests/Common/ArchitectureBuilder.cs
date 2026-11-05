@@ -24,6 +24,14 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
 
     public System.Reflection.Assembly IntegrationTestsAssembly { get; private set; } = typeof(IntegrationTests.IIntegrationTestsAssemblyMarker).Assembly;
 
+    public System.Reflection.Assembly IdentityApiIntegrationTestsAssembly { get; private set; } = typeof(MyHomeRamen.IdentityApi.IntegrationTests.Common.WebApiFactory).Assembly;
+
+    public System.Reflection.Assembly MenuApiIntegrationTestsAssembly { get; private set; } = typeof(MyHomeRamen.MenuApi.IntegrationTests.Common.WebApiFactory).Assembly;
+
+    public System.Reflection.Assembly RestaurantsApiIntegrationTestsAssembly { get; private set; } = typeof(MyHomeRamen.RestaurantsApi.IntegrationTests.Common.WebApiFactory).Assembly;
+
+    public System.Reflection.Assembly ShoppingCartApiIntegrationTestsAssembly { get; private set; } = typeof(MyHomeRamen.ShoppingCartApi.IntegrationTests.Common.WebApiFactory).Assembly;
+
     public System.Reflection.Assembly PersistanceAssembly { get; private set; } = typeof(Persistance.IPersistanceAssemblyMarker).Assembly;
 
     public System.Reflection.Assembly ServiceDefaultsAssembly { get; private set; } = typeof(ServiceDefaults.IServiceDefaultsAssemblyMarker).Assembly;
@@ -60,9 +68,13 @@ public sealed class ArchitectureBuilder : IAsyncLifetime
             BlazorServerAssembly,
             DomainAssembly,
             InfrastructureAssembly,
+            IdentityApiIntegrationTestsAssembly,
             IntegrationTestsAssembly,
+            MenuApiIntegrationTestsAssembly,
             PersistanceAssembly,
+            RestaurantsApiIntegrationTestsAssembly,
             ServiceDefaultsAssembly,
+            ShoppingCartApiIntegrationTestsAssembly,
             UnitTestsAssembly,
             WorkerCommonAssembly,
             WorkerMailSenderAssembly,

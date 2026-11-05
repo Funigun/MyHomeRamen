@@ -33,6 +33,12 @@ public sealed class IdentityTestData(SharedIdentityTestData sharedIdentityTestDa
     internal Task<(string KeycloakUserId, Guid UserId)> SeedUser(IEnumerable<string> permissions, string userName)
         => sharedIdentityTestData.SeedUser(("Menu Test User", permissions), userName, "Test");
 
+    internal Task<(string KeycloakUserId, Guid UserId)> SeedRestaurantScopedUser(
+        IEnumerable<string> permissionNames,
+        IReadOnlyCollection<Guid> restaurantIds,
+        string userName)
+        => sharedIdentityTestData.SeedRestaurantScopedUser(permissionNames, restaurantIds, userName);
+
     internal Task DeleteUser(Guid userId)
         => sharedIdentityTestData.DeleteUser(userId);
 }

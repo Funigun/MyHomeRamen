@@ -6,8 +6,11 @@ using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using MyHomeRamen.Features.Identity.Abstractions;
 using MyHomeRamen.Infrastructure.Cache;
 using MyHomeRamen.IntegrationTests.Authentication;
+using MyHomeRamen.Persistance.Identity;
+using MyHomeRamen.Persistance.Restaurants;
 using StackExchange.Redis;
 using System.Security.Claims;
 
@@ -86,6 +89,15 @@ public static class ApiConfigExtensions
             options.EnableDetailedErrors();
             options.EnableSensitiveDataLogging();
         });
+    }
+
+    public static void ReconfigureRestaurantsDbContext(this IServiceCollection services, string connectionString)
+        => services.ReconfigureDbContext<RestaurantsDbContext>(connectionString);
+
+    public static void ReconfigureIdentityDbContext(this IServiceCollection services, string connectionString)
+    {
+        services.AddScoped<IIdentityDbContext>(provider => provider.GetRequiredService<IdentityDbContext>());
+        services.ReconfigureDbContext<IdentityDbContext>(connectionString);
     }
 }
 

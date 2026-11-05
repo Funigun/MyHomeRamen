@@ -46,7 +46,7 @@ public class IdentityTestData
             _serviceCollection.AddCacheService();
         }
         
-        ServiceProvider serviceProvider = _serviceCollection.BuildServiceProvider();
+        using ServiceProvider serviceProvider = _serviceCollection.BuildServiceProvider();
         using IServiceScope scope = serviceProvider.CreateScope();
 
         IdentityDbContext seedDbContext = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
@@ -84,6 +84,67 @@ public class IdentityTestData
         IdentityDbContext.Role.Add(roleToSeed);
         IdentityDbContext.User.Add(user);
         await IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        return (keycloakUserId, user.Id);
+    }
+
+    public async Task<(string KeycloakId, Guid UserId)> SeedRestaurantScopedUser(
+        IEnumerable<string> permissionNames,
+        IReadOnlyCollection<Guid> restaurantIds,
+        string userName,
+        string name = "Test")
+    {
+        if (_serviceCollection is null)
+        {
+            throw new InvalidOperationException("Identity test data has not been initialized.");
+        }
+
+        string[] requestedPermissionNames = permissionNames.Distinct(StringComparer.Ordinal).ToArray();
+        Guid[] distinctRestaurantIds = restaurantIds.Distinct().ToArray();
+
+        if (requestedPermissionNames.Length == 0)
+        {
+            throw new ArgumentException("At least one permission is required.", nameof(permissionNames));
+        }
+
+        if (distinctRestaurantIds.Length == 0 || distinctRestaurantIds.Contains(Guid.Empty))
+        {
+            throw new ArgumentException("At least one valid restaurant identifier is required.", nameof(restaurantIds));
+        }
+
+        using ServiceProvider serviceProvider = _serviceCollection.BuildServiceProvider();
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IIdentityDbContext identityDbContext = scope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
+
+        IReadOnlyCollection<Permission> permissions = await identityDbContext.Permission.Load()
+            .All(TestContext.Current.CancellationToken);
+        PermissionId[] permissionIds = permissions
+            .Where(permission => requestedPermissionNames.Contains(permission.Name, StringComparer.Ordinal))
+            .Select(permission => permission.Id)
+            .ToArray();
+
+        if (permissionIds.Length != requestedPermissionNames.Length)
+        {
+            throw new InvalidOperationException("One or more requested permissions are missing from the permission catalog.");
+        }
+
+        string keycloakUserId = $"test-keycloak-{userName}";
+        User user = User.Create(keycloakUserId, userName, name, "User", $"{userName}@example.com", "123456789");
+
+        foreach (Guid restaurantId in distinctRestaurantIds)
+        {
+            Role restaurantRole = Role.CreateCustom(
+                $"Restaurant test role {Guid.CreateVersion7()}",
+                "Restaurant-scoped role for integration testing.",
+                permissionIds,
+                RoleScope.Restaurant,
+                restaurantId);
+            user.AssignRole(restaurantRole);
+            identityDbContext.Role.Add(restaurantRole);
+        }
+
+        identityDbContext.User.Add(user);
+        await identityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         return (keycloakUserId, user.Id);
     }

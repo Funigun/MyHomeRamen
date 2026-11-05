@@ -85,6 +85,6 @@ public sealed class OrdersServiceTests
 
         Assert.Equal(OrderErrors.RestaurantUnavailable().Message, exception.Message);
         orderRepository.DidNotReceiveWithAnyArgs().Add(default!);
-        await dbContext.DidNotReceiveWithAnyArgs().SaveChangesAsync(default);
+        await dbContext.DidNotReceiveWithAnyArgs().SaveChangesAsync(TestContext.Current.CancellationToken);
     }
 }

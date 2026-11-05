@@ -1,0 +1,22 @@
+using Testcontainers.Redis;
+
+[assembly: AssemblyFixture(typeof(MyHomeRamen.RestaurantsApi.IntegrationTests.Common.Fixtures.RedisFixture))]
+
+namespace MyHomeRamen.RestaurantsApi.IntegrationTests.Common.Fixtures;
+
+public sealed class RedisFixture : IAsyncLifetime
+{
+    private readonly RedisContainer _redisContainer = new RedisBuilder("redis:8.2").Build();
+
+    internal string ConnectionString => _redisContainer.GetConnectionString();
+
+    public async ValueTask InitializeAsync()
+    {
+        await _redisContainer.StartAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _redisContainer.DisposeAsync();
+    }
+}

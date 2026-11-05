@@ -2,10 +2,9 @@ using System.Net;
 using System.Net.Http.Json;
 using MyHomeRamen.Features.Restaurants.Features.Restaurants.Query.GetRestaurantOptions;
 using MyHomeRamen.IntegrationTests.Extensions;
-using MyHomeRamen.MenuApi.IntegrationTests.Common;
-using MyHomeRamen.MenuApi.IntegrationTests.Common.Data;
+using MyHomeRamen.RestaurantsApi.IntegrationTests.Common;
 
-namespace MyHomeRamen.MenuApi.IntegrationTests.Restaurants;
+namespace MyHomeRamen.RestaurantsApi.IntegrationTests.Restaurants;
 
 public sealed class GetRestaurantOptionsTests(WebApiFactory apiFactory) : IClassFixture<WebApiFactory>
 {
@@ -17,10 +16,10 @@ public sealed class GetRestaurantOptionsTests(WebApiFactory apiFactory) : IClass
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(
             request,
             TestContext.Current.CancellationToken);
+        await response.AssertStatusCode(HttpStatusCode.OK);
         GetRestaurantOptionsResponse? result = await response.Content.ReadFromJsonAsync<GetRestaurantOptionsResponse>(
             TestContext.Current.CancellationToken);
 
-        await response.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.Contains(
             result.Restaurants,

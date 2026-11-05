@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MyHomeRamen.Domain.Menu.MenuCards;
 using MyHomeRamen.Domain.Menu.Offers;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Menu.Features.MenuCards.Common;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardForManage;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardsForManage;

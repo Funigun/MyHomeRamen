@@ -4,11 +4,7 @@
 
 @inject IStringLocalizer<CategoryManagementResources> Text
 
-@if (IsLoading)
-{
-    <MudProgressLinear Indeterminate="true" Class="mt-2" />
-}
-else if (Items.Count == 0)
+@if (Items.Count == 0)
 {
     <MudAlert Severity="Severity.Info" Class="mt-2">@Text["Empty"]</MudAlert>
 }

@@ -116,7 +116,7 @@ public sealed class CompanySetupHandlerTests
         ConfigureCompanyCommand command = new(
             new ConfigureCompanyRequest("My Home Ramen", "My Home Ramen Ltd", "PL123456789"));
 
-        FluentValidation.Results.ValidationResult result = await validator.ValidateAsync(command);
+        FluentValidation.Results.ValidationResult result = await validator.ValidateAsync(command, TestContext.Current.CancellationToken);
 
         Assert.Contains(result.Errors, error => error.ErrorMessage == expectedError);
     }
@@ -154,7 +154,7 @@ public sealed class CompanySetupHandlerTests
             "Example Bank",
             "routing-123"));
 
-        FluentValidation.Results.ValidationResult result = await validator.ValidateAsync(command);
+        FluentValidation.Results.ValidationResult result = await validator.ValidateAsync(command, TestContext.Current.CancellationToken);
 
         Assert.Contains(result.Errors, error =>
             error.ErrorMessage == "A company owner must be registered before its first restaurant can be created.");
@@ -204,7 +204,7 @@ public sealed class CompanySetupHandlerTests
             bankName,
             routingNumber));
 
-        FluentValidation.Results.ValidationResult result = await validator.ValidateAsync(command);
+        FluentValidation.Results.ValidationResult result = await validator.ValidateAsync(command, TestContext.Current.CancellationToken);
 
         Assert.Contains(result.Errors, error => error.ErrorMessage == expectedError);
     }

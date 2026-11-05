@@ -1,5 +1,6 @@
 using MyHomeRamen.Domain.Restaurants.Restaurants;
 using MyHomeRamen.Features.Restaurants.ExternalApi;
+using MyHomeRamen.Features.Restaurants.Features.Restaurants.Query.GetEmployeeRestaurantOptions;
 using MyHomeRamen.Features.Restaurants.Features.Restaurants.Query.GetRestaurantOptions;
 
 namespace MyHomeRamen.Features.Restaurants.Features.Restaurants.Common;
@@ -11,6 +12,7 @@ public interface IRestaurantQuery
     Task<IEnumerable<RestaurantListItemDto>> Available(IReadOnlyCollection<Guid>? restaurantIds, CancellationToken cancellationToken);
     Task<RestaurantInfo?> ForExternalApi(Guid restaurantId, CancellationToken cancellationToken);
     Task<IEnumerable<RestaurantOptionDto>> ActiveOptions(CancellationToken cancellationToken);
+    Task<IEnumerable<EmployeeRestaurantOptionDto>> EmployeeOptions(IReadOnlyCollection<Guid> restaurantIds, CancellationToken cancellationToken);
 }
 
 public sealed record RestaurantDetailsDto(Guid Id, string Name, bool IsActive, string Street, string City, string ZipCode, double Latitude, double Longitude, string? Phone, string? Email, string? AccountNumber, string? BankName, string? RoutingNumber);

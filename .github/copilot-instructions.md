@@ -37,6 +37,7 @@ MyHomeRamen.slnx
 ├── MyHomeRamen.IntegrationTests/                  ← Integration tests (XUnit, TestContainers)
 ├── MyHomeRamen.IdentityApi.IntegrationTests/      ← Identity integration tests
 ├── MyHomeRamen.MenuApi.IntegrationTests/          ← Menu integration tests
+├── MyHomeRamen.RestaurantsApi.IntegrationTests/   ← Restaurants integration tests
 ├── MyHomeRamen.ShoppingCartApi.IntegrationTests/  ← Shopping Cart integration tests
 ├── MyHomeRamen.ArchitectureTests/                 ← Architecture tests (XUnit, NetArchRules)
 └── MyHomeRamen.SystemTests/                       ← System tests (XUnit, Aspire.Hosting.Testing)

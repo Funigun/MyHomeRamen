@@ -10,6 +10,7 @@ using MyHomeRamen.Domain.Menu.Offers;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Domain.Menu.RestaurantIngredientPrices;
 using MyHomeRamen.Features.Identity.Permissions;
+using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.Menu.Features.MenuCards.ActivateMenuCard;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardForManage;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardOptions;
@@ -272,6 +273,35 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
             TestContext.Current.CancellationToken);
 
         Assert.NotEqual(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetMenuCardsForManage_ShouldReturnForbidden_ForUnassignedRestaurant()
+    {
+        Guid unassignedRestaurantId = await apiFactory.SeedRestaurantAsync(
+            $"Unassigned Restaurant {Guid.CreateVersion7():N}");
+        (string KeycloakUserId, Guid UserId) employee = await apiFactory.IdentityTestData.SeedRestaurantScopedUser(
+            [MenuPermissionConstants.CanManageMenuCards, MenuPermissionConstants.CanViewMenuCard],
+            [apiFactory.RestaurantId],
+            $"employee-assigned-only-{Guid.CreateVersion7():N}");
+
+        try
+        {
+            using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(
+                "/api/menu/cards/manage?pageNumber=1&pageSize=10");
+            request.AddAuthorizationHeader(employee);
+            request.Headers.Add(HeaderConstants.RestaurantId, unassignedRestaurantId.ToString());
+
+            HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(
+                request,
+                TestContext.Current.CancellationToken);
+
+            await response.AssertStatusCode(HttpStatusCode.Forbidden);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(employee.UserId);
+        }
     }
 
     private HttpRequestMessage CreateGetRequest(string path)

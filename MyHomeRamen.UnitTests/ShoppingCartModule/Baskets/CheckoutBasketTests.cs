@@ -45,8 +45,8 @@ public sealed class CheckoutBasketTests
                 CancellationToken.None));
 
         Assert.Equal(BasketErrors.BasketRestaurantMismatch().Message, exception.Message);
-        await restaurantService.DidNotReceiveWithAnyArgs().GetRestaurantAsync(default, default);
-        await ordersService.DidNotReceiveWithAnyArgs().CreateOrderAsync(default!, default);
+        await restaurantService.DidNotReceiveWithAnyArgs().GetRestaurantAsync(Guid.Empty, TestContext.Current.CancellationToken);
+        await ordersService.DidNotReceiveWithAnyArgs().CreateOrderAsync(default!, TestContext.Current.CancellationToken);
     }
 
     [Fact]

@@ -32,8 +32,6 @@ public sealed class RegisterGuestTests(WebApiFactory apiFactory) : IClassFixture
             .Select(permission => permission.Name)
             .ToArray();
 
-        Assert.Contains(ShoppingCartPermissionConstants.CanViewBasket, permissions);
-        Assert.Contains(ShoppingCartPermissionConstants.CanAddProduct, permissions);
-        Assert.Contains(ShoppingCartPermissionConstants.CanCheckout, permissions);
+        Assert.Contains(ShoppingCartPermissionConstants.ManageBasket, permissions);
     }
 }
