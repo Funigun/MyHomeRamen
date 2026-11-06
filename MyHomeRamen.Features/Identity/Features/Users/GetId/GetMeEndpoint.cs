@@ -11,6 +11,7 @@ namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
 public sealed record GetMeResponse(
     Guid UserId,
     string? FirstName,
+    string Destination,
     AdminNavigationAccess AdminNavigation);
 
 public sealed class GetMeEndpoint : IEndpoint
@@ -20,7 +21,7 @@ public sealed class GetMeEndpoint : IEndpoint
         endpointBuilder.MapStandardGet<GetMeResponse>("api/identity/users/me", HandleAsync)
                        .WithName("GetMeEndpoint")
                        .WithTags("identity", "users")
-                       .WithDescription("Returns the current user's identity and available panel actions.")
+                       .WithDescription("Returns the current user's identity, destination, and available panel actions.")
                        .AllowAnonymous();
     }
 

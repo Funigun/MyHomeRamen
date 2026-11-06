@@ -39,6 +39,7 @@ public sealed class GetMeTests(WebApiFactory apiFactory) : IClassFixture<WebApiF
         GetMeResponse body = await response.ResponseToDto<GetMeResponse>();
         Assert.Equal(user.UserId, body.UserId);
         Assert.Equal("Alex", body.FirstName);
+        Assert.Equal(UserDestinationConstants.CompanyOwner, body.Destination);
         Assert.True(body.AdminNavigation.CanSeeAdminPanel);
         Assert.Equal(
             [
@@ -69,8 +70,58 @@ public sealed class GetMeTests(WebApiFactory apiFactory) : IClassFixture<WebApiF
         GetMeResponse body = await response.ResponseToDto<GetMeResponse>();
         Assert.Equal(guest.UserId, body.UserId);
         Assert.Null(body.FirstName);
+        Assert.Equal(UserDestinationConstants.Guest, body.Destination);
         Assert.False(body.AdminNavigation.CanSeeAdminPanel);
         Assert.Empty(body.AdminNavigation.Sections);
+    }
+
+    [Fact]
+    public async Task GetMe_ShouldReturnEmployeeDestination_ForRestaurantScopedPermissions()
+    {
+        string userName = $"employee-{Guid.CreateVersion7():N}";
+        (string KeycloakId, Guid UserId) user = await apiFactory.IdentityTestData.SeedRestaurantScopedUser(
+            [RestaurantsPermissionConstants.RestaurantManage],
+            [Guid.CreateVersion7()],
+            userName,
+            "Alex");
+
+        try
+        {
+            using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(Endpoint);
+            request.AddAuthorizationHeader(user);
+            HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(request, TestContext.Current.CancellationToken);
+
+            await response.AssertStatusCode(HttpStatusCode.OK);
+            GetMeResponse body = await response.ResponseToDto<GetMeResponse>();
+            Assert.Equal(UserDestinationConstants.Employee, body.Destination);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(user.UserId);
+        }
+    }
+
+    [Fact]
+    public async Task GetMe_ShouldReturnCustomerDestination_ForCompanyScopedNonOwner()
+    {
+        string userName = $"customer-{Guid.CreateVersion7():N}";
+        (string KeycloakId, Guid UserId) user =
+            await apiFactory.IdentityTestData.SeedUser(("Customer", []), userName, "Alex");
+
+        try
+        {
+            using HttpRequestMessage request = HttpClientExtensions.CreateGetMessage(Endpoint);
+            request.AddAuthorizationHeader(user);
+            HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(request, TestContext.Current.CancellationToken);
+
+            await response.AssertStatusCode(HttpStatusCode.OK);
+            GetMeResponse body = await response.ResponseToDto<GetMeResponse>();
+            Assert.Equal(UserDestinationConstants.Customer, body.Destination);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(user.UserId);
+        }
     }
 
     [Fact]

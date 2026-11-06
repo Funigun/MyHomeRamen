@@ -1,0 +1,19 @@
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
+
+<MudStack Spacing="1">
+    <MudText Typo="Typo.h6">@Option.Name</MudText>
+    <MudText Typo="Typo.subtitle2">@Option.City</MudText>
+    <MudText Typo="Typo.body2">@AddressLabel: @Option.Address</MudText>
+    <MudText Typo="Typo.button" Color="Color.Primary">@SelectionLabel</MudText>
+</MudStack>
+
+@code {
+    [Parameter, EditorRequired]
+    public RestaurantOptionViewModel Option { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public string AddressLabel { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string SelectionLabel { get; set; } = string.Empty;
+}

@@ -1,11 +1,23 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using MyHomeRamen.Blazor.Features.Restaurants.Common.Services
+
+@inject IJSRuntime JSRuntime
+@inject RestaurantContextService RestaurantContextService
 
 <AuthorizeView>
     <Authorized>
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-            <form method="post" action="authentication/logout" style="display:inline;">
+            <form @ref="_logoutForm"
+                  method="post"
+                  action="authentication/logout"
+                  style="display:inline;"
+                  @onsubmit="LogoutAsync"
+                  @onsubmit:preventDefault="true">
                 <AntiforgeryToken />
-                <MudIconButton Icon="@Icons.Material.Filled.Logout" ButtonType="ButtonType.Submit" Variant="Variant.Text" Color="Color.Inherit" />
+                <MudIconButton Icon="@Icons.Material.Filled.Logout"
+                               ButtonType="ButtonType.Submit"
+                               Variant="Variant.Text"
+                               Color="Color.Inherit" />
             </form>
         </MudStack>
     </Authorized>
@@ -14,3 +26,13 @@
         <MudIconButton Icon="@Icons.Material.Filled.Recycling" Href="/account/signup" Variant="Variant.Text" Color="Color.Inherit" />
     </NotAuthorized>
 </AuthorizeView>
+
+@code {
+    private ElementReference _logoutForm;
+
+    private async Task LogoutAsync()
+    {
+        await RestaurantContextService.ClearEmployeeRestaurantAsync();
+        await JSRuntime.InvokeVoidAsync("myHomeRamen.submitLogout", _logoutForm);
+    }
+}

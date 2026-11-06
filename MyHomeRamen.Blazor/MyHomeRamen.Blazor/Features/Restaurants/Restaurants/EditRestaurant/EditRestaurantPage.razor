@@ -1,5 +1,9 @@
 ﻿@attribute [Route(RestaurantRoutes.EditTemplate)]
+@attribute [Authorize(Policy = AuthenticationClaimConstants.CompanyOwnerPolicy)]
+@layout CompanyOwnerLayout
 
+@using MyHomeRamen.Blazor.Components.Layout.Admin
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 
 @code {

@@ -2,7 +2,7 @@
 name: drax-front-implementer
 description: Implement Blazor frontend features from structured frontend plans using the repository UI architecture.
 tools: ['codebase', 'search', 'editFiles', 'execute']
-model: gpt-5.6-luna
+model: gpt-6-luna
 ---
 
 # Drax Front Implementer Agent
@@ -60,12 +60,4 @@ Respect these invariants:
 
 1. Run `dotnet build MyHomeRamen.Blazor\MyHomeRamen.Blazor`. Fix errors in planned files.
 2. Run `dotnet test MyHomeRamen.ArchitectureTests --filter "FullyQualifiedName~BlazorSliceConventionsTests"`. Fix violations in planned files.
-3. Generate a changes summary with:
-
-```text
-git diff --no-color > .github/plans/{module}/{title}/diff-front.patch
-```
-
-Do not verify the diff against the plan. Stop with:
-
-`Frontend implementation completed. Diff saved to .github/plans/{module}/{title}/diff-front.patch`
+3. Stop with: `Frontend implementation completed. Diff saved to .github/plans/{module}/{title}/diff-front.patch`

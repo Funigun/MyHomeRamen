@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Company owner</value></data>
+  <data name="Heading" xml:space="preserve"><value>Company restaurants</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading restaurants...</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Restaurants could not be loaded.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="Empty" xml:space="preserve"><value>No restaurants are available to manage.</value></data>
+  <data name="CreateRestaurant" xml:space="preserve"><value>Create restaurant</value></data>
+  <data name="ManageRestaurant" xml:space="preserve"><value>Manage restaurant</value></data>
+  <data name="PreviewMenu" xml:space="preserve"><value>Preview menu</value></data>
+  <data name="Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Inactive" xml:space="preserve"><value>Inactive</value></data>
+</root>

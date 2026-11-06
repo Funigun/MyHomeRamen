@@ -16,6 +16,8 @@ public partial class UserRepository : IUserQuery
     async Task<User?> IUserQuery.ById(UserId userId, CancellationToken cancellationToken)
         => await identityDbContext.Users.AsNoTracking()
                       .Include(user => user.Addresses)
+                      .Include(user => user.UserRoles)
+                          .ThenInclude(userRole => userRole.Role)
                       .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
 
     public async Task<User?> ByGuestId(Guid guestId, CancellationToken cancellationToken)

@@ -2,6 +2,7 @@ using MudBlazor.Services;
 using MyHomeRamen.Blazor.Components;
 using MyHomeRamen.Blazor.Components.Configuration;
 using MyHomeRamen.Blazor.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ try
 
     builder.Services.AddScoped<RestaurantConfiguration>();
     builder.Services.AddScoped<ThemeProviderService>();
+    builder.Services.AddScoped<ProtectedSessionStorage>();
     string infrastructurePrefix = builder.Configuration["RestaurantConfiguration:InfrastructurePrefix"]!;
 
     builder.AddBlazorServiceDefaults();

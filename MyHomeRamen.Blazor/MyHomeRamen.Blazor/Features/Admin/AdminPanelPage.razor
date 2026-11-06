@@ -1,7 +1,13 @@
 ﻿@page "/admin-panel"
+@attribute [Authorize(Policy = AuthenticationClaimConstants.EmployeePolicy)]
 @layout AdminLayout
 
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Admin
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 
-@code {
+@inject IStringLocalizer<AdminPanelResources> Text
 
-}
+<PageTitle>@Text["PageTitle"]</PageTitle>
+
+<AdminPanelView />

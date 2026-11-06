@@ -1,0 +1,83 @@
+@using System.Security.Claims
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Admin
+@using MyHomeRamen.Blazor.Features.Restaurants.Common.Services
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject RestaurantApiClient RestaurantApiClient
+@inject RestaurantContextService RestaurantContextService
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<AdminPanelResources> Text
+
+@if (_isLoading)
+{
+    <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+        <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+        <MudText>@Text["Loading"]</MudText>
+    </MudStack>
+}
+else if (_loadError.HasError)
+{
+    <MudAlert Severity="Severity.Error">@_loadError.Message</MudAlert>
+}
+else if (_hasValidatedContext)
+{
+    <MudText Typo="Typo.h1">@Text["Heading"]</MudText>
+}
+
+@code {
+    private readonly ApiErrorState _loadError = new();
+    private bool _hasValidatedContext;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            ClaimsPrincipal user = state.User;
+            if (!Guid.TryParse(user.FindFirst(AuthenticationClaimConstants.DomainId)?.Value, out Guid userId)
+                || userId == Guid.Empty)
+            {
+                await RedirectToSelectionAsync();
+                return;
+            }
+
+            ApiResult<GetEmployeeRestaurantOptionsResponse> result = await RestaurantApiClient.GetEmployeeOptionsAsync();
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"]))
+            {
+                await RestaurantContextService.ClearEmployeeRestaurantAsync();
+                return;
+            }
+
+            if (result is not ApiResult<GetEmployeeRestaurantOptionsResponse>.Success success)
+            {
+                await RestaurantContextService.ClearEmployeeRestaurantAsync();
+                return;
+            }
+
+            Guid? restaurantId = await RestaurantContextService.GetEmployeeRestaurantIdAsync(userId);
+            if (!restaurantId.HasValue
+                || !success.Value.Restaurants.Any(option => option.Id == restaurantId.Value))
+            {
+                await RedirectToSelectionAsync();
+                return;
+            }
+
+            _hasValidatedContext = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task RedirectToSelectionAsync()
+    {
+        await RestaurantContextService.ClearEmployeeRestaurantAsync();
+        NavigationManager.NavigateTo(RestaurantRoutes.SelectRestaurant, replace: true);
+    }
+}

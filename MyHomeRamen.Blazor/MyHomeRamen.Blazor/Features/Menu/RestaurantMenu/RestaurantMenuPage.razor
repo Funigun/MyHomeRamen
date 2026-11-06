@@ -1,7 +1,12 @@
-@page "/menu"
+@attribute [Route(RestaurantMenuRoutes.CustomerMenu)]
+@attribute [AllowAnonymous]
 
 @using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
+@using MyHomeRamen.Blazor.Components.Layout.AppLayout
+
+@layout AppLayout
 
 @inject IStringLocalizer<RestaurantMenuResources> Localizer
 

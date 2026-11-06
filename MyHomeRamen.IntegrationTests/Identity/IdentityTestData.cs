@@ -116,8 +116,9 @@ public class IdentityTestData
         using IServiceScope scope = serviceProvider.CreateScope();
         IIdentityDbContext identityDbContext = scope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
 
-        IReadOnlyCollection<Permission> permissions = await identityDbContext.Permission.Load()
-            .All(TestContext.Current.CancellationToken);
+        IReadOnlyCollection<Permission> permissions = (await identityDbContext.Permission.Load()
+            .All(TestContext.Current.CancellationToken))
+            .ToArray();
         PermissionId[] permissionIds = permissions
             .Where(permission => requestedPermissionNames.Contains(permission.Name, StringComparer.Ordinal))
             .Select(permission => permission.Id)

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared;
 
 namespace MyHomeRamen.Blazor.Features.Admin.Common.Services;
 
@@ -7,6 +8,8 @@ public sealed class AdminNavigationService(NavigationManager navigation)
     public static class Routes
     {
         public const string AdminPanel = "/admin-panel";
+        public const string SelectRestaurant = RestaurantRoutes.SelectRestaurant;
+        public const string CompanyOwnerHome = RestaurantRoutes.CompanyOwnerHome;
 
         public const string EmployeeList = "/admin/employees";
         public const string EmployeeCreate = "/admin/employees/create";

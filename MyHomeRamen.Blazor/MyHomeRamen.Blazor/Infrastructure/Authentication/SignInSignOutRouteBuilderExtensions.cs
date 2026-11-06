@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http.HttpResults;
+using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared;
 
 namespace MyHomeRamen.Blazor.Infrastructure.Authentication;
 
@@ -20,7 +21,7 @@ internal static class SignInSignOutRouteBuilderExtensions
     internal static ChallengeHttpResult OnLogin() =>
         TypedResults.Challenge(properties: new AuthenticationProperties
         {
-            RedirectUri = "/"
+            RedirectUri = RestaurantRoutes.SelectRestaurant
         });
 
     internal static SignOutHttpResult OnLogout() =>

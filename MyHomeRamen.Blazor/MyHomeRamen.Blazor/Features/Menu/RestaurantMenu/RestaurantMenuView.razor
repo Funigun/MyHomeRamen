@@ -3,6 +3,10 @@
 @using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
 @using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu
 @using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Models
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
+@using MyHomeRamen.Blazor.Features.Admin.Common.Services
+@using MyHomeRamen.Blazor.Features.Home.Common.Services
+@using MyHomeRamen.Blazor.Features.Restaurants.Common.Services
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization
 @using MyHomeRamen.Blazor.Infrastructure.Api
 
@@ -10,6 +14,8 @@
 @inject OffersApiClient OffersApiClient
 @inject IDialogService DialogService
 @inject IStringLocalizer<RestaurantMenuResources> Localizer
+@inject RestaurantContextService RestaurantContextService
+@inject NavigationManager NavigationManager
 
 @if (_isLoading)
 {
@@ -69,13 +75,16 @@ else
                                     }
                                 </MudCardContent>
                                 <MudCardActions>
-                                    <MudButton OnClick="@(() => OpenCustomizationDialogAsync(offer.OfferId))"
-                                               Color="Color.Primary"
-                                               Variant="Variant.Filled"
-                                               StartIcon="@Icons.Material.Filled.AddShoppingCart"
-                                               FullWidth="true">
-                                        @Localizer["CustomizeAndAdd"]
-                                    </MudButton>
+                                    @if (!IsCompanyOwnerPreview)
+                                    {
+                                        <MudButton OnClick="@(() => OpenCustomizationDialogAsync(offer.OfferId))"
+                                                   Color="Color.Primary"
+                                                   Variant="Variant.Filled"
+                                                   StartIcon="@Icons.Material.Filled.AddShoppingCart"
+                                                   FullWidth="true">
+                                            @Localizer["CustomizeAndAdd"]
+                                        </MudButton>
+                                    }
                                 </MudCardActions>
                             </MudCard>
                         </MudItem>
@@ -100,12 +109,19 @@ else
 }
 
 @code {
+    [Parameter]
+    public Guid? RestaurantId { get; set; }
+
+    [Parameter]
+    public bool IsCompanyOwnerPreview { get; set; }
+
     private readonly ApiErrorState _loadError = new();
     private readonly ApiErrorState _customizationLoadError = new();
     private IReadOnlyCollection<RestaurantMenuCardOptionViewModel> _menuCards = [];
     private RestaurantMenuViewModel? _menu;
     private Guid _selectedMenuCardId;
     private Guid _selectedSectionId;
+    private Guid _restaurantId;
     private bool _isLoading;
 
     private RestaurantMenuSectionViewModel? _selectedSection
@@ -114,6 +130,30 @@ else
     protected override async Task OnInitializedAsync()
     {
         _isLoading = true;
+        if (IsCompanyOwnerPreview)
+        {
+            if (RestaurantId is not Guid ownerRestaurantId || ownerRestaurantId == Guid.Empty)
+            {
+                NavigationManager.NavigateTo(AdminNavigationService.Routes.CompanyOwnerHome, replace: true);
+                _isLoading = false;
+                return;
+            }
+
+            _restaurantId = ownerRestaurantId;
+        }
+        else
+        {
+            Guid? customerRestaurantId = await RestaurantContextService.GetCustomerRestaurantIdAsync();
+            if (!customerRestaurantId.HasValue)
+            {
+                NavigationManager.NavigateTo(HomeNavigationService.Routes.Home, replace: true);
+                _isLoading = false;
+                return;
+            }
+
+            _restaurantId = customerRestaurantId.Value;
+        }
+
         ApiResult<GetMenuCardOptionsResponse> result = await MenuCardsApiClient.GetOptionsAsync();
         if (_loadError.Apply(result, Localizer["BadRequest"], Localizer["UnexpectedError"]))
         {
@@ -124,6 +164,7 @@ else
         if (result is ApiResult<GetMenuCardOptionsResponse>.Success success)
         {
             _menuCards = success.Value.MenuCards
+                .Where(card => card.RestaurantId == _restaurantId)
                 .Select(card => new RestaurantMenuCardOptionViewModel(card.MenuCardId, card.RestaurantId, card.Name))
                 .ToArray();
         }
@@ -194,6 +235,7 @@ else
         {
             OfferId = customization.OfferId,
             ProductId = customization.ProductId,
+            RestaurantId = _restaurantId,
             Name = customization.Name,
             Description = customization.Description,
             Quantity = 1,

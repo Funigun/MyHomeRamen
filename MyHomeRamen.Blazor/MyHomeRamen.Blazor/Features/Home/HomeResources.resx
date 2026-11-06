@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Home</value></data>
+  <data name="RestaurantPickerTitle" xml:space="preserve"><value>Choose a restaurant</value></data>
+  <data name="RestaurantPickerDescription" xml:space="preserve"><value>Choose where you would like to browse the menu.</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading restaurants...</value></data>
+  <data name="Empty" xml:space="preserve"><value>No active restaurants are available.</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Restaurants could not be loaded.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+  <data name="Address" xml:space="preserve"><value>Address</value></data>
+  <data name="BrowseRestaurant" xml:space="preserve"><value>Browse this restaurant</value></data>
+</root>

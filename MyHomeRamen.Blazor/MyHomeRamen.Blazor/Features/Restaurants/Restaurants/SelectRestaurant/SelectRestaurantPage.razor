@@ -1,0 +1,15 @@
+@attribute [Route(RestaurantRoutes.SelectRestaurant)]
+@attribute [Authorize]
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.SelectRestaurant
+@using MyHomeRamen.Blazor.Components.Layout.AppLayout
+
+@layout AppLayout
+
+@inject IStringLocalizer<SelectRestaurantResources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+
+<SelectRestaurantView />

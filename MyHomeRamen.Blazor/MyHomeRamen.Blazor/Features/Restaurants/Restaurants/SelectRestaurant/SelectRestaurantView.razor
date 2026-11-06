@@ -1,0 +1,167 @@
+@using System.Security.Claims
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Account.Common.Models
+@using MyHomeRamen.Blazor.Features.Admin.Common.Services
+@using MyHomeRamen.Blazor.Features.Home.Common.Services
+@using MyHomeRamen.Blazor.Features.Restaurants.Common.Services
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject RestaurantApiClient RestaurantApiClient
+@inject RestaurantContextService RestaurantContextService
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<SelectRestaurantResources> Text
+
+<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error">@_loadError.Message</MudAlert>
+    }
+    else if (_noAccess)
+    {
+        <MudAlert Severity="Severity.Info">@Text["NoAccess"]</MudAlert>
+    }
+    else if (_unknownDestination)
+    {
+        <MudAlert Severity="Severity.Error">@Text["UnknownDestination"]</MudAlert>
+    }
+    else if (_restaurantOptions.Count > 1)
+    {
+        <RestaurantOptionsSelector Options="_restaurantOptions"
+                                    AddressLabel="@Text["Address"]"
+                                    SelectionLabel="@Text["SelectRestaurant"]"
+                                    OnSelected="SelectRestaurantAsync" />
+    }
+</MudPaper>
+
+@code {
+    private readonly ApiErrorState _loadError = new();
+    private IReadOnlyList<RestaurantOptionViewModel> _restaurantOptions = [];
+    private Guid _authenticatedUserId;
+    private bool _isLoading = true;
+    private bool _noAccess;
+    private bool _unknownDestination;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        ClaimsPrincipal user = state.User;
+        string? destination = user.FindFirst(AuthenticationClaimConstants.UserDestination)?.Value;
+
+        if (destination == UserDestinationConstants.CompanyOwner)
+        {
+            await RestaurantContextService.ClearEmployeeRestaurantAsync();
+            NavigateTo(RestaurantRoutes.CompanyOwnerHome);
+            return;
+        }
+
+        if (destination is UserDestinationConstants.Customer or UserDestinationConstants.Guest)
+        {
+            await RestaurantContextService.ClearEmployeeRestaurantAsync();
+            NavigateTo(HomeNavigationService.Routes.Home);
+            return;
+        }
+
+        if (destination != UserDestinationConstants.Employee)
+        {
+            await RestaurantContextService.ClearEmployeeRestaurantAsync();
+            _unknownDestination = true;
+            _isLoading = false;
+            return;
+        }
+
+        if (!Guid.TryParse(user.FindFirst(AuthenticationClaimConstants.DomainId)?.Value, out _authenticatedUserId)
+            || _authenticatedUserId == Guid.Empty)
+        {
+            await RestaurantContextService.ClearEmployeeRestaurantAsync();
+            _noAccess = true;
+            _isLoading = false;
+            return;
+        }
+
+        await LoadEmployeeOptionsAsync();
+    }
+
+    private async Task LoadEmployeeOptionsAsync()
+    {
+        try
+        {
+            ApiResult<GetEmployeeRestaurantOptionsResponse> result = await RestaurantApiClient.GetEmployeeOptionsAsync();
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"]))
+            {
+                await RestaurantContextService.ClearEmployeeRestaurantAsync();
+                return;
+            }
+
+            if (result is not ApiResult<GetEmployeeRestaurantOptionsResponse>.Success success)
+            {
+                await RestaurantContextService.ClearEmployeeRestaurantAsync();
+                return;
+            }
+
+            _restaurantOptions = success.Value.Restaurants
+                .Select(RestaurantOptionViewModel.FromEmployeeResponse)
+                .ToArray();
+
+            if (_restaurantOptions.Count == 0)
+            {
+                await RestaurantContextService.ClearEmployeeRestaurantAsync();
+                _noAccess = true;
+                return;
+            }
+
+            Guid? savedRestaurantId = await RestaurantContextService.GetEmployeeRestaurantIdAsync(_authenticatedUserId);
+            if (savedRestaurantId.HasValue && _restaurantOptions.Any(option => option.Id == savedRestaurantId.Value))
+            {
+                NavigateTo(AdminNavigationService.Routes.AdminPanel);
+                return;
+            }
+
+            if (savedRestaurantId.HasValue)
+            {
+                await RestaurantContextService.ClearEmployeeRestaurantAsync();
+            }
+
+            if (_restaurantOptions.Count == 1)
+            {
+                await RestaurantContextService.SetEmployeeRestaurantIdAsync(_authenticatedUserId, _restaurantOptions[0].Id);
+                NavigateTo(AdminNavigationService.Routes.AdminPanel);
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SelectRestaurantAsync(Guid restaurantId)
+    {
+        if (!_restaurantOptions.Any(option => option.Id == restaurantId))
+        {
+            _noAccess = true;
+            return;
+        }
+
+        await RestaurantContextService.SetEmployeeRestaurantIdAsync(_authenticatedUserId, restaurantId);
+        NavigateTo(AdminNavigationService.Routes.AdminPanel);
+    }
+
+    private void NavigateTo(string destination)
+    {
+        _isLoading = false;
+        NavigationManager.NavigateTo(destination, replace: true);
+    }
+}

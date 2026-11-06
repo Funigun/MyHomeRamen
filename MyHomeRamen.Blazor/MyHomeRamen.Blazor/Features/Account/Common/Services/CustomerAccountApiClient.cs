@@ -22,6 +22,7 @@ public class CustomerAccountApiClient(HttpClient httpClient)
         return new GetMeModel(
             response.UserId,
             response.FirstName,
+            response.Destination,
             new GetMeAdminNavigationModel(response.AdminNavigation.CanSeeAdminPanel, response.AdminNavigation.Sections));
     }
 

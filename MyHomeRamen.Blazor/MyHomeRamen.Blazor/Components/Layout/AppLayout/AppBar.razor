@@ -1,6 +1,9 @@
 @using MyHomeRamen.Blazor.Features.Account.Common.Services;
 @using MyHomeRamen.Blazor.Features.Admin.Common.Services;
+@using MyHomeRamen.Blazor.Features.Home.Common.Services
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.BasketMenu
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider
 
 
@@ -14,13 +17,13 @@
         <MudStack Row="true" Style="align-items: center;">
             <MudSpacer />
             <MudSpacer />
-            <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/"))">Home</MudButton>
-            <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate("/menu"))">Menu</MudButton>
+            <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(HomeNavigationService.Routes.Home))">Home</MudButton>
+            <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(RestaurantMenuRoutes.CustomerMenu))">Menu</MudButton>
             <MudSpacer />
             
             @if (_canViewAdminPanel)
             {
-                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.AdminPanel))">Admin Panel</MudButton>
+                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.SelectRestaurant))">Admin Panel</MudButton>
             }
 
             <BasketSummaryMenu/>

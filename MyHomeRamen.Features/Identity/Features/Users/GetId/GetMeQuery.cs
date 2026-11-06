@@ -1,4 +1,5 @@
 using MyHomeRamen.Domain.Identity.Users;
+using MyHomeRamen.Domain.Identity.Roles;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Mediator;
@@ -10,6 +11,14 @@ namespace MyHomeRamen.Features.Identity.Features.Users.GetId;
 public sealed record GetMeQuery : IQuery<GetMeResponse>;
 
 public sealed record AdminNavigationAccess(bool CanSeeAdminPanel, IReadOnlyCollection<string> Sections);
+
+public static class UserDestinationConstants
+{
+    public const string CompanyOwner = nameof(CompanyOwner);
+    public const string Employee = nameof(Employee);
+    public const string Customer = nameof(Customer);
+    public const string Guest = nameof(Guest);
+}
 
 public sealed class GetMeAuthorizationPolicy(ICurrentUser currentUser) : IAuthorizationPolicy<GetMeQuery>
 {
@@ -70,6 +79,27 @@ public sealed class GetMeHandler(IIdentityDbContext dbContext, ICurrentUser curr
         return new GetMeResponse(
             user.Id.Value,
             user.GuestId is null ? user.FirstName : null,
+            ResolveDestination(user),
             new AdminNavigationAccess(sections.Count > 0, sections));
+
+        string ResolveDestination(User currentDomainUser)
+        {
+            if (currentDomainUser.GuestId is not null)
+            {
+                return UserDestinationConstants.Guest;
+            }
+
+            if (currentUser.HasPermission(RestaurantsModuleName, RestaurantsPermissionConstants.RestaurantsManage))
+            {
+                return UserDestinationConstants.CompanyOwner;
+            }
+
+            if (currentDomainUser.UserRoles.Any(userRole => userRole.Role.Scope == RoleScope.Restaurant))
+            {
+                return UserDestinationConstants.Employee;
+            }
+
+            return UserDestinationConstants.Customer;
+        }
     }
 }

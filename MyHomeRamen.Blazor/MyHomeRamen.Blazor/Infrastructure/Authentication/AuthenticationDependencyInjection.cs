@@ -40,7 +40,11 @@ internal static class AuthenticationDependencyInjection
                 .AddPolicy(AdminSectionConstants.ProductsManagement, policy =>
                     policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.ProductsManagement))
                 .AddPolicy(AdminSectionConstants.IngredientsManagement, policy =>
-                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.IngredientsManagement));
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.IngredientsManagement))
+                .AddPolicy(AuthenticationClaimConstants.CompanyOwnerPolicy, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.UserDestination, UserDestinationConstants.CompanyOwner))
+                .AddPolicy(AuthenticationClaimConstants.EmployeePolicy, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.UserDestination, UserDestinationConstants.Employee));
 
         return services;
     }
@@ -101,6 +105,11 @@ internal static class AuthenticationDependencyInjection
                                 if (currentUser.FirstName is not null)
                                 {
                                     identity.AddClaim(new Claim(AuthenticationClaimConstants.FirstName, currentUser.FirstName));
+                                }
+
+                                if (!string.IsNullOrWhiteSpace(currentUser.Destination))
+                                {
+                                    identity.AddClaim(new Claim(AuthenticationClaimConstants.UserDestination, currentUser.Destination));
                                 }
 
                                 if (currentUser.AdminNavigation.CanSeeAdminPanel)

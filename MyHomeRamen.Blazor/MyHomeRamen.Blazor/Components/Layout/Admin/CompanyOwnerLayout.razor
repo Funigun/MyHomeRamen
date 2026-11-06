@@ -1,0 +1,30 @@
+@inherits LayoutComponentBase
+
+@using MyHomeRamen.Blazor.Components.Layout.AppLayout
+
+@inject ThemeProviderService ThemeProvider
+
+<MudThemeProvider Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<CascadingAuthenticationState>
+    <MudLayout Style="--appbar-height: 150px; --footer-height: 120px">
+        <AppBar />
+        <MudMainContent Style="justify-items: center">
+            <div style="min-height: 900px; padding: 48px; padding-bottom: var(--footer-height); width: 80%">
+                @Body
+            </div>
+        </MudMainContent>
+        <div style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;">
+            <Footer />
+        </div>
+    </MudLayout>
+</CascadingAuthenticationState>
+
+@code {
+    private MudTheme _theme = default!;
+
+    protected override void OnInitialized() => _theme = ThemeProvider.GetTheme();
+}

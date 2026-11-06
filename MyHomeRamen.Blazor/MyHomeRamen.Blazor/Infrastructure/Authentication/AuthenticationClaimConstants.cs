@@ -8,4 +8,7 @@ internal static class AuthenticationClaimConstants
     internal const string FirstName = ClaimTypes.GivenName;
     internal const string AdminCanViewPanel = "my-home-ramen:admin:can-view-panel";
     internal const string AdminSection = "my-home-ramen:admin:section";
+    internal const string UserDestination = "my-home-ramen:user:destination";
+    internal const string CompanyOwnerPolicy = "my-home-ramen:company-owner";
+    internal const string EmployeePolicy = "my-home-ramen:employee";
 }

@@ -1,5 +1,6 @@
 using MyHomeRamen.Blazor.Features.Restaurants.Companies.Shared;
 using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared;
+using MyHomeRamen.Blazor.Features.Restaurants.Common.Services;
 using MyHomeRamen.Blazor.Infrastructure.Authentication.HeaderHandlers;
 using MyHomeRamen.ServiceDefaults;
 
@@ -9,6 +10,8 @@ internal static class DependencyInjection
 {
     internal static IServiceCollection AddRestaurantsFeatureServices(this IServiceCollection services, string infrastructurePrefix)
     {
+        services.AddScoped<RestaurantContextService>();
+
         services.AddHttpClient<CompanyApiClient>(client =>
             {
                 client.BaseAddress = new Uri($"https+http://{ServiceNames.Api(infrastructurePrefix)}");

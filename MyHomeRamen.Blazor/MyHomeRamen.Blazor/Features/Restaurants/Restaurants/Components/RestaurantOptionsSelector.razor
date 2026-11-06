@@ -1,0 +1,62 @@
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
+
+<MudStack Spacing="2">
+    @for (int index = 0; index < Options.Count; index++)
+    {
+        RestaurantOptionViewModel option = Options[index];
+        <MudButton @key="option.Id"
+                   FullWidth="true"
+                   Variant="Variant.Text"
+                   Class="pa-2"
+                   Style="white-space: normal; text-align: left;"
+                   aria-label="@($"{SelectionLabel}: {option.Name}, {option.Address}")"
+                   OnClick="@(() => OnSelected.InvokeAsync(option.Id))">
+            <MudGrid Spacing="0" AlignItems="AlignItems.Center">
+                @if (index % 2 == 0)
+                {
+                    <MudItem xs="12" md="6">
+                        <MudPaper Elevation="0"
+                                  Class="d-flex align-center justify-center pa-4"
+                                  Style="min-height: 180px; background-color: #f4efe9;">
+                            <MudIcon Icon="@Icons.Material.Outlined.Restaurant" Size="Size.Large" Color="Color.Primary" />
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="6" Class="pa-4">
+                        <RestaurantOptionDetails Option="option"
+                                                  AddressLabel="@AddressLabel"
+                                                  SelectionLabel="@SelectionLabel" />
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12" md="6" Class="pa-4">
+                        <RestaurantOptionDetails Option="option"
+                                                  AddressLabel="@AddressLabel"
+                                                  SelectionLabel="@SelectionLabel" />
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudPaper Elevation="0"
+                                  Class="d-flex align-center justify-center pa-4"
+                                  Style="min-height: 180px; background-color: #f4efe9;">
+                            <MudIcon Icon="@Icons.Material.Outlined.Restaurant" Size="Size.Large" Color="Color.Primary" />
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudButton>
+    }
+</MudStack>
+
+@code {
+    [Parameter, EditorRequired]
+    public IReadOnlyList<RestaurantOptionViewModel> Options { get; set; } = [];
+
+    [Parameter, EditorRequired]
+    public string AddressLabel { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public string SelectionLabel { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public EventCallback<Guid> OnSelected { get; set; }
+}

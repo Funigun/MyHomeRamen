@@ -1,0 +1,20 @@
+@attribute [Route(RestaurantMenuRoutes.CompanyOwnerPreviewTemplate)]
+@attribute [Authorize(Policy = AuthenticationClaimConstants.CompanyOwnerPolicy)]
+@layout CompanyOwnerLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Components.Layout.Admin
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<RestaurantMenuResources> Text
+
+<PageTitle>@Text["PreviewTitle"]</PageTitle>
+
+<RestaurantMenuView RestaurantId="@RestaurantId" IsCompanyOwnerPreview="true" />
+
+@code {
+    [Parameter]
+    public Guid RestaurantId { get; set; }
+}
