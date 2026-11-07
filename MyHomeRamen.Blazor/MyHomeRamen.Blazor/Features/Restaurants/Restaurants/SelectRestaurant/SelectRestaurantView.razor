@@ -16,27 +16,27 @@
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<SelectRestaurantResources> Text
 
-<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
-    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["Heading"]' />
 
     @if (_isLoading)
     {
-        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
             <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
             <MudText>@Text["Loading"]</MudText>
         </MudStack>
     }
     else if (_loadError.HasError)
     {
-        <MudAlert Severity="Severity.Error">@_loadError.Message</MudAlert>
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
     }
     else if (_noAccess)
     {
-        <MudAlert Severity="Severity.Info">@Text["NoAccess"]</MudAlert>
+        <MudAlert Severity="Severity.Info" Class="page-state">@Text["NoAccess"]</MudAlert>
     }
     else if (_unknownDestination)
     {
-        <MudAlert Severity="Severity.Error">@Text["UnknownDestination"]</MudAlert>
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["UnknownDestination"]</MudAlert>
     }
     else if (_restaurantOptions.Count > 1)
     {

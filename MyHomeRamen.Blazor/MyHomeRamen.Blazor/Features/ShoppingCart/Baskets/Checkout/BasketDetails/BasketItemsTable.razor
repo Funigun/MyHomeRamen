@@ -7,11 +7,11 @@
 
 @if (Items.Count == 0)
 {
-    <MudAlert Severity="Severity.Info">Your basket is empty.</MudAlert>
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">Your basket is empty.</MudAlert>
 }
 else
 {
-    <MudTable Items="Items" Dense="true" Hover="true">
+    <MudTable Items="Items" Dense="true" Hover="true" Breakpoint="Breakpoint.Sm" Class="data-table">
         <HeaderContent>
             <MudTh>Product</MudTh>
             <MudTh>Qty</MudTh>
@@ -70,7 +70,7 @@ else
 
 @if (_errorMessage is not null)
 {
-    <MudAlert Severity="Severity.Error" Class="mt-2">@_errorMessage</MudAlert>
+    <MudAlert Severity="Severity.Error" Class="form-error">@_errorMessage</MudAlert>
 }
 
 @code {

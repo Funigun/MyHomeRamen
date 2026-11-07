@@ -1,6 +1,8 @@
 .footer-container {
+    box-sizing: border-box;
+    height: var(--footer-height);
     background-color: #2b1613;
-    padding: 60px 48px;
+    padding: 16px 48px;
     border-top: 1px solid rgba(135, 115, 105, 0.1);
     color: #ffe9e5;
 }
@@ -52,4 +54,10 @@
     gap: 16px;
     align-items: center;
     justify-content: flex-end;
+}
+
+@media (max-width: 600px) {
+    .footer-container {
+        padding: 8px 16px;
+    }
 }

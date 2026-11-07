@@ -12,9 +12,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudAppBar Elevation="1">
-    <MudStack Style="width:100%;">
-        <MudText Typo="Typo.h3" Style="text-align:center; margin-top: 30px">@RestaurantConfiguration.RestaurantName</MudText>
-        <MudStack Row="true" Style="align-items: center;">
+    <MudStack Class="app-bar-content">
+        <MudText Typo="Typo.h3" Class="app-bar-title">@RestaurantConfiguration.RestaurantName</MudText>
+        <MudStack Row="true" Class="app-bar-navigation">
             <MudSpacer />
             <MudSpacer />
             <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(HomeNavigationService.Routes.Home))">Home</MudButton>

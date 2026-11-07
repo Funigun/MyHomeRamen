@@ -1,25 +1,31 @@
-<MudForm Model="AddressModel" ReadOnly="Mode == FormMode.View" Validation="@(new AddressValidator().ValidateValue)"
-         Style="margin-top: 15px;">
-
-    <MudStack Row="true" Style="margin-top: 15px;">
-        <MudTextField @bind-Value="AddressModel.Street" Label="Street" For="@(() => AddressModel.Street)"/>
-        <MudTextField @bind-Value="AddressModel.Building" Label="Building" For="@(() => AddressModel.Building)" />
-        <MudTextField @bind-Value="AddressModel.Apartment" Label="Apartment" For="@(() => AddressModel.Apartment)" />
-    </MudStack>
-
-    <MudStack Row="true" Style="margin-top: 15px;">
-        <MudTextField @bind-Value="AddressModel.City" Label="City" For="@(() => AddressModel.City)" />
-        <MudTextField @bind-Value="AddressModel.ZipCode" Label="ZipCode" For="@(() => AddressModel.ZipCode)" />
-    </MudStack>
-
-    @if (Mode != FormMode.View)
-    {
-        <MudCheckBox @bind-Value="AddressModel.IsDefault" Label="Set as Default" For="@(() => AddressModel.IsDefault)"/>
-    }
-    else
-    {
-        <MudTextField @bind-Value="AddressModel.IsDefault" Label="Default" ReadOnly="true" />
-    }
+<MudForm Model="AddressModel" ReadOnly="Mode == FormMode.View" Validation="@(new AddressValidator().ValidateValue)" Class="form-fields">
+    <MudGrid Spacing="3">
+        <MudItem xs="12" sm="4">
+            <MudTextField @bind-Value="AddressModel.Street" Label="Street" For="@(() => AddressModel.Street)" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudTextField @bind-Value="AddressModel.Building" Label="Building" For="@(() => AddressModel.Building)" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudTextField @bind-Value="AddressModel.Apartment" Label="Apartment" For="@(() => AddressModel.Apartment)" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudTextField @bind-Value="AddressModel.City" Label="City" For="@(() => AddressModel.City)" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudTextField @bind-Value="AddressModel.ZipCode" Label="ZipCode" For="@(() => AddressModel.ZipCode)" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12">
+            @if (Mode != FormMode.View)
+            {
+                <MudCheckBox @bind-Value="AddressModel.IsDefault" Label="Set as Default" For="@(() => AddressModel.IsDefault)" />
+            }
+            else
+            {
+                <MudTextField @bind-Value="AddressModel.IsDefault" Label="Default" Variant="Variant.Outlined" ReadOnly="true" />
+            }
+        </MudItem>
+    </MudGrid>
 </MudForm>
 
 @code {

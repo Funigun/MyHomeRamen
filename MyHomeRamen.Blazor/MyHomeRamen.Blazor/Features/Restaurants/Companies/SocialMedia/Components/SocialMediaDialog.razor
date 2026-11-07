@@ -7,29 +7,31 @@
 <MudDialog>
     <DialogContent>
         <MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue" ValidationDelay="0">
-            <MudStack Spacing="2">
+            <MudStack Spacing="3" Class="form-fields">
                 <MudTextField Label="@Text["Name"]" @bind-Value="Model.Name" For="@(() => Model.Name)" Required="true" Variant="Variant.Outlined" Disabled="_isBusy" Error="@HasError(nameof(Model.Name))" ErrorText="@GetError(nameof(Model.Name))" />
                 <MudTextField Label="@Text["LogoUrl"]" @bind-Value="Model.LogoUrl" For="@(() => Model.LogoUrl)" Required="true" Variant="Variant.Outlined" Disabled="_isBusy" Error="@HasError(nameof(Model.LogoUrl))" ErrorText="@GetError(nameof(Model.LogoUrl))" />
                 <MudTextField Label="@Text["Url"]" @bind-Value="Model.Url" For="@(() => Model.Url)" Required="true" Variant="Variant.Outlined" Disabled="_isBusy" Error="@HasError(nameof(Model.Url))" ErrorText="@GetError(nameof(Model.Url))" />
                 @if (SubmitError.HasError)
                 {
-                    <MudAlert Severity="Severity.Error" Dense="true">@SubmitError.Message</MudAlert>
+                    <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@SubmitError.Message</MudAlert>
                 }
             </MudStack>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">@Text["Cancel"]</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="_isBusy" OnClick="SubmitAsync">
-            @if (_isBusy)
-            {
-                <MudProgressCircular Size="Size.Small" Indeterminate="true" />
-            }
-            else
-            {
-                <span>@Text["Save"]</span>
-            }
-        </MudButton>
+        <div class="form-actions">
+            <MudButton OnClick="Cancel">@Text["Cancel"]</MudButton>
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="_isBusy" OnClick="SubmitAsync">
+                @if (_isBusy)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                }
+                else
+                {
+                    <span>@Text["Save"]</span>
+                }
+            </MudButton>
+        </div>
     </DialogActions>
 </MudDialog>
 

@@ -29,22 +29,22 @@ else
 
             @if (Model.ShippingDetails.Delivery)
             {
-                <MudForm @ref="_form" Model="@Model.ShippingDetails.ShippingAddress" Validation="@_addressValidator.ValidateValue">
-                    <MudGrid>
+                <MudForm @ref="_form" Model="@Model.ShippingDetails.ShippingAddress" Validation="@_addressValidator.ValidateValue" Class="form-fields">
+                    <MudGrid Spacing="3">
                         <MudItem xs="12" sm="6">
-                            <MudTextField T="string" Label="Street" @bind-Value="Model.ShippingDetails.ShippingAddress!.Street" For="@(() => Model.ShippingDetails.ShippingAddress!.Street)" Required="true" />
+                            <MudTextField T="string" Label="Street" @bind-Value="Model.ShippingDetails.ShippingAddress!.Street" For="@(() => Model.ShippingDetails.ShippingAddress!.Street)" Variant="Variant.Outlined" Required="true" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudTextField T="string" Label="Building" @bind-Value="Model.ShippingDetails.ShippingAddress!.Building" For="@(() => Model.ShippingDetails.ShippingAddress!.Building)" Required="true" />
+                            <MudTextField T="string" Label="Building" @bind-Value="Model.ShippingDetails.ShippingAddress!.Building" For="@(() => Model.ShippingDetails.ShippingAddress!.Building)" Variant="Variant.Outlined" Required="true" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudTextField T="string" Label="Apartment" @bind-Value="Model.ShippingDetails.ShippingAddress!.Apartment" For="@(() => Model.ShippingDetails.ShippingAddress!.Apartment)" />
+                            <MudTextField T="string" Label="Apartment" @bind-Value="Model.ShippingDetails.ShippingAddress!.Apartment" For="@(() => Model.ShippingDetails.ShippingAddress!.Apartment)" Variant="Variant.Outlined" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudTextField T="string" Label="City" @bind-Value="Model.ShippingDetails.ShippingAddress!.City" For="@(() => Model.ShippingDetails.ShippingAddress!.City)" Required="true" />
+                            <MudTextField T="string" Label="City" @bind-Value="Model.ShippingDetails.ShippingAddress!.City" For="@(() => Model.ShippingDetails.ShippingAddress!.City)" Variant="Variant.Outlined" Required="true" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudTextField T="string" Label="Zip Code" @bind-Value="Model.ShippingDetails.ShippingAddress!.ZipCode" For="@(() => Model.ShippingDetails.ShippingAddress!.ZipCode)" Required="true" />
+                            <MudTextField T="string" Label="Zip Code" @bind-Value="Model.ShippingDetails.ShippingAddress!.ZipCode" For="@(() => Model.ShippingDetails.ShippingAddress!.ZipCode)" Variant="Variant.Outlined" Required="true" />
                         </MudItem>
                     </MudGrid>
                 </MudForm>

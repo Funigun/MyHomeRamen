@@ -6,7 +6,7 @@
 @inject IStringLocalizer<ProductsResources> Text
 
 <MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue" ValidationDelay="0">
-    <MudStack Spacing="3">
+    <MudStack Spacing="3" Class="form-fields">
         <MudTextField @bind-Value="Model.Name"
                       For="@(() => Model.Name)"
                       Label="@Text["Name"]"
@@ -72,10 +72,10 @@
 
         @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
-            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+            <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@ErrorMessage</MudAlert>
         }
 
-        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="flex-wrap">
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="form-actions">
             <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="IsSubmitting" OnClick="SubmitAsync">
                 @if (IsSubmitting)

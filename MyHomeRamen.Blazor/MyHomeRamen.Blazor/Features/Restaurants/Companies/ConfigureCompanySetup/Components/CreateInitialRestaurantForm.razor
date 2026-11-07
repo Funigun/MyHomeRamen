@@ -4,9 +4,9 @@
 @inject IStringLocalizer<CompanySetupResources> Text
 
 <MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
-    <MudStack Spacing="3">
-        <MudText Typo="Typo.h5">@Text["RestaurantSection"]</MudText>
-        <MudGrid Spacing="2">
+    <MudStack Spacing="3" Class="form-fields">
+        <MudText Typo="Typo.h6" Class="form-section-title">@Text["RestaurantSection"]</MudText>
+        <MudGrid Spacing="3">
             <MudItem xs="12">
                 <MudTextField @bind-Value="_model.Name" @bind-Value:after="RefreshValidation" For="() => _model.Name" Label="@Text["RestaurantName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Name))" ErrorText="@GetError(nameof(_model.Name))" />
             </MudItem>
@@ -32,7 +32,7 @@
                 <MudTextField @bind-Value="_model.Email" @bind-Value:after="RefreshValidation" For="() => _model.Email" Label="@Text["RestaurantEmail"]" Variant="Variant.Outlined" InputType="InputType.Email" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.Email))" ErrorText="@GetError(nameof(_model.Email))" />
             </MudItem>
             <MudItem xs="12">
-                <MudText Typo="Typo.h6">@Text["BankAccountSection"]</MudText>
+                <MudText Typo="Typo.h6" Class="form-section-title">@Text["BankAccountSection"]</MudText>
             </MudItem>
             <MudItem xs="12" sm="6">
                 <MudTextField @bind-Value="_model.AccountNumber" @bind-Value:after="RefreshValidation" For="() => _model.AccountNumber" Label="@Text["BankAccountNumber"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.AccountNumber))" ErrorText="@GetError(nameof(_model.AccountNumber))" />
@@ -46,19 +46,25 @@
         </MudGrid>
         @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
-            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+            <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@ErrorMessage</MudAlert>
         }
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(IsSubmitting || !_validationResult.IsValid)" OnClick="SubmitAsync">
-            @if (IsSubmitting)
-            {
-                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
-                @Text["Saving"]
-            }
-            else
-            {
-                @Text["CreateRestaurant"]
-            }
-        </MudButton>
+        <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="@(IsSubmitting || !_validationResult.IsValid)"
+                       OnClick="SubmitAsync">
+                @if (IsSubmitting)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                    @Text["Saving"]
+                }
+                else
+                {
+                    @Text["CreateRestaurant"]
+                }
+            </MudButton>
+        </MudStack>
     </MudStack>
 </MudForm>
 

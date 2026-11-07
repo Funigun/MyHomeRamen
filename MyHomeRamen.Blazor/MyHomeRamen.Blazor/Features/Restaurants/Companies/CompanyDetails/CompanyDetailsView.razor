@@ -7,19 +7,19 @@
 @inject CompanyApiClient CompanyApiClient
 @inject IStringLocalizer<CompanyDetailsResources> Text
 
-<MudPaper Elevation="3" Class="pa-4 pa-md-6">
-    <MudText Typo="Typo.h1" Class="mb-4">@Text["Heading"]</MudText>
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["Heading"]' />
 
     @if (isLoading)
     {
-        <MudStack AlignItems="AlignItems.Center" Class="pa-8">
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
             <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
             <MudText>@Text["Loading"]</MudText>
         </MudStack>
     }
     else if (loadError.HasError)
     {
-        <MudAlert Severity="Severity.Error" Class="mt-6">@loadError.Message</MudAlert>
+        <MudAlert Severity="Severity.Error" Class="page-state">@loadError.Message</MudAlert>
     }
     else if (companyDetails is not null)
     {

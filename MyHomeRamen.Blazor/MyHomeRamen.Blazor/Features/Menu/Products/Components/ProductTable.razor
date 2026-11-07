@@ -7,22 +7,22 @@
 
 @if (Items.Count == 0)
 {
-    <MudAlert Severity="Severity.Info" Class="mt-4">@Text["Empty"]</MudAlert>
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["Empty"]</MudAlert>
 }
 else
 {
-    <MudGrid Spacing="3" Class="mt-2">
+    <MudGrid Spacing="3" Class="data-card-grid">
         @foreach (ProductViewModel item in Items)
         {
             <MudItem xs="12" sm="6" lg="4">
-                <MudCard Outlined="true" Class="h-100">
-                    <MudCardContent Class="d-flex flex-column h-100">
+                <MudCard Outlined="true" Class="data-card">
+                    <MudCardContent Class="data-card-content">
                         <MudText Typo="Typo.h6">@item.Name</MudText>
                         <MudText Class="mt-2">@item.Description</MudText>
                         <MudText Class="mt-2">@item.Price.ToString("C")</MudText>
                         @if (CanEdit || CanDelete)
                         {
-                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="1" Class="mt-auto pt-4">
+                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="data-card-actions">
                                 @if (CanEdit)
                                 {
                                     <MudButton Variant="Variant.Outlined"
@@ -50,7 +50,7 @@ else
 
     @if (Paging.TotalPages > 1)
     {
-        <MudStack Row="true" Justify="Justify.Center" Class="py-3">
+        <MudStack Row="true" Justify="Justify.Center" Class="data-pagination">
             <MudPagination Count="Paging.TotalPages"
                            Selected="Paging.CurrentPage"
                            SelectedChanged="OnPageChanged" />

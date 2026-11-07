@@ -6,7 +6,7 @@
 @inject IStringLocalizer<CategoryManagementResources> Text
 
 <MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
-    <MudGrid>
+    <MudGrid Spacing="3" Class="form-fields">
         <MudItem xs="12">
             <MudTextField Label="@Text["Name"]" @bind-Value="_model.Name" For="@(() => _model.Name)"
                           Variant="Variant.Outlined"
@@ -18,26 +18,27 @@
         @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
             <MudItem xs="12">
-                <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+                <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@ErrorMessage</MudAlert>
             </MudItem>
         }
         <MudItem xs="12">
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       FullWidth="true"
-                       Disabled="IsSubmitting"
-                       OnClick="SubmitAsync">
-                @if (IsSubmitting)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                    <MudText Class="ms-2">@Text["Saving"]</MudText>
-                }
-                else
-                {
-                    <MudText>@Text["Create"]</MudText>
-                }
-            </MudButton>
-            <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="OnCancel">@Text["Cancel"]</MudButton>
+            <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
+                <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="OnCancel">@Text["Cancel"]</MudButton>
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Disabled="IsSubmitting"
+                           OnClick="SubmitAsync">
+                    @if (IsSubmitting)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                        <MudText Class="ms-2">@Text["Saving"]</MudText>
+                    }
+                    else
+                    {
+                        <MudText>@Text["Create"]</MudText>
+                    }
+                </MudButton>
+            </MudStack>
         </MudItem>
     </MudGrid>
 </MudForm>

@@ -1,0 +1,38 @@
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-header-copy {
+    min-width: 0;
+}
+
+.page-header-title {
+    margin: 0;
+}
+
+.page-header-description {
+    margin-top: 0.5rem;
+    color: var(--mud-palette-text-secondary);
+}
+
+.page-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .page-header-actions {
+        width: 100%;
+    }
+}

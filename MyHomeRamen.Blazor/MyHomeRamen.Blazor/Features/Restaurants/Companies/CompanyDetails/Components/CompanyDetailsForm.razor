@@ -5,8 +5,8 @@
 @inject IStringLocalizer<CompanyDetailsResources> Text
 
 <MudForm @ref="form" Model="Model" Validation="validator.ValidateValue" ValidationDelay="0" Class="mt-4">
-    <MudStack Spacing="3">
-        <MudText Typo="Typo.h5">@Text["EditHeading"]</MudText>
+    <MudStack Spacing="3" Class="form-fields">
+        <MudText Typo="Typo.h6" Class="form-section-title">@Text["EditHeading"]</MudText>
         <MudTextField @bind-Value="Model.Description" For="() => Model.Description" Label="@Text["Description"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" ErrorText="@GetError(nameof(Model.Description))" Error="@HasError(nameof(Model.Description))" />
         <MudTextField @bind-Value="Model.LogoUrl" For="() => Model.LogoUrl" Label="@Text["LogoUrl"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" ErrorText="@GetError(nameof(Model.LogoUrl))" Error="@HasError(nameof(Model.LogoUrl))" />
         <MudTextField @bind-Value="Model.LegalName" For="() => Model.LegalName" Label="@Text["LegalName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" ErrorText="@GetError(nameof(Model.LegalName))" Error="@HasError(nameof(Model.LegalName))" />
@@ -14,10 +14,10 @@
 
         @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
-            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+            <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@ErrorMessage</MudAlert>
         }
 
-        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="flex-wrap">
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="form-actions">
             <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
             <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="IsSubmitting" OnClick="SubmitAsync">
                 @if (IsSubmitting)

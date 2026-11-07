@@ -2,16 +2,16 @@
 
 @if (Items.Count == 0)
 {
-    <MudAlert Severity="Severity.Info" Class="mt-4">@EmptyText</MudAlert>
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">@EmptyText</MudAlert>
 }
 else
 {
-    <MudGrid Spacing="3" Class="mt-1">
+    <MudGrid Spacing="3" Class="data-card-grid">
         @foreach (SocialMediaViewModel item in Items)
         {
-            <MudItem xs="12" sm="6">
-                <MudCard Outlined="true" Class="h-100">
-                    <MudCardContent Class="d-flex flex-column h-100">
+            <MudItem xs="12" sm="6" lg="4">
+                <MudCard Outlined="true" Class="data-card">
+                    <MudCardContent Class="data-card-content">
                         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
                             @if (!string.IsNullOrWhiteSpace(item.LogoUrl))
                             {
@@ -26,7 +26,7 @@ else
                         <MudLink Href="@item.Url" Target="_blank" Rel="noopener noreferrer" Class="mt-4 text-break">@item.Url</MudLink>
                         @if (ShowActions)
                         {
-                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="1" Class="mt-auto pt-4">
+                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="data-card-actions">
                                 <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Edit" OnClick="@(() => OnEdit.InvokeAsync(item))">@EditText</MudButton>
                                 <MudButton Variant="Variant.Outlined" Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="@(() => OnDelete.InvokeAsync(item))">@DeleteText</MudButton>
                             </MudStack>

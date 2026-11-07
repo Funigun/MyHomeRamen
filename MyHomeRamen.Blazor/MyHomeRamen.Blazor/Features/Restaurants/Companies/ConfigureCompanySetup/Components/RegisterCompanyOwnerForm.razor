@@ -4,9 +4,9 @@
 @inject IStringLocalizer<CompanySetupResources> Text
 
 <MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
-    <MudStack Spacing="3">
-        <MudText Typo="Typo.h5">@Text["OwnerSection"]</MudText>
-        <MudGrid Spacing="2">
+    <MudStack Spacing="3" Class="form-fields">
+        <MudText Typo="Typo.h6" Class="form-section-title">@Text["OwnerSection"]</MudText>
+        <MudGrid Spacing="3">
             <MudItem xs="12" sm="6">
                 <MudTextField @bind-Value="_model.UserName" @bind-Value:after="RefreshValidation" For="() => _model.UserName" Label="@Text["UserName"]" Variant="Variant.Outlined" Disabled="IsSubmitting" Immediate="true" Error="@HasError(nameof(_model.UserName))" ErrorText="@GetError(nameof(_model.UserName))" />
             </MudItem>
@@ -31,19 +31,25 @@
         </MudGrid>
         @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
-            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+            <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@ErrorMessage</MudAlert>
         }
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(IsSubmitting || !_validationResult.IsValid)" OnClick="SubmitAsync">
-            @if (IsSubmitting)
-            {
-                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
-                @Text["Saving"]
-            }
-            else
-            {
-                @Text["RegisterOwner"]
-            }
-        </MudButton>
+        <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Disabled="@(IsSubmitting || !_validationResult.IsValid)"
+                       OnClick="SubmitAsync">
+                @if (IsSubmitting)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                    @Text["Saving"]
+                }
+                else
+                {
+                    @Text["RegisterOwner"]
+                }
+            </MudButton>
+        </MudStack>
     </MudStack>
 </MudForm>
 

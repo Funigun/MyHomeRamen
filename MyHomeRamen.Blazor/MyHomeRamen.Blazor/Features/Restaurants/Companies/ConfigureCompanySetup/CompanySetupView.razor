@@ -9,10 +9,9 @@
 @inject IStringLocalizer<CompanySetupResources> Text
 @inject NavigationManager NavigationManager
 
-<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["Heading"]' Description='@Text["Description"]' />
     <MudStack Spacing="3">
-        <MudText Typo="Typo.h3">@Text["Heading"]</MudText>
-        <MudText>@Text["Description"]</MudText>
         <MudText Typo="Typo.caption">@Text["StepProgress", CurrentStep, 3]</MudText>
         <MudProgressLinear Value="@SetupProgress" />
 

@@ -147,3 +147,18 @@ public static class RestaurantRoutes
 - Use stacked forms, touch-friendly actions, and full-screen dialogs on phones.
 - Avoid hover-only actions.
 - Keep reusable responsive patterns in shared components and keep feature state in the slice.
+
+## 7) Visual consistency
+
+- Use `ThemeConfiguration` as the source for palette and typography. Prefer MudBlazor palette colors and theme typography over hard-coded colors and one-off font declarations.
+- Keep operational pages inside the shared content gutters defined in `wwwroot/app.css`; preserve distinct layout behavior for customer, admin, and setup flows.
+- Use `MudPaper` with `page-surface` for standard operational page surfaces. Keep purpose-built surfaces, such as checkout, distinct when their workflow requires it.
+- Use shared `PageHeader` for operational page headings. Keep page titles at `Typo.h1`, descriptions secondary, and actions in the header content slot; header actions stack below title on phone widths.
+- Use `page-loading` for centered loading states and `page-state` for page-level alerts so state spacing stays consistent.
+- Use `form-fields`, `form-section-title`, `form-actions`, and `form-error` for consistent field groups, section labels, validation feedback, and action placement. Keep field definitions and validation logic in owning forms.
+- Use `Spacing="3"` for form stacks and field grids; use outlined variants for editable text, numeric, and select fields. Align actions to the end on wide screens and stack full-width actions below 600px.
+- Use `data-card-grid`, `data-card`, `data-card-content`, `data-card-actions`, `component-empty-state`, and `data-pagination` for responsive data-card lists. Keep item data and callbacks in owning components.
+- Use `xs="12" sm="6" lg="4"` for standard data-card grids unless item content requires different density. Keep card actions below item content and full-width on phones.
+- Keep dense tables labeled for narrow-screen layouts and set an appropriate `Breakpoint`. Prefer responsive cards where table columns cannot remain usable; use shared compact row styles for short reorderable lists.
+- Keep homepage/marketing sections free to use their own composition; do not force operational page patterns onto them.
+- Keep forms and tables feature-owned. Apply shared page-level styling without moving their fields, data, or workflow behavior into shared components.

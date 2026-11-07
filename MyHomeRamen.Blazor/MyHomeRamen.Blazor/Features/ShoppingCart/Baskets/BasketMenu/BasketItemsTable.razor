@@ -6,20 +6,20 @@
 }
 else if (Items.Count == 0)
 {
-    <MudAlert Severity="Severity.Info" Class="mt-2">Your basket is empty.</MudAlert>
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">Your basket is empty.</MudAlert>
 }
 else
 {
-    <MudPaper Outlined="true" Class="mt-2">
+    <MudPaper Outlined="true" Class="basket-items-list">
         @foreach (BasketItemTableModel item in Items)
         {
-            <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-2" Spacing="2">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="basket-item-row px-4 py-2" Spacing="2">
                 <MudImage Src="@item.ProductImageUrl" Alt="@item.ProductName" Width="48" Height="48" ObjectFit="ObjectFit.Cover" />
-                <MudStack Spacing="0" Style="flex: 1;">
+                <MudStack Spacing="0" Class="basket-item-description">
                     <MudText Typo="Typo.body1">@item.ProductName</MudText>
                     <MudText Typo="Typo.caption">Qty: @item.Quantity</MudText>
                 </MudStack>
-                <MudText Typo="Typo.body2">@item.Price.ToString("C")</MudText>
+                <MudText Typo="Typo.body2" Class="basket-item-price">@item.Price.ToString("C")</MudText>
                 <MudIconButton Icon="@Icons.Material.Filled.Edit"
                                Size="Size.Small"
                                Color="Color.Primary"

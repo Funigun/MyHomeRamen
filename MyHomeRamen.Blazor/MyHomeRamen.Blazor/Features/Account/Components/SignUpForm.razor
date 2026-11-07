@@ -5,7 +5,7 @@
 @inject CustomerAccountApiClient AccountApiClient
 
 <MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
-    <MudGrid>
+    <MudGrid Spacing="3" Class="form-fields">
         <MudItem xs="12" sm="6">
             <MudTextField Label="First Name" @bind-Value="_model.FirstName" For="@(() => _model.FirstName)" 
                           Variant="Variant.Outlined"
@@ -53,10 +53,10 @@
         @if (_errorMessage is not null)
         {
             <MudItem xs="12">
-                <MudAlert Severity="Severity.Error" Dense="true">@_errorMessage</MudAlert>
+                <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@_errorMessage</MudAlert>
             </MudItem>
         }
-        <MudItem xs="12">
+        <MudItem xs="12" Class="form-actions">
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        FullWidth="true"

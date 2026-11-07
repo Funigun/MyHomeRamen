@@ -5,7 +5,7 @@
 @inject IStringLocalizer<RestaurantsResources> Text
 
 <MudForm @ref="_form" Model="_model" Validation="_validator.ValidateValue" ValidationDelay="0">
-    <MudStack Spacing="4">
+    <MudStack Spacing="3" Class="form-fields">
         <MudTextField Label="@Text["Name"]"
                       @bind-Value="_model.Name"
                       For="@(() => _model.Name)"
@@ -21,8 +21,8 @@
                      @bind-Value="_model.IsActive"
                      Disabled="IsSubmitting" />
 
-        <MudText Typo="Typo.h6">@Text["AddressSection"]</MudText>
-        <MudGrid>
+        <MudText Typo="Typo.h6" Class="form-section-title">@Text["AddressSection"]</MudText>
+        <MudGrid Spacing="3">
             <MudItem xs="12">
                 <MudTextField Label="@Text["Street"]"
                               @bind-Value="_model.Street"
@@ -84,8 +84,8 @@
             </MudItem>
         </MudGrid>
 
-        <MudText Typo="Typo.h6">@Text["ContactSection"]</MudText>
-        <MudGrid>
+        <MudText Typo="Typo.h6" Class="form-section-title">@Text["ContactSection"]</MudText>
+        <MudGrid Spacing="3">
             <MudItem xs="12" sm="6">
                 <MudTextField Label="@Text["Phone"]"
                               @bind-Value="_model.Phone"
@@ -112,8 +112,8 @@
             </MudItem>
         </MudGrid>
 
-        <MudText Typo="Typo.h6">@Text["BankSection"]</MudText>
-        <MudGrid>
+        <MudText Typo="Typo.h6" Class="form-section-title">@Text["BankSection"]</MudText>
+        <MudGrid Spacing="3">
             <MudItem xs="12" sm="4">
                 <MudTextField Label="@Text["AccountNumber"]"
                               @bind-Value="_model.AccountNumber"
@@ -151,10 +151,10 @@
 
         @if (!string.IsNullOrWhiteSpace(ErrorMessage))
         {
-            <MudAlert Severity="Severity.Error" Dense="true">@ErrorMessage</MudAlert>
+            <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@ErrorMessage</MudAlert>
         }
 
-        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="flex-wrap">
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="form-actions">
             <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"

@@ -2,6 +2,249 @@ h1:focus {
     outline: none;
 }
 
+.site-layout {
+    --mud-appbar-height: 150px;
+    --footer-height: 120px;
+}
+
+.page-surface {
+    padding: 1rem;
+}
+
+.page-loading {
+    padding: 1.5rem;
+}
+
+.page-state {
+    margin-top: 0;
+}
+
+.form-fields {
+    min-width: 0;
+}
+
+.form-section-title {
+    margin-top: 0.5rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.form-error {
+    width: 100%;
+}
+
+.component-toolbar {
+    padding-inline: 0;
+}
+
+.data-card-grid {
+    margin-top: 1rem;
+}
+
+.data-card,
+.data-card-content {
+    height: 100%;
+}
+
+.data-card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.data-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.component-empty-state {
+    margin: 1rem 0;
+}
+
+.data-pagination {
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem 0;
+}
+
+.data-table .mud-table-container {
+    overflow-x: auto;
+}
+
+.basket-items-list {
+    margin-top: 0.5rem;
+}
+
+.category-table {
+    overflow: hidden;
+}
+
+.category-table-header,
+.category-table-row {
+    display: grid;
+    grid-template-columns: 24px 40px minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+}
+
+.category-table-header.with-actions,
+.category-table-row.with-actions {
+    grid-template-columns: 24px 40px minmax(0, 1fr) 88px;
+}
+
+.category-table-rows {
+    display: flex;
+    flex-direction: column;
+}
+
+.category-table-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.category-table-header .mud-typography,
+.category-table-row .mud-typography {
+    margin: 0;
+}
+
+.category-table-row {
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+}
+
+.category-table-drag-handle {
+    cursor: grab;
+}
+
+.category-table-actions {
+    justify-self: end;
+}
+
+.category-table-save-actions {
+    padding: 0.75rem 1rem;
+}
+
+.payment-channels {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+    gap: 0.5rem;
+}
+
+.basket-item-row {
+    flex-wrap: wrap;
+}
+
+.basket-item-description {
+    flex: 1;
+    min-width: 8rem;
+}
+
+.basket-item-price {
+    margin-left: auto;
+}
+
+.app-page-content,
+.admin-page-content,
+.setup-page-content {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 auto;
+    padding: 48px 24px;
+}
+
+.app-page-content {
+    width: 80%;
+    max-width: 1280px;
+    min-height: 900px;
+    padding-bottom: var(--footer-height);
+}
+
+.admin-page-content {
+    max-width: 1280px;
+    min-height: calc(100vh - var(--mud-appbar-height) - var(--footer-height));
+}
+
+.setup-page-content {
+    max-width: 800px;
+    min-height: 100vh;
+}
+
+.checkout-page {
+    width: min(100%, 900px);
+    margin: 0 auto;
+}
+
+.site-footer {
+    --footer-height: 120px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+}
+
+@media (max-width: 600px) {
+    .site-layout {
+        --footer-height: 180px;
+    }
+
+    .site-footer {
+        --footer-height: 180px;
+    }
+
+    .app-page-content {
+        width: 100%;
+        min-height: calc(100vh - var(--mud-appbar-height) - var(--footer-height));
+    }
+
+    .app-page-content,
+    .admin-page-content,
+    .setup-page-content {
+        padding: 24px 16px;
+    }
+
+    .form-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .form-actions .mud-button-root {
+        width: 100%;
+    }
+
+    .data-card-actions {
+        justify-content: flex-start;
+    }
+
+    .data-card-actions .mud-button-root {
+        flex: 1 1 100%;
+    }
+
+}
+
+@media (min-width: 600px) and (max-width: 960px) {
+    .app-page-content {
+        width: 100%;
+        padding: 32px 24px;
+    }
+}
+
+@media (min-width: 600px) {
+    .page-surface {
+        padding: 1.5rem;
+    }
+}
+
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }

@@ -8,7 +8,7 @@
 <MudSnackbarProvider />
 
 <CascadingAuthenticationState>
-    <MudLayout Style="--mud-appbar-height: 150px; --footer-height: 121.25px; padding-bottom: var(--footer-height)">
+    <MudLayout Class="site-layout" Style="padding-bottom: var(--footer-height)">
         <AppBar />
 
         <MudDrawer Open="true"
@@ -24,13 +24,13 @@
         </MudDrawer>
 
         <MudMainContent>
-            <div style="min-height: calc(100vh - var(--mud-appbar-height) - var(--footer-height)); padding: 48px 48px;">
+            <div class="admin-page-content">
                 @Body
             </div>
         </MudMainContent>
     </MudLayout>
 
-    <div style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;">
+    <div class="site-footer">
         <Footer />
     </div>
 </CascadingAuthenticationState>

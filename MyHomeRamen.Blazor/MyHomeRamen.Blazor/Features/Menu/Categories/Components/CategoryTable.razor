@@ -6,20 +6,20 @@
 
 @if (Items.Count == 0)
 {
-    <MudAlert Severity="Severity.Info" Class="mt-2">@Text["Empty"]</MudAlert>
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["Empty"]</MudAlert>
 }
 else
 {
-    <MudPaper Outlined="true" Class="mt-2">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-2">
-            <MudText Style="width: 24px;" />
-            <MudText Style="width: 40px;" Typo="Typo.subtitle2">#</MudText>
-            <MudText Style="flex: 1;" Typo="Typo.subtitle2">Name</MudText>
+    <MudPaper Outlined="true" Class="category-table">
+        <div class="category-table-header @(CanDelete ? "with-actions" : string.Empty)">
+            <span aria-hidden="true"></span>
+            <MudText Typo="Typo.subtitle2">#</MudText>
+            <MudText Typo="Typo.subtitle2" Class="category-table-name">Name</MudText>
             @if (CanDelete)
             {
-                <MudText Style="min-width: 88px;" Typo="Typo.subtitle2">@Text["Actions"]</MudText>
+                <MudText Typo="Typo.subtitle2" Class="category-table-actions">@Text["Actions"]</MudText>
             }
-        </MudStack>
+        </div>
         <MudDivider />
         @if (CanEdit)
         {
@@ -27,7 +27,7 @@ else
                               Items="Items"
                               ItemsSelector="@((_, _) => true)"
                               ItemDropped="OnItemDropped"
-                              Class="d-flex flex-column">
+                              Class="category-table-rows">
                 <ChildContent>
                     <MudDropZone T="CategoryByTypeDto" Identifier="items" AllowReorder="true" />
                 </ChildContent>
@@ -37,7 +37,7 @@ else
             </MudDropContainer>
             @if (_hasPendingChanges && OnOrderChanged.HasDelegate)
             {
-                <MudStack Row="true" Justify="Justify.FlexEnd" Class="pa-3">
+                <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions category-table-save-actions">
                     <MudButton Variant="Variant.Filled"
                                Color="Color.Primary"
                                OnClick="SaveOrderAsync">@Text["SaveOrder"]</MudButton>
@@ -63,30 +63,28 @@ else
 
     private bool _hasPendingChanges;
 
-    private RenderFragment CategoryRow(CategoryByTypeDto item) => @<MudStack Row="true" AlignItems="AlignItems.Center" Class="px-4 py-1">
+    private RenderFragment CategoryRow(CategoryByTypeDto item) => @<div class="category-table-row @(CanDelete ? "with-actions" : string.Empty)">
         @if (CanEdit)
         {
             <MudIcon Icon="@Icons.Material.Filled.DragIndicator"
                      Size="Size.Small"
-                     Style="width: 24px; cursor: grab;"
-                     Class="mud-secondary-text" />
+                     Class="category-table-drag-handle mud-secondary-text" />
         }
         else
         {
-            <MudText Style="width: 24px;" />
+            <span aria-hidden="true"></span>
         }
-        <MudText Style="width: 40px;">@(Items.IndexOf(item) + 1)</MudText>
-        <MudText Style="flex: 1;">@item.Name</MudText>
+        <MudText>@(Items.IndexOf(item) + 1)</MudText>
+        <MudText Class="category-table-name">@item.Name</MudText>
         @if (CanDelete)
         {
-            <div style="min-width: 88px;">
-                <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                               Size="Size.Small"
-                               Color="Color.Error"
-                               OnClick="@(() => OnDelete.InvokeAsync(item.Id))" />
-            </div>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                           Size="Size.Small"
+                           Color="Color.Error"
+                           Class="category-table-actions"
+                           OnClick="@(() => OnDelete.InvokeAsync(item.Id))" />
         }
-    </MudStack>;
+    </div>;
 
     private void OnItemDropped(MudItemDropInfo<CategoryByTypeDto> dropInfo)
     {

@@ -10,9 +10,8 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-<MudPaper Elevation="3" Class="pa-4 pa-sm-6">
-    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="flex-wrap gap-2">
-        <MudText Typo="Typo.h1">@Text["Heading"]</MudText>
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["Heading"]'>
         @if (_allowedActions?.CanCreate == true)
         {
             <MudButton Variant="Variant.Filled"
@@ -22,24 +21,24 @@
                 @Text["Create"]
             </MudButton>
         }
-    </MudStack>
+    </PageHeader>
 
     @if (_isLoading)
     {
-        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
             <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
             <MudText>@Text["Loading"]</MudText>
         </MudStack>
     }
     else if (_loadError.HasError)
     {
-        <MudAlert Severity="Severity.Error" Class="mt-4">@_loadError.Message</MudAlert>
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
     }
     else
     {
         @if (_actionError.HasError)
         {
-            <MudAlert Severity="Severity.Error" Class="mt-4">@_actionError.Message</MudAlert>
+            <MudAlert Severity="Severity.Error" Class="page-state">@_actionError.Message</MudAlert>
         }
 
         @if (_productPendingDelete is not null)
