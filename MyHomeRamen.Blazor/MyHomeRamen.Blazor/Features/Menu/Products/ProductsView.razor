@@ -1,10 +1,15 @@
 @using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Categories.Shared
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
+@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses
+@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Shared
 @using MyHomeRamen.Blazor.Features.Menu.Products.Components
 @using MyHomeRamen.Blazor.Features.Menu.Products.Models
 @using MyHomeRamen.Blazor.Features.Menu.Products.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Api
 
+@inject CategoryApiClient CategoryApiClient
+@inject IngredientApiClient IngredientApiClient
 @inject ProductsApiClient ProductsApiClient
 @inject IStringLocalizer<ProductsResources> Text
 @inject NavigationManager NavigationManager
@@ -41,23 +46,25 @@
             <MudAlert Severity="Severity.Error" Class="page-state">@_actionError.Message</MudAlert>
         }
 
-        @if (_productPendingDelete is not null)
+        @if (_productPendingRetirement is not null)
         {
-            <ProductDeleteConfirmation ProductId="_productPendingDelete.Id"
-                                       Message='@Text["DeleteConfirmMessage", _productPendingDelete.Name]'
-                                       ConfirmText='@Text["Delete"]'
-                                       CancelText='@Text["Cancel"]'
-                                       OnConfirm="DeleteAsync"
-                                       OnCancel="CancelDelete" />
+            <ProductRetirementConfirmation ProductId="_productPendingRetirement.Id"
+                                           Message='@Text["RetirementConfirmMessage", _productPendingRetirement.Name]'
+                                           ConfirmText='@Text["Retire"]'
+                                           ConfirmingText='@Text["Retiring"]'
+                                           CancelText='@Text["Cancel"]'
+                                           IsSubmitting="_isSubmitting"
+                                           OnConfirm="RetireAsync"
+                                           OnCancel="CancelRetirement" />
         }
 
         <ProductTable Items="_items"
                       CanEdit="_allowedActions?.CanEdit == true"
-                      CanDelete="_allowedActions?.CanDelete == true"
+                      CanRetire="_allowedActions?.CanRetire == true"
                       Paging="_paging"
                       OnPageChanged="OnPageChangedAsync"
                       OnEdit="OnEdit"
-                      OnDelete="BeginDelete" />
+                      OnRetire="BeginRetirement" />
     }
 </MudPaper>
 
@@ -66,13 +73,53 @@
     private readonly ApiErrorState _loadError = new();
     private readonly ApiErrorState _actionError = new();
     private ProductAllowedActions? _allowedActions;
-    private ProductViewModel? _productPendingDelete;
+    private ProductViewModel? _productPendingRetirement;
+    private IReadOnlyList<CategoryOption> _categories = [];
+    private IReadOnlyList<IngredientOption> _ingredients = [];
     private PageState _paging = PageState.Default();
     private bool _isLoading = true;
+    private bool _isSubmitting;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadAsync();
+        await LoadOptionsAsync();
+        if (!_loadError.HasError)
+        {
+            await LoadAsync();
+        }
+    }
+
+    private async Task LoadOptionsAsync()
+    {
+        try
+        {
+            ApiResult<GetCategoriesByTypeResponse> categoriesResult =
+                await CategoryApiClient.GetByTypeAsync((int)CategoryType.Product);
+            if (_loadError.Apply(categoriesResult, Text["LoadError"], Text["UnexpectedError"])
+                || categoriesResult is not ApiResult<GetCategoriesByTypeResponse>.Success categoriesSuccess)
+            {
+                return;
+            }
+
+            ApiResult<GetIngredientsForDropdownResponse> ingredientsResult =
+                await IngredientApiClient.GetDropdownAsync();
+            if (_loadError.Apply(ingredientsResult, Text["LoadError"], Text["UnexpectedError"])
+                || ingredientsResult is not ApiResult<GetIngredientsForDropdownResponse>.Success ingredientsSuccess)
+            {
+                return;
+            }
+
+            _categories = categoriesSuccess.Value.Categories
+                .Select(category => new CategoryOption(category.Id, category.Name))
+                .ToArray();
+            _ingredients = ingredientsSuccess.Value.Ingredients
+                .Select(ingredient => new IngredientOption(ingredient.Id, ingredient.Name))
+                .ToArray();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
     private async Task LoadAsync()
@@ -87,7 +134,14 @@
             if (result is ApiResult<GetProductsForManageResponse>.Success success)
             {
                 _items.Clear();
-                _items.AddRange(success.Value.Products.Select(ProductViewModel.FromResponse));
+                _items.AddRange(success.Value.Products.Select(product =>
+                    ProductViewModel.FromResponse(
+                        product,
+                        _categories,
+                        _ingredients,
+                        Text["ProductImageAlt"],
+                        Text["UnavailableCategory"],
+                        Text["UnavailableIngredient"])));
                 _allowedActions = success.Value.AllowedActions;
                 _paging = _paging with { TotalCount = success.Value.TotalCount };
             }
@@ -112,33 +166,42 @@
         }
     }
 
-    private void BeginDelete(Guid id)
+    private void BeginRetirement(Guid id)
     {
-        if (_allowedActions?.CanDelete == true)
+        if (_allowedActions?.CanRetire == true)
         {
-            _productPendingDelete = _items.FirstOrDefault(product => product.Id == id);
+            _productPendingRetirement = _items.FirstOrDefault(product =>
+                product.Id == id && product.Status == ProductStatusCodes.Active);
             _actionError.Clear();
         }
     }
 
-    private void CancelDelete() => _productPendingDelete = null;
+    private void CancelRetirement() => _productPendingRetirement = null;
 
-    private async Task DeleteAsync(Guid id)
+    private async Task RetireAsync(Guid id)
     {
-        if (_allowedActions?.CanDelete != true)
+        if (_allowedActions?.CanRetire != true || _isSubmitting)
         {
             return;
         }
 
+        _isSubmitting = true;
         _actionError.Clear();
-        ApiResult<bool> result = await ProductsApiClient.DeleteAsync(id);
-        if (_actionError.Apply(result, Text["UnexpectedError"], Text["UnexpectedError"]))
+        try
         {
-            return;
-        }
+            ApiResult<bool> result = await ProductsApiClient.RetireAsync(id);
+            if (_actionError.Apply(result, Text["RetirementError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
 
-        _productPendingDelete = null;
-        Snackbar.Add(Text["DeleteSuccess"], Severity.Success);
-        await LoadAsync();
+            _productPendingRetirement = null;
+            Snackbar.Add(Text["RetirementSuccess"], Severity.Success);
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
     }
 }

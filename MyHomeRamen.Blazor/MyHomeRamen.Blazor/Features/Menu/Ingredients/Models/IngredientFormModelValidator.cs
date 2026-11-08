@@ -19,9 +19,6 @@ public sealed class IngredientFormModelValidator : BaseValidator<IngredientFormM
             .MinimumLength(5).WithMessage(text["DescriptionMinLength"])
             .MaximumLength(200).WithMessage(text["DescriptionMaxLength"]);
 
-        RuleFor(model => model.Price)
-            .InclusiveBetween(0m, 50m).WithMessage(text["PriceRange"]);
-
         RuleFor(model => model.CategoryIds)
             .NotEmpty().WithMessage(text["CategoryRequired"]);
     }

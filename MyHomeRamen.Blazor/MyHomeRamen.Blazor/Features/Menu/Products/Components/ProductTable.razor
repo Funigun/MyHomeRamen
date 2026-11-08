@@ -1,6 +1,7 @@
 @using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Menu.Products
 @using MyHomeRamen.Blazor.Features.Menu.Products.Models
+@using MyHomeRamen.Blazor.Features.Menu.Products.Shared
 @using MyHomeRamen.Blazor.Features.Menu.Common.Models
 
 @inject IStringLocalizer<ProductsResources> Text
@@ -17,10 +18,19 @@ else
             <MudItem xs="12" sm="6" lg="4">
                 <MudCard Outlined="true" Class="data-card">
                     <MudCardContent Class="data-card-content">
+                        <ImageDisplay Image="item.Image" Style="width:100%; aspect-ratio:16/9; object-fit:cover;" />
                         <MudText Typo="Typo.h6">@item.Name</MudText>
                         <MudText Class="mt-2">@item.Description</MudText>
-                        <MudText Class="mt-2">@item.Price.ToString("C")</MudText>
-                        @if (CanEdit || CanDelete)
+                        <MudText Class="mt-2">@Text["CategoryLabel", item.CategoryName]</MudText>
+                        <MudText Class="mt-2">@Text["BaseIngredientsLabel", string.Join(", ", item.IngredientNames)]</MudText>
+                        <MudText Class="mt-2">@Text["CustomIngredientsLabel", string.Join(", ", item.CustomIngredientNames)]</MudText>
+                        <MudChip T="string"
+                                 Color="@(item.Status == ProductStatusCodes.Active ? Color.Success : Color.Default)"
+                                 Variant="Variant.Outlined"
+                                 Class="mt-2">
+                            @StatusLabel(item.Status)
+                        </MudChip>
+                        @if (CanEdit || CanRetire && item.Status == ProductStatusCodes.Active)
                         {
                             <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="data-card-actions">
                                 @if (CanEdit)
@@ -31,13 +41,13 @@ else
                                         @Text["Edit"]
                                     </MudButton>
                                 }
-                                @if (CanDelete)
+                                @if (CanRetire && item.Status == ProductStatusCodes.Active)
                                 {
                                     <MudButton Variant="Variant.Outlined"
                                                Color="Color.Error"
-                                               StartIcon="@Icons.Material.Filled.Delete"
-                                               OnClick="@(() => OnDelete.InvokeAsync(item.Id))">
-                                        @Text["Delete"]
+                                               StartIcon="@Icons.Material.Filled.Archive"
+                                               OnClick="@(() => OnRetire.InvokeAsync(item.Id))">
+                                        @Text["Retire"]
                                     </MudButton>
                                 }
                             </MudStack>
@@ -61,9 +71,16 @@ else
 @code {
     [Parameter, EditorRequired] public IReadOnlyList<ProductViewModel> Items { get; set; } = [];
     [Parameter] public bool CanEdit { get; set; }
-    [Parameter] public bool CanDelete { get; set; }
+    [Parameter] public bool CanRetire { get; set; }
     [Parameter] public PageState Paging { get; set; } = PageState.Default();
     [Parameter] public EventCallback<int> OnPageChanged { get; set; }
     [Parameter] public EventCallback<Guid> OnEdit { get; set; }
-    [Parameter] public EventCallback<Guid> OnDelete { get; set; }
+    [Parameter] public EventCallback<Guid> OnRetire { get; set; }
+
+    private string StatusLabel(string status) => status switch
+    {
+        ProductStatusCodes.Active => Text["Active"],
+        ProductStatusCodes.Retired => Text["Retired"],
+        _ => Text["UnknownStatus"]
+    };
 }

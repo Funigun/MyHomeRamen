@@ -19,9 +19,6 @@ public sealed class ProductFormModelValidator : BaseValidator<ProductFormModel>
             .MinimumLength(15).WithMessage(text["DescriptionMinLength"])
             .MaximumLength(500).WithMessage(text["DescriptionMaxLength"]);
 
-        RuleFor(model => model.Price)
-            .InclusiveBetween(0.5m, 100.0m).WithMessage(text["PriceRange"]);
-
         RuleFor(model => model.CategoryId)
             .NotEmpty().WithMessage(text["CategoryRequired"]);
 

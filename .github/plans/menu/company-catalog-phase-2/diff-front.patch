@@ -1,0 +1,969 @@
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/CategoryManagementResources.resx b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/CategoryManagementResources.resx
+index 9fe7f9c..c359b41 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/CategoryManagementResources.resx
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/CategoryManagementResources.resx
+@@ -4,11 +4,13 @@
+   <resheader name="version"><value>2.0</value></resheader>
+   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
++  <data name="PageTitle" xml:space="preserve"><value>Categories</value></data>
+   <data name="ProductPageTitle" xml:space="preserve"><value>Product categories</value></data>
+   <data name="IngredientPageTitle" xml:space="preserve"><value>Ingredient categories</value></data>
+   <data name="ProductHeading" xml:space="preserve"><value>Product categories</value></data>
+   <data name="IngredientHeading" xml:space="preserve"><value>Ingredient categories</value></data>
+   <data name="Name" xml:space="preserve"><value>Name</value></data>
++  <data name="SortOrder" xml:space="preserve"><value>Order</value></data>
+   <data name="NameRequired" xml:space="preserve"><value>Category name is required.</value></data>
+   <data name="NameMinLength" xml:space="preserve"><value>Category name must contain at least 3 characters.</value></data>
+   <data name="NameMaxLength" xml:space="preserve"><value>Category name must contain no more than 50 characters.</value></data>
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Components/CategoryTable.razor b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Components/CategoryTable.razor
+index f249027..a556816 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Components/CategoryTable.razor
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Components/CategoryTable.razor
+@@ -13,8 +13,8 @@ else
+     <MudPaper Outlined="true" Class="category-table">
+         <div class="category-table-header @(CanDelete ? "with-actions" : string.Empty)">
+             <span aria-hidden="true"></span>
+-            <MudText Typo="Typo.subtitle2">#</MudText>
+-            <MudText Typo="Typo.subtitle2" Class="category-table-name">Name</MudText>
++            <MudText Typo="Typo.subtitle2">@Text["SortOrder"]</MudText>
++            <MudText Typo="Typo.subtitle2" Class="category-table-name">@Text["Name"]</MudText>
+             @if (CanDelete)
+             {
+                 <MudText Typo="Typo.subtitle2" Class="category-table-actions">@Text["Actions"]</MudText>
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Shared/CategoryApiClient.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Shared/CategoryApiClient.cs
+index 28f663a..a22bf9d 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Shared/CategoryApiClient.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Categories/Shared/CategoryApiClient.cs
+@@ -1,12 +1,20 @@
+ using System.Net;
++using System.Security.Claims;
++using Microsoft.AspNetCore.Components.Authorization;
+ using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.DTOs;
+ using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Requests;
+ using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses;
++using MyHomeRamen.Blazor.Features.Restaurants.Common.Services;
++using MyHomeRamen.Blazor.Infrastructure.Authentication;
+ using MyHomeRamen.Blazor.Infrastructure.Api;
+ 
+ namespace MyHomeRamen.Blazor.Features.Menu.Categories.Shared;
+ 
+-public sealed class CategoryApiClient(HttpClient httpClient, ApiService apiService)
++public sealed class CategoryApiClient(
++    HttpClient httpClient,
++    ApiService apiService,
++    AuthenticationStateProvider authenticationStateProvider,
++    RestaurantContextService restaurantContextService)
+ {
+     private const string BaseUrl = "api/menu/categories";
+     private const string FailureMessage = "Category request failed.";
+@@ -25,9 +33,10 @@ public sealed class CategoryApiClient(HttpClient httpClient, ApiService apiServi
+ 
+     private async Task<GetCategoriesByTypeResponse> GetByTypeCoreAsync(int categoryType, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.GetAsync(
+-            $"{BaseUrl}/by-type?categoryType={categoryType}",
+-            cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(
++            HttpMethod.Get,
++            $"{BaseUrl}/by-type?categoryType={categoryType}");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+         return await response.Content.ReadFromJsonAsync<GetCategoriesByTypeResponse>(cancellationToken: cancellationToken)
+@@ -36,22 +45,47 @@ public sealed class CategoryApiClient(HttpClient httpClient, ApiService apiServi
+ 
+     private async Task<bool> CreateCoreAsync(CreateCategoryRequest request, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
++        using HttpRequestMessage httpRequest = await CreateRequestAsync(HttpMethod.Post, BaseUrl);
++        httpRequest.Content = JsonContent.Create(request);
++        using HttpResponseMessage response = await httpClient.SendAsync(httpRequest, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+         return true;
+     }
+ 
+     private async Task<bool> DeleteCoreAsync(Guid id, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(HttpMethod.Delete, $"{BaseUrl}/{id}");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+         return true;
+     }
+ 
+     private async Task<bool> UpdateOrderCoreAsync(UpdateCategoriesOrderRequest request, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{BaseUrl}/order", request, cancellationToken);
++        using HttpRequestMessage httpRequest = await CreateRequestAsync(HttpMethod.Put, $"{BaseUrl}/order");
++        httpRequest.Content = JsonContent.Create(request);
++        using HttpResponseMessage response = await httpClient.SendAsync(httpRequest, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+         return true;
+     }
++
++    private async Task<HttpRequestMessage> CreateRequestAsync(
++        HttpMethod method,
++        string uri)
++    {
++        AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync();
++        if (!Guid.TryParse(state.User.FindFirstValue(AuthenticationClaimConstants.DomainId), out Guid userId)
++            || userId == Guid.Empty)
++        {
++            throw new ApiRequestException(HttpStatusCode.BadRequest, FailureMessage);
++        }
++
++        Guid? restaurantId = await restaurantContextService.GetEmployeeRestaurantIdAsync(userId);
++        if (!restaurantId.HasValue)
++        {
++            throw new ApiRequestException(HttpStatusCode.BadRequest, FailureMessage);
++        }
++
++        return RestaurantContextApiRequest.Create(method, uri, restaurantId.Value);
++    }
+ }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Components/IngredientForm.razor b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Components/IngredientForm.razor
+index a218f0f..7fd7af6 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Components/IngredientForm.razor
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Components/IngredientForm.razor
+@@ -21,17 +21,6 @@
+                       Disabled="IsSubmitting"
+                       Error="@HasError(nameof(Model.Description))"
+                       ErrorText="@GetError(nameof(Model.Description))" />
+-        <MudNumericField @bind-Value="Model.Price"
+-                         For="@(() => Model.Price)"
+-                         Label="@Text["Price"]"
+-                         Variant="Variant.Outlined"
+-                         Adornment="Adornment.Start"
+-                         AdornmentText="$"
+-                         Min="0.0m"
+-                         Max="50.0m"
+-                         Disabled="IsSubmitting"
+-                         Error="@HasError(nameof(Model.Price))"
+-                         ErrorText="@GetError(nameof(Model.Price))" />
+         <MudSelect T="Guid"
+                    @bind-SelectedValues="Model.CategoryIds"
+                    Label="@Text["Categories"]"
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/IngredientsResources.resx b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/IngredientsResources.resx
+index bf9cda8..dde080e 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/IngredientsResources.resx
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/IngredientsResources.resx
+@@ -15,7 +15,6 @@
+   <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+   <data name="Name" xml:space="preserve"><value>Name</value></data>
+   <data name="Description" xml:space="preserve"><value>Description</value></data>
+-  <data name="Price" xml:space="preserve"><value>Price</value></data>
+   <data name="Categories" xml:space="preserve"><value>Categories</value></data>
+   <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+   <data name="Loading" xml:space="preserve"><value>Loading ingredients...</value></data>
+@@ -38,6 +37,5 @@
+   <data name="DescriptionRequired" xml:space="preserve"><value>Ingredient description is required.</value></data>
+   <data name="DescriptionMinLength" xml:space="preserve"><value>Ingredient description must contain at least 5 characters.</value></data>
+   <data name="DescriptionMaxLength" xml:space="preserve"><value>Ingredient description must contain no more than 200 characters.</value></data>
+-  <data name="PriceRange" xml:space="preserve"><value>Price must be between 0 and 50.</value></data>
+   <data name="CategoryRequired" xml:space="preserve"><value>Select at least one category.</value></data>
+ </root>
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Models/IngredientFormModel.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Models/IngredientFormModel.cs
+index 26f3aca..41510f1 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Models/IngredientFormModel.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Models/IngredientFormModel.cs
+@@ -6,18 +6,16 @@ public sealed class IngredientFormModel
+ {
+     public string Name { get; set; } = string.Empty;
+     public string Description { get; set; } = string.Empty;
+-    public decimal Price { get; set; }
+     public IReadOnlyCollection<Guid> CategoryIds { get; set; } = [];
+ 
+-    public CreateIngredientRequest ToCreateRequest() => new(Name, Description, Price, CategoryIds);
++    public CreateIngredientRequest ToCreateRequest() => new(Name, Description, CategoryIds);
+ 
+-    public UpdateIngredientRequest ToUpdateRequest() => new(Name, Description, Price, CategoryIds);
++    public UpdateIngredientRequest ToUpdateRequest() => new(Name, Description, CategoryIds);
+ 
+     public static IngredientFormModel FromResponse(GetIngredientByIdResponse response) => new()
+     {
+         Name = response.Name,
+         Description = response.Description,
+-        Price = response.Price,
+         CategoryIds = response.CategoryIds.ToArray()
+     };
+ }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Models/IngredientFormModelValidator.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Models/IngredientFormModelValidator.cs
+index 5a2d92b..3649ede 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Models/IngredientFormModelValidator.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Models/IngredientFormModelValidator.cs
+@@ -19,9 +19,6 @@ public sealed class IngredientFormModelValidator : BaseValidator<IngredientFormM
+             .MinimumLength(5).WithMessage(text["DescriptionMinLength"])
+             .MaximumLength(200).WithMessage(text["DescriptionMaxLength"]);
+ 
+-        RuleFor(model => model.Price)
+-            .InclusiveBetween(0m, 50m).WithMessage(text["PriceRange"]);
+-
+         RuleFor(model => model.CategoryIds)
+             .NotEmpty().WithMessage(text["CategoryRequired"]);
+     }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Shared/IngredientApiClient.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Shared/IngredientApiClient.cs
+index 6f8fca4..448741e 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Shared/IngredientApiClient.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Shared/IngredientApiClient.cs
+@@ -1,9 +1,17 @@
+ using System.Net;
++using System.Security.Claims;
++using Microsoft.AspNetCore.Components.Authorization;
++using MyHomeRamen.Blazor.Features.Restaurants.Common.Services;
++using MyHomeRamen.Blazor.Infrastructure.Authentication;
+ using MyHomeRamen.Blazor.Infrastructure.Api;
+ 
+ namespace MyHomeRamen.Blazor.Features.Menu.Ingredients.Shared;
+ 
+-public sealed class IngredientApiClient(HttpClient httpClient, ApiService apiService)
++public sealed class IngredientApiClient(
++    HttpClient httpClient,
++    ApiService apiService,
++    AuthenticationStateProvider authenticationStateProvider,
++    RestaurantContextService restaurantContextService)
+ {
+     private const string BaseUrl = "api/menu/ingredients";
+     private const string FailureMessage = "Ingredient request failed.";
+@@ -34,9 +42,10 @@ public sealed class IngredientApiClient(HttpClient httpClient, ApiService apiSer
+         int pageSize,
+         CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.GetAsync(
+-            $"{BaseUrl}/manage?pageNumber={pageNumber}&pageSize={pageSize}",
+-            cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(
++            HttpMethod.Get,
++            $"{BaseUrl}/manage?pageNumber={pageNumber}&pageSize={pageSize}");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+         return await response.Content.ReadFromJsonAsync<GetIngredientsForManageResponse>(cancellationToken: cancellationToken)
+@@ -45,7 +54,8 @@ public sealed class IngredientApiClient(HttpClient httpClient, ApiService apiSer
+ 
+     private async Task<GetIngredientByIdResponse> GetByIdCoreAsync(Guid id, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/{id}", cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(HttpMethod.Get, $"{BaseUrl}/{id}");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+         return await response.Content.ReadFromJsonAsync<GetIngredientByIdResponse>(cancellationToken: cancellationToken)
+@@ -54,7 +64,8 @@ public sealed class IngredientApiClient(HttpClient httpClient, ApiService apiSer
+ 
+     private async Task<GetIngredientsForDropdownResponse> GetDropdownCoreAsync(CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/dropdown", cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(HttpMethod.Get, $"{BaseUrl}/dropdown");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+         return await response.Content.ReadFromJsonAsync<GetIngredientsForDropdownResponse>(cancellationToken: cancellationToken)
+@@ -63,19 +74,44 @@ public sealed class IngredientApiClient(HttpClient httpClient, ApiService apiSer
+ 
+     private async Task CreateCoreAsync(CreateIngredientRequest request, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
++        using HttpRequestMessage httpRequest = await CreateRequestAsync(HttpMethod.Post, BaseUrl);
++        httpRequest.Content = JsonContent.Create(request);
++        using HttpResponseMessage response = await httpClient.SendAsync(httpRequest, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+     }
+ 
+     private async Task UpdateCoreAsync(Guid id, UpdateIngredientRequest request, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request, cancellationToken);
++        using HttpRequestMessage httpRequest = await CreateRequestAsync(HttpMethod.Put, $"{BaseUrl}/{id}");
++        httpRequest.Content = JsonContent.Create(request);
++        using HttpResponseMessage response = await httpClient.SendAsync(httpRequest, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+     }
+ 
+     private async Task DeleteCoreAsync(Guid id, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(HttpMethod.Delete, $"{BaseUrl}/{id}");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+     }
++
++    private async Task<HttpRequestMessage> CreateRequestAsync(
++        HttpMethod method,
++        string uri)
++    {
++        AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync();
++        if (!Guid.TryParse(state.User.FindFirstValue(AuthenticationClaimConstants.DomainId), out Guid userId)
++            || userId == Guid.Empty)
++        {
++            throw new ApiRequestException(HttpStatusCode.BadRequest, FailureMessage);
++        }
++
++        Guid? restaurantId = await restaurantContextService.GetEmployeeRestaurantIdAsync(userId);
++        if (!restaurantId.HasValue)
++        {
++            throw new ApiRequestException(HttpStatusCode.BadRequest, FailureMessage);
++        }
++
++        return RestaurantContextApiRequest.Create(method, uri, restaurantId.Value);
++    }
+ }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Shared/IngredientApiContracts.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Shared/IngredientApiContracts.cs
+index 6b30b1b..6725a5a 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Shared/IngredientApiContracts.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Ingredients/Shared/IngredientApiContracts.cs
+@@ -19,9 +19,8 @@ public sealed record GetIngredientByIdResponse(
+     Guid Id,
+     string Name,
+     string Description,
+-    decimal Price,
+     IEnumerable<Guid> CategoryIds);
+ 
+-public sealed record CreateIngredientRequest(string Name, string Description, decimal Price, IEnumerable<Guid> CategoryIds);
++public sealed record CreateIngredientRequest(string Name, string Description, IEnumerable<Guid> CategoryIds);
+ 
+-public sealed record UpdateIngredientRequest(string Name, string Description, decimal Price, IEnumerable<Guid> CategoryIds);
++public sealed record UpdateIngredientRequest(string Name, string Description, IEnumerable<Guid> CategoryIds);
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductDeleteConfirmation.razor b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductDeleteConfirmation.razor
+deleted file mode 100644
+index 5aa8300..0000000
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductDeleteConfirmation.razor
++++ /dev/null
+@@ -1,18 +0,0 @@
+-<MudAlert Severity="Severity.Warning" Class="mt-4">
+-    <MudText>@Message</MudText>
+-    <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
+-        <MudButton Variant="Variant.Text" OnClick="OnCancel">@CancelText</MudButton>
+-        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="@(() => OnConfirm.InvokeAsync(ProductId))">
+-            @ConfirmText
+-        </MudButton>
+-    </MudStack>
+-</MudAlert>
+-
+-@code {
+-    [Parameter] public Guid ProductId { get; set; }
+-    [Parameter] public string Message { get; set; } = string.Empty;
+-    [Parameter] public string CancelText { get; set; } = string.Empty;
+-    [Parameter] public string ConfirmText { get; set; } = string.Empty;
+-    [Parameter] public EventCallback<Guid> OnConfirm { get; set; }
+-    [Parameter] public EventCallback OnCancel { get; set; }
+-}
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductForm.razor b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductForm.razor
+index a132e2b..531cae9 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductForm.razor
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductForm.razor
+@@ -22,17 +22,6 @@
+                       Disabled="IsSubmitting"
+                       Error="@HasError(nameof(Model.Description))"
+                       ErrorText="@GetError(nameof(Model.Description))" />
+-        <MudNumericField @bind-Value="Model.Price"
+-                         For="@(() => Model.Price)"
+-                         Label="@Text["Price"]"
+-                         Variant="Variant.Outlined"
+-                         Adornment="Adornment.Start"
+-                         AdornmentText="$"
+-                         Min="0.5m"
+-                         Max="100.0m"
+-                         Disabled="IsSubmitting"
+-                         Error="@HasError(nameof(Model.Price))"
+-                         ErrorText="@GetError(nameof(Model.Price))" />
+         <MudSelect T="Guid"
+                    @bind-Value="Model.CategoryId"
+                    Label="@Text["Category"]"
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductTable.razor b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductTable.razor
+index 3810574..3ee0629 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductTable.razor
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Components/ProductTable.razor
+@@ -1,6 +1,7 @@
+ @using Microsoft.Extensions.Localization
+ @using MyHomeRamen.Blazor.Features.Menu.Products
+ @using MyHomeRamen.Blazor.Features.Menu.Products.Models
++@using MyHomeRamen.Blazor.Features.Menu.Products.Shared
+ @using MyHomeRamen.Blazor.Features.Menu.Common.Models
+ 
+ @inject IStringLocalizer<ProductsResources> Text
+@@ -17,10 +18,19 @@ else
+             <MudItem xs="12" sm="6" lg="4">
+                 <MudCard Outlined="true" Class="data-card">
+                     <MudCardContent Class="data-card-content">
++                        <ImageDisplay Image="item.Image" Style="width:100%; aspect-ratio:16/9; object-fit:cover;" />
+                         <MudText Typo="Typo.h6">@item.Name</MudText>
+                         <MudText Class="mt-2">@item.Description</MudText>
+-                        <MudText Class="mt-2">@item.Price.ToString("C")</MudText>
+-                        @if (CanEdit || CanDelete)
++                        <MudText Class="mt-2">@Text["CategoryLabel", item.CategoryName]</MudText>
++                        <MudText Class="mt-2">@Text["BaseIngredientsLabel", string.Join(", ", item.IngredientNames)]</MudText>
++                        <MudText Class="mt-2">@Text["CustomIngredientsLabel", string.Join(", ", item.CustomIngredientNames)]</MudText>
++                        <MudChip T="string"
++                                 Color="@(item.Status == ProductStatusCodes.Active ? Color.Success : Color.Default)"
++                                 Variant="Variant.Outlined"
++                                 Class="mt-2">
++                            @StatusLabel(item.Status)
++                        </MudChip>
++                        @if (CanEdit || CanRetire && item.Status == ProductStatusCodes.Active)
+                         {
+                             <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="data-card-actions">
+                                 @if (CanEdit)
+@@ -31,13 +41,13 @@ else
+                                         @Text["Edit"]
+                                     </MudButton>
+                                 }
+-                                @if (CanDelete)
++                                @if (CanRetire && item.Status == ProductStatusCodes.Active)
+                                 {
+                                     <MudButton Variant="Variant.Outlined"
+                                                Color="Color.Error"
+-                                               StartIcon="@Icons.Material.Filled.Delete"
+-                                               OnClick="@(() => OnDelete.InvokeAsync(item.Id))">
+-                                        @Text["Delete"]
++                                               StartIcon="@Icons.Material.Filled.Archive"
++                                               OnClick="@(() => OnRetire.InvokeAsync(item.Id))">
++                                        @Text["Retire"]
+                                     </MudButton>
+                                 }
+                             </MudStack>
+@@ -61,9 +71,16 @@ else
+ @code {
+     [Parameter, EditorRequired] public IReadOnlyList<ProductViewModel> Items { get; set; } = [];
+     [Parameter] public bool CanEdit { get; set; }
+-    [Parameter] public bool CanDelete { get; set; }
++    [Parameter] public bool CanRetire { get; set; }
+     [Parameter] public PageState Paging { get; set; } = PageState.Default();
+     [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+     [Parameter] public EventCallback<Guid> OnEdit { get; set; }
+-    [Parameter] public EventCallback<Guid> OnDelete { get; set; }
++    [Parameter] public EventCallback<Guid> OnRetire { get; set; }
++
++    private string StatusLabel(string status) => status switch
++    {
++        ProductStatusCodes.Active => Text["Active"],
++        ProductStatusCodes.Retired => Text["Retired"],
++        _ => Text["UnknownStatus"]
++    };
+ }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductFormModel.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductFormModel.cs
+index 9746929..c22053b 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductFormModel.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductFormModel.cs
+@@ -6,22 +6,20 @@ public sealed class ProductFormModel
+ {
+     public string Name { get; set; } = string.Empty;
+     public string Description { get; set; } = string.Empty;
+-    public decimal Price { get; set; } = 0.5m;
+     public Guid CategoryId { get; set; }
+     public IReadOnlyCollection<Guid> IngredientIds { get; set; } = [];
+     public IReadOnlyCollection<Guid> CustomIngredientIds { get; set; } = [];
+ 
+     public CreateProductRequest ToCreateRequest() =>
+-        new(Name, string.IsNullOrWhiteSpace(Description) ? null : Description, Price, CategoryId, IngredientIds, CustomIngredientIds);
++        new(Name, string.IsNullOrWhiteSpace(Description) ? null : Description, CategoryId, IngredientIds, CustomIngredientIds);
+ 
+     public UpdateProductRequest ToUpdateRequest() =>
+-        new(Name, string.IsNullOrWhiteSpace(Description) ? null : Description, Price, CategoryId, IngredientIds, CustomIngredientIds);
++        new(Name, string.IsNullOrWhiteSpace(Description) ? null : Description, CategoryId, IngredientIds, CustomIngredientIds);
+ 
+     public static ProductFormModel FromResponse(GetProductByIdForManageResponse response) => new()
+     {
+         Name = response.Name,
+         Description = response.Description,
+-        Price = response.Price,
+         CategoryId = response.CategoryId,
+         IngredientIds = response.IngredientIds.ToArray(),
+         CustomIngredientIds = response.CustomIngredientIds.ToArray()
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductFormModelValidator.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductFormModelValidator.cs
+index 70764c3..49240ae 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductFormModelValidator.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductFormModelValidator.cs
+@@ -19,9 +19,6 @@ public sealed class ProductFormModelValidator : BaseValidator<ProductFormModel>
+             .MinimumLength(15).WithMessage(text["DescriptionMinLength"])
+             .MaximumLength(500).WithMessage(text["DescriptionMaxLength"]);
+ 
+-        RuleFor(model => model.Price)
+-            .InclusiveBetween(0.5m, 100.0m).WithMessage(text["PriceRange"]);
+-
+         RuleFor(model => model.CategoryId)
+             .NotEmpty().WithMessage(text["CategoryRequired"]);
+ 
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductViewModel.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductViewModel.cs
+index c9153e5..9ffcca6 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductViewModel.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Models/ProductViewModel.cs
+@@ -1,9 +1,41 @@
++using MyHomeRamen.Blazor.Components.Models;
++using MyHomeRamen.Blazor.Features.Menu.Common.Models;
+ using MyHomeRamen.Blazor.Features.Menu.Products.Shared;
+ 
+ namespace MyHomeRamen.Blazor.Features.Menu.Products.Models;
+ 
+-public sealed record ProductViewModel(Guid Id, string Name, string Description, decimal Price)
++public sealed record ProductViewModel(
++    Guid Id,
++    string Name,
++    string Description,
++    string Status,
++    string CategoryName,
++    IReadOnlyList<string> IngredientNames,
++    IReadOnlyList<string> CustomIngredientNames,
++    ImageModel Image)
+ {
+-    public static ProductViewModel FromResponse(ProductForManageResponse response) =>
+-        new(response.Id, response.Name, response.Description ?? string.Empty, response.Price);
++    public static ProductViewModel FromResponse(
++        ProductForManageResponse response,
++        IReadOnlyList<CategoryOption> categories,
++        IReadOnlyList<IngredientOption> ingredients,
++        string imageAlt,
++        string unavailableCategory,
++        string unavailableIngredient) =>
++        new(
++            response.Id,
++            response.Name,
++            response.Description ?? string.Empty,
++            response.Status,
++            categories.FirstOrDefault(category => category.Id == response.CategoryId)?.Name ?? unavailableCategory,
++            MapIngredientNames(response.IngredientIds, ingredients, unavailableIngredient),
++            MapIngredientNames(response.CustomIngredientIds, ingredients, unavailableIngredient),
++            new ImageModel { Alt = imageAlt });
++
++    private static IReadOnlyList<string> MapIngredientNames(
++        IEnumerable<Guid> ingredientIds,
++        IReadOnlyList<IngredientOption> ingredients,
++        string unavailableIngredient) =>
++        ingredientIds
++            .Select(id => ingredients.FirstOrDefault(ingredient => ingredient.Id == id)?.Name ?? unavailableIngredient)
++            .ToArray();
+ }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/ProductsResources.resx b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/ProductsResources.resx
+index 28a59fc..66dbf81 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/ProductsResources.resx
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/ProductsResources.resx
+@@ -12,13 +12,21 @@
+   <data name="EditHeading" xml:space="preserve"><value>Edit product</value></data>
+   <data name="Create" xml:space="preserve"><value>Create product</value></data>
+   <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+-  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
++  <data name="Retire" xml:space="preserve"><value>Retire</value></data>
+   <data name="Name" xml:space="preserve"><value>Name</value></data>
+   <data name="Description" xml:space="preserve"><value>Description</value></data>
+-  <data name="Price" xml:space="preserve"><value>Price</value></data>
+   <data name="Category" xml:space="preserve"><value>Category</value></data>
+   <data name="Ingredients" xml:space="preserve"><value>Base ingredients</value></data>
+   <data name="CustomIngredients" xml:space="preserve"><value>Custom ingredients</value></data>
++  <data name="CategoryLabel" xml:space="preserve"><value>Category: {0}</value></data>
++  <data name="BaseIngredientsLabel" xml:space="preserve"><value>Base ingredients: {0}</value></data>
++  <data name="CustomIngredientsLabel" xml:space="preserve"><value>Permitted custom ingredients: {0}</value></data>
++  <data name="UnavailableCategory" xml:space="preserve"><value>Unavailable category</value></data>
++  <data name="UnavailableIngredient" xml:space="preserve"><value>Unavailable ingredient</value></data>
++  <data name="ProductImageAlt" xml:space="preserve"><value>Product image placeholder</value></data>
++  <data name="Active" xml:space="preserve"><value>Active</value></data>
++  <data name="Retired" xml:space="preserve"><value>Retired</value></data>
++  <data name="UnknownStatus" xml:space="preserve"><value>Unknown status</value></data>
+   <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+   <data name="Loading" xml:space="preserve"><value>Loading products...</value></data>
+   <data name="LoadingFormOptions" xml:space="preserve"><value>Loading product options...</value></data>
+@@ -29,10 +37,11 @@
+   <data name="Empty" xml:space="preserve"><value>No products found.</value></data>
+   <data name="CreateSuccess" xml:space="preserve"><value>Product created.</value></data>
+   <data name="UpdateSuccess" xml:space="preserve"><value>Product updated.</value></data>
+-  <data name="DeleteSuccess" xml:space="preserve"><value>Product deleted.</value></data>
+-  <data name="DeleteConfirmTitle" xml:space="preserve"><value>Delete product</value></data>
+-  <data name="DeleteConfirmMessage" xml:space="preserve"><value>Delete {0}? This action cannot be undone.</value></data>
++  <data name="RetirementSuccess" xml:space="preserve"><value>Product retired.</value></data>
++  <data name="RetirementError" xml:space="preserve"><value>Product could not be retired. Please try again.</value></data>
++  <data name="RetirementConfirmMessage" xml:space="preserve"><value>Retiring {0} hides its restaurant offers without rewriting them. This action cannot be undone.</value></data>
+   <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
++  <data name="Retiring" xml:space="preserve"><value>Retiring...</value></data>
+   <data name="Save" xml:space="preserve"><value>Save changes</value></data>
+   <data name="Saving" xml:space="preserve"><value>Saving...</value></data>
+   <data name="NameRequired" xml:space="preserve"><value>Product name is required.</value></data>
+@@ -41,7 +50,6 @@
+   <data name="DescriptionRequired" xml:space="preserve"><value>Product description is required.</value></data>
+   <data name="DescriptionMinLength" xml:space="preserve"><value>Product description must contain at least 15 characters.</value></data>
+   <data name="DescriptionMaxLength" xml:space="preserve"><value>Product description must contain no more than 500 characters.</value></data>
+-  <data name="PriceRange" xml:space="preserve"><value>Price must be between 0.50 and 100.00.</value></data>
+   <data name="CategoryRequired" xml:space="preserve"><value>Select a category.</value></data>
+   <data name="IngredientRequired" xml:space="preserve"><value>Select at least one base ingredient.</value></data>
+ </root>
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/ProductsView.razor b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/ProductsView.razor
+index b088c23..748f099 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/ProductsView.razor
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/ProductsView.razor
+@@ -1,10 +1,15 @@
+ @using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Features.Menu.Categories.Shared
+ @using MyHomeRamen.Blazor.Features.Menu.Common.Models
++@using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Categories.Responses
++@using MyHomeRamen.Blazor.Features.Menu.Ingredients.Shared
+ @using MyHomeRamen.Blazor.Features.Menu.Products.Components
+ @using MyHomeRamen.Blazor.Features.Menu.Products.Models
+ @using MyHomeRamen.Blazor.Features.Menu.Products.Shared
+ @using MyHomeRamen.Blazor.Infrastructure.Api
+ 
++@inject CategoryApiClient CategoryApiClient
++@inject IngredientApiClient IngredientApiClient
+ @inject ProductsApiClient ProductsApiClient
+ @inject IStringLocalizer<ProductsResources> Text
+ @inject NavigationManager NavigationManager
+@@ -41,23 +46,25 @@
+             <MudAlert Severity="Severity.Error" Class="page-state">@_actionError.Message</MudAlert>
+         }
+ 
+-        @if (_productPendingDelete is not null)
++        @if (_productPendingRetirement is not null)
+         {
+-            <ProductDeleteConfirmation ProductId="_productPendingDelete.Id"
+-                                       Message='@Text["DeleteConfirmMessage", _productPendingDelete.Name]'
+-                                       ConfirmText='@Text["Delete"]'
+-                                       CancelText='@Text["Cancel"]'
+-                                       OnConfirm="DeleteAsync"
+-                                       OnCancel="CancelDelete" />
++            <ProductRetirementConfirmation ProductId="_productPendingRetirement.Id"
++                                           Message='@Text["RetirementConfirmMessage", _productPendingRetirement.Name]'
++                                           ConfirmText='@Text["Retire"]'
++                                           ConfirmingText='@Text["Retiring"]'
++                                           CancelText='@Text["Cancel"]'
++                                           IsSubmitting="_isSubmitting"
++                                           OnConfirm="RetireAsync"
++                                           OnCancel="CancelRetirement" />
+         }
+ 
+         <ProductTable Items="_items"
+                       CanEdit="_allowedActions?.CanEdit == true"
+-                      CanDelete="_allowedActions?.CanDelete == true"
++                      CanRetire="_allowedActions?.CanRetire == true"
+                       Paging="_paging"
+                       OnPageChanged="OnPageChangedAsync"
+                       OnEdit="OnEdit"
+-                      OnDelete="BeginDelete" />
++                      OnRetire="BeginRetirement" />
+     }
+ </MudPaper>
+ 
+@@ -66,13 +73,53 @@
+     private readonly ApiErrorState _loadError = new();
+     private readonly ApiErrorState _actionError = new();
+     private ProductAllowedActions? _allowedActions;
+-    private ProductViewModel? _productPendingDelete;
++    private ProductViewModel? _productPendingRetirement;
++    private IReadOnlyList<CategoryOption> _categories = [];
++    private IReadOnlyList<IngredientOption> _ingredients = [];
+     private PageState _paging = PageState.Default();
+     private bool _isLoading = true;
++    private bool _isSubmitting;
+ 
+     protected override async Task OnInitializedAsync()
+     {
+-        await LoadAsync();
++        await LoadOptionsAsync();
++        if (!_loadError.HasError)
++        {
++            await LoadAsync();
++        }
++    }
++
++    private async Task LoadOptionsAsync()
++    {
++        try
++        {
++            ApiResult<GetCategoriesByTypeResponse> categoriesResult =
++                await CategoryApiClient.GetByTypeAsync((int)CategoryType.Product);
++            if (_loadError.Apply(categoriesResult, Text["LoadError"], Text["UnexpectedError"])
++                || categoriesResult is not ApiResult<GetCategoriesByTypeResponse>.Success categoriesSuccess)
++            {
++                return;
++            }
++
++            ApiResult<GetIngredientsForDropdownResponse> ingredientsResult =
++                await IngredientApiClient.GetDropdownAsync();
++            if (_loadError.Apply(ingredientsResult, Text["LoadError"], Text["UnexpectedError"])
++                || ingredientsResult is not ApiResult<GetIngredientsForDropdownResponse>.Success ingredientsSuccess)
++            {
++                return;
++            }
++
++            _categories = categoriesSuccess.Value.Categories
++                .Select(category => new CategoryOption(category.Id, category.Name))
++                .ToArray();
++            _ingredients = ingredientsSuccess.Value.Ingredients
++                .Select(ingredient => new IngredientOption(ingredient.Id, ingredient.Name))
++                .ToArray();
++        }
++        finally
++        {
++            _isLoading = false;
++        }
+     }
+ 
+     private async Task LoadAsync()
+@@ -87,7 +134,14 @@
+             if (result is ApiResult<GetProductsForManageResponse>.Success success)
+             {
+                 _items.Clear();
+-                _items.AddRange(success.Value.Products.Select(ProductViewModel.FromResponse));
++                _items.AddRange(success.Value.Products.Select(product =>
++                    ProductViewModel.FromResponse(
++                        product,
++                        _categories,
++                        _ingredients,
++                        Text["ProductImageAlt"],
++                        Text["UnavailableCategory"],
++                        Text["UnavailableIngredient"])));
+                 _allowedActions = success.Value.AllowedActions;
+                 _paging = _paging with { TotalCount = success.Value.TotalCount };
+             }
+@@ -112,33 +166,42 @@
+         }
+     }
+ 
+-    private void BeginDelete(Guid id)
++    private void BeginRetirement(Guid id)
+     {
+-        if (_allowedActions?.CanDelete == true)
++        if (_allowedActions?.CanRetire == true)
+         {
+-            _productPendingDelete = _items.FirstOrDefault(product => product.Id == id);
++            _productPendingRetirement = _items.FirstOrDefault(product =>
++                product.Id == id && product.Status == ProductStatusCodes.Active);
+             _actionError.Clear();
+         }
+     }
+ 
+-    private void CancelDelete() => _productPendingDelete = null;
++    private void CancelRetirement() => _productPendingRetirement = null;
+ 
+-    private async Task DeleteAsync(Guid id)
++    private async Task RetireAsync(Guid id)
+     {
+-        if (_allowedActions?.CanDelete != true)
++        if (_allowedActions?.CanRetire != true || _isSubmitting)
+         {
+             return;
+         }
+ 
++        _isSubmitting = true;
+         _actionError.Clear();
+-        ApiResult<bool> result = await ProductsApiClient.DeleteAsync(id);
+-        if (_actionError.Apply(result, Text["UnexpectedError"], Text["UnexpectedError"]))
++        try
+         {
+-            return;
+-        }
++            ApiResult<bool> result = await ProductsApiClient.RetireAsync(id);
++            if (_actionError.Apply(result, Text["RetirementError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
+ 
+-        _productPendingDelete = null;
+-        Snackbar.Add(Text["DeleteSuccess"], Severity.Success);
+-        await LoadAsync();
++            _productPendingRetirement = null;
++            Snackbar.Add(Text["RetirementSuccess"], Severity.Success);
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
+     }
+ }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Shared/ProductApiContracts.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Shared/ProductApiContracts.cs
+index 6a56f0d..b0c90ef 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Shared/ProductApiContracts.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Shared/ProductApiContracts.cs
+@@ -1,8 +1,21 @@
+ namespace MyHomeRamen.Blazor.Features.Menu.Products.Shared;
+ 
+-public sealed record ProductAllowedActions(bool CanCreate, bool CanEdit, bool CanDelete);
++public static class ProductStatusCodes
++{
++    public const string Active = "Active";
++    public const string Retired = "Retired";
++}
+ 
+-public sealed record ProductForManageResponse(Guid Id, string Name, string? Description, decimal Price);
++public sealed record ProductAllowedActions(bool CanCreate, bool CanEdit, bool CanRetire);
++
++public sealed record ProductForManageResponse(
++    Guid Id,
++    string Name,
++    string? Description,
++    string Status,
++    Guid CategoryId,
++    IEnumerable<Guid> IngredientIds,
++    IEnumerable<Guid> CustomIngredientIds);
+ 
+ public sealed record GetProductsForManageResponse(
+     int Page,
+@@ -15,15 +28,14 @@ public sealed record GetProductByIdForManageResponse(
+     Guid Id,
+     string Name,
+     string Description,
+-    decimal Price,
+     Guid CategoryId,
+     IEnumerable<Guid> IngredientIds,
+-    IEnumerable<Guid> CustomIngredientIds);
++    IEnumerable<Guid> CustomIngredientIds,
++    string Status);
+ 
+ public sealed record CreateProductRequest(
+     string Name,
+     string? Description,
+-    decimal Price,
+     Guid CategoryId,
+     IEnumerable<Guid> IngredientIds,
+     IEnumerable<Guid> CustomIngredientIds);
+@@ -31,7 +43,6 @@ public sealed record CreateProductRequest(
+ public sealed record UpdateProductRequest(
+     string Name,
+     string? Description,
+-    decimal Price,
+     Guid CategoryId,
+     IEnumerable<Guid> IngredientIds,
+     IEnumerable<Guid> CustomIngredientIds);
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Shared/ProductsApiClient.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Shared/ProductsApiClient.cs
+index 8c55620..f7fcbfb 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Shared/ProductsApiClient.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/Products/Shared/ProductsApiClient.cs
+@@ -1,9 +1,17 @@
+ using System.Net;
++using System.Security.Claims;
++using Microsoft.AspNetCore.Components.Authorization;
++using MyHomeRamen.Blazor.Features.Restaurants.Common.Services;
++using MyHomeRamen.Blazor.Infrastructure.Authentication;
+ using MyHomeRamen.Blazor.Infrastructure.Api;
+ 
+ namespace MyHomeRamen.Blazor.Features.Menu.Products.Shared;
+ 
+-public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiService)
++public sealed class ProductsApiClient(
++    HttpClient httpClient,
++    ApiService apiService,
++    AuthenticationStateProvider authenticationStateProvider,
++    RestaurantContextService restaurantContextService)
+ {
+     private const string BaseUrl = "api/menu/products";
+     private const string FailureMessage = "Product request failed.";
+@@ -28,17 +36,18 @@ public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiServi
+         CancellationToken cancellationToken = default) =>
+         apiService.ExecuteAsync(() => UpdateCoreAsync(id, request, cancellationToken));
+ 
+-    public Task<ApiResult<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
+-        apiService.ExecuteAsync(() => DeleteCoreAsync(id, cancellationToken));
++    public Task<ApiResult<bool>> RetireAsync(Guid id, CancellationToken cancellationToken = default) =>
++        apiService.ExecuteAsync(() => RetireCoreAsync(id, cancellationToken));
+ 
+     private async Task<GetProductsForManageResponse> GetForManageCoreAsync(
+         int pageNumber,
+         int pageSize,
+         CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.GetAsync(
+-            $"{BaseUrl}/manage?pageNumber={pageNumber}&pageSize={pageSize}",
+-            cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(
++            HttpMethod.Get,
++            $"{BaseUrl}/manage?pageNumber={pageNumber}&pageSize={pageSize}");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+         return await response.Content.ReadFromJsonAsync<GetProductsForManageResponse>(cancellationToken: cancellationToken)
+@@ -49,7 +58,8 @@ public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiServi
+         Guid id,
+         CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/{id}/manage", cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(HttpMethod.Get, $"{BaseUrl}/{id}/manage");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+         return await response.Content.ReadFromJsonAsync<GetProductByIdForManageResponse>(cancellationToken: cancellationToken)
+@@ -58,7 +68,9 @@ public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiServi
+ 
+     private async Task<ProductMutationResponse> CreateCoreAsync(CreateProductRequest request, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
++        using HttpRequestMessage httpRequest = await CreateRequestAsync(HttpMethod.Post, BaseUrl);
++        httpRequest.Content = JsonContent.Create(request);
++        using HttpResponseMessage response = await httpClient.SendAsync(httpRequest, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+         return await response.Content.ReadFromJsonAsync<ProductMutationResponse>(cancellationToken: cancellationToken)
+@@ -67,15 +79,38 @@ public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiServi
+ 
+     private async Task<bool> UpdateCoreAsync(Guid id, UpdateProductRequest request, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request, cancellationToken);
++        using HttpRequestMessage httpRequest = await CreateRequestAsync(HttpMethod.Put, $"{BaseUrl}/{id}");
++        httpRequest.Content = JsonContent.Create(request);
++        using HttpResponseMessage response = await httpClient.SendAsync(httpRequest, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+         return true;
+     }
+ 
+-    private async Task<bool> DeleteCoreAsync(Guid id, CancellationToken cancellationToken)
++    private async Task<bool> RetireCoreAsync(Guid id, CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
++        using HttpRequestMessage request = await CreateRequestAsync(HttpMethod.Delete, $"{BaseUrl}/{id}");
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+         return true;
+     }
++
++    private async Task<HttpRequestMessage> CreateRequestAsync(
++        HttpMethod method,
++        string uri)
++    {
++        AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync();
++        if (!Guid.TryParse(state.User.FindFirstValue(AuthenticationClaimConstants.DomainId), out Guid userId)
++            || userId == Guid.Empty)
++        {
++            throw new ApiRequestException(HttpStatusCode.BadRequest, FailureMessage);
++        }
++
++        Guid? restaurantId = await restaurantContextService.GetEmployeeRestaurantIdAsync(userId);
++        if (!restaurantId.HasValue)
++        {
++            throw new ApiRequestException(HttpStatusCode.BadRequest, FailureMessage);
++        }
++
++        return RestaurantContextApiRequest.Create(method, uri, restaurantId.Value);
++    }
+ }
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\Products\\Components\\ProductRetirementConfirmation.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\Products\\Components\\ProductRetirementConfirmation.razor"
+new file mode 100644
+index 0000000..17bca56
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\Products\\Components\\ProductRetirementConfirmation.razor"
+@@ -0,0 +1,31 @@
++<MudAlert Severity="Severity.Warning" Class="mt-4">
++    <MudText>@Message</MudText>
++    <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
++        <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="OnCancel">@CancelText</MudButton>
++        <MudButton Variant="Variant.Filled"
++                   Color="Color.Warning"
++                   Disabled="IsSubmitting"
++                   OnClick="@(() => OnConfirm.InvokeAsync(ProductId))">
++            @if (IsSubmitting)
++            {
++                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
++                @ConfirmingText
++            }
++            else
++            {
++                @ConfirmText
++            }
++        </MudButton>
++    </MudStack>
++</MudAlert>
++
++@code {
++    [Parameter] public Guid ProductId { get; set; }
++    [Parameter] public string Message { get; set; } = string.Empty;
++    [Parameter] public string CancelText { get; set; } = string.Empty;
++    [Parameter] public string ConfirmText { get; set; } = string.Empty;
++    [Parameter] public string ConfirmingText { get; set; } = string.Empty;
++    [Parameter] public bool IsSubmitting { get; set; }
++    [Parameter] public EventCallback<Guid> OnConfirm { get; set; }
++    [Parameter] public EventCallback OnCancel { get; set; }
++}

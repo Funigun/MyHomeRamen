@@ -13,8 +13,8 @@ else
     <MudPaper Outlined="true" Class="category-table">
         <div class="category-table-header @(CanDelete ? "with-actions" : string.Empty)">
             <span aria-hidden="true"></span>
-            <MudText Typo="Typo.subtitle2">#</MudText>
-            <MudText Typo="Typo.subtitle2" Class="category-table-name">Name</MudText>
+            <MudText Typo="Typo.subtitle2">@Text["SortOrder"]</MudText>
+            <MudText Typo="Typo.subtitle2" Class="category-table-name">@Text["Name"]</MudText>
             @if (CanDelete)
             {
                 <MudText Typo="Typo.subtitle2" Class="category-table-actions">@Text["Actions"]</MudText>

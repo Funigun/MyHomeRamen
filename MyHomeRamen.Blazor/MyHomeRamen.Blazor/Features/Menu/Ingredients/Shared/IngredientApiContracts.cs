@@ -19,9 +19,8 @@ public sealed record GetIngredientByIdResponse(
     Guid Id,
     string Name,
     string Description,
-    decimal Price,
     IEnumerable<Guid> CategoryIds);
 
-public sealed record CreateIngredientRequest(string Name, string Description, decimal Price, IEnumerable<Guid> CategoryIds);
+public sealed record CreateIngredientRequest(string Name, string Description, IEnumerable<Guid> CategoryIds);
 
-public sealed record UpdateIngredientRequest(string Name, string Description, decimal Price, IEnumerable<Guid> CategoryIds);
+public sealed record UpdateIngredientRequest(string Name, string Description, IEnumerable<Guid> CategoryIds);

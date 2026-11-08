@@ -1,8 +1,21 @@
 namespace MyHomeRamen.Blazor.Features.Menu.Products.Shared;
 
-public sealed record ProductAllowedActions(bool CanCreate, bool CanEdit, bool CanDelete);
+public static class ProductStatusCodes
+{
+    public const string Active = "Active";
+    public const string Retired = "Retired";
+}
 
-public sealed record ProductForManageResponse(Guid Id, string Name, string? Description, decimal Price);
+public sealed record ProductAllowedActions(bool CanCreate, bool CanEdit, bool CanRetire);
+
+public sealed record ProductForManageResponse(
+    Guid Id,
+    string Name,
+    string? Description,
+    string Status,
+    Guid CategoryId,
+    IEnumerable<Guid> IngredientIds,
+    IEnumerable<Guid> CustomIngredientIds);
 
 public sealed record GetProductsForManageResponse(
     int Page,
@@ -15,15 +28,14 @@ public sealed record GetProductByIdForManageResponse(
     Guid Id,
     string Name,
     string Description,
-    decimal Price,
     Guid CategoryId,
     IEnumerable<Guid> IngredientIds,
-    IEnumerable<Guid> CustomIngredientIds);
+    IEnumerable<Guid> CustomIngredientIds,
+    string Status);
 
 public sealed record CreateProductRequest(
     string Name,
     string? Description,
-    decimal Price,
     Guid CategoryId,
     IEnumerable<Guid> IngredientIds,
     IEnumerable<Guid> CustomIngredientIds);
@@ -31,7 +43,6 @@ public sealed record CreateProductRequest(
 public sealed record UpdateProductRequest(
     string Name,
     string? Description,
-    decimal Price,
     Guid CategoryId,
     IEnumerable<Guid> IngredientIds,
     IEnumerable<Guid> CustomIngredientIds);

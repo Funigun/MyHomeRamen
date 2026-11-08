@@ -6,18 +6,16 @@ public sealed class IngredientFormModel
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public decimal Price { get; set; }
     public IReadOnlyCollection<Guid> CategoryIds { get; set; } = [];
 
-    public CreateIngredientRequest ToCreateRequest() => new(Name, Description, Price, CategoryIds);
+    public CreateIngredientRequest ToCreateRequest() => new(Name, Description, CategoryIds);
 
-    public UpdateIngredientRequest ToUpdateRequest() => new(Name, Description, Price, CategoryIds);
+    public UpdateIngredientRequest ToUpdateRequest() => new(Name, Description, CategoryIds);
 
     public static IngredientFormModel FromResponse(GetIngredientByIdResponse response) => new()
     {
         Name = response.Name,
         Description = response.Description,
-        Price = response.Price,
         CategoryIds = response.CategoryIds.ToArray()
     };
 }

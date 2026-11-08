@@ -1,9 +1,17 @@
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Components.Authorization;
+using MyHomeRamen.Blazor.Features.Restaurants.Common.Services;
+using MyHomeRamen.Blazor.Infrastructure.Authentication;
 using MyHomeRamen.Blazor.Infrastructure.Api;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Products.Shared;
 
-public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiService)
+public sealed class ProductsApiClient(
+    HttpClient httpClient,
+    ApiService apiService,
+    AuthenticationStateProvider authenticationStateProvider,
+    RestaurantContextService restaurantContextService)
 {
     private const string BaseUrl = "api/menu/products";
     private const string FailureMessage = "Product request failed.";
@@ -28,17 +36,18 @@ public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiServi
         CancellationToken cancellationToken = default) =>
         apiService.ExecuteAsync(() => UpdateCoreAsync(id, request, cancellationToken));
 
-    public Task<ApiResult<bool>> DeleteAsync(Guid id, CancellationToken cancellationToken = default) =>
-        apiService.ExecuteAsync(() => DeleteCoreAsync(id, cancellationToken));
+    public Task<ApiResult<bool>> RetireAsync(Guid id, CancellationToken cancellationToken = default) =>
+        apiService.ExecuteAsync(() => RetireCoreAsync(id, cancellationToken));
 
     private async Task<GetProductsForManageResponse> GetForManageCoreAsync(
         int pageNumber,
         int pageSize,
         CancellationToken cancellationToken)
     {
-        using HttpResponseMessage response = await httpClient.GetAsync(
-            $"{BaseUrl}/manage?pageNumber={pageNumber}&pageSize={pageSize}",
-            cancellationToken);
+        using HttpRequestMessage request = await CreateRequestAsync(
+            HttpMethod.Get,
+            $"{BaseUrl}/manage?pageNumber={pageNumber}&pageSize={pageSize}");
+        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
 
         return await response.Content.ReadFromJsonAsync<GetProductsForManageResponse>(cancellationToken: cancellationToken)
@@ -49,7 +58,8 @@ public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiServi
         Guid id,
         CancellationToken cancellationToken)
     {
-        using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/{id}/manage", cancellationToken);
+        using HttpRequestMessage request = await CreateRequestAsync(HttpMethod.Get, $"{BaseUrl}/{id}/manage");
+        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
 
         return await response.Content.ReadFromJsonAsync<GetProductByIdForManageResponse>(cancellationToken: cancellationToken)
@@ -58,7 +68,9 @@ public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiServi
 
     private async Task<ProductMutationResponse> CreateCoreAsync(CreateProductRequest request, CancellationToken cancellationToken)
     {
-        using HttpResponseMessage response = await httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
+        using HttpRequestMessage httpRequest = await CreateRequestAsync(HttpMethod.Post, BaseUrl);
+        httpRequest.Content = JsonContent.Create(request);
+        using HttpResponseMessage response = await httpClient.SendAsync(httpRequest, cancellationToken);
         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
 
         return await response.Content.ReadFromJsonAsync<ProductMutationResponse>(cancellationToken: cancellationToken)
@@ -67,15 +79,38 @@ public sealed class ProductsApiClient(HttpClient httpClient, ApiService apiServi
 
     private async Task<bool> UpdateCoreAsync(Guid id, UpdateProductRequest request, CancellationToken cancellationToken)
     {
-        using HttpResponseMessage response = await httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request, cancellationToken);
+        using HttpRequestMessage httpRequest = await CreateRequestAsync(HttpMethod.Put, $"{BaseUrl}/{id}");
+        httpRequest.Content = JsonContent.Create(request);
+        using HttpResponseMessage response = await httpClient.SendAsync(httpRequest, cancellationToken);
         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
         return true;
     }
 
-    private async Task<bool> DeleteCoreAsync(Guid id, CancellationToken cancellationToken)
+    private async Task<bool> RetireCoreAsync(Guid id, CancellationToken cancellationToken)
     {
-        using HttpResponseMessage response = await httpClient.DeleteAsync($"{BaseUrl}/{id}", cancellationToken);
+        using HttpRequestMessage request = await CreateRequestAsync(HttpMethod.Delete, $"{BaseUrl}/{id}");
+        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
         return true;
+    }
+
+    private async Task<HttpRequestMessage> CreateRequestAsync(
+        HttpMethod method,
+        string uri)
+    {
+        AuthenticationState state = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (!Guid.TryParse(state.User.FindFirstValue(AuthenticationClaimConstants.DomainId), out Guid userId)
+            || userId == Guid.Empty)
+        {
+            throw new ApiRequestException(HttpStatusCode.BadRequest, FailureMessage);
+        }
+
+        Guid? restaurantId = await restaurantContextService.GetEmployeeRestaurantIdAsync(userId);
+        if (!restaurantId.HasValue)
+        {
+            throw new ApiRequestException(HttpStatusCode.BadRequest, FailureMessage);
+        }
+
+        return RestaurantContextApiRequest.Create(method, uri, restaurantId.Value);
     }
 }

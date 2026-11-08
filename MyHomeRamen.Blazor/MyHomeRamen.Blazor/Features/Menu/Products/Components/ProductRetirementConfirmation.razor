@@ -1,0 +1,31 @@
+<MudAlert Severity="Severity.Warning" Class="mt-4">
+    <MudText>@Message</MudText>
+    <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
+        <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="OnCancel">@CancelText</MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Warning"
+                   Disabled="IsSubmitting"
+                   OnClick="@(() => OnConfirm.InvokeAsync(ProductId))">
+            @if (IsSubmitting)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                @ConfirmingText
+            }
+            else
+            {
+                @ConfirmText
+            }
+        </MudButton>
+    </MudStack>
+</MudAlert>
+
+@code {
+    [Parameter] public Guid ProductId { get; set; }
+    [Parameter] public string Message { get; set; } = string.Empty;
+    [Parameter] public string CancelText { get; set; } = string.Empty;
+    [Parameter] public string ConfirmText { get; set; } = string.Empty;
+    [Parameter] public string ConfirmingText { get; set; } = string.Empty;
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public EventCallback<Guid> OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+}

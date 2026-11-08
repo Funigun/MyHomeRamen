@@ -4,11 +4,13 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Categories</value></data>
   <data name="ProductPageTitle" xml:space="preserve"><value>Product categories</value></data>
   <data name="IngredientPageTitle" xml:space="preserve"><value>Ingredient categories</value></data>
   <data name="ProductHeading" xml:space="preserve"><value>Product categories</value></data>
   <data name="IngredientHeading" xml:space="preserve"><value>Ingredient categories</value></data>
   <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="SortOrder" xml:space="preserve"><value>Order</value></data>
   <data name="NameRequired" xml:space="preserve"><value>Category name is required.</value></data>
   <data name="NameMinLength" xml:space="preserve"><value>Category name must contain at least 3 characters.</value></data>
   <data name="NameMaxLength" xml:space="preserve"><value>Category name must contain no more than 50 characters.</value></data>

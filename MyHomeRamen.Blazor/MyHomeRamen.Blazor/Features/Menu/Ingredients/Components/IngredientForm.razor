@@ -21,17 +21,6 @@
                       Disabled="IsSubmitting"
                       Error="@HasError(nameof(Model.Description))"
                       ErrorText="@GetError(nameof(Model.Description))" />
-        <MudNumericField @bind-Value="Model.Price"
-                         For="@(() => Model.Price)"
-                         Label="@Text["Price"]"
-                         Variant="Variant.Outlined"
-                         Adornment="Adornment.Start"
-                         AdornmentText="$"
-                         Min="0.0m"
-                         Max="50.0m"
-                         Disabled="IsSubmitting"
-                         Error="@HasError(nameof(Model.Price))"
-                         ErrorText="@GetError(nameof(Model.Price))" />
         <MudSelect T="Guid"
                    @bind-SelectedValues="Model.CategoryIds"
                    Label="@Text["Categories"]"
