@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Restaurant offers</value></data>
+  <data name="Heading" xml:space="preserve"><value>Restaurant offers</value></data>
+  <data name="CreatePageTitle" xml:space="preserve"><value>Add restaurant offer</value></data>
+  <data name="CreateHeading" xml:space="preserve"><value>Add restaurant offer</value></data>
+  <data name="EditPageTitle" xml:space="preserve"><value>Edit offer price</value></data>
+  <data name="EditHeading" xml:space="preserve"><value>Edit offer price</value></data>
+  <data name="RetirePageTitle" xml:space="preserve"><value>Retire restaurant offer</value></data>
+  <data name="Product" xml:space="preserve"><value>Catalog product</value></data>
+  <data name="Price" xml:space="preserve"><value>Offer price ({0})</value></data>
+  <data name="Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Active" xml:space="preserve"><value>Offered</value></data>
+  <data name="Retired" xml:space="preserve"><value>Retired</value></data>
+  <data name="UnknownStatus" xml:space="preserve"><value>Unknown</value></data>
+  <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Create" xml:space="preserve"><value>Add product</value></data>
+  <data name="EditPrice" xml:space="preserve"><value>Edit price</value></data>
+  <data name="Retire" xml:space="preserve"><value>Retire offer</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading restaurant offers...</value></data>
+  <data name="LoadingForm" xml:space="preserve"><value>Loading offer details...</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Restaurant offers could not be loaded. Please try again.</value></data>
+  <data name="InvalidRestaurantContext" xml:space="preserve"><value>Restaurant context is invalid.</value></data>
+  <data name="ValidationFailure" xml:space="preserve"><value>Review highlighted fields and correct invalid values.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>Something went wrong. Please try again.</value></data>
+  <data name="Empty" xml:space="preserve"><value>No products are offered by this restaurant yet.</value></data>
+  <data name="NoEligibleProducts" xml:space="preserve"><value>No eligible catalog products are available.</value></data>
+  <data name="NoCreatePermission" xml:space="preserve"><value>You cannot add offers for this restaurant.</value></data>
+  <data name="NoEditPermission" xml:space="preserve"><value>This offer cannot be edited.</value></data>
+  <data name="NoRetirePermission" xml:space="preserve"><value>This offer cannot be retired.</value></data>
+  <data name="OfferNotFound" xml:space="preserve"><value>Offer was not found for this restaurant.</value></data>
+  <data name="PriceExplanation" xml:space="preserve"><value>Offer price applies to every menu-card listing of this product. Base ingredients are included in offer price; custom ingredients need an offer configuration and a restaurant price. Price changes apply immediately.</value></data>
+  <data name="CreateSuccess" xml:space="preserve"><value>Restaurant offer added.</value></data>
+  <data name="UpdateSuccess" xml:space="preserve"><value>Offer price updated. Change applies immediately.</value></data>
+  <data name="RetireSuccess" xml:space="preserve"><value>Restaurant offer retired.</value></data>
+  <data name="RetirementConfirmTitle" xml:space="preserve"><value>Retire restaurant offer?</value></data>
+  <data name="RetirementConfirmMessage" xml:space="preserve"><value>Retire offer for {0}? This does not retire catalog product.</value></data>
+  <data name="Retiring" xml:space="preserve"><value>Retiring...</value></data>
+  <data name="CreateError" xml:space="preserve"><value>Restaurant offer could not be added.</value></data>
+  <data name="UpdateError" xml:space="preserve"><value>Offer price could not be updated.</value></data>
+  <data name="RetireError" xml:space="preserve"><value>Restaurant offer could not be retired.</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="CreateButton" xml:space="preserve"><value>Add offer</value></data>
+  <data name="Save" xml:space="preserve"><value>Save price</value></data>
+  <data name="Saving" xml:space="preserve"><value>Saving...</value></data>
+  <data name="NameRequired" xml:space="preserve"><value>Select a product.</value></data>
+  <data name="PriceRequired" xml:space="preserve"><value>Offer price must be greater than zero.</value></data>
+</root>

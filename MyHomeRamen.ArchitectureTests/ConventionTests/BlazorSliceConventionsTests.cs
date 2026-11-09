@@ -8,13 +8,15 @@ namespace MyHomeRamen.ArchitectureTests.ConventionTests;
 
 public sealed class BlazorSliceConventionsTests(ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
 {
-    // Restaurants and Menu Products, Categories, and Ingredients use slice architecture.
+    // Restaurants and Menu products, categories, ingredients, offers, and ingredient prices use slice architecture.
     private static readonly string[] FeaturesNamespaces =
     [
         "MyHomeRamen.Blazor.Features.Restaurants",
         "MyHomeRamen.Blazor.Features.Menu.Ingredients",
         "MyHomeRamen.Blazor.Features.Menu.Products",
-        "MyHomeRamen.Blazor.Features.Menu.Categories"
+        "MyHomeRamen.Blazor.Features.Menu.Categories",
+        "MyHomeRamen.Blazor.Features.Menu.Offers",
+        "MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices"
     ];
 
     [Fact]

@@ -1,0 +1,241 @@
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices.Components
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices.Models
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject RestaurantIngredientPricesApiClient RestaurantIngredientPricesApiClient
+@inject IStringLocalizer<RestaurantIngredientPricesResources> Text
+@inject IConfiguration Configuration
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["Heading"]' />
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_invalidRestaurantContext)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
+        @if (_submitError.HasError)
+        {
+            <MudAlert Severity="Severity.Error" Class="page-state">@_submitError.Message</MudAlert>
+        }
+        @if (_ingredientPendingRemoval is not null)
+        {
+            <MudAlert Severity="Severity.Warning" Class="mt-4">
+                <MudText Typo="Typo.h6">@Text["RemoveConfirmTitle"]</MudText>
+                <MudText>@Text["RemoveConfirmMessage", _ingredientPendingRemoval.IngredientName]</MudText>
+                <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
+                    <MudButton Variant="Variant.Text" Disabled="_isSubmitting" OnClick="CancelRemove">@Text["Cancel"]</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" Disabled="_isSubmitting" OnClick="ConfirmRemoveAsync">
+                        @if (_isSubmitting)
+                        {
+                            <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                            @Text["Removing"]
+                        }
+                        else
+                        {
+                            @Text["ConfirmRemove"]
+                        }
+                    </MudButton>
+                </MudStack>
+            </MudAlert>
+        }
+
+        @if (_selectedIngredient is not null && _formModel is not null)
+        {
+            <IngredientPriceForm Model="_formModel"
+                                 IngredientName="@_selectedIngredient.IngredientName"
+                                 Currency="@_currency"
+                                 IsSubmitting="_isSubmitting"
+                                 ErrorMessage="@_submitError.Message"
+                                 ValidationErrors="_submitError.ValidationErrors"
+                                 OnSubmit="SaveAsync"
+                                 OnCancel="CancelEdit" />
+        }
+
+        <IngredientPricesTable Items="_ingredients"
+                               CanCreate="_allowedActions?.CanCreate == true"
+                               CanEdit="_allowedActions?.CanEdit == true"
+                               CanRemove="_allowedActions?.CanRemove == true"
+                               Currency="@_currency"
+                               OnEdit="BeginEdit"
+                               OnRemove="BeginRemove" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
+
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _submitError = new();
+    private IReadOnlyList<RestaurantIngredientPriceViewModel> _ingredients = [];
+    private IngredientPriceAllowedActions? _allowedActions;
+    private RestaurantIngredientPriceViewModel? _selectedIngredient;
+    private RestaurantIngredientPriceViewModel? _ingredientPendingRemoval;
+    private IngredientPriceFormModel? _formModel;
+    private string _currency = string.Empty;
+    private bool _invalidRestaurantContext;
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _currency = Configuration["Currency"] ?? string.Empty;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            if (RestaurantId == Guid.Empty)
+            {
+                _invalidRestaurantContext = true;
+                return;
+            }
+
+            ApiResult<GetRestaurantIngredientPricesForManageResponse> result =
+                await RestaurantIngredientPricesApiClient.GetForManageAsync(RestaurantId);
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"])
+                || result is not ApiResult<GetRestaurantIngredientPricesForManageResponse>.Success success)
+            {
+                return;
+            }
+
+            _ingredients = success.Value.Ingredients
+                .Select(RestaurantIngredientPriceViewModel.FromResponse)
+                .ToArray();
+            _allowedActions = success.Value.AllowedActions;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void BeginEdit(Guid ingredientId)
+    {
+        RestaurantIngredientPriceViewModel? ingredient = _ingredients.FirstOrDefault(item => item.IngredientId == ingredientId);
+        if (ingredient is null
+            || ingredient.Price.HasValue && _allowedActions?.CanEdit != true
+            || !ingredient.Price.HasValue && _allowedActions?.CanCreate != true)
+        {
+            return;
+        }
+
+        _submitError.Clear();
+        _ingredientPendingRemoval = null;
+        _selectedIngredient = ingredient;
+        _formModel = new IngredientPriceFormModel { Price = ingredient.Price ?? 0 };
+    }
+
+    private void CancelEdit()
+    {
+        _selectedIngredient = null;
+        _formModel = null;
+        _submitError.Clear();
+    }
+
+    private async Task SaveAsync(IngredientPriceFormModel model)
+    {
+        if (_selectedIngredient is null || _isSubmitting)
+        {
+            return;
+        }
+
+        bool isEdit = _selectedIngredient.Price.HasValue;
+        if (isEdit && _allowedActions?.CanEdit != true || !isEdit && _allowedActions?.CanCreate != true)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<bool> result = isEdit
+                ? await RestaurantIngredientPricesApiClient.UpdateAsync(
+                    _selectedIngredient.IngredientId,
+                    RestaurantId,
+                    model.ToRequest(_selectedIngredient.IngredientId))
+                : await RestaurantIngredientPricesApiClient.SetAsync(
+                    _selectedIngredient.IngredientId,
+                    RestaurantId,
+                    model.ToRequest(_selectedIngredient.IngredientId));
+            if (_submitError.Apply(result, Text["ValidationFailure"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(isEdit ? Text["UpdateSuccess"] : Text["SetSuccess"], Severity.Success);
+            _selectedIngredient = null;
+            _formModel = null;
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void BeginRemove(Guid ingredientId)
+    {
+        RestaurantIngredientPriceViewModel? ingredient = _ingredients.FirstOrDefault(item =>
+            item.IngredientId == ingredientId && item.Price.HasValue);
+        if (_allowedActions?.CanRemove == true && ingredient is not null)
+        {
+            _submitError.Clear();
+            _ingredientPendingRemoval = ingredient;
+            _selectedIngredient = null;
+            _formModel = null;
+        }
+    }
+
+    private void CancelRemove() => _ingredientPendingRemoval = null;
+
+    private async Task ConfirmRemoveAsync()
+    {
+        if (_ingredientPendingRemoval is null || _allowedActions?.CanRemove != true || _isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<bool> result = await RestaurantIngredientPricesApiClient.RemoveAsync(
+                _ingredientPendingRemoval.IngredientId,
+                RestaurantId);
+            if (_submitError.Apply(result, Text["UnexpectedError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["RemoveSuccess"], Severity.Success);
+            _ingredientPendingRemoval = null;
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+}

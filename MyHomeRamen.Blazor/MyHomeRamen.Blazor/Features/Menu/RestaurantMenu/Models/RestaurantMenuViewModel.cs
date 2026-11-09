@@ -1,5 +1,6 @@
-using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.DTOs;
+using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
+using MyHomeRamen.Blazor.Features.Menu.Offers.Shared;
 
 namespace MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Models;
 

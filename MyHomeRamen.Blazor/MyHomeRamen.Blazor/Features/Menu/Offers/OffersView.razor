@@ -1,0 +1,111 @@
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Components
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Models
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject OffersApiClient OffersApiClient
+@inject IStringLocalizer<OffersResources> Text
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["Heading"]'>
+        @if (!_isLoading && !_loadError.HasError && _allowedActions?.CanCreate == true)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Href="@OffersRoutes.Create(RestaurantId)">
+                @Text["Create"]
+            </MudButton>
+        }
+    </PageHeader>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_invalidRestaurantContext)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
+        <OffersTable Items="_offers"
+                     Currency="_currency"
+                     OnEditPrice="EditPrice"
+                     OnRetire="Retire" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
+
+    private readonly ApiErrorState _loadError = new();
+    private IReadOnlyList<OfferViewModel> _offers = [];
+    private OfferAllowedActions? _allowedActions;
+    private string _currency = string.Empty;
+    private bool _isLoading = true;
+    private bool _invalidRestaurantContext;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _currency = Configuration["Currency"] ?? string.Empty;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            if (RestaurantId == Guid.Empty)
+            {
+                _invalidRestaurantContext = true;
+                return;
+            }
+
+            ApiResult<GetOffersForManageResponse> result = await OffersApiClient.GetForManageAsync(RestaurantId);
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"])
+                || result is not ApiResult<GetOffersForManageResponse>.Success success)
+            {
+                return;
+            }
+
+            _offers = success.Value.Offers.Select(OfferViewModel.FromResponse).ToArray();
+            _allowedActions = success.Value.AllowedActions;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void EditPrice(Guid offerId)
+    {
+        OfferViewModel? offer = _offers.FirstOrDefault(item => item.OfferId == offerId);
+        if (offer?.CanEdit == true && offer.Status == OfferStatusCodes.Active)
+        {
+            NavigationManager.NavigateTo(OffersRoutes.EditPrice(RestaurantId, offerId));
+        }
+    }
+
+    private void Retire(Guid offerId)
+    {
+        OfferViewModel? offer = _offers.FirstOrDefault(item => item.OfferId == offerId);
+        if (offer?.CanRetire == true && offer.Status == OfferStatusCodes.Active)
+        {
+            NavigationManager.NavigateTo(OffersRoutes.Retire(RestaurantId, offerId));
+        }
+    }
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Restaurant ingredient prices</value></data>
+  <data name="Heading" xml:space="preserve"><value>Extra-ingredient prices</value></data>
+  <data name="Price" xml:space="preserve"><value>Price ({0})</value></data>
+  <data name="Ingredient" xml:space="preserve"><value>Catalog ingredient</value></data>
+  <data name="CurrentPrice" xml:space="preserve"><value>Restaurant price</value></data>
+  <data name="Unpriced" xml:space="preserve"><value>Not available as an extra</value></data>
+  <data name="Free" xml:space="preserve"><value>Free</value></data>
+  <data name="SetPrice" xml:space="preserve"><value>Set price</value></data>
+  <data name="EditPrice" xml:space="preserve"><value>Edit price</value></data>
+  <data name="RemovePrice" xml:space="preserve"><value>Remove price</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading restaurant ingredient prices...</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Restaurant ingredient prices could not be loaded. Please try again.</value></data>
+  <data name="InvalidRestaurantContext" xml:space="preserve"><value>Restaurant context is invalid.</value></data>
+  <data name="ValidationFailure" xml:space="preserve"><value>Review highlighted fields and correct invalid values.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>Something went wrong. Please try again.</value></data>
+  <data name="Empty" xml:space="preserve"><value>No catalog ingredients found.</value></data>
+  <data name="PriceExplanation" xml:space="preserve"><value>Base ingredients are included in offer price. Custom ingredients require an offer configuration and a restaurant price. Price changes apply immediately. Removing a price disables this ingredient as an extra only for this restaurant; it does not delete the catalog ingredient or remove its use as a base ingredient.</value></data>
+  <data name="Save" xml:space="preserve"><value>Save price</value></data>
+  <data name="Saving" xml:space="preserve"><value>Saving...</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="SetSuccess" xml:space="preserve"><value>Restaurant ingredient price set.</value></data>
+  <data name="UpdateSuccess" xml:space="preserve"><value>Restaurant ingredient price updated. Change applies immediately.</value></data>
+  <data name="RemoveSuccess" xml:space="preserve"><value>Restaurant ingredient price removed.</value></data>
+  <data name="RemoveConfirmTitle" xml:space="preserve"><value>Remove restaurant price?</value></data>
+  <data name="RemoveConfirmMessage" xml:space="preserve"><value>Remove price for {0}? This does not delete catalog ingredient.</value></data>
+  <data name="ConfirmRemove" xml:space="preserve"><value>Remove price</value></data>
+  <data name="Removing" xml:space="preserve"><value>Removing...</value></data>
+  <data name="PriceMinimum" xml:space="preserve"><value>Extra-ingredient price must be zero or greater.</value></data>
+</root>

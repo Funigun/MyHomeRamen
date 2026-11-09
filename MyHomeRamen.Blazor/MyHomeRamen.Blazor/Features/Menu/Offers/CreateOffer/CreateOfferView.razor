@@ -1,0 +1,134 @@
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Offers
+@using MyHomeRamen.Blazor.Features.Menu.Offers.CreateOffer.Components
+@using MyHomeRamen.Blazor.Features.Menu.Offers.CreateOffer.Models
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Models
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject OffersApiClient OffersApiClient
+@inject IStringLocalizer<OffersResources> Text
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["CreateHeading"]' />
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["LoadingForm"]</MudText>
+        </MudStack>
+    }
+    else if (_invalidRestaurantContext)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+    }
+    else if (!_canCreate)
+    {
+        <MudAlert Severity="Severity.Warning" Class="page-state">@Text["NoCreatePermission"]</MudAlert>
+    }
+    else if (_products.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="page-state">@Text["NoEligibleProducts"]</MudAlert>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
+        <CreateOfferForm Model="_model"
+                         Products="_products"
+                         Currency="@_currency"
+                         IsSubmitting="_isSubmitting"
+                         ErrorMessage="@_submitError.Message"
+                         ValidationErrors="_submitError.ValidationErrors"
+                         OnSubmit="CreateAsync"
+                         OnCancel="Cancel" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
+
+    private readonly CreateOfferFormModel _model = new();
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _submitError = new();
+    private IReadOnlyList<OfferProductOptionViewModel> _products = [];
+    private string _currency = string.Empty;
+    private bool _canCreate;
+    private bool _invalidRestaurantContext;
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _currency = Configuration["Currency"] ?? string.Empty;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            if (RestaurantId == Guid.Empty)
+            {
+                _invalidRestaurantContext = true;
+                return;
+            }
+
+            ApiResult<GetOffersForManageResponse> result = await OffersApiClient.GetForManageAsync(RestaurantId);
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"])
+                || result is not ApiResult<GetOffersForManageResponse>.Success success)
+            {
+                return;
+            }
+
+            _canCreate = success.Value.AllowedActions.CanCreate;
+            _products = success.Value.EligibleProducts
+                .Select(OfferProductOptionViewModel.FromResponse)
+                .ToArray();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task CreateAsync(CreateOfferFormModel model)
+    {
+        if (!_canCreate || _isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<OfferMutationResponse> result =
+                await OffersApiClient.CreateAsync(RestaurantId, model.ToRequest());
+            if (_submitError.Apply(result, Text["CreateError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["CreateSuccess"], Severity.Success);
+            NavigationManager.NavigateTo(OffersRoutes.Index(RestaurantId));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private Task Cancel()
+    {
+        NavigationManager.NavigateTo(OffersRoutes.Index(RestaurantId));
+        return Task.CompletedTask;
+    }
+}

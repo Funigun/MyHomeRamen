@@ -1,0 +1,139 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Offers
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Components
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Models
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject OffersApiClient OffersApiClient
+@inject IStringLocalizer<OffersResources> Text
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["RetirePageTitle"]' />
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["LoadingForm"]</MudText>
+        </MudStack>
+    }
+    else if (_invalidRestaurantContext)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+    }
+    else if (_offer is null)
+    {
+        <MudAlert Severity="Severity.Warning" Class="page-state">@_offerStateMessage</MudAlert>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">@Text["Cancel"]</MudButton>
+    }
+    else
+    {
+        @if (_submitError.HasError)
+        {
+            <MudAlert Severity="Severity.Error" Class="page-state">@_submitError.Message</MudAlert>
+        }
+        <OfferRetirementConfirmation Title='@Text["RetirementConfirmTitle"]'
+                                     Message='@Text["RetirementConfirmMessage", _offer.ProductName]'
+                                     CancelText='@Text["Cancel"]'
+                                     ConfirmText='@Text["Retire"]'
+                                     ConfirmingText='@Text["Retiring"]'
+                                     IsSubmitting="_isSubmitting"
+                                     OnConfirm="RetireAsync"
+                                     OnCancel="Cancel" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
+    [Parameter, EditorRequired] public Guid OfferId { get; set; }
+
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _submitError = new();
+    private OfferViewModel? _offer;
+    private string _offerStateMessage = string.Empty;
+    private bool _invalidRestaurantContext;
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            if (RestaurantId == Guid.Empty || OfferId == Guid.Empty)
+            {
+                _invalidRestaurantContext = true;
+                return;
+            }
+
+            ApiResult<GetOffersForManageResponse> result = await OffersApiClient.GetForManageAsync(RestaurantId);
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"])
+                || result is not ApiResult<GetOffersForManageResponse>.Success success)
+            {
+                return;
+            }
+
+            OfferForManageResponse? response = success.Value.Offers.FirstOrDefault(item => item.OfferId == OfferId);
+            if (response is null)
+            {
+                _offerStateMessage = Text["OfferNotFound"];
+                return;
+            }
+
+            OfferViewModel offer = OfferViewModel.FromResponse(response);
+            if (!offer.CanRetire || offer.Status != OfferStatusCodes.Active)
+            {
+                _offerStateMessage = Text["NoRetirePermission"];
+                return;
+            }
+
+            _offer = offer;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task RetireAsync()
+    {
+        if (_offer?.CanRetire != true || _isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<bool> result = await OffersApiClient.RetireAsync(OfferId, RestaurantId);
+            if (_submitError.Apply(result, Text["RetireError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["RetireSuccess"], Severity.Success);
+            NavigationManager.NavigateTo(OffersRoutes.Index(RestaurantId));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private Task Cancel()
+    {
+        NavigationManager.NavigateTo(OffersRoutes.Index(RestaurantId));
+        return Task.CompletedTask;
+    }
+}

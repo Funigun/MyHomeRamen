@@ -1,0 +1,71 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Offers
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Models
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
+
+@inject IStringLocalizer<OffersResources> Text
+
+@if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["Empty"]</MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="data-card-grid">
+        @foreach (OfferViewModel item in Items)
+        {
+            <MudItem xs="12" sm="6" lg="4">
+                <MudCard Outlined="true" Class="data-card">
+                    <MudCardContent Class="data-card-content">
+                        <MudText Typo="Typo.h6">@item.ProductName</MudText>
+                        <MudText Class="mt-2">@Text["Price", CurrencyLabel(item.Price)]</MudText>
+                        <MudChip T="string"
+                                 Color="@(item.Status == OfferStatusCodes.Active ? Color.Success : Color.Default)"
+                                 Variant="Variant.Outlined"
+                                 Class="mt-2">
+                            @StatusLabel(item.Status)
+                        </MudChip>
+                        @if (item.CanEdit || item.CanRetire)
+                        {
+                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="data-card-actions">
+                                @if (item.CanEdit && item.Status == OfferStatusCodes.Active)
+                                {
+                                    <MudButton Variant="Variant.Outlined"
+                                               StartIcon="@Icons.Material.Filled.Edit"
+                                               OnClick="@(() => OnEditPrice.InvokeAsync(item.OfferId))">
+                                        @Text["EditPrice"]
+                                    </MudButton>
+                                }
+                                @if (item.CanRetire && item.Status == OfferStatusCodes.Active)
+                                {
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Error"
+                                               StartIcon="@Icons.Material.Filled.Archive"
+                                               OnClick="@(() => OnRetire.InvokeAsync(item.OfferId))">
+                                        @Text["Retire"]
+                                    </MudButton>
+                                }
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<OfferViewModel> Items { get; set; } = [];
+    [Parameter] public string Currency { get; set; } = string.Empty;
+    [Parameter] public EventCallback<Guid> OnEditPrice { get; set; }
+    [Parameter] public EventCallback<Guid> OnRetire { get; set; }
+
+    private string CurrencyLabel(decimal price) => $"{price.ToString("N2")} {Currency}";
+
+    private string StatusLabel(string status) => status switch
+    {
+        OfferStatusCodes.Active => Text["Active"],
+        OfferStatusCodes.Retired => Text["Retired"],
+        _ => Text["UnknownStatus"]
+    };
+}

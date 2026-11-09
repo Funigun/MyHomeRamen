@@ -1,0 +1,75 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices.Models
+
+@inject IStringLocalizer<RestaurantIngredientPricesResources> Text
+
+@if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["Empty"]</MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="data-card-grid">
+        @foreach (RestaurantIngredientPriceViewModel item in Items)
+        {
+            <MudItem xs="12" sm="6" lg="4">
+                <MudCard Outlined="true" Class="data-card">
+                    <MudCardContent Class="data-card-content">
+                        <MudText Typo="Typo.h6">@item.IngredientName</MudText>
+                        <MudText Class="mt-2">
+                            @if (item.Price is decimal price)
+                            {
+                                @(Text["CurrentPrice"]) @CurrencyLabel(price)
+                                @if (price == 0)
+                                {
+                                    <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined" Class="ml-2">
+                                        @Text["Free"]
+                                    </MudChip>
+                                }
+                            }
+                            else
+                            {
+                                @Text["Unpriced"]
+                            }
+                        </MudText>
+                        @if (item.Price.HasValue && CanEdit || !item.Price.HasValue && CanCreate || item.Price.HasValue && CanRemove)
+                        {
+                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="data-card-actions">
+                                @if (!item.Price.HasValue && CanCreate || item.Price.HasValue && CanEdit)
+                                {
+                                    <MudButton Variant="Variant.Outlined"
+                                               StartIcon="@Icons.Material.Filled.Edit"
+                                               OnClick="@(() => OnEdit.InvokeAsync(item.IngredientId))">
+                                        @(item.Price.HasValue ? Text["EditPrice"] : Text["SetPrice"])
+                                    </MudButton>
+                                }
+                                @if (item.Price.HasValue && CanRemove)
+                                {
+                                    <MudButton Variant="Variant.Outlined"
+                                               Color="Color.Error"
+                                               StartIcon="@Icons.Material.Filled.Delete"
+                                               OnClick="@(() => OnRemove.InvokeAsync(item.IngredientId))">
+                                        @Text["RemovePrice"]
+                                    </MudButton>
+                                }
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<RestaurantIngredientPriceViewModel> Items { get; set; } = [];
+    [Parameter] public bool CanCreate { get; set; }
+    [Parameter] public bool CanEdit { get; set; }
+    [Parameter] public bool CanRemove { get; set; }
+    [Parameter] public string Currency { get; set; } = string.Empty;
+    [Parameter] public EventCallback<Guid> OnEdit { get; set; }
+    [Parameter] public EventCallback<Guid> OnRemove { get; set; }
+
+    private string CurrencyLabel(decimal price) => $"{price.ToString("N2")} {Currency}";
+}

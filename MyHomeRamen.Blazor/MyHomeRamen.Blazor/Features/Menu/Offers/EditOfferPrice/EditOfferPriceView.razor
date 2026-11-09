@@ -1,0 +1,145 @@
+@using Microsoft.Extensions.Configuration
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Offers
+@using MyHomeRamen.Blazor.Features.Menu.Offers.EditOfferPrice.Components
+@using MyHomeRamen.Blazor.Features.Menu.Offers.EditOfferPrice.Models
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Models
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject OffersApiClient OffersApiClient
+@inject IStringLocalizer<OffersResources> Text
+@inject IConfiguration Configuration
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["EditHeading"]' />
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["LoadingForm"]</MudText>
+        </MudStack>
+    }
+    else if (_invalidRestaurantContext)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+    }
+    else if (_offer is null)
+    {
+        <MudAlert Severity="Severity.Warning" Class="page-state">@_offerStateMessage</MudAlert>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
+        <EditOfferPriceForm Model="_model"
+                            ProductName="@_offer.ProductName"
+                            Currency="@_currency"
+                            IsSubmitting="_isSubmitting"
+                            ErrorMessage="@_submitError.Message"
+                            ValidationErrors="_submitError.ValidationErrors"
+                            OnSubmit="UpdateAsync"
+                            OnCancel="Cancel" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
+    [Parameter, EditorRequired] public Guid OfferId { get; set; }
+
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _submitError = new();
+    private OfferViewModel? _offer;
+    private EditOfferPriceFormModel _model = new();
+    private string _currency = string.Empty;
+    private string _offerStateMessage = string.Empty;
+    private bool _invalidRestaurantContext;
+    private bool _isLoading = true;
+    private bool _isSubmitting;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _currency = Configuration["Currency"] ?? string.Empty;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            if (RestaurantId == Guid.Empty || OfferId == Guid.Empty)
+            {
+                _invalidRestaurantContext = true;
+                return;
+            }
+
+            ApiResult<GetOffersForManageResponse> result = await OffersApiClient.GetForManageAsync(RestaurantId);
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"])
+                || result is not ApiResult<GetOffersForManageResponse>.Success success)
+            {
+                return;
+            }
+
+            OfferForManageResponse? response = success.Value.Offers.FirstOrDefault(item => item.OfferId == OfferId);
+            if (response is null)
+            {
+                _offerStateMessage = Text["OfferNotFound"];
+                return;
+            }
+
+            _offer = OfferViewModel.FromResponse(response);
+            if (!_offer.CanEdit || _offer.Status != OfferStatusCodes.Active)
+            {
+                _offer = null;
+                _offerStateMessage = Text["NoEditPermission"];
+                return;
+            }
+
+            _model = new EditOfferPriceFormModel { Price = _offer.Price };
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task UpdateAsync(EditOfferPriceFormModel model)
+    {
+        if (_offer?.CanEdit != true || _isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<bool> result = await OffersApiClient.UpdatePriceAsync(
+                OfferId,
+                RestaurantId,
+                model.ToRequest());
+            if (_submitError.Apply(result, Text["UpdateError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["UpdateSuccess"], Severity.Success);
+            NavigationManager.NavigateTo(OffersRoutes.Index(RestaurantId));
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private Task Cancel()
+    {
+        NavigationManager.NavigateTo(OffersRoutes.Index(RestaurantId));
+        return Task.CompletedTask;
+    }
+}

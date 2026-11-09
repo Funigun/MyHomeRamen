@@ -26,15 +26,3 @@ public sealed record MenuOfferContract(
     IEnumerable<MenuCardIngredientContract> Ingredients);
 
 public sealed record MenuCardIngredientContract(Guid Id, string Name, bool IsCustom);
-
-public sealed record OfferIngredientContract(Guid Id, string Name, decimal Price);
-
-public sealed record GetOfferCustomizationResponse(
-    Guid OfferId,
-    Guid ProductId,
-    string Name,
-    string Description,
-    decimal Price,
-    string ImageUrl,
-    IEnumerable<OfferIngredientContract> BaseIngredients,
-    IEnumerable<OfferIngredientContract> AvailableExtras);

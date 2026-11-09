@@ -9,4 +9,6 @@ public static class AdminSectionConstants
     public const string RestaurantManagement = "restaurant-management";
     public const string ProductsManagement = "products-management";
     public const string IngredientsManagement = "ingredients-management";
+    public const string OfferManagement = "offer-management";
+    public const string IngredientPriceManagement = "ingredient-price-management";
 }

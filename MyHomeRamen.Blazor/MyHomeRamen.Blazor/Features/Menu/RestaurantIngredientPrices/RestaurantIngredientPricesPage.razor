@@ -1,0 +1,16 @@
+@attribute [Route(RestaurantIngredientPricesRoutes.IndexTemplate)]
+@attribute [Authorize(Policy = AdminSectionConstants.IngredientPriceManagement)]
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<RestaurantIngredientPricesResources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+<RestaurantIngredientPricesView RestaurantId="RestaurantId" />
+
+@code {
+    [Parameter] public Guid RestaurantId { get; set; }
+}

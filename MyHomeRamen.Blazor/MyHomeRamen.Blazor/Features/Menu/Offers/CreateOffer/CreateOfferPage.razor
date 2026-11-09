@@ -1,0 +1,16 @@
+@attribute [Route(OffersRoutes.CreateTemplate)]
+@attribute [Authorize(Policy = AdminSectionConstants.OfferManagement)]
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<OffersResources> Text
+
+<PageTitle>@Text["CreatePageTitle"]</PageTitle>
+<CreateOfferView RestaurantId="RestaurantId" />
+
+@code {
+    [Parameter] public Guid RestaurantId { get; set; }
+}

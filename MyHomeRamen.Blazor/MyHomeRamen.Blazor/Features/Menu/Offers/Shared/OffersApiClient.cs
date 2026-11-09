@@ -1,5 +1,4 @@
 using System.Net;
-using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
 using MyHomeRamen.Blazor.Infrastructure.Api;
 
 namespace MyHomeRamen.Blazor.Features.Menu.Offers.Shared;
@@ -14,6 +13,89 @@ public sealed class OffersApiClient(HttpClient httpClient, ApiService apiService
         Guid restaurantId,
         CancellationToken cancellationToken = default)
         => apiService.ExecuteAsync(() => GetForCustomizationCoreAsync(offerId, restaurantId, cancellationToken));
+
+    public Task<ApiResult<GetOffersForManageResponse>> GetForManageAsync(
+        Guid restaurantId,
+        CancellationToken cancellationToken = default)
+        => apiService.ExecuteAsync(() => GetForManageCoreAsync(restaurantId, cancellationToken));
+
+    public Task<ApiResult<OfferMutationResponse>> CreateAsync(
+        Guid restaurantId,
+        CreateOfferRequest requestBody,
+        CancellationToken cancellationToken = default)
+        => apiService.ExecuteAsync(() => CreateCoreAsync(restaurantId, requestBody, cancellationToken));
+
+    public Task<ApiResult<bool>> UpdatePriceAsync(
+        Guid offerId,
+        Guid restaurantId,
+        UpdateOfferPriceRequest requestBody,
+        CancellationToken cancellationToken = default)
+        => apiService.ExecuteAsync(() => UpdatePriceCoreAsync(offerId, restaurantId, requestBody, cancellationToken));
+
+    public Task<ApiResult<bool>> RetireAsync(
+        Guid offerId,
+        Guid restaurantId,
+        CancellationToken cancellationToken = default)
+        => apiService.ExecuteAsync(() => RetireCoreAsync(offerId, restaurantId, cancellationToken));
+
+    private async Task<GetOffersForManageResponse> GetForManageCoreAsync(
+        Guid restaurantId,
+        CancellationToken cancellationToken)
+    {
+        using HttpRequestMessage request = RestaurantContextApiRequest.Create(
+            HttpMethod.Get,
+            $"{BaseUrl}/manage",
+            restaurantId);
+        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+
+        return await response.Content.ReadFromJsonAsync<GetOffersForManageResponse>(cancellationToken: cancellationToken)
+            ?? throw new ApiRequestException(HttpStatusCode.InternalServerError, FailureMessage);
+    }
+
+    private async Task<OfferMutationResponse> CreateCoreAsync(
+        Guid restaurantId,
+        CreateOfferRequest requestBody,
+        CancellationToken cancellationToken)
+    {
+        using HttpRequestMessage request = RestaurantContextApiRequest.Create(HttpMethod.Post, BaseUrl, restaurantId);
+        request.Content = JsonContent.Create(requestBody);
+        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+
+        return await response.Content.ReadFromJsonAsync<OfferMutationResponse>(cancellationToken: cancellationToken)
+            ?? throw new ApiRequestException(HttpStatusCode.InternalServerError, FailureMessage);
+    }
+
+    private async Task<bool> UpdatePriceCoreAsync(
+        Guid offerId,
+        Guid restaurantId,
+        UpdateOfferPriceRequest requestBody,
+        CancellationToken cancellationToken)
+    {
+        using HttpRequestMessage request = RestaurantContextApiRequest.Create(
+            HttpMethod.Put,
+            $"{BaseUrl}/{offerId}",
+            restaurantId);
+        request.Content = JsonContent.Create(requestBody);
+        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+        return true;
+    }
+
+    private async Task<bool> RetireCoreAsync(
+        Guid offerId,
+        Guid restaurantId,
+        CancellationToken cancellationToken)
+    {
+        using HttpRequestMessage request = RestaurantContextApiRequest.Create(
+            HttpMethod.Delete,
+            $"{BaseUrl}/{offerId}",
+            restaurantId);
+        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+        return true;
+    }
 
     private async Task<GetOfferCustomizationResponse> GetForCustomizationCoreAsync(
         Guid offerId,
