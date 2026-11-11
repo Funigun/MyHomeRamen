@@ -119,7 +119,7 @@
                 return;
             }
 
-            _ingredients = success.Value.Ingredients
+            _ingredients = success.Value.Items
                 .Select(RestaurantIngredientPriceViewModel.FromResponse)
                 .ToArray();
             _allowedActions = success.Value.AllowedActions;

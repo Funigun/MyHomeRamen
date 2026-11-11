@@ -25,7 +25,10 @@ public sealed record GetRestaurantIngredientPricesForManageResponse(
     int Page,
     int PageSize,
     int TotalCount,
-    IEnumerable<RestaurantIngredientPriceForManageDto> Items);
+    IEnumerable<RestaurantIngredientPriceForManageDto> Items,
+    IngredientPriceAllowedActions AllowedActions);
+
+public sealed record IngredientPriceAllowedActions(bool CanCreate, bool CanEdit, bool CanRemove);
 
 public sealed class GetRestaurantIngredientPricesForManageEndpoint : IEndpoint
 {
@@ -37,7 +40,7 @@ public sealed class GetRestaurantIngredientPricesForManageEndpoint : IEndpoint
                 HandleAsync)
             .WithName("GetRestaurantIngredientPricesForManageEndpoint")
             .WithTags("Ingredient Prices")
-            .WithDescription("Returns restaurant ingredient prices for management.")
+            .WithDescription("Returns restaurant ingredient prices and allowed actions for management.")
             .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 

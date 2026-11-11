@@ -1,6 +1,7 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
@@ -36,16 +37,20 @@ public sealed class UpdateCategoriesOrderValidator : AbstractValidator<UpdateCat
     }
 }
 
-public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext) : IRequestHandler<UpdateCategoriesOrderCommand, Unit>
+public sealed class UpdateCategoriesOrderHandler(IMenuDbContext dbContext, ICacheService cacheService) : IRequestHandler<UpdateCategoriesOrderCommand, Unit>
 {
     public async Task<Unit> Handle(UpdateCategoriesOrderCommand command, CancellationToken cancellationToken)
     {
         UpdateCategoriesOrderRequest request = command.Request;
         IEnumerable<CategoryId> ids = request.Items.Select(i => (CategoryId)i.Id);
 
-        IEnumerable<Category> categories = await dbContext.Category.Load().ByIds(ids, cancellationToken);
+        List<Category> categories = (await dbContext.Category.Load().ByIds(ids, cancellationToken)).ToList();
 
         await ReorderCategories(categories, request, cancellationToken);
+        IEnumerable<string> cacheTags = categories
+            .Select(category => CategoryCacheTags.ByType(category.CategoryType))
+            .Distinct(StringComparer.Ordinal);
+        await cacheService.RemoveByTagsAsync(cacheTags, cancellationToken);
 
         return Unit.Value;
     }

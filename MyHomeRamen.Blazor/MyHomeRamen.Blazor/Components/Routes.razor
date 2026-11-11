@@ -30,7 +30,7 @@ else if (_loadError.HasError)
 else if (_status is { IsComplete: false })
 {
     <LayoutView Layout="typeof(CompanySetupLayout)">
-        <CompanySetupPage Status="_status" />
+        <CompanySetupPage Status="_status" OnStatusChanged="UpdateSetupStatus" />
     </LayoutView>
 }
 else if (IsSetupLocation(NavigationManager.Uri))
@@ -111,6 +111,11 @@ else
                 AuthenticationRoutes.Login,
                 new NavigationOptions { ForceLoad = true, ReplaceHistoryEntry = true });
         }
+    }
+
+    private void UpdateSetupStatus(CompanySetupStatusResponse status)
+    {
+        _status = status;
     }
 
     private static bool IsSetupLocation(string location)

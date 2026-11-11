@@ -20,16 +20,23 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
     private IEnumerable<Product> _products = [];
     private (string KeycloakUserId, Guid UserId) _userId;
     private readonly IEnumerable<string> _requiredPermissions = [PermissionConstants.CanManageProducts];
+    private string _testSuffix = string.Empty;
 
     public async ValueTask InitializeAsync()
     {
+        _testSuffix = Guid.CreateVersion7().ToString("N")[..12];
         _userId = await apiFactory.IdentityTestData.SeedUser(_requiredPermissions, "get-products-manage-user");
-        IEnumerable<Category> productCategories = DataGenerator.CreateProductCategories(3);
-        Category ingredientCategory = DataGenerator.CreateIngredientCategory();
-        Ingredient ingredient = DataGenerator.CreateIngredient(ingredientCategory);
-        _product = DataGenerator.CreateProduct([ingredient], [], productCategories.First());
-        Product secondProduct = DataGenerator.CreateProduct([ingredient], [], productCategories.Skip(1).First());
-        Product thirdProduct = DataGenerator.CreateProduct([ingredient], [], productCategories.Skip(2).First());
+        List<Category> productCategories =
+        [
+            DataGenerator.CreateProductCategory($"Product Category 1 {_testSuffix}", 1),
+            DataGenerator.CreateProductCategory($"Product Category 2 {_testSuffix}", 2),
+            DataGenerator.CreateProductCategory($"Product Category 3 {_testSuffix}", 3)
+        ];
+        Category ingredientCategory = DataGenerator.CreateIngredientCategory($"Ingredient Category {_testSuffix}");
+        Ingredient ingredient = DataGenerator.CreateIngredient(ingredientCategory, $"Ingredient {_testSuffix}");
+        _product = DataGenerator.CreateProduct([ingredient], [], productCategories[0], $"Product 1 {_testSuffix}");
+        Product secondProduct = DataGenerator.CreateProduct([ingredient], [], productCategories[1], $"Product 2 {_testSuffix}");
+        Product thirdProduct = DataGenerator.CreateProduct([ingredient], [], productCategories[2], $"Product 3 {_testSuffix}");
         _products = [_product, secondProduct, thirdProduct];
 
         apiFactory.MenuDbContext.Category.AddRange(productCategories);
@@ -57,7 +64,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
         Assert.NotEmpty(result.Products);
         Assert.False(result.AllowedActions.CanCreate);
         Assert.False(result.AllowedActions.CanEdit);
-        Assert.False(result.AllowedActions.CanDelete);
+        Assert.False(result.AllowedActions.CanRetire);
     }
 
     [Fact]
@@ -85,7 +92,7 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
             Assert.NotNull(result);
             Assert.True(result.AllowedActions.CanCreate);
             Assert.False(result.AllowedActions.CanEdit);
-            Assert.True(result.AllowedActions.CanDelete);
+            Assert.True(result.AllowedActions.CanRetire);
         }
         finally
         {

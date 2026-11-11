@@ -31,9 +31,12 @@ public sealed record GetMenuCardsForManageQueryOptions(
                 && (!Request.IsActive.HasValue || card.IsActive == Request.IsActive.Value)
                 && (string.IsNullOrWhiteSpace(Request.Name)
                     || card.Name.ToLower().Contains(Request.Name.ToLower())),
-            OrderBy = string.Equals(Request.SortBy, "IsActive", StringComparison.OrdinalIgnoreCase)
-                ? card => card.IsActive
-                : card => card.Name,
+            OrderBy = Request.SortBy?.ToUpperInvariant() switch
+            {
+                "NAME" => card => card.Name,
+                "ISACTIVE" => card => card.IsActive,
+                _ => card => card.SortOrder
+            },
             OrderDirection = string.Equals(Request.SortOrder, "desc", StringComparison.OrdinalIgnoreCase) ? "desc" : "asc",
             PageNumber = PageParameters.PageNumber,
             PageSize = PageParameters.PageSize,
@@ -41,7 +44,8 @@ public sealed record GetMenuCardsForManageQueryOptions(
                 card.Id.Value,
                 card.RestaurantId,
                 card.Name,
-                card.IsActive)
+                card.IsActive,
+                card.SortOrder)
         }
     );
 
@@ -62,7 +66,7 @@ public sealed class GetMenuCardsForManageAuthorizationPolicy(
 
 public sealed class GetMenuCardsForManageValidator : AbstractValidator<GetMenuCardsForManageQuery>
 {
-    private static readonly string[] SortFields = ["Name", "IsActive"];
+    private static readonly string[] SortFields = ["Name", "IsActive", "SortOrder"];
 
     public GetMenuCardsForManageValidator()
     {
@@ -77,7 +81,7 @@ public sealed class GetMenuCardsForManageValidator : AbstractValidator<GetMenuCa
             .WithMessage("Menu card name search must not exceed 200 characters.");
         RuleFor(query => query.Request.SortBy)
             .Must(sortBy => sortBy is null || SortFields.Contains(sortBy, StringComparer.OrdinalIgnoreCase))
-            .WithMessage("Sort field must be Name or IsActive.");
+            .WithMessage("Sort field must be Name, IsActive, or SortOrder.");
         RuleFor(query => query.Request.SortOrder)
             .Must(sortOrder => sortOrder is null
                 || sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase)
@@ -88,7 +92,8 @@ public sealed class GetMenuCardsForManageValidator : AbstractValidator<GetMenuCa
 
 public sealed class GetMenuCardsForManageHandler(
     IMenuDbContext dbContext,
-    ICompanyContext companyContext)
+    ICompanyContext companyContext,
+    ICurrentUser currentUser)
     : IRequestHandler<GetMenuCardsForManageQuery, GetMenuCardsForManageResponse>
 {
     public async Task<GetMenuCardsForManageResponse> Handle(
@@ -106,10 +111,28 @@ public sealed class GetMenuCardsForManageHandler(
             .Query()
             .ForManage(options, cancellationToken);
 
+        MenuCardAllowedActions allowedActions = new(
+            CanCreate: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId,
+                MenuPermissionConstants.CanManageMenuCards,
+                MenuPermissionConstants.CanAddMenuCard),
+            CanEdit: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId,
+                MenuPermissionConstants.CanManageMenuCards,
+                MenuPermissionConstants.CanEditMenuCard),
+            CanDelete: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId,
+                MenuPermissionConstants.CanManageMenuCards,
+                MenuPermissionConstants.CanDeleteMenuCard));
+
         return new GetMenuCardsForManageResponse(
             query.PageParameters.PageNumber,
             query.PageParameters.PageSize,
             result.TotalItems,
-            result.Items);
+            result.Items,
+            allowedActions);
     }
 }

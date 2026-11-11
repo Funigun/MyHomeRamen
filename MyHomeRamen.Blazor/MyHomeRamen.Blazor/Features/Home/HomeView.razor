@@ -1,45 +1,5 @@
-@using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Home.Components
 @using MyHomeRamen.Blazor.Features.Home.Models
-@using MyHomeRamen.Blazor.Features.Restaurants.Common.Services
-@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Components
-@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
-@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
-@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
-@using MyHomeRamen.Blazor.Infrastructure.Api
-
-@inject RestaurantApiClient RestaurantApiClient
-@inject RestaurantContextService RestaurantContextService
-@inject NavigationManager NavigationManager
-@inject IStringLocalizer<HomeResources> Text
-
-<MudPaper Elevation="3" Class="pa-4 pa-sm-6 mb-8">
-    <MudText Typo="Typo.h1" Class="mb-2">@Text["RestaurantPickerTitle"]</MudText>
-    <MudText Typo="Typo.body1" Class="mb-4">@Text["RestaurantPickerDescription"]</MudText>
-
-    @if (_isLoading)
-    {
-        <MudStack AlignItems="AlignItems.Center" Class="pa-6">
-            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
-            <MudText>@Text["Loading"]</MudText>
-        </MudStack>
-    }
-    else if (_loadError.HasError)
-    {
-        <MudAlert Severity="Severity.Error">@_loadError.Message</MudAlert>
-    }
-    else if (_restaurantOptions.Count == 0)
-    {
-        <MudAlert Severity="Severity.Info">@Text["Empty"]</MudAlert>
-    }
-    else
-    {
-        <RestaurantOptionsSelector Options="_restaurantOptions"
-                                    AddressLabel="@Text["Address"]"
-                                    SelectionLabel="@Text["BrowseRestaurant"]"
-                                    OnSelected="BrowseAsync" />
-    }
-</MudPaper>
 
 <BannerSection Model="_model.Hero" />
 <StorySection Model="_model.Story" />
@@ -48,7 +8,6 @@
 <LocationSection Model="_model.Atmosphere" />
 
 @code {
-    private readonly ApiErrorState _loadError = new();
     private readonly HomePageModel _model = new()
     {
         Hero = new BannerSectionModel
@@ -103,41 +62,4 @@
             AtmosphereImage = null,
         },
     };
-
-    private IReadOnlyList<RestaurantOptionViewModel> _restaurantOptions = [];
-    private bool _isLoading = true;
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            ApiResult<GetCustomerRestaurantOptionsResponse> result = await RestaurantApiClient.GetCustomerOptionsAsync();
-            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"]))
-            {
-                return;
-            }
-
-            if (result is ApiResult<GetCustomerRestaurantOptionsResponse>.Success success)
-            {
-                _restaurantOptions = success.Value.Restaurants
-                    .Select(RestaurantOptionViewModel.FromCustomerResponse)
-                    .ToArray();
-            }
-        }
-        finally
-        {
-            _isLoading = false;
-        }
-    }
-
-    private async Task BrowseAsync(Guid restaurantId)
-    {
-        if (!_restaurantOptions.Any(option => option.Id == restaurantId))
-        {
-            return;
-        }
-
-        await RestaurantContextService.SetCustomerRestaurantIdAsync(restaurantId);
-        NavigationManager.NavigateTo(RestaurantMenuRoutes.CustomerMenu);
-    }
 }

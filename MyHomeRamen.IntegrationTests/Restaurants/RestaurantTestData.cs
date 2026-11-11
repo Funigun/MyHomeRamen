@@ -71,6 +71,8 @@ public sealed class RestaurantTestData
             name,
             Address.Create($"{name} Street", "Warsaw", "00-001", Location.Create(52.2297, 21.0122)),
             isActive);
+        restaurant.UpdateContactDetails("+48123456789", "integration@example.test");
+        restaurant.UpdateBankAccount("1234567890", "Integration Bank", "123456789");
 
         company.AddRestaurant(restaurant);
         await restaurantsDbContext.SaveChangesAsync(cancellationToken);

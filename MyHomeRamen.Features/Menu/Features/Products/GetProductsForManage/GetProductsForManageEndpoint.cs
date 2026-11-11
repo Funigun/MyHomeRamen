@@ -6,7 +6,6 @@ using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
-using MyHomeRamen.Features.Common.Contracts;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
 
@@ -23,7 +22,9 @@ public sealed record GetProductsForManageResponse(
     int PageSize,
     int TotalCount,
     IEnumerable<ProductForManageDto> Products,
-    AllowedActionsDto AllowedActions);
+    ProductAllowedActionsDto AllowedActions);
+
+public sealed record ProductAllowedActionsDto(bool CanCreate, bool CanEdit, bool CanRetire);
 
 public sealed class GetProductsForManageEndpoint : IEndpoint
 {

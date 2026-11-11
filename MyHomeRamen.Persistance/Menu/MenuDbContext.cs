@@ -51,7 +51,7 @@ public sealed class MenuDbContext(DbContextOptions<MenuDbContext> options) : DbC
     }
 
     public Guid CompanyId => _companyContext.CompanyId
-        ?? throw new InvalidOperationException("A valid restaurant context is required for Menu data access.");
+        ?? throw new InvalidOperationException("A valid company context is required for Menu data access.");
 
     public Guid RestaurantId => _companyContext.RestaurantId
         ?? throw new InvalidOperationException("A valid restaurant context is required for Menu data access.");

@@ -1,11 +1,18 @@
 ﻿@attribute [Route(RestaurantRoutes.EditTemplate)]
-@attribute [Authorize(Policy = AuthenticationClaimConstants.CompanyOwnerPolicy)]
+@attribute [Authorize(Policy = AdminSectionConstants.RestaurantsManagement)]
 @layout CompanyOwnerLayout
 
 @using MyHomeRamen.Blazor.Components.Layout.Admin
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
 @using MyHomeRamen.Blazor.Infrastructure.Authentication
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 
-@code {
+@inject IStringLocalizer<RestaurantsResources> Text
 
+<PageTitle>@Text["EditPageTitle"]</PageTitle>
+<EditRestaurantView Id="Id" />
+
+@code {
+    [Parameter] public Guid Id { get; set; }
 }

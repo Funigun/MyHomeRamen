@@ -1,0 +1,85 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Restaurants.Common.Services
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Components
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject RestaurantApiClient RestaurantApiClient
+@inject RestaurantContextService RestaurantContextService
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<BrowseRestaurantsResources> Text
+
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["Heading"]' Description='@Text["Description"]' />
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@(_loadError.Message ?? Text["LoadError"])</MudAlert>
+        <MudButton Variant="Variant.Outlined" OnClick="LoadOptionsAsync">@Text["Retry"]</MudButton>
+    }
+    else if (_restaurantOptions.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="page-state">@Text["Empty"]</MudAlert>
+    }
+    else
+    {
+        <RestaurantOptionsSelector Options="_restaurantOptions"
+                                    AddressLabel="@Text["Address"]"
+                                    SelectionLabel="@Text["BrowseRestaurant"]"
+                                    OnSelected="BrowseAsync" />
+    }
+</MudPaper>
+
+@code {
+    private readonly ApiErrorState _loadError = new();
+    private IReadOnlyList<RestaurantOptionViewModel> _restaurantOptions = [];
+    private bool _isLoading = true;
+
+    protected override Task OnInitializedAsync() => LoadOptionsAsync();
+
+    private async Task LoadOptionsAsync()
+    {
+        _isLoading = true;
+        _loadError.Clear();
+
+        try
+        {
+            ApiResult<GetCustomerRestaurantOptionsResponse> result = await RestaurantApiClient.GetCustomerOptionsAsync();
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            if (result is ApiResult<GetCustomerRestaurantOptionsResponse>.Success success)
+            {
+                _restaurantOptions = success.Value.Restaurants
+                    .Select(RestaurantOptionViewModel.FromCustomerResponse)
+                    .ToArray();
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task BrowseAsync(Guid restaurantId)
+    {
+        if (!_restaurantOptions.Any(option => option.Id == restaurantId))
+        {
+            return;
+        }
+
+        await RestaurantContextService.SetCustomerRestaurantIdAsync(restaurantId);
+        NavigationManager.NavigateTo(RestaurantMenuRoutes.CustomerMenu);
+    }
+}

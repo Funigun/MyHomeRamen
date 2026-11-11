@@ -1,0 +1,15 @@
+@attribute [Route(RestaurantRoutes.BrowseRestaurants)]
+@attribute [AllowAnonymous]
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Components.Layout.AppLayout
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.BrowseRestaurants
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+
+@layout AppLayout
+
+@inject IStringLocalizer<BrowseRestaurantsResources> Text
+
+<PageTitle>@Text["PageTitle"]</PageTitle>
+
+<BrowseRestaurantsView />

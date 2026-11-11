@@ -3,6 +3,7 @@ using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Menu.Features.Products.GetProductByIdForManage;
 using MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
+using MyHomeRamen.Features.Menu.Features.Offers.GetRestaurantOffersForManage;
 
 namespace MyHomeRamen.Features.Menu.Features.Products.Common;
 
@@ -11,6 +12,8 @@ public interface IProductQuery
     Task<ProductByIdForManageDto?> GetByIdForManage(GetProductByIdForManageQueryOptions options, CancellationToken cancellationToken);
 
     Task<PagedResult<ProductForManageDto>> ForManage(GetProductsForManageQueryOptions options, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<EligibleProductForOfferDto>> EligibleForOffers(Guid restaurantId, CancellationToken cancellationToken);
 
     Task<bool> IsProductNameUnique(string name, CancellationToken cancellationToken);
 

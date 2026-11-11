@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="PageTitle" xml:space="preserve"><value>Menu cards</value></data>
+  <data name="Heading" xml:space="preserve"><value>Menu cards</value></data>
+  <data name="CreatePageTitle" xml:space="preserve"><value>Create menu card</value></data>
+  <data name="CreateHeading" xml:space="preserve"><value>Create menu card</value></data>
+  <data name="ViewPageTitle" xml:space="preserve"><value>Menu card details</value></data>
+  <data name="EditPageTitle" xml:space="preserve"><value>Edit menu card</value></data>
+  <data name="EditHeading" xml:space="preserve"><value>Edit menu card</value></data>
+  <data name="Create" xml:space="preserve"><value>Create card</value></data>
+  <data name="CardName" xml:space="preserve"><value>Card name</value></data>
+  <data name="NameRequired" xml:space="preserve"><value>Enter a card name.</value></data>
+  <data name="NameMaxLength" xml:space="preserve"><value>Card name cannot exceed 100 characters.</value></data>
+  <data name="Saving" xml:space="preserve"><value>Saving...</value></data>
+  <data name="Save" xml:space="preserve"><value>Save changes</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Loading" xml:space="preserve"><value>Loading menu cards...</value></data>
+  <data name="LoadingDetails" xml:space="preserve"><value>Loading menu card...</value></data>
+  <data name="LoadError" xml:space="preserve"><value>Menu card information could not be loaded.</value></data>
+  <data name="ValidationFailure" xml:space="preserve"><value>Review highlighted fields and correct invalid values.</value></data>
+  <data name="UnexpectedError" xml:space="preserve"><value>Something went wrong. Please try again.</value></data>
+  <data name="InvalidRestaurantContext" xml:space="preserve"><value>Restaurant context is invalid.</value></data>
+  <data name="Empty" xml:space="preserve"><value>No menu cards exist for this restaurant yet.</value></data>
+  <data name="NoCreatePermission" xml:space="preserve"><value>You cannot create menu cards for this restaurant.</value></data>
+  <data name="NoEditPermission" xml:space="preserve"><value>You cannot edit this menu card.</value></data>
+  <data name="NoDeletePermission" xml:space="preserve"><value>You cannot deactivate this menu card.</value></data>
+  <data name="NotFound" xml:space="preserve"><value>Menu card was not found for this restaurant.</value></data>
+  <data name="Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Inactive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="SortOrder" xml:space="preserve"><value>Order</value></data>
+  <data name="View" xml:space="preserve"><value>View</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Deactivate" xml:space="preserve"><value>Deactivate</value></data>
+  <data name="Activate" xml:space="preserve"><value>Activate</value></data>
+  <data name="MoveUp" xml:space="preserve"><value>Move up</value></data>
+  <data name="MoveDown" xml:space="preserve"><value>Move down</value></data>
+  <data name="DeactivateConfirmTitle" xml:space="preserve"><value>Deactivate menu card?</value></data>
+  <data name="DeactivateConfirmMessage" xml:space="preserve"><value>Deactivate {0}? It will no longer appear in the customer menu.</value></data>
+  <data name="DeactivateSuccess" xml:space="preserve"><value>Menu card deactivated.</value></data>
+  <data name="ActivateSuccess" xml:space="preserve"><value>Menu card activated.</value></data>
+  <data name="CreateSuccess" xml:space="preserve"><value>Menu card created.</value></data>
+  <data name="UpdateSuccess" xml:space="preserve"><value>Menu card updated.</value></data>
+  <data name="CreateError" xml:space="preserve"><value>Menu card could not be created.</value></data>
+  <data name="UpdateError" xml:space="preserve"><value>Menu card could not be updated.</value></data>
+  <data name="OrderError" xml:space="preserve"><value>Menu card order could not be updated.</value></data>
+  <data name="ActionError" xml:space="preserve"><value>Menu card action could not be completed.</value></data>
+  <data name="Sections" xml:space="preserve"><value>Sections</value></data>
+  <data name="SectionName" xml:space="preserve"><value>Section name</value></data>
+  <data name="NoSections" xml:space="preserve"><value>No sections have been added to this card.</value></data>
+  <data name="AddSection" xml:space="preserve"><value>Add section</value></data>
+  <data name="SaveSection" xml:space="preserve"><value>Save section</value></data>
+  <data name="RemoveSection" xml:space="preserve"><value>Remove section</value></data>
+  <data name="Listings" xml:space="preserve"><value>Offer listings</value></data>
+  <data name="NoListings" xml:space="preserve"><value>No offers are listed in this section.</value></data>
+  <data name="Offer" xml:space="preserve"><value>Restaurant offer</value></data>
+  <data name="AddOffer" xml:space="preserve"><value>Add offer</value></data>
+  <data name="RemoveListing" xml:space="preserve"><value>Remove offer listing</value></data>
+  <data name="SaveOrder" xml:space="preserve"><value>Save order</value></data>
+  <data name="UnavailableOffer" xml:space="preserve"><value>Offer unavailable or retired; listing retained.</value></data>
+  <data name="NoEligibleOffers" xml:space="preserve"><value>No eligible restaurant offers are available to list.</value></data>
+  <data name="OfferPrice" xml:space="preserve"><value>Restaurant offer price: {0}</value></data>
+  <data name="PriceExplanation" xml:space="preserve"><value>Offer price is managed in Offers and applies across every menu-card listing of that offer.</value></data>
+  <data name="NoSectionsAvailable" xml:space="preserve"><value>This menu card has no sections yet.</value></data>
+  <data name="BackToCards" xml:space="preserve"><value>Back to menu cards</value></data>
+</root>

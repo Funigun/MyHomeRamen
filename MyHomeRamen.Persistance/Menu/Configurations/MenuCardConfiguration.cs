@@ -15,6 +15,9 @@ public sealed class MenuCardConfiguration : IEntityTypeConfiguration<MenuCard>
             .HasMaxLength(MenuCardConstants.MaxNameLength)
             .IsRequired();
         builder.Property(card => card.IsActive).IsRequired();
+        builder.Property(card => card.SortOrder).IsRequired();
+
+        builder.HasIndex(card => new { card.RestaurantId, card.SortOrder });
 
         builder.HasMany(card => card.Sections)
             .WithOne(section => section.MenuCard)

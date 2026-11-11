@@ -7,6 +7,10 @@ namespace MyHomeRamen.Features.Menu.Features.MenuCards.Common;
 
 public interface IMenuCardQuery
 {
+    Task<int> GetNextSortOrder(Guid restaurantId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<Guid>> IdsByRestaurant(Guid restaurantId, CancellationToken cancellationToken);
+
     Task<PagedResult<MenuCardForManageDto>> ForManage(
         GetMenuCardsForManageQueryOptions options,
         CancellationToken cancellationToken);

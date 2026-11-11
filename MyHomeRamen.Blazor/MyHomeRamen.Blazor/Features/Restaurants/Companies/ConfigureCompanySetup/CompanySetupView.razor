@@ -62,6 +62,9 @@
     [Parameter, EditorRequired]
     public CompanySetupStatusResponse Status { get; set; } = default!;
 
+    [Parameter]
+    public EventCallback<CompanySetupStatusResponse> OnStatusChanged { get; set; }
+
     private readonly ApiErrorState _submitError = new();
     private readonly ApiErrorState _statusError = new();
     private CompanySetupStatusResponse _currentStatus = default!;
@@ -181,6 +184,7 @@
             _currentStatus = success.Value;
             if (_currentStatus.IsComplete)
             {
+                await OnStatusChanged.InvokeAsync(_currentStatus);
                 NavigationManager.NavigateTo(AuthenticationRoutes.Login, forceLoad: true);
             }
         }

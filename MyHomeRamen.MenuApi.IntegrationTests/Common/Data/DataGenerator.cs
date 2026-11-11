@@ -80,18 +80,25 @@ internal static class DataGenerator
                       );
            }).Generate();
 
-    internal static Product CreateProduct(Collection<Ingredient> baseIngredients, Collection<Ingredient> customIngredients, Category category)
+    internal static Product CreateProduct(
+        Collection<Ingredient> baseIngredients,
+        Collection<Ingredient> customIngredients,
+        Category category,
+        string? name = null)
     => new Faker<Product>()
        .CustomInstantiator(f =>
        {
-           string productName = f.RamenMenu().ProductName();
+           string productName = name ?? f.RamenMenu().ProductName();
+           string productDescription = name is null
+               ? f.RamenMenu().ProductDescription(productName)
+               : $"A valid product description for {productName}.";
 
            return Product.Create
                   (
                       Guid.CreateVersion7(),
                       TestTenant.CompanyId,
                       productName,
-                      f.RamenMenu().ProductDescription(productName),
+                      productDescription,
                       "",
                       baseIngredients,
                       customIngredients,

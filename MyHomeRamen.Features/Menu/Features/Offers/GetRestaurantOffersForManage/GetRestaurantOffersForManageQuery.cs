@@ -24,7 +24,9 @@ public sealed record GetRestaurantOffersForManageQueryOptions(
     GetRestaurantOffersForManageRequest Request,
     PageParameters PageParameters,
     ProductId? ProductId,
-    RestaurantProductOfferStatus? Status)
+    RestaurantProductOfferStatus? Status,
+    bool CanEdit,
+    bool CanRetire)
     : PagedDbQueryOptions<RestaurantProductOffer, RestaurantProductOfferForManageDto>
     (
         new()
@@ -50,7 +52,11 @@ public sealed record GetRestaurantOffersForManageQueryOptions(
                 offer.ProductId.Value,
                 offer.Product.Name,
                 offer.Price,
-                offer.Status.ToString())
+                offer.Status.ToString(),
+                new OfferAllowedActions(
+                    false,
+                    CanEdit && offer.Status == RestaurantProductOfferStatus.Active,
+                    CanRetire && offer.Status == RestaurantProductOfferStatus.Active))
         }
     );
 
@@ -105,7 +111,8 @@ public sealed class GetRestaurantOffersForManageValidator
 
 public sealed class GetRestaurantOffersForManageHandler(
     IMenuDbContext dbContext,
-    ICompanyContext companyContext)
+    ICompanyContext companyContext,
+    ICurrentUser currentUser)
     : IRequestHandler<GetRestaurantOffersForManageQuery, GetRestaurantOffersForManageResponse>
 {
     public async Task<GetRestaurantOffersForManageResponse> Handle(
@@ -114,6 +121,22 @@ public sealed class GetRestaurantOffersForManageHandler(
     {
         Guid restaurantId = companyContext.RestaurantId
             ?? throw new InvalidOperationException("A restaurant context is required for offer management.");
+        bool canManageOffers = currentUser.HasPermission(
+            "Menu",
+            MenuPermissionConstants.CanManageOffers,
+            restaurantId);
+        bool canCreateOffer = canManageOffers && currentUser.HasPermission(
+            "Menu",
+            MenuPermissionConstants.CanAddOffer,
+            restaurantId);
+        bool canEditOffer = canManageOffers && currentUser.HasPermission(
+            "Menu",
+            MenuPermissionConstants.CanEditOffer,
+            restaurantId);
+        bool canRetireOffer = canManageOffers && currentUser.HasPermission(
+            "Menu",
+            MenuPermissionConstants.CanDeleteOffer,
+            restaurantId);
         ProductId? productId = query.Request.ProductId is Guid requestedProductId
             ? new ProductId(requestedProductId)
             : null;
@@ -122,16 +145,23 @@ public sealed class GetRestaurantOffersForManageHandler(
             query.Request,
             query.PageParameters,
             productId,
-            query.Request.Status);
+            query.Request.Status,
+            canEditOffer,
+            canRetireOffer);
 
         PagedResult<RestaurantProductOfferForManageDto> result = await dbContext.RestaurantProductOffer
             .Query()
             .ForManage(options, cancellationToken);
+        IReadOnlyList<EligibleProductForOfferDto> eligibleProducts = canCreateOffer
+            ? await dbContext.Product.Query().EligibleForOffers(restaurantId, cancellationToken)
+            : [];
 
         return new GetRestaurantOffersForManageResponse(
             query.PageParameters.PageNumber,
             query.PageParameters.PageSize,
             result.TotalItems,
-            result.Items);
+            result.Items.ToArray(),
+            eligibleProducts,
+            new OfferAllowedActions(canCreateOffer, false, false));
     }
 }

@@ -6,6 +6,13 @@ namespace MyHomeRamen.Persistance.Menu;
 
 public partial class MenuCardRepository : IMenuCardLoader
 {
+    public async Task<IReadOnlyCollection<MenuCard>> ByRestaurant(
+        Guid restaurantId,
+        CancellationToken cancellationToken)
+        => await menuDbContext.MenuCards
+            .Where(card => card.RestaurantId == restaurantId)
+            .ToListAsync(cancellationToken);
+
     public async Task<MenuCard?> ByIdForActivation(
         MenuCardId menuCardId,
         Guid restaurantId,

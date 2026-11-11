@@ -1,0 +1,154 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
+@using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject RestaurantApiClient RestaurantApiClient
+@inject IStringLocalizer<RestaurantsResources> Text
+
+<MudPaper Elevation="3" Class="page-surface">
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["LoadingDetails"]</MudText>
+        </MudStack>
+    }
+    else if (_invalidRoute)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantId"]</MudAlert>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+    }
+    else if (_restaurant is not null)
+    {
+        <PageHeader Title="@_restaurant.Name">
+            <MudButton Variant="Variant.Text"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       Href="@RestaurantRoutes.Index">
+                @Text["BackToRestaurants"]
+            </MudButton>
+        </PageHeader>
+
+        <MudStack Spacing="3">
+            <MudChip T="string"
+                     Color="@(_restaurant.IsActive ? Color.Success : Color.Default)"
+                     Variant="Variant.Outlined">
+                @(_restaurant.IsActive ? Text["Active"] : Text["Inactive"])
+            </MudChip>
+
+            <MudGrid Spacing="3">
+                <MudItem xs="12" md="6">
+                    <MudPaper Outlined="true" Class="pa-4">
+                        <MudText Typo="Typo.h6" Class="form-section-title">@Text["AddressSection"]</MudText>
+                        <MudStack Spacing="2">
+                            <div>
+                                <MudText Typo="Typo.subtitle2">@Text["Street"]</MudText>
+                                <MudText>@_restaurant.Street</MudText>
+                            </div>
+                            <div>
+                                <MudText Typo="Typo.subtitle2">@Text["City"]</MudText>
+                                <MudText>@_restaurant.City</MudText>
+                            </div>
+                            <div>
+                                <MudText Typo="Typo.subtitle2">@Text["ZipCode"]</MudText>
+                                <MudText>@_restaurant.ZipCode</MudText>
+                            </div>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudPaper Outlined="true" Class="pa-4">
+                        <MudText Typo="Typo.h6" Class="form-section-title">@Text["ContactSection"]</MudText>
+                        <MudStack Spacing="2">
+                            <div>
+                                <MudText Typo="Typo.subtitle2">@Text["Phone"]</MudText>
+                                <MudText>@(string.IsNullOrWhiteSpace(_restaurant.Phone) ? Text["NotProvided"].Value : _restaurant.Phone)</MudText>
+                            </div>
+                            <div>
+                                <MudText Typo="Typo.subtitle2">@Text["Email"]</MudText>
+                                <MudText>@(string.IsNullOrWhiteSpace(_restaurant.Email) ? Text["NotProvided"].Value : _restaurant.Email)</MudText>
+                            </div>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+
+            <div>
+                <MudText Typo="Typo.h6" Class="form-section-title">@Text["RestaurantManagement"]</MudText>
+                <MudStack Row="true" Spacing="2" Class="flex-wrap">
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               Href="@OffersRoutes.Index(_restaurant.Id)">
+                        @Text["ManageOffers"]
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               Href="@RestaurantIngredientPricesRoutes.Index(_restaurant.Id)">
+                        @Text["ManageIngredientPrices"]
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               Href="@MenuCardRoutes.Index(_restaurant.Id)">
+                        @Text["ManageMenuCards"]
+                    </MudButton>
+                </MudStack>
+            </div>
+        </MudStack>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Warning" Class="page-state">@Text["RestaurantNotFound"]</MudAlert>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid Id { get; set; }
+
+    private readonly ApiErrorState _loadError = new();
+    private RestaurantDetailsViewModel? _restaurant;
+    private bool _isLoading = true;
+    private bool _invalidRoute;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _loadError.Clear();
+        _restaurant = null;
+        _invalidRoute = false;
+
+        try
+        {
+            if (Id == Guid.Empty)
+            {
+                _invalidRoute = true;
+                return;
+            }
+
+            ApiResult<GetRestaurantByIdResponse> result = await RestaurantApiClient.GetByIdAsync(Id);
+            if (_loadError.Apply(result, Text["RestaurantLoadError"], Text["UnexpectedError"])
+                || result is not ApiResult<GetRestaurantByIdResponse>.Success success)
+            {
+                return;
+            }
+
+            if (success.Value.Restaurant.Id != Id)
+            {
+                _invalidRoute = true;
+                return;
+            }
+
+            _restaurant = RestaurantDetailsViewModel.FromResponse(success.Value.Restaurant);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

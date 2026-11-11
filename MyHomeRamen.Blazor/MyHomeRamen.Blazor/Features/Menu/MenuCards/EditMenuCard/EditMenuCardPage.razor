@@ -1,0 +1,19 @@
+@attribute [Route(MenuCardRoutes.EditTemplate)]
+@attribute [Authorize(Policy = AdminSectionConstants.MenuCardManagement)]
+@layout AdminLayout
+
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Components.Layout.Admin
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
+
+@inject IStringLocalizer<MenuCardsResources> Text
+
+<PageTitle>@Text["EditPageTitle"]</PageTitle>
+<EditMenuCardView RestaurantId="RestaurantId" MenuCardId="MenuCardId" />
+
+@code {
+    [Parameter] public Guid RestaurantId { get; set; }
+    [Parameter] public Guid MenuCardId { get; set; }
+}

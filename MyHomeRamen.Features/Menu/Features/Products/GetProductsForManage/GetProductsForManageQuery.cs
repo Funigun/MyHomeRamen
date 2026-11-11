@@ -3,7 +3,6 @@ using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Domain.Menu.Ingredients;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Authorization;
-using MyHomeRamen.Features.Common.Contracts;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Common.Repository;
@@ -75,9 +74,9 @@ public sealed class GetProductsForManageHandler(IMenuDbContext dbContext, ICurre
             PageSize: query.PageParameters.PageSize,
             TotalCount: pagedResult.TotalItems,
             Products: pagedResult.Items,
-            AllowedActions: new AllowedActionsDto(
+            AllowedActions: new ProductAllowedActionsDto(
                 CanCreate: currentUser.CanManageProducts() && currentUser.CanAddProduct(),
                 CanEdit: currentUser.CanManageProducts() && currentUser.CanEditProduct(),
-                CanDelete: currentUser.CanManageProducts() && currentUser.CanDeleteProduct()));
+                CanRetire: currentUser.CanManageProducts() && currentUser.CanDeleteProduct()));
     }
 }

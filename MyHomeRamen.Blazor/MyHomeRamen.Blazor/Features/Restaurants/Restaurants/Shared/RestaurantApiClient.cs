@@ -13,6 +13,11 @@ public sealed class RestaurantApiClient(HttpClient httpClient, ApiService apiSer
     public Task<ApiResult<GetAvailableRestaurantsResponse>> GetAvailableAsync(CancellationToken cancellationToken = default) =>
         apiService.ExecuteAsync(() => GetAvailableCoreAsync(cancellationToken));
 
+    public Task<ApiResult<GetRestaurantByIdResponse>> GetByIdAsync(
+        Guid restaurantId,
+        CancellationToken cancellationToken = default) =>
+        apiService.ExecuteAsync(() => GetByIdCoreAsync(restaurantId, cancellationToken));
+
     public Task<ApiResult<GetEmployeeRestaurantOptionsResponse>> GetEmployeeOptionsAsync(
         CancellationToken cancellationToken = default) =>
         apiService.ExecuteAsync(() => GetEmployeeOptionsCoreAsync(cancellationToken));
@@ -48,6 +53,17 @@ public sealed class RestaurantApiClient(HttpClient httpClient, ApiService apiSer
         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
 
         return await response.Content.ReadFromJsonAsync<GetAvailableRestaurantsResponse>(cancellationToken: cancellationToken)
+            ?? throw new ApiRequestException(HttpStatusCode.InternalServerError, FailureMessage);
+    }
+
+    private async Task<GetRestaurantByIdResponse> GetByIdCoreAsync(
+        Guid restaurantId,
+        CancellationToken cancellationToken)
+    {
+        using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/{restaurantId}", cancellationToken);
+        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+
+        return await response.Content.ReadFromJsonAsync<GetRestaurantByIdResponse>(cancellationToken: cancellationToken)
             ?? throw new ApiRequestException(HttpStatusCode.InternalServerError, FailureMessage);
     }
 

@@ -1,6 +1,7 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
@@ -31,7 +32,7 @@ public sealed class CreateCategoryValidator : AbstractValidator<CreateCategoryCo
     }
 }
 
-public sealed class CreateCategoryHandler(IMenuDbContext dbContext) : IRequestHandler<CreateCategoryCommand, CreateCategoryResponse>
+public sealed class CreateCategoryHandler(IMenuDbContext dbContext, ICacheService cacheService) : IRequestHandler<CreateCategoryCommand, CreateCategoryResponse>
 {
     public async Task<CreateCategoryResponse> Handle(CreateCategoryCommand command, CancellationToken cancellationToken)
     {
@@ -41,6 +42,7 @@ public sealed class CreateCategoryHandler(IMenuDbContext dbContext) : IRequestHa
 
         dbContext.Category.Add(category);
         await dbContext.SaveChangesAsync(cancellationToken);
+        await cacheService.RemoveByTagsAsync([CategoryCacheTags.ByType(category.CategoryType)], cancellationToken);
 
         return new CreateCategoryResponse(category.Id.Value);
     }

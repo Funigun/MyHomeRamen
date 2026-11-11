@@ -11,6 +11,10 @@ public sealed class CompanyContextMiddleware(RequestDelegate next)
         bool isTenantScopedRequest = context.Request.Path.StartsWithSegments("/api/menu", StringComparison.OrdinalIgnoreCase)
                                   || context.Request.Path.StartsWithSegments("/api/payments", StringComparison.OrdinalIgnoreCase)
                                   || context.Request.Path.StartsWithSegments("/api/shopping-cart", StringComparison.OrdinalIgnoreCase);
+        bool isCompanyCatalogRequest =
+            context.Request.Path.StartsWithSegments("/api/menu/products", StringComparison.OrdinalIgnoreCase)
+            || context.Request.Path.StartsWithSegments("/api/menu/ingredients", StringComparison.OrdinalIgnoreCase)
+            || context.Request.Path.StartsWithSegments("/api/menu/categories", StringComparison.OrdinalIgnoreCase);
         bool isMenuCardOptionsRequest = context.Request.Path.Equals(
             "/api/menu/cards/options",
             StringComparison.OrdinalIgnoreCase);
@@ -20,7 +24,21 @@ public sealed class CompanyContextMiddleware(RequestDelegate next)
 
         if (!context.Request.Headers.TryGetValue(HeaderConstants.RestaurantId, out Microsoft.Extensions.Primitives.StringValues restaurantIdHeader))
         {
-            if (isTenantScopedRequest && !isMenuCardOptionsRequest && !isCurrentBasketDiscoveryRequest)
+            if (isCompanyCatalogRequest && context.User.Identity?.IsAuthenticated == true)
+            {
+                Guid? companyId = await restaurantService.GetCompanyIdAsync(context.RequestAborted);
+                if (!companyId.HasValue)
+                {
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    return;
+                }
+
+                companyContext.SetCompany(companyId.Value);
+            }
+            else if (isTenantScopedRequest
+                     && !isCompanyCatalogRequest
+                     && !isMenuCardOptionsRequest
+                     && !isCurrentBasketDiscoveryRequest)
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await context.Response.WriteAsJsonAsync(new { error = $"{HeaderConstants.RestaurantId} header is required." }, CancellationToken.None);

@@ -25,7 +25,8 @@ public sealed partial class RestaurantRepository(RestaurantsDbContext restaurant
 
         if (restaurantIds is not null)
         {
-            query = query.Where(restaurant => restaurantIds.Contains(restaurant.Id.Value));
+            RestaurantId[] typedRestaurantIds = restaurantIds.Select(restaurantId => new RestaurantId(restaurantId)).ToArray();
+            query = query.Where(restaurant => typedRestaurantIds.Contains(restaurant.Id));
         }
 
         return await query.OrderBy(restaurant => restaurant.CreatedOn)
@@ -45,7 +46,7 @@ public sealed partial class RestaurantRepository(RestaurantsDbContext restaurant
 
     public async Task<RestaurantInfo?> ForExternalApi(Guid restaurantId, CancellationToken cancellationToken)
         => await restaurantsDbContext.Restaurants.AsNoTracking()
-            .Where(restaurant => restaurant.Id.Value == restaurantId)
+            .Where(restaurant => restaurant.Id == new RestaurantId(restaurantId))
             .Select(restaurant => new RestaurantInfo(
                 restaurant.Id.Value,
                 EF.Property<CompanyId>(restaurant, "CompanyId").Value,

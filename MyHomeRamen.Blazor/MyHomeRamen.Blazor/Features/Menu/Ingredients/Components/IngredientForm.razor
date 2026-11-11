@@ -23,6 +23,7 @@
                       ErrorText="@GetError(nameof(Model.Description))" />
         <MudSelect T="Guid"
                    @bind-SelectedValues="Model.CategoryIds"
+                   ToStringFunc="GetCategoryName"
                    Label="@Text["Categories"]"
                    MultiSelection="true"
                    Variant="Variant.Outlined"
@@ -74,6 +75,9 @@
     {
         _validator = new IngredientFormModelValidator(Text);
     }
+
+    private string GetCategoryName(Guid categoryId)
+        => Categories.FirstOrDefault(category => category.Id == categoryId)?.Name ?? string.Empty;
 
     private async Task SubmitAsync()
     {

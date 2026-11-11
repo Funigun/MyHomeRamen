@@ -11,4 +11,5 @@ public static class AdminSectionConstants
     public const string IngredientsManagement = "ingredients-management";
     public const string OfferManagement = "offer-management";
     public const string IngredientPriceManagement = "ingredient-price-management";
+    public const string MenuCardManagement = "menu-card-management";
 }

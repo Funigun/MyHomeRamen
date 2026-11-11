@@ -64,7 +64,7 @@
         if (destination == UserDestinationConstants.CompanyOwner)
         {
             await RestaurantContextService.ClearEmployeeRestaurantAsync();
-            NavigateTo(RestaurantRoutes.CompanyOwnerHome);
+            NavigateTo(RestaurantRoutes.Index);
             return;
         }
 

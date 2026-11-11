@@ -57,6 +57,39 @@ public sealed class CreateCategoryTests(WebApiFactory apiFactory) : IClassFixtur
     }
 
     [Fact]
+    public async Task CreateCategory_ShouldRefreshCachedList_ForCategoryType()
+    {
+        using HttpRequestMessage getRequest = HttpClientExtensions.CreateGetMessage(
+            $"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}");
+        getRequest.AddAuthorizationHeader(_userId);
+        HttpResponseMessage initialResponse = await apiFactory.HttpClient.SendAsync(
+            getRequest,
+            TestContext.Current.CancellationToken);
+        await initialResponse.AssertStatusCode(HttpStatusCode.OK);
+
+        CreateCategoryRequest request = new($"Cache {Guid.NewGuid():N}", (int)CategoryType.Product);
+        using HttpRequestMessage postRequest = HttpClientExtensions.CreatePostMessage("/api/menu/categories");
+        postRequest.WithJsonContent(request);
+        postRequest.AddAuthorizationHeader(_userId);
+        HttpResponseMessage createResponse = await apiFactory.HttpClient.SendAsync(
+            postRequest,
+            TestContext.Current.CancellationToken);
+        await createResponse.AssertStatusCode(HttpStatusCode.Created);
+        CreateCategoryResponse createdCategory = await createResponse.ResponseToDto<CreateCategoryResponse>();
+
+        using HttpRequestMessage refreshRequest = HttpClientExtensions.CreateGetMessage(
+            $"/api/menu/categories/by-type?categoryType={(int)CategoryType.Product}");
+        refreshRequest.AddAuthorizationHeader(_userId);
+        HttpResponseMessage refreshResponse = await apiFactory.HttpClient.SendAsync(
+            refreshRequest,
+            TestContext.Current.CancellationToken);
+        await refreshResponse.AssertStatusCode(HttpStatusCode.OK);
+        GetCategoriesByTypeResponse result = await refreshResponse.ResponseToDto<GetCategoriesByTypeResponse>();
+
+        Assert.Contains(result.Categories, category => category.Id == createdCategory.Id);
+    }
+
+    [Fact]
     public async Task CreateCategory_ShouldReturnUnauthorized_ForNotAuthenticatedUser()
     {
         // Arrange

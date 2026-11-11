@@ -18,5 +18,15 @@ internal static class MenuCardValidator
         {
             throw MenuCardErrors.NameTooLong();
         }
+
+        ValidateSortOrder(card);
+    }
+
+    internal static void ValidateSortOrder(MenuCard card)
+    {
+        if (card.SortOrder < MenuCardConstants.MinSortOrder)
+        {
+            throw MenuCardErrors.SortOrderInvalid();
+        }
     }
 }

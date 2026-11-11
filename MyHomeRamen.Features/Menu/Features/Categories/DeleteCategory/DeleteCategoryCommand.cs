@@ -1,6 +1,7 @@
 using FluentValidation;
 using MyHomeRamen.Domain.Menu.Categories;
 using MyHomeRamen.Features.Common.Authorization;
+using MyHomeRamen.Features.Common.Cache;
 using MyHomeRamen.Features.Common.Endpoints.Policies;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Categories.Common;
@@ -29,7 +30,7 @@ public sealed class DeleteCategoryValidator : AbstractValidator<DeleteCategoryCo
     }
 }
 
-public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : IRequestHandler<DeleteCategoryCommand, Unit>
+public sealed class DeleteCategoryHandler(IMenuDbContext dbContext, ICacheService cacheService) : IRequestHandler<DeleteCategoryCommand, Unit>
 {
     public async Task<Unit> Handle(DeleteCategoryCommand command, CancellationToken cancellationToken)
     {
@@ -45,6 +46,7 @@ public sealed class DeleteCategoryHandler(IMenuDbContext dbContext) : IRequestHa
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        await cacheService.RemoveByTagsAsync([CategoryCacheTags.ByType(category.CategoryType)], cancellationToken);
         return Unit.Value;
     }
 }

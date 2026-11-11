@@ -1,10 +1,16 @@
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Components
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Models
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Api
+@using MyHomeRamen.Blazor.Infrastructure.Authentication
 
 @inject RestaurantApiClient RestaurantApiClient
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IAuthorizationService AuthorizationService
 @inject IStringLocalizer<RestaurantsResources> Text
 @inject NavigationManager NavigationManager
 
@@ -40,7 +46,12 @@
                          PhoneText='@Text["Phone"]'
                          EmailText='@Text["Email"]'
                          ActiveText='@Text["Active"]'
-                         InactiveText='@Text["Inactive"]' />
+                         InactiveText='@Text["Inactive"]'
+                         EditText='@Text["EditRestaurant"]'
+                         OnEdit="EditRestaurantAsync"
+                         ShowPreviewMenu="@_canPreviewMenu"
+                         PreviewMenuText='@Text["PreviewMenu"]'
+                         OnPreviewMenu="PreviewMenuAsync" />
     }
 </MudPaper>
 
@@ -49,11 +60,17 @@
     private readonly ApiErrorState _loadError = new();
     private bool _isLoading = true;
     private bool _canCreate;
+    private bool _canPreviewMenu;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            AuthenticationState state = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            _canPreviewMenu = (await AuthorizationService.AuthorizeAsync(
+                state.User,
+                AuthenticationClaimConstants.CompanyOwnerPolicy)).Succeeded;
+
             ApiResult<GetAvailableRestaurantsResponse> result = await RestaurantApiClient.GetAvailableAsync();
             _loadError.Apply(result, Text["LoadError"], Text["LoadError"]);
             if (result is ApiResult<GetAvailableRestaurantsResponse>.Success success)
@@ -72,6 +89,18 @@
     private Task CreateRestaurantAsync()
     {
         NavigationManager.NavigateTo(RestaurantRoutes.Create);
+        return Task.CompletedTask;
+    }
+
+    private Task EditRestaurantAsync(Guid restaurantId)
+    {
+        NavigationManager.NavigateTo(RestaurantRoutes.Edit(restaurantId));
+        return Task.CompletedTask;
+    }
+
+    private Task PreviewMenuAsync(Guid restaurantId)
+    {
+        NavigationManager.NavigateTo(RestaurantMenuRoutes.CompanyOwnerPreview(restaurantId));
         return Task.CompletedTask;
     }
 }

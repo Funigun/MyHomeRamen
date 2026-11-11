@@ -10,17 +10,31 @@
 <MudSnackbarProvider />
 
 <CascadingAuthenticationState>
-    <MudLayout Class="site-layout">
+    <MudLayout Class="site-layout" Style="padding-bottom: var(--footer-height)">
         <AppBar />
+
+        <MudDrawer Open="true"
+                   Variant="DrawerVariant.Persistent"
+                   Anchor="Anchor.Left"
+                   Elevation="2"
+                   ClipMode="DrawerClipMode.Always"
+                   Style="background-color: #FFDBC9; color: #877369; max-height: calc(100vh - var(--mud-appbar-height) - var(--footer-height)); overflow-y: auto;">
+            <MudDrawerHeader>
+                <MudText Typo="Typo.h6">Admin Panel</MudText>
+            </MudDrawerHeader>
+            <AdminNavMenu />
+        </MudDrawer>
+
         <MudMainContent>
-            <div class="app-page-content">
+            <div class="admin-page-content">
                 @Body
             </div>
         </MudMainContent>
-        <div class="site-footer">
-            <Footer />
-        </div>
     </MudLayout>
+
+    <div class="site-footer">
+        <Footer />
+    </div>
 </CascadingAuthenticationState>
 
 @code {

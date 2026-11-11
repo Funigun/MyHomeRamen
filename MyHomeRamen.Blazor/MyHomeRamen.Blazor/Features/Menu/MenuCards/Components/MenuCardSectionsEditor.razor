@@ -1,0 +1,108 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
+
+@inject IStringLocalizer<MenuCardsResources> Text
+
+<MudStack Spacing="3">
+    @if (Sections.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["NoSections"]</MudAlert>
+    }
+    @foreach (MenuCardSectionViewModel section in Sections)
+    {
+        <MudPaper Outlined="true" Class="pa-4">
+            <MudStack Spacing="3">
+                <MudText Typo="Typo.h6">@section.Name</MudText>
+                <MudGrid Spacing="3" Class="form-fields">
+                    <MudItem xs="12" sm="8">
+                        <MudTextField @bind-Value="section.Name"
+                                      Label="@Text["SectionName"]"
+                                      Variant="Variant.Outlined"
+                                      MaxLength="100"
+                                      Disabled="@(!CanEdit)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudNumericField T="int"
+                                         @bind-Value="section.SortOrder"
+                                         Label="@Text["SortOrder"]"
+                                         Variant="Variant.Outlined"
+                                         Disabled="@(!CanEdit)" />
+                    </MudItem>
+                </MudGrid>
+                @if (CanEdit)
+                {
+                    <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
+                        <MudButton Color="Color.Primary"
+                        Variant="Variant.Outlined"
+                        Disabled="@string.IsNullOrWhiteSpace(section.Name)"
+                        OnClick="@(() => OnUpdateSection.InvokeAsync((section.Id, new UpdateMenuSectionRequest(section.Name.Trim(), section.SortOrder))))">
+                            @Text["SaveSection"]
+                        </MudButton>
+                        <MudButton Color="Color.Error"
+                                   Variant="Variant.Text"
+                                   OnClick="@(() => OnDeleteSection.InvokeAsync(section.Id))">
+                            @Text["RemoveSection"]
+                        </MudButton>
+                    </MudStack>
+                }
+                <MenuSectionListingsEditor Section="section"
+                                           EligibleOffers="EligibleOffers"
+                                           CanEdit="CanEdit"
+                                           OnAddOffer="OnAddOffer"
+                                           OnUpdateOffer="OnUpdateOffer"
+                                           OnRemoveOffer="OnRemoveOffer" />
+            </MudStack>
+        </MudPaper>
+    }
+    @if (CanEdit)
+    {
+        <MudPaper Outlined="true" Class="pa-4">
+            <MudText Typo="Typo.h6">@Text["AddSection"]</MudText>
+            <MudStack Spacing="3" Class="form-fields">
+                <MudTextField @bind-Value="_newSectionName"
+                              Label="@Text["SectionName"]"
+                              Variant="Variant.Outlined" />
+                <MudNumericField T="int"
+                                 @bind-Value="_newSectionSortOrder"
+                                 Label="@Text["SortOrder"]"
+                                 Variant="Variant.Outlined" />
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Disabled="@string.IsNullOrWhiteSpace(_newSectionName)"
+                           OnClick="CreateSectionAsync">
+                    @Text["AddSection"]
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    }
+</MudStack>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<MenuCardSectionViewModel> Sections { get; set; } = [];
+    [Parameter, EditorRequired] public IReadOnlyList<MenuCardOfferChoiceViewModel> EligibleOffers { get; set; } = [];
+    [Parameter] public bool CanEdit { get; set; }
+    [Parameter, EditorRequired] public EventCallback<CreateMenuSectionRequest> OnCreateSection { get; set; }
+    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, UpdateMenuSectionRequest Request)> OnUpdateSection { get; set; }
+    [Parameter, EditorRequired] public EventCallback<Guid> OnDeleteSection { get; set; }
+    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, AddMenuCardOfferRequest Request)> OnAddOffer { get; set; }
+    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId, UpdateMenuCardOfferRequest Request)> OnUpdateOffer { get; set; }
+    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId)> OnRemoveOffer { get; set; }
+
+    private string _newSectionName = string.Empty;
+    private int _newSectionSortOrder;
+
+    protected override void OnParametersSet()
+    {
+        if (_newSectionSortOrder == 0 && Sections.Count > 0)
+        {
+            _newSectionSortOrder = Sections.Max(section => section.SortOrder) + 1;
+        }
+    }
+
+    private async Task CreateSectionAsync()
+    {
+        await OnCreateSection.InvokeAsync(new CreateMenuSectionRequest(_newSectionName.Trim(), _newSectionSortOrder));
+    }
+}

@@ -1,0 +1,2260 @@
+diff --git a/MyHomeRamen.ArchitectureTests/ConventionTests/BlazorSliceConventionsTests.cs b/MyHomeRamen.ArchitectureTests/ConventionTests/BlazorSliceConventionsTests.cs
+index 612f374..ab56bf0 100644
+--- a/MyHomeRamen.ArchitectureTests/ConventionTests/BlazorSliceConventionsTests.cs
++++ b/MyHomeRamen.ArchitectureTests/ConventionTests/BlazorSliceConventionsTests.cs
+@@ -8,7 +8,7 @@ namespace MyHomeRamen.ArchitectureTests.ConventionTests;
+ 
+ public sealed class BlazorSliceConventionsTests(ArchitectureBuilder architectureBuilder) : BaseArchitectureTest(architectureBuilder)
+ {
+-    // Restaurants and Menu products, categories, ingredients, offers, and ingredient prices use slice architecture.
++    // Restaurants and Menu products, categories, ingredients, offers, ingredient prices, and menu cards use slice architecture.
+     private static readonly string[] FeaturesNamespaces =
+     [
+         "MyHomeRamen.Blazor.Features.Restaurants",
+@@ -16,7 +16,8 @@ public sealed class BlazorSliceConventionsTests(ArchitectureBuilder architecture
+         "MyHomeRamen.Blazor.Features.Menu.Products",
+         "MyHomeRamen.Blazor.Features.Menu.Categories",
+         "MyHomeRamen.Blazor.Features.Menu.Offers",
+-        "MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices"
++        "MyHomeRamen.Blazor.Features.Menu.RestaurantIngredientPrices",
++        "MyHomeRamen.Blazor.Features.Menu.MenuCards"
+     ];
+ 
+     [Fact]
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/MenuCards/Shared/MenuCardApiContracts.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/MenuCards/Shared/MenuCardApiContracts.cs
+index c5741a5..eae792a 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/MenuCards/Shared/MenuCardApiContracts.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/MenuCards/Shared/MenuCardApiContracts.cs
+@@ -4,6 +4,64 @@ public sealed record GetMenuCardOptionsResponse(IEnumerable<MenuCardOptionContra
+ 
+ public sealed record MenuCardOptionContract(Guid CompanyId, Guid RestaurantId, Guid MenuCardId, string Name);
+ 
++public sealed record GetMenuCardsForManageResponse(
++    IEnumerable<MenuCardForManageContract> MenuCards,
++    MenuCardAllowedActions AllowedActions);
++
++public sealed record MenuCardForManageContract(
++    Guid MenuCardId,
++    Guid RestaurantId,
++    string Name,
++    bool IsActive,
++    int SortOrder,
++    MenuCardAllowedActions AllowedActions);
++
++public sealed record GetMenuCardForManageResponse(
++    Guid MenuCardId,
++    Guid RestaurantId,
++    string Name,
++    bool IsActive,
++    int SortOrder,
++    MenuCardAllowedActions AllowedActions,
++    IEnumerable<MenuSectionForManageContract> Sections,
++    IEnumerable<MenuCardOfferChoiceContract> EligibleOffers);
++
++public sealed record MenuCardAllowedActions(bool CanCreate, bool CanEdit, bool CanDelete);
++
++public sealed record MenuSectionForManageContract(
++    Guid Id,
++    string Name,
++    int SortOrder,
++    IEnumerable<MenuCardOfferListingContract> Offers);
++
++public sealed record MenuCardOfferListingContract(
++    Guid Id,
++    Guid OfferId,
++    string Name,
++    int SortOrder,
++    bool IsAvailable,
++    decimal? Price);
++
++public sealed record MenuCardOfferChoiceContract(Guid OfferId, string Name);
++
++public sealed record CreateMenuCardRequest(string Name);
++
++public sealed record UpdateMenuCardRequest(string Name);
++
++public sealed record MenuCardOrderItemRequest(Guid MenuCardId, int SortOrder);
++
++public sealed record UpdateMenuCardsOrderRequest(IEnumerable<MenuCardOrderItemRequest> MenuCards);
++
++public sealed record MenuCardMutationResponse(Guid MenuCardId);
++
++public sealed record CreateMenuSectionRequest(string Name, int SortOrder);
++
++public sealed record UpdateMenuSectionRequest(string Name, int SortOrder);
++
++public sealed record AddMenuCardOfferRequest(Guid OfferId, int SortOrder);
++
++public sealed record UpdateMenuCardOfferRequest(int SortOrder);
++
+ public sealed record MenuCardResponseContract(
+     Guid MenuCardId,
+     Guid RestaurantId,
+@@ -23,6 +81,7 @@ public sealed record MenuOfferContract(
+     string Description,
+     decimal Price,
+     string ImageUrl,
++    int SortOrder,
+     IEnumerable<MenuCardIngredientContract> Ingredients);
+ 
+ public sealed record MenuCardIngredientContract(Guid Id, string Name, bool IsCustom);
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/MenuCards/Shared/MenuCardsApiClient.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/MenuCards/Shared/MenuCardsApiClient.cs
+index 82d1413..25710a3 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/MenuCards/Shared/MenuCardsApiClient.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/MenuCards/Shared/MenuCardsApiClient.cs
+@@ -9,8 +9,9 @@ public sealed class MenuCardsApiClient(HttpClient httpClient, ApiService apiServ
+     private const string FailureMessage = "Menu card request failed.";
+ 
+     public Task<ApiResult<GetMenuCardOptionsResponse>> GetOptionsAsync(
++        Guid restaurantId,
+         CancellationToken cancellationToken = default)
+-        => apiService.ExecuteAsync(() => GetOptionsCoreAsync(cancellationToken));
++        => apiService.ExecuteAsync(() => GetOptionsCoreAsync(restaurantId, cancellationToken));
+ 
+     public Task<ApiResult<MenuCardResponseContract>> GetByIdAsync(
+         Guid menuCardId,
+@@ -18,9 +19,157 @@ public sealed class MenuCardsApiClient(HttpClient httpClient, ApiService apiServ
+         CancellationToken cancellationToken = default)
+         => apiService.ExecuteAsync(() => GetByIdCoreAsync(menuCardId, restaurantId, cancellationToken));
+ 
+-    private async Task<GetMenuCardOptionsResponse> GetOptionsCoreAsync(CancellationToken cancellationToken)
++    public Task<ApiResult<GetMenuCardsForManageResponse>> GetForManageAsync(
++        Guid restaurantId,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => GetForManageCoreAsync(restaurantId, cancellationToken));
++
++    public Task<ApiResult<GetMenuCardForManageResponse>> GetByIdForManageAsync(
++        Guid menuCardId,
++        Guid restaurantId,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => GetByIdForManageCoreAsync(menuCardId, restaurantId, cancellationToken));
++
++    public Task<ApiResult<MenuCardMutationResponse>> CreateAsync(
++        Guid restaurantId,
++        CreateMenuCardRequest requestBody,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantAsync<MenuCardMutationResponse>(
++            HttpMethod.Post,
++            BaseUrl,
++            restaurantId,
++            requestBody,
++            cancellationToken));
++
++    public Task<ApiResult<bool>> UpdateAsync(
++        Guid menuCardId,
++        Guid restaurantId,
++        UpdateMenuCardRequest requestBody,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantNoContentAsync(
++            HttpMethod.Put,
++            $"{BaseUrl}/{menuCardId}",
++            restaurantId,
++            requestBody,
++            cancellationToken));
++
++    public Task<ApiResult<bool>> DeactivateAsync(
++        Guid menuCardId,
++        Guid restaurantId,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantNoContentAsync(
++            HttpMethod.Delete,
++            $"{BaseUrl}/{menuCardId}",
++            restaurantId,
++            null,
++            cancellationToken));
++
++    public Task<ApiResult<bool>> ActivateAsync(
++        Guid menuCardId,
++        Guid restaurantId,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantNoContentAsync(
++            HttpMethod.Put,
++            $"{BaseUrl}/{menuCardId}/activate",
++            restaurantId,
++            null,
++            cancellationToken));
++
++    public Task<ApiResult<bool>> UpdateOrderAsync(
++        Guid restaurantId,
++        UpdateMenuCardsOrderRequest requestBody,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantNoContentAsync(
++            HttpMethod.Put,
++            $"{BaseUrl}/order",
++            restaurantId,
++            requestBody,
++            cancellationToken));
++
++    public Task<ApiResult<MenuCardMutationResponse>> CreateSectionAsync(
++        Guid menuCardId,
++        Guid restaurantId,
++        CreateMenuSectionRequest requestBody,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantAsync<MenuCardMutationResponse>(
++            HttpMethod.Post,
++            $"{BaseUrl}/{menuCardId}/sections",
++            restaurantId,
++            requestBody,
++            cancellationToken));
++
++    public Task<ApiResult<bool>> UpdateSectionAsync(
++        Guid menuCardId,
++        Guid sectionId,
++        Guid restaurantId,
++        UpdateMenuSectionRequest requestBody,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantNoContentAsync(
++            HttpMethod.Put,
++            $"{BaseUrl}/{menuCardId}/sections/{sectionId}",
++            restaurantId,
++            requestBody,
++            cancellationToken));
++
++    public Task<ApiResult<bool>> DeleteSectionAsync(
++        Guid menuCardId,
++        Guid sectionId,
++        Guid restaurantId,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantNoContentAsync(
++            HttpMethod.Delete,
++            $"{BaseUrl}/{menuCardId}/sections/{sectionId}",
++            restaurantId,
++            null,
++            cancellationToken));
++
++    public Task<ApiResult<MenuCardMutationResponse>> AddOfferAsync(
++        Guid menuCardId,
++        Guid sectionId,
++        Guid restaurantId,
++        AddMenuCardOfferRequest requestBody,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantAsync<MenuCardMutationResponse>(
++            HttpMethod.Post,
++            $"{BaseUrl}/{menuCardId}/sections/{sectionId}/offers",
++            restaurantId,
++            requestBody,
++            cancellationToken));
++
++    public Task<ApiResult<bool>> UpdateOfferAsync(
++        Guid menuCardId,
++        Guid sectionId,
++        Guid listingId,
++        Guid restaurantId,
++        UpdateMenuCardOfferRequest requestBody,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantNoContentAsync(
++            HttpMethod.Put,
++            $"{BaseUrl}/{menuCardId}/sections/{sectionId}/offers/{listingId}",
++            restaurantId,
++            requestBody,
++            cancellationToken));
++
++    public Task<ApiResult<bool>> RemoveOfferAsync(
++        Guid menuCardId,
++        Guid sectionId,
++        Guid listingId,
++        Guid restaurantId,
++        CancellationToken cancellationToken = default)
++        => apiService.ExecuteAsync(() => SendForRestaurantNoContentAsync(
++            HttpMethod.Delete,
++            $"{BaseUrl}/{menuCardId}/sections/{sectionId}/offers/{listingId}",
++            restaurantId,
++            null,
++            cancellationToken));
++
++    private async Task<GetMenuCardOptionsResponse> GetOptionsCoreAsync(
++        Guid restaurantId,
++        CancellationToken cancellationToken)
+     {
+-        using HttpResponseMessage response = await httpClient.GetAsync($"{BaseUrl}/options", cancellationToken);
++        using HttpResponseMessage response = await httpClient.GetAsync(
++            $"{BaseUrl}/options?restaurantId={Uri.EscapeDataString(restaurantId.ToString())}",
++            cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+         return await response.Content.ReadFromJsonAsync<GetMenuCardOptionsResponse>(cancellationToken: cancellationToken)
+@@ -31,15 +180,72 @@ public sealed class MenuCardsApiClient(HttpClient httpClient, ApiService apiServ
+         Guid menuCardId,
+         Guid restaurantId,
+         CancellationToken cancellationToken)
+-    {
+-        using HttpRequestMessage request = RestaurantContextApiRequest.Create(
+-            HttpMethod.Get,
++        => await GetForRestaurantAsync<MenuCardResponseContract>(
+             $"{BaseUrl}/{menuCardId}",
+-            restaurantId);
++            restaurantId,
++            cancellationToken);
++
++    private async Task<GetMenuCardsForManageResponse> GetForManageCoreAsync(
++        Guid restaurantId,
++        CancellationToken cancellationToken)
++        => await GetForRestaurantAsync<GetMenuCardsForManageResponse>(
++            $"{BaseUrl}/manage",
++            restaurantId,
++            cancellationToken);
++
++    private async Task<GetMenuCardForManageResponse> GetByIdForManageCoreAsync(
++        Guid menuCardId,
++        Guid restaurantId,
++        CancellationToken cancellationToken)
++        => await GetForRestaurantAsync<GetMenuCardForManageResponse>(
++            $"{BaseUrl}/{menuCardId}/manage",
++            restaurantId,
++            cancellationToken);
++
++    private async Task<TResponse> GetForRestaurantAsync<TResponse>(
++        string uri,
++        Guid restaurantId,
++        CancellationToken cancellationToken)
++    {
++        using HttpRequestMessage request = RestaurantContextApiRequest.Create(HttpMethod.Get, uri, restaurantId);
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
++        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
++
++        return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken: cancellationToken)
++            ?? throw new ApiRequestException(HttpStatusCode.InternalServerError, FailureMessage);
++    }
++
++    private async Task<TResponse> SendForRestaurantAsync<TResponse>(
++        HttpMethod method,
++        string uri,
++        Guid restaurantId,
++        object requestBody,
++        CancellationToken cancellationToken)
++    {
++        using HttpRequestMessage request = RestaurantContextApiRequest.Create(method, uri, restaurantId);
++        request.Content = JsonContent.Create(requestBody);
+         using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
+         await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
+ 
+-        return await response.Content.ReadFromJsonAsync<MenuCardResponseContract>(cancellationToken: cancellationToken)
++        return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken: cancellationToken)
+             ?? throw new ApiRequestException(HttpStatusCode.InternalServerError, FailureMessage);
+     }
++
++    private async Task<bool> SendForRestaurantNoContentAsync(
++        HttpMethod method,
++        string uri,
++        Guid restaurantId,
++        object? requestBody,
++        CancellationToken cancellationToken)
++    {
++        using HttpRequestMessage request = RestaurantContextApiRequest.Create(method, uri, restaurantId);
++        if (requestBody is not null)
++        {
++            request.Content = JsonContent.Create(requestBody);
++        }
++
++        using HttpResponseMessage response = await httpClient.SendAsync(request, cancellationToken);
++        await response.EnsureApiSuccessAsync(FailureMessage, cancellationToken);
++        return true;
++    }
+ }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/Models/RestaurantMenuViewModel.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/Models/RestaurantMenuViewModel.cs
+index a049244..4ed020c 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/Models/RestaurantMenuViewModel.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/Models/RestaurantMenuViewModel.cs
+@@ -1,3 +1,4 @@
++using MyHomeRamen.Blazor.Components.Models;
+ using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.DTOs;
+ using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
+ using MyHomeRamen.Blazor.Features.Menu.Offers.Shared;
+@@ -43,13 +44,14 @@ public sealed record RestaurantMenuViewModel(
+                     section.Id,
+                     section.Name,
+                     section.Offers
++                        .OrderBy(offer => offer.SortOrder)
+                         .Select(offer => new RestaurantMenuOfferViewModel(
+                             offer.OfferId,
+                             offer.ProductId,
+                             offer.Name,
+                             offer.Description,
+                             offer.Price,
+-                            offer.ImageUrl,
++                            new ImageModel { Url = offer.ImageUrl, Alt = offer.Name },
+                             string.Join(", ", offer.Ingredients
+                                 .Where(ingredient => !ingredient.IsCustom)
+                                 .Select(ingredient => ingredient.Name))))
+@@ -68,5 +70,5 @@ public sealed record RestaurantMenuOfferViewModel(
+     string Name,
+     string Description,
+     decimal Price,
+-    string ImageUrl,
++    ImageModel Image,
+     string BaseIngredients);
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/RestaurantMenuResources.resx b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/RestaurantMenuResources.resx
+index fe90cd8..c935492 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/RestaurantMenuResources.resx
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/RestaurantMenuResources.resx
+@@ -5,15 +5,20 @@
+   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+   <data name="Title" xml:space="preserve"><value>Menu</value></data>
++  <data name="PageTitle" xml:space="preserve"><value>Menu</value></data>
+   <data name="PreviewTitle" xml:space="preserve"><value>Restaurant menu preview</value></data>
++  <data name="Loading" xml:space="preserve"><value>Loading restaurant menu...</value></data>
++  <data name="Retry" xml:space="preserve"><value>Try again</value></data>
+   <data name="ChooseMenu" xml:space="preserve"><value>Choose a menu card</value></data>
+   <data name="NoMenus" xml:space="preserve"><value>No menus are currently available.</value></data>
+   <data name="NoSections" xml:space="preserve"><value>No sections are available for this menu.</value></data>
+   <data name="NoOffers" xml:space="preserve"><value>No offers found in this section.</value></data>
+   <data name="ChooseSection" xml:space="preserve"><value>Choose a section</value></data>
++  <data name="BaseIngredients" xml:space="preserve"><value>Included ingredients: {0}</value></data>
+   <data name="CustomizeAndAdd" xml:space="preserve"><value>Customize &amp; Add</value></data>
+   <data name="LoadError" xml:space="preserve"><value>Menu could not be loaded.</value></data>
+   <data name="UnexpectedError" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+   <data name="BadRequest" xml:space="preserve"><value>Menu request was invalid.</value></data>
+   <data name="ProductLoadError" xml:space="preserve"><value>Product details could not be loaded.</value></data>
++  <data name="StaleMenuCard" xml:space="preserve"><value>This menu card is no longer available for this restaurant. Choose an active card from the current restaurant.</value></data>
+ </root>
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/RestaurantMenuView.razor b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/RestaurantMenuView.razor
+index 4801bf8..041cb56 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/RestaurantMenuView.razor
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Features/Menu/RestaurantMenu/RestaurantMenuView.razor
+@@ -19,15 +19,22 @@
+ 
+ @if (_isLoading)
+ {
+-    <MudProgressCircular Indeterminate="true" Class="d-block mx-auto my-6" />
+-}
+-else if (_loadError.Message is not null)
+-{
+-    <MudAlert Severity="Severity.Error">@_loadError.Message</MudAlert>
++    <MudStack AlignItems="AlignItems.Center" Class="page-loading">
++        <MudProgressCircular Indeterminate="true" />
++        <MudText>@Localizer["Loading"]</MudText>
++    </MudStack>
+ }
+ else if (_menuCards.Count == 0)
+ {
+-    <MudText Typo="Typo.body1" Class="mt-4" Color="Color.Secondary">@Localizer["NoMenus"]</MudText>
++    @if (_loadError.Message is not null)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
++        <MudButton Variant="Variant.Outlined" OnClick="LoadOptionsAsync">@Localizer["Retry"]</MudButton>
++    }
++    else
++    {
++        <MudText Typo="Typo.body1" Class="component-empty-state" Color="Color.Secondary">@Localizer["NoMenus"]</MudText>
++    }
+ }
+ else
+ {
+@@ -41,55 +48,74 @@ else
+         }
+     </MudSelect>
+ 
+-    @if (_menu is not null)
++    @if (_staleSelection)
++    {
++        <MudAlert Severity="Severity.Warning" Class="page-state">@Localizer["StaleMenuCard"]</MudAlert>
++    }
++    else if (_loadError.Message is not null)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
++        <MudButton Variant="Variant.Outlined" OnClick="@(() => OnMenuCardSelectedAsync(_selectedMenuCardId))">@Localizer["Retry"]</MudButton>
++    }
++    else if (_menu is not null)
+     {
++        <MudText Typo="Typo.h1" Class="mt-4">@_menu.Name</MudText>
+         @if (_menu.Sections.Count > 0)
+         {
+-            <div class="d-flex flex-wrap gap-2 my-6" style="overflow-x: auto; justify-content: center">
++            <div class="d-flex flex-wrap gap-2 my-6" role="tablist" aria-label="@Localizer["ChooseSection"]">
+                 @foreach (RestaurantMenuSectionViewModel section in _menu.Sections)
+                 {
+-                    <MudChip T="string"
+-                             Color="@(_selectedSectionId == section.Id ? Color.Primary : Color.Default)"
+-                             OnClick="@(() => SelectSection(section.Id))"
+-                             Variant="@(_selectedSectionId == section.Id ? Variant.Filled : Variant.Outlined)">
++                    <MudButton Color="@(_selectedSectionId == section.Id ? Color.Primary : Color.Default)"
++                               OnClick="@(() => SelectSection(section.Id))"
++                               Variant="@(_selectedSectionId == section.Id ? Variant.Filled : Variant.Outlined)"
++                               id="@($"menu-section-{section.Id}")"
++                               aria-controls="menu-section-content"
++                               aria-selected="@(_selectedSectionId == section.Id)"
++                               role="tab">
+                         @section.Name
+-                    </MudChip>
++                    </MudButton>
+                 }
+             </div>
+ 
+             @if (_selectedSection is { Offers.Count: > 0 } selectedSection)
+             {
+-                <MudGrid>
+-                    @foreach (RestaurantMenuOfferViewModel offer in selectedSection.Offers)
+-                    {
+-                        <MudItem xs="12" sm="6" md="4">
+-                            <MudCard Elevation="2">
+-                                <ImageDisplay Style="width:100%; height:100%; object-fit:cover;" />
+-                                <MudCardContent>
+-                                    <MudText Typo="Typo.h6">@offer.Name</MudText>
+-                                    <MudText Typo="Typo.body2" Class="mb-2">@offer.Description</MudText>
+-                                    <MudText Typo="Typo.subtitle1" Color="Color.Primary">@offer.Price.ToString("C")</MudText>
+-                                    @if (!string.IsNullOrWhiteSpace(offer.BaseIngredients))
+-                                    {
+-                                        <MudText Typo="Typo.caption" Class="mt-2">@offer.BaseIngredients</MudText>
+-                                    }
+-                                </MudCardContent>
+-                                <MudCardActions>
+-                                    @if (!IsCompanyOwnerPreview)
+-                                    {
+-                                        <MudButton OnClick="@(() => OpenCustomizationDialogAsync(offer.OfferId))"
+-                                                   Color="Color.Primary"
+-                                                   Variant="Variant.Filled"
+-                                                   StartIcon="@Icons.Material.Filled.AddShoppingCart"
+-                                                   FullWidth="true">
+-                                            @Localizer["CustomizeAndAdd"]
+-                                        </MudButton>
+-                                    }
+-                                </MudCardActions>
+-                            </MudCard>
+-                        </MudItem>
+-                    }
+-                </MudGrid>
++                <div id="menu-section-content"
++                     role="tabpanel"
++                     aria-labelledby="@($"menu-section-{selectedSection.Id}")">
++                    <MudGrid>
++                        @foreach (RestaurantMenuOfferViewModel offer in selectedSection.Offers)
++                        {
++                            <MudItem xs="12" sm="6" md="4">
++                                <MudCard Elevation="2">
++                                    <ImageDisplay Image="offer.Image" Style="width:100%; aspect-ratio:16/9; object-fit:cover;" />
++                                    <MudCardContent>
++                                        <MudText Typo="Typo.h6">@offer.Name</MudText>
++                                        <MudText Typo="Typo.body2" Class="mb-2">@offer.Description</MudText>
++                                        <MudText Typo="Typo.subtitle1" Color="Color.Primary">@offer.Price.ToString("C")</MudText>
++                                        @if (!string.IsNullOrWhiteSpace(offer.BaseIngredients))
++                                        {
++                                            <MudText Typo="Typo.caption" Class="mt-2">
++                                                @Localizer["BaseIngredients", offer.BaseIngredients]
++                                            </MudText>
++                                        }
++                                    </MudCardContent>
++                                    <MudCardActions>
++                                        @if (!IsCompanyOwnerPreview)
++                                        {
++                                            <MudButton OnClick="@(() => OpenCustomizationDialogAsync(offer.OfferId))"
++                                                       Color="Color.Primary"
++                                                       Variant="Variant.Filled"
++                                                       StartIcon="@Icons.Material.Filled.AddShoppingCart"
++                                                       FullWidth="true">
++                                                @Localizer["CustomizeAndAdd"]
++                                            </MudButton>
++                                        }
++                                    </MudCardActions>
++                                </MudCard>
++                            </MudItem>
++                        }
++                    </MudGrid>
++                </div>
+             }
+             else
+             {
+@@ -123,6 +149,7 @@ else
+     private Guid _selectedSectionId;
+     private Guid _restaurantId;
+     private bool _isLoading;
++    private bool _staleSelection;
+ 
+     private RestaurantMenuSectionViewModel? _selectedSection
+         => _menu?.Sections.FirstOrDefault(section => section.Id == _selectedSectionId);
+@@ -154,50 +181,69 @@ else
+             _restaurantId = customerRestaurantId.Value;
+         }
+ 
+-        ApiResult<GetMenuCardOptionsResponse> result = await MenuCardsApiClient.GetOptionsAsync();
+-        if (_loadError.Apply(result, Localizer["BadRequest"], Localizer["UnexpectedError"]))
+-        {
+-            _isLoading = false;
+-            return;
+-        }
++        await LoadOptionsAsync();
++    }
+ 
+-        if (result is ApiResult<GetMenuCardOptionsResponse>.Success success)
++    private async Task LoadOptionsAsync()
++    {
++        _isLoading = true;
++        _loadError.Clear();
++        try
+         {
++            ApiResult<GetMenuCardOptionsResponse> result = await MenuCardsApiClient.GetOptionsAsync(_restaurantId);
++            if (_loadError.Apply(result, Localizer["BadRequest"], Localizer["UnexpectedError"])
++                || result is not ApiResult<GetMenuCardOptionsResponse>.Success success)
++            {
++                return;
++            }
++
+             _menuCards = success.Value.MenuCards
+                 .Where(card => card.RestaurantId == _restaurantId)
+                 .Select(card => new RestaurantMenuCardOptionViewModel(card.MenuCardId, card.RestaurantId, card.Name))
+                 .ToArray();
+-        }
+ 
+-        RestaurantMenuCardOptionViewModel? firstCard = _menuCards.FirstOrDefault();
+-        if (firstCard is not null)
++            RestaurantMenuCardOptionViewModel? firstCard = _menuCards.FirstOrDefault();
++            if (firstCard is not null)
++            {
++                await OnMenuCardSelectedAsync(firstCard.MenuCardId);
++            }
++        }
++        finally
+         {
+-            await OnMenuCardSelectedAsync(firstCard.MenuCardId);
++            _isLoading = false;
+         }
+-
+-        _isLoading = false;
+     }
+ 
+     private async Task OnMenuCardSelectedAsync(Guid menuCardId)
+     {
+-        _selectedMenuCardId = menuCardId;
+         _selectedSectionId = Guid.Empty;
+         _menu = null;
++        _staleSelection = false;
++        _loadError.Clear();
+         _isLoading = true;
+ 
+         RestaurantMenuCardOptionViewModel? option = _menuCards.FirstOrDefault(card => card.MenuCardId == menuCardId);
+         if (option is null)
+         {
++            _staleSelection = true;
+             _isLoading = false;
+             return;
+         }
+ 
++        _selectedMenuCardId = menuCardId;
+         ApiResult<MenuCardResponseContract> result = await MenuCardsApiClient.GetByIdAsync(
+             option.MenuCardId,
+             option.RestaurantId);
+         if (!_loadError.Apply(result, Localizer["BadRequest"], Localizer["UnexpectedError"])
+             && result is ApiResult<MenuCardResponseContract>.Success success)
+         {
++            if (success.Value.MenuCardId != option.MenuCardId || success.Value.RestaurantId != _restaurantId)
++            {
++                _staleSelection = true;
++                _isLoading = false;
++                return;
++            }
++
+             _menu = RestaurantMenuViewModel.FromContract(success.Value);
+             _selectedSectionId = _menu.Sections.FirstOrDefault()?.Id ?? Guid.Empty;
+         }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Infrastructure/Authentication/AdminSectionConstants.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Infrastructure/Authentication/AdminSectionConstants.cs
+index 3b51f58..e27a5f8 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Infrastructure/Authentication/AdminSectionConstants.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Infrastructure/Authentication/AdminSectionConstants.cs
+@@ -11,4 +11,5 @@ public static class AdminSectionConstants
+     public const string IngredientsManagement = "ingredients-management";
+     public const string OfferManagement = "offer-management";
+     public const string IngredientPriceManagement = "ingredient-price-management";
++    public const string MenuCardManagement = "menu-card-management";
+ }
+diff --git a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Infrastructure/Authentication/AuthenticationDependencyInjection.cs b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Infrastructure/Authentication/AuthenticationDependencyInjection.cs
+index 961dcec..986ed01 100644
+--- a/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Infrastructure/Authentication/AuthenticationDependencyInjection.cs
++++ b/MyHomeRamen.Blazor/MyHomeRamen.Blazor/Infrastructure/Authentication/AuthenticationDependencyInjection.cs
+@@ -45,6 +45,8 @@ internal static class AuthenticationDependencyInjection
+                     policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.OfferManagement))
+                 .AddPolicy(AdminSectionConstants.IngredientPriceManagement, policy =>
+                     policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.IngredientPriceManagement))
++                .AddPolicy(AdminSectionConstants.MenuCardManagement, policy =>
++                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.MenuCardManagement))
+                 .AddPolicy(AuthenticationClaimConstants.CompanyOwnerPolicy, policy =>
+                     policy.RequireClaim(AuthenticationClaimConstants.UserDestination, UserDestinationConstants.CompanyOwner))
+                 .AddPolicy(AuthenticationClaimConstants.EmployeePolicy, policy =>
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsPage.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsPage.razor"
+new file mode 100644
+index 0000000..ede11ea
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsPage.razor"
+@@ -0,0 +1,17 @@
++@attribute [Route(MenuCardRoutes.IndexTemplate)]
++@attribute [Authorize(Policy = AdminSectionConstants.MenuCardManagement)]
++@layout AdminLayout
++
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Components.Layout.Admin
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++@using MyHomeRamen.Blazor.Infrastructure.Authentication
++
++@inject IStringLocalizer<MenuCardsResources> Text
++
++<PageTitle>@Text["PageTitle"]</PageTitle>
++<MenuCardsView RestaurantId="RestaurantId" />
++
++@code {
++    [Parameter] public Guid RestaurantId { get; set; }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsResources.cs" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsResources.cs"
+new file mode 100644
+index 0000000..0344121
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsResources.cs"
+@@ -0,0 +1,5 @@
++namespace MyHomeRamen.Blazor.Features.Menu.MenuCards;
++
++public sealed class MenuCardsResources
++{
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsResources.resx" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsResources.resx"
+new file mode 100644
+index 0000000..e657872
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsResources.resx"
+@@ -0,0 +1,69 @@
++<?xml version="1.0" encoding="utf-8"?>
++<root>
++  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
++  <resheader name="version"><value>2.0</value></resheader>
++  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
++  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
++  <data name="PageTitle" xml:space="preserve"><value>Menu cards</value></data>
++  <data name="Heading" xml:space="preserve"><value>Menu cards</value></data>
++  <data name="CreatePageTitle" xml:space="preserve"><value>Create menu card</value></data>
++  <data name="CreateHeading" xml:space="preserve"><value>Create menu card</value></data>
++  <data name="ViewPageTitle" xml:space="preserve"><value>Menu card details</value></data>
++  <data name="EditPageTitle" xml:space="preserve"><value>Edit menu card</value></data>
++  <data name="EditHeading" xml:space="preserve"><value>Edit menu card</value></data>
++  <data name="Create" xml:space="preserve"><value>Create card</value></data>
++  <data name="CardName" xml:space="preserve"><value>Card name</value></data>
++  <data name="NameRequired" xml:space="preserve"><value>Enter a card name.</value></data>
++  <data name="NameMaxLength" xml:space="preserve"><value>Card name cannot exceed 100 characters.</value></data>
++  <data name="Saving" xml:space="preserve"><value>Saving...</value></data>
++  <data name="Save" xml:space="preserve"><value>Save changes</value></data>
++  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
++  <data name="Loading" xml:space="preserve"><value>Loading menu cards...</value></data>
++  <data name="LoadingDetails" xml:space="preserve"><value>Loading menu card...</value></data>
++  <data name="LoadError" xml:space="preserve"><value>Menu card information could not be loaded.</value></data>
++  <data name="ValidationFailure" xml:space="preserve"><value>Review highlighted fields and correct invalid values.</value></data>
++  <data name="UnexpectedError" xml:space="preserve"><value>Something went wrong. Please try again.</value></data>
++  <data name="InvalidRestaurantContext" xml:space="preserve"><value>Restaurant context is invalid.</value></data>
++  <data name="Empty" xml:space="preserve"><value>No menu cards exist for this restaurant yet.</value></data>
++  <data name="NoCreatePermission" xml:space="preserve"><value>You cannot create menu cards for this restaurant.</value></data>
++  <data name="NoEditPermission" xml:space="preserve"><value>You cannot edit this menu card.</value></data>
++  <data name="NoDeletePermission" xml:space="preserve"><value>You cannot deactivate this menu card.</value></data>
++  <data name="NotFound" xml:space="preserve"><value>Menu card was not found for this restaurant.</value></data>
++  <data name="Active" xml:space="preserve"><value>Active</value></data>
++  <data name="Inactive" xml:space="preserve"><value>Inactive</value></data>
++  <data name="SortOrder" xml:space="preserve"><value>Order</value></data>
++  <data name="View" xml:space="preserve"><value>View</value></data>
++  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
++  <data name="Deactivate" xml:space="preserve"><value>Deactivate</value></data>
++  <data name="Activate" xml:space="preserve"><value>Activate</value></data>
++  <data name="MoveUp" xml:space="preserve"><value>Move up</value></data>
++  <data name="MoveDown" xml:space="preserve"><value>Move down</value></data>
++  <data name="DeactivateConfirmTitle" xml:space="preserve"><value>Deactivate menu card?</value></data>
++  <data name="DeactivateConfirmMessage" xml:space="preserve"><value>Deactivate {0}? It will no longer appear in the customer menu.</value></data>
++  <data name="DeactivateSuccess" xml:space="preserve"><value>Menu card deactivated.</value></data>
++  <data name="ActivateSuccess" xml:space="preserve"><value>Menu card activated.</value></data>
++  <data name="CreateSuccess" xml:space="preserve"><value>Menu card created.</value></data>
++  <data name="UpdateSuccess" xml:space="preserve"><value>Menu card updated.</value></data>
++  <data name="CreateError" xml:space="preserve"><value>Menu card could not be created.</value></data>
++  <data name="UpdateError" xml:space="preserve"><value>Menu card could not be updated.</value></data>
++  <data name="OrderError" xml:space="preserve"><value>Menu card order could not be updated.</value></data>
++  <data name="ActionError" xml:space="preserve"><value>Menu card action could not be completed.</value></data>
++  <data name="Sections" xml:space="preserve"><value>Sections</value></data>
++  <data name="SectionName" xml:space="preserve"><value>Section name</value></data>
++  <data name="NoSections" xml:space="preserve"><value>No sections have been added to this card.</value></data>
++  <data name="AddSection" xml:space="preserve"><value>Add section</value></data>
++  <data name="SaveSection" xml:space="preserve"><value>Save section</value></data>
++  <data name="RemoveSection" xml:space="preserve"><value>Remove section</value></data>
++  <data name="Listings" xml:space="preserve"><value>Offer listings</value></data>
++  <data name="NoListings" xml:space="preserve"><value>No offers are listed in this section.</value></data>
++  <data name="Offer" xml:space="preserve"><value>Restaurant offer</value></data>
++  <data name="AddOffer" xml:space="preserve"><value>Add offer</value></data>
++  <data name="RemoveListing" xml:space="preserve"><value>Remove offer listing</value></data>
++  <data name="SaveOrder" xml:space="preserve"><value>Save order</value></data>
++  <data name="UnavailableOffer" xml:space="preserve"><value>Offer unavailable or retired; listing retained.</value></data>
++  <data name="NoEligibleOffers" xml:space="preserve"><value>No eligible restaurant offers are available to list.</value></data>
++  <data name="OfferPrice" xml:space="preserve"><value>Restaurant offer price: {0}</value></data>
++  <data name="PriceExplanation" xml:space="preserve"><value>Offer price is managed in Offers and applies across every menu-card listing of that offer.</value></data>
++  <data name="NoSectionsAvailable" xml:space="preserve"><value>This menu card has no sections yet.</value></data>
++  <data name="BackToCards" xml:space="preserve"><value>Back to menu cards</value></data>
++</root>
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsView.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsView.razor"
+new file mode 100644
+index 0000000..d35906b
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\MenuCardsView.razor"
+@@ -0,0 +1,244 @@
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Components
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++@using MyHomeRamen.Blazor.Infrastructure.Api
++
++@inject MenuCardsApiClient MenuCardsApiClient
++@inject IStringLocalizer<MenuCardsResources> Text
++@inject NavigationManager NavigationManager
++@inject IDialogService DialogService
++@inject ISnackbar Snackbar
++
++<MudPaper Elevation="3" Class="page-surface">
++    <PageHeader Title='@Text["Heading"]'>
++        @if (!_isLoading && !_loadError.HasError && _allowedActions?.CanCreate == true && !_invalidRestaurantContext)
++        {
++            <MudButton Variant="Variant.Filled"
++                       Color="Color.Primary"
++                       StartIcon="@Icons.Material.Filled.Add"
++                       Href="@MenuCardRoutes.Create(RestaurantId)">
++                @Text["Create"]
++            </MudButton>
++        }
++    </PageHeader>
++
++    @if (_isLoading)
++    {
++        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
++            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
++            <MudText>@Text["Loading"]</MudText>
++        </MudStack>
++    }
++    else if (_invalidRestaurantContext)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
++    }
++    else if (_loadError.HasError)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
++    }
++    else
++    {
++        @if (_submitError.HasError)
++        {
++            <MudAlert Severity="Severity.Error" Class="page-state">@_submitError.Message</MudAlert>
++        }
++        <MenuCardTable Items="_cards"
++                       EmptyText="@Text["Empty"]"
++                       SortOrderLabel="@Text["SortOrder"]"
++                       ViewText="@Text["View"]"
++                       EditText="@Text["Edit"]"
++                       ActiveText="@Text["Active"]"
++                       InactiveText="@Text["Inactive"]"
++                       DeactivateText="@Text["Deactivate"]"
++                       ActivateText="@Text["Activate"]"
++                       MoveUpText="@Text["MoveUp"]"
++                       MoveDownText="@Text["MoveDown"]"
++                       OnView="ViewCard"
++                       OnEdit="EditCard"
++                       OnDeactivate="ConfirmDeactivateAsync"
++                       OnActivate="ActivateAsync"
++                       OnMove="MoveAsync" />
++    }
++</MudPaper>
++
++@code {
++    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
++
++    private readonly ApiErrorState _loadError = new();
++    private readonly ApiErrorState _submitError = new();
++    private List<MenuCardViewModel> _cards = [];
++    private MenuCardAllowedActions? _allowedActions;
++    private bool _isLoading = true;
++    private bool _invalidRestaurantContext;
++    private bool _isSubmitting;
++
++    protected override async Task OnParametersSetAsync() => await LoadAsync();
++
++    private async Task LoadAsync()
++    {
++        _isLoading = true;
++        _loadError.Clear();
++        _invalidRestaurantContext = false;
++
++        try
++        {
++            if (RestaurantId == Guid.Empty)
++            {
++                _invalidRestaurantContext = true;
++                return;
++            }
++
++            ApiResult<GetMenuCardsForManageResponse> result = await MenuCardsApiClient.GetForManageAsync(RestaurantId);
++            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"])
++                || result is not ApiResult<GetMenuCardsForManageResponse>.Success success)
++            {
++                return;
++            }
++
++            _allowedActions = success.Value.AllowedActions;
++            _cards = success.Value.MenuCards
++                .OrderBy(card => card.SortOrder)
++                .ThenBy(card => card.Name, StringComparer.CurrentCulture)
++                .Select(MenuCardViewModel.FromResponse)
++                .ToList();
++        }
++        finally
++        {
++            _isLoading = false;
++        }
++    }
++
++    private void ViewCard(Guid menuCardId) =>
++        NavigationManager.NavigateTo(MenuCardRoutes.View(RestaurantId, menuCardId));
++
++    private void EditCard(Guid menuCardId)
++    {
++        MenuCardViewModel? card = _cards.FirstOrDefault(item => item.MenuCardId == menuCardId);
++        if (card?.CanEdit == true)
++        {
++            NavigationManager.NavigateTo(MenuCardRoutes.Edit(RestaurantId, menuCardId));
++        }
++    }
++
++    private async Task ConfirmDeactivateAsync(Guid menuCardId)
++    {
++        MenuCardViewModel? card = _cards.FirstOrDefault(item =>
++            item.MenuCardId == menuCardId && item.IsActive && item.CanDelete);
++        if (card is null || _isSubmitting)
++        {
++            return;
++        }
++
++        bool? confirmed = await DialogService.ShowMessageBoxAsync(
++            Text["DeactivateConfirmTitle"],
++            Text["DeactivateConfirmMessage", card.Name],
++            yesText: Text["Deactivate"],
++            cancelText: Text["Cancel"]);
++        if (confirmed == true)
++        {
++            await DeactivateAsync(card);
++        }
++    }
++
++    private async Task DeactivateAsync(MenuCardViewModel card)
++    {
++        if (!card.IsActive || !card.CanDelete || _isSubmitting)
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<bool> result = await MenuCardsApiClient.DeactivateAsync(card.MenuCardId, RestaurantId);
++            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            Snackbar.Add(Text["DeactivateSuccess"], Severity.Success);
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private async Task ActivateAsync(Guid menuCardId)
++    {
++        MenuCardViewModel? card = _cards.FirstOrDefault(item =>
++            item.MenuCardId == menuCardId && !item.IsActive && item.CanEdit);
++        if (card is null || _isSubmitting)
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<bool> result = await MenuCardsApiClient.ActivateAsync(menuCardId, RestaurantId);
++            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            Snackbar.Add(Text["ActivateSuccess"], Severity.Success);
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private async Task MoveAsync((Guid MenuCardId, int Offset) move)
++    {
++        if (_allowedActions?.CanEdit != true || _isSubmitting)
++        {
++            return;
++        }
++
++        List<MenuCardViewModel> originalCards = _cards;
++        List<MenuCardViewModel> orderedCards = _cards
++            .OrderBy(card => card.SortOrder)
++            .ThenBy(card => card.Name, StringComparer.CurrentCulture)
++            .ToList();
++        int index = orderedCards.FindIndex(card => card.MenuCardId == move.MenuCardId);
++        int destination = index + move.Offset;
++        if (index < 0 || destination < 0 || destination >= orderedCards.Count)
++        {
++            return;
++        }
++
++        (orderedCards[index], orderedCards[destination]) = (orderedCards[destination], orderedCards[index]);
++        _cards = orderedCards
++            .Select((card, order) => card with { SortOrder = order })
++            .ToList();
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            UpdateMenuCardsOrderRequest request = new(_cards
++                .Select((card, order) => new MenuCardOrderItemRequest(card.MenuCardId, order))
++                .ToArray());
++            ApiResult<bool> result = await MenuCardsApiClient.UpdateOrderAsync(RestaurantId, request);
++            if (_submitError.Apply(result, Text["OrderError"], Text["UnexpectedError"]))
++            {
++                _cards = originalCards;
++                return;
++            }
++
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardForm.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardForm.razor"
+new file mode 100644
+index 0000000..77d1fc0
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardForm.razor"
+@@ -0,0 +1,74 @@
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
++
++@inject IStringLocalizer<MenuCardsResources> Text
++
++<MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue" ValidationDelay="0">
++    <MudStack Spacing="3" Class="form-fields">
++        <MudTextField @bind-Value="Model.Name"
++                      For="@(() => Model.Name)"
++                      Label="@Text["CardName"]"
++                      Variant="Variant.Outlined"
++                      Disabled="IsSubmitting"
++                      Immediate="true"
++                      Error="@HasError(nameof(Model.Name))"
++                      ErrorText="@GetError(nameof(Model.Name))" />
++        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
++        {
++            <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@ErrorMessage</MudAlert>
++        }
++        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="form-actions">
++            <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
++            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="IsSubmitting" OnClick="SubmitAsync">
++                @if (IsSubmitting)
++                {
++                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
++                    @Text["Saving"]
++                }
++                else
++                {
++                    @Text[IsEdit ? "Save" : "Create"]
++                }
++            </MudButton>
++        </MudStack>
++    </MudStack>
++</MudForm>
++
++@code {
++    [Parameter, EditorRequired] public MenuCardFormModel Model { get; set; } = default!;
++    [Parameter] public bool IsEdit { get; set; }
++    [Parameter] public bool IsSubmitting { get; set; }
++    [Parameter] public string? ErrorMessage { get; set; }
++    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
++    [Parameter, EditorRequired] public EventCallback<MenuCardFormModel> OnSubmit { get; set; }
++    [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
++
++    private MudForm _form = default!;
++    private MenuCardFormModelValidator _validator = default!;
++
++    protected override void OnInitialized() => _validator = new MenuCardFormModelValidator(Text);
++
++    private async Task SubmitAsync()
++    {
++        await _form.ValidateAsync();
++        if (_form.IsValid && !IsSubmitting)
++        {
++            await OnSubmit.InvokeAsync(Model);
++        }
++    }
++
++    private Task CancelAsync() => OnCancel.InvokeAsync();
++
++    private bool HasError(string propertyName) => GetError(propertyName) is not null;
++
++    private string? GetError(string propertyName)
++    {
++        string[] errors = ValidationErrors
++            .Where(error => error.Key.Equals(propertyName, StringComparison.Ordinal)
++                || error.Key.EndsWith($".{propertyName}", StringComparison.Ordinal))
++            .SelectMany(error => error.Value)
++            .ToArray();
++        return errors.Length > 0 ? string.Join(" ", errors) : null;
++    }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardSectionsEditor.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardSectionsEditor.razor"
+new file mode 100644
+index 0000000..bfd6f25
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardSectionsEditor.razor"
+@@ -0,0 +1,108 @@
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++
++@inject IStringLocalizer<MenuCardsResources> Text
++
++<MudStack Spacing="3">
++    @if (Sections.Count == 0)
++    {
++        <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["NoSections"]</MudAlert>
++    }
++    @foreach (MenuCardSectionViewModel section in Sections)
++    {
++        <MudPaper Outlined="true" Class="pa-4">
++            <MudStack Spacing="3">
++                <MudText Typo="Typo.h6">@section.Name</MudText>
++                <MudGrid Spacing="3" Class="form-fields">
++                    <MudItem xs="12" sm="8">
++                        <MudTextField @bind-Value="section.Name"
++                                      Label="@Text["SectionName"]"
++                                      Variant="Variant.Outlined"
++                                      MaxLength="100"
++                                      Disabled="@(!CanEdit)" />
++                    </MudItem>
++                    <MudItem xs="12" sm="4">
++                        <MudNumericField T="int"
++                                         @bind-Value="section.SortOrder"
++                                         Label="@Text["SortOrder"]"
++                                         Variant="Variant.Outlined"
++                                         Disabled="@(!CanEdit)" />
++                    </MudItem>
++                </MudGrid>
++                @if (CanEdit)
++                {
++                    <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions">
++                        <MudButton Color="Color.Primary"
++                        Variant="Variant.Outlined"
++                        Disabled="@string.IsNullOrWhiteSpace(section.Name)"
++                        OnClick="@(() => OnUpdateSection.InvokeAsync((section.Id, new UpdateMenuSectionRequest(section.Name.Trim(), section.SortOrder))))">
++                            @Text["SaveSection"]
++                        </MudButton>
++                        <MudButton Color="Color.Error"
++                                   Variant="Variant.Text"
++                                   OnClick="@(() => OnDeleteSection.InvokeAsync(section.Id))">
++                            @Text["RemoveSection"]
++                        </MudButton>
++                    </MudStack>
++                }
++                <MenuSectionListingsEditor Section="section"
++                                           EligibleOffers="EligibleOffers"
++                                           CanEdit="CanEdit"
++                                           OnAddOffer="OnAddOffer"
++                                           OnUpdateOffer="OnUpdateOffer"
++                                           OnRemoveOffer="OnRemoveOffer" />
++            </MudStack>
++        </MudPaper>
++    }
++    @if (CanEdit)
++    {
++        <MudPaper Outlined="true" Class="pa-4">
++            <MudText Typo="Typo.h6">@Text["AddSection"]</MudText>
++            <MudStack Spacing="3" Class="form-fields">
++                <MudTextField @bind-Value="_newSectionName"
++                              Label="@Text["SectionName"]"
++                              Variant="Variant.Outlined" />
++                <MudNumericField T="int"
++                                 @bind-Value="_newSectionSortOrder"
++                                 Label="@Text["SortOrder"]"
++                                 Variant="Variant.Outlined" />
++                <MudButton Variant="Variant.Filled"
++                           Color="Color.Primary"
++                           Disabled="@string.IsNullOrWhiteSpace(_newSectionName)"
++                           OnClick="CreateSectionAsync">
++                    @Text["AddSection"]
++                </MudButton>
++            </MudStack>
++        </MudPaper>
++    }
++</MudStack>
++
++@code {
++    [Parameter, EditorRequired] public IReadOnlyList<MenuCardSectionViewModel> Sections { get; set; } = [];
++    [Parameter, EditorRequired] public IReadOnlyList<MenuCardOfferChoiceViewModel> EligibleOffers { get; set; } = [];
++    [Parameter] public bool CanEdit { get; set; }
++    [Parameter, EditorRequired] public EventCallback<CreateMenuSectionRequest> OnCreateSection { get; set; }
++    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, UpdateMenuSectionRequest Request)> OnUpdateSection { get; set; }
++    [Parameter, EditorRequired] public EventCallback<Guid> OnDeleteSection { get; set; }
++    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, AddMenuCardOfferRequest Request)> OnAddOffer { get; set; }
++    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId, UpdateMenuCardOfferRequest Request)> OnUpdateOffer { get; set; }
++    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId)> OnRemoveOffer { get; set; }
++
++    private string _newSectionName = string.Empty;
++    private int _newSectionSortOrder;
++
++    protected override void OnParametersSet()
++    {
++        if (_newSectionSortOrder == 0 && Sections.Count > 0)
++        {
++            _newSectionSortOrder = Sections.Max(section => section.SortOrder) + 1;
++        }
++    }
++
++    private async Task CreateSectionAsync()
++    {
++        await OnCreateSection.InvokeAsync(new CreateMenuSectionRequest(_newSectionName.Trim(), _newSectionSortOrder));
++    }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardTable.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardTable.razor"
+new file mode 100644
+index 0000000..54a8f17
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuCardTable.razor"
+@@ -0,0 +1,86 @@
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
++
++@if (Items.Count == 0)
++{
++    <MudAlert Severity="Severity.Info" Class="component-empty-state">@EmptyText</MudAlert>
++}
++else
++{
++    <MudGrid Spacing="3" Class="data-card-grid">
++        @for (int index = 0; index < Items.Count; index++)
++        {
++            MenuCardViewModel card = Items[index];
++            <MudItem xs="12" sm="6" lg="4">
++                <MudCard Outlined="true" Class="data-card">
++                    <MudCardContent Class="data-card-content">
++                        <MudText Typo="Typo.h6">@card.Name</MudText>
++                        <MudText Typo="Typo.body2">@StatusText(card.IsActive)</MudText>
++                        <MudText Typo="Typo.caption">@SortOrderLabel @card.SortOrder</MudText>
++                        <MudStack Row="true" Spacing="1" Class="data-card-actions">
++                            <MudButton Variant="Variant.Text" OnClick="@(() => OnView.InvokeAsync(card.MenuCardId))">@ViewText</MudButton>
++                            @if (card.CanEdit)
++                            {
++                                <MudButton Variant="Variant.Outlined"
++                                           StartIcon="@Icons.Material.Filled.Edit"
++                                           OnClick="@(() => OnEdit.InvokeAsync(card.MenuCardId))">
++                                    @EditText
++                                </MudButton>
++                            }
++                            @if (card.IsActive && card.CanDelete)
++                            {
++                                <MudButton Variant="Variant.Outlined"
++                                           Color="Color.Warning"
++                                           StartIcon="@Icons.Material.Filled.VisibilityOff"
++                                           OnClick="@(() => OnDeactivate.InvokeAsync(card.MenuCardId))">
++                                    @DeactivateText
++                                </MudButton>
++                            }
++                            else if (!card.IsActive && card.CanEdit)
++                            {
++                                <MudButton Variant="Variant.Outlined"
++                                           StartIcon="@Icons.Material.Filled.Visibility"
++                                           OnClick="@(() => OnActivate.InvokeAsync(card.MenuCardId))">
++                                    @ActivateText
++                                </MudButton>
++                            }
++                        </MudStack>
++                        @if (card.CanEdit)
++                        {
++                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="1">
++                                <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward"
++                                               aria-label="@MoveUpText"
++                                               Disabled="@(index == 0)"
++                                               OnClick="@(() => OnMove.InvokeAsync((card.MenuCardId, -1)))" />
++                                <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward"
++                                               aria-label="@MoveDownText"
++                                               Disabled="@(index == Items.Count - 1)"
++                                               OnClick="@(() => OnMove.InvokeAsync((card.MenuCardId, 1)))" />
++                            </MudStack>
++                        }
++                    </MudCardContent>
++                </MudCard>
++            </MudItem>
++        }
++    </MudGrid>
++}
++
++@code {
++    [Parameter, EditorRequired] public IReadOnlyList<MenuCardViewModel> Items { get; set; } = [];
++    [Parameter] public string EmptyText { get; set; } = string.Empty;
++    [Parameter] public string SortOrderLabel { get; set; } = string.Empty;
++    [Parameter] public string ViewText { get; set; } = string.Empty;
++    [Parameter] public string EditText { get; set; } = string.Empty;
++    [Parameter] public string ActiveText { get; set; } = string.Empty;
++    [Parameter] public string InactiveText { get; set; } = string.Empty;
++    [Parameter] public string DeactivateText { get; set; } = string.Empty;
++    [Parameter] public string ActivateText { get; set; } = string.Empty;
++    [Parameter] public string MoveUpText { get; set; } = string.Empty;
++    [Parameter] public string MoveDownText { get; set; } = string.Empty;
++    [Parameter, EditorRequired] public EventCallback<Guid> OnView { get; set; }
++    [Parameter, EditorRequired] public EventCallback<Guid> OnEdit { get; set; }
++    [Parameter, EditorRequired] public EventCallback<Guid> OnDeactivate { get; set; }
++    [Parameter, EditorRequired] public EventCallback<Guid> OnActivate { get; set; }
++    [Parameter, EditorRequired] public EventCallback<(Guid MenuCardId, int Offset)> OnMove { get; set; }
++
++    private string StatusText(bool active) => active ? ActiveText : InactiveText;
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuSectionListingsEditor.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuSectionListingsEditor.razor"
+new file mode 100644
+index 0000000..cedf313
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Components\\MenuSectionListingsEditor.razor"
+@@ -0,0 +1,101 @@
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++
++@inject IStringLocalizer<MenuCardsResources> Text
++
++<MudStack Spacing="2">
++    <MudText Typo="Typo.subtitle1">@Text["Listings"]</MudText>
++    @if (Section.Offers.Count == 0)
++    {
++        <MudText Typo="Typo.body2" Color="Color.Secondary">@Text["NoListings"]</MudText>
++    }
++    @foreach (MenuCardListingViewModel listing in Section.Offers.OrderBy(offer => offer.SortOrder))
++    {
++        <MudPaper Outlined="true" Class="pa-3">
++            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="2">
++                <MudStack Spacing="1">
++                    <MudText>@listing.Name</MudText>
++                    @if (!listing.IsAvailable)
++                    {
++                        <MudText Typo="Typo.caption" Color="Color.Warning">@Text["UnavailableOffer"]</MudText>
++                    }
++                    else if (listing.Price.HasValue)
++                    {
++                        <MudText Typo="Typo.caption">@Text["OfferPrice", listing.Price.Value.ToString("C")]</MudText>
++                    }
++                </MudStack>
++                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
++                    <MudNumericField T="int"
++                                     @bind-Value="listing.SortOrder"
++                                     Label="@Text["SortOrder"]"
++                                     Variant="Variant.Outlined"
++                                     Disabled="@(!CanEdit)"
++                                     Min="0"
++                                     Style="max-width:100px" />
++                    @if (CanEdit)
++                    {
++                        <MudButton Variant="Variant.Text"
++                                   OnClick="@(() => OnUpdateOffer.InvokeAsync((Section.Id, listing.Id, new UpdateMenuCardOfferRequest(listing.SortOrder))))">
++                            @Text["SaveOrder"]
++                        </MudButton>
++                        <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
++                                       Color="Color.Error"
++                                       aria-label="@Text["RemoveListing"]"
++                                       OnClick="@(() => OnRemoveOffer.InvokeAsync((Section.Id, listing.Id)))" />
++                    }
++                </MudStack>
++            </MudStack>
++        </MudPaper>
++    }
++    @if (CanEdit)
++    {
++        IReadOnlyList<MenuCardOfferChoiceViewModel> choices = EligibleOffers
++            .Where(offer => Section.Offers.All(listing => listing.OfferId != offer.OfferId))
++            .ToArray();
++        @if (choices.Count == 0)
++        {
++            <MudText Typo="Typo.caption" Color="Color.Secondary">@Text["NoEligibleOffers"]</MudText>
++        }
++        else
++        {
++            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="flex-wrap">
++                <MudSelect T="Guid" @bind-Value="_selectedOfferId" Label="@Text["Offer"]" Variant="Variant.Outlined">
++                    @foreach (MenuCardOfferChoiceViewModel offer in choices)
++                    {
++                        <MudSelectItem Value="@offer.OfferId">@offer.Name</MudSelectItem>
++                    }
++                </MudSelect>
++                <MudButton Variant="Variant.Outlined"
++                           Color="Color.Primary"
++                           Disabled="@(_selectedOfferId == Guid.Empty)"
++                           OnClick="AddOfferAsync">
++                    @Text["AddOffer"]
++                </MudButton>
++            </MudStack>
++        }
++    }
++</MudStack>
++
++@code {
++    [Parameter, EditorRequired] public MenuCardSectionViewModel Section { get; set; } = default!;
++    [Parameter, EditorRequired] public IReadOnlyList<MenuCardOfferChoiceViewModel> EligibleOffers { get; set; } = [];
++    [Parameter] public bool CanEdit { get; set; }
++    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, AddMenuCardOfferRequest Request)> OnAddOffer { get; set; }
++    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId, UpdateMenuCardOfferRequest Request)> OnUpdateOffer { get; set; }
++    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId)> OnRemoveOffer { get; set; }
++
++    private Guid _selectedOfferId;
++
++    private async Task AddOfferAsync()
++    {
++        if (_selectedOfferId == Guid.Empty || Section.Offers.Any(offer => offer.OfferId == _selectedOfferId))
++        {
++            return;
++        }
++
++        int sortOrder = Section.Offers.Count == 0 ? 0 : Section.Offers.Max(offer => offer.SortOrder) + 1;
++        await OnAddOffer.InvokeAsync((Section.Id, new AddMenuCardOfferRequest(_selectedOfferId, sortOrder)));
++    }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\CreateMenuCard\\CreateMenuCardPage.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\CreateMenuCard\\CreateMenuCardPage.razor"
+new file mode 100644
+index 0000000..6a674bb
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\CreateMenuCard\\CreateMenuCardPage.razor"
+@@ -0,0 +1,18 @@
++@attribute [Route(MenuCardRoutes.CreateTemplate)]
++@attribute [Authorize(Policy = AdminSectionConstants.MenuCardManagement)]
++@layout AdminLayout
++
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Components.Layout.Admin
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++@using MyHomeRamen.Blazor.Infrastructure.Authentication
++
++@inject IStringLocalizer<MenuCardsResources> Text
++
++<PageTitle>@Text["CreatePageTitle"]</PageTitle>
++<CreateMenuCardView RestaurantId="RestaurantId" />
++
++@code {
++    [Parameter] public Guid RestaurantId { get; set; }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\CreateMenuCard\\CreateMenuCardView.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\CreateMenuCard\\CreateMenuCardView.razor"
+new file mode 100644
+index 0000000..0111d14
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\CreateMenuCard\\CreateMenuCardView.razor"
+@@ -0,0 +1,114 @@
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Components
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++@using MyHomeRamen.Blazor.Infrastructure.Api
++
++@inject MenuCardsApiClient MenuCardsApiClient
++@inject IStringLocalizer<MenuCardsResources> Text
++@inject NavigationManager NavigationManager
++@inject ISnackbar Snackbar
++
++<MudPaper Elevation="3" Class="page-surface">
++    <PageHeader Title='@Text["CreateHeading"]' />
++    @if (_isLoading)
++    {
++        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
++            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
++            <MudText>@Text["LoadingDetails"]</MudText>
++        </MudStack>
++    }
++    else if (_invalidRestaurantContext)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
++    }
++    else if (_loadError.HasError)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
++    }
++    else if (!_canCreate)
++    {
++        <MudAlert Severity="Severity.Warning" Class="page-state">@Text["NoCreatePermission"]</MudAlert>
++    }
++    else
++    {
++        <MenuCardForm Model="_model"
++                      IsSubmitting="_isSubmitting"
++                      ErrorMessage="@_submitError.Message"
++                      ValidationErrors="_submitError.ValidationErrors"
++                      OnSubmit="CreateAsync"
++                      OnCancel="Cancel" />
++    }
++</MudPaper>
++
++@code {
++    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
++
++    private readonly MenuCardFormModel _model = new();
++    private readonly ApiErrorState _loadError = new();
++    private readonly ApiErrorState _submitError = new();
++    private bool _canCreate;
++    private bool _invalidRestaurantContext;
++    private bool _isLoading = true;
++    private bool _isSubmitting;
++
++    protected override async Task OnParametersSetAsync()
++    {
++        _isLoading = true;
++        try
++        {
++            if (RestaurantId == Guid.Empty)
++            {
++                _invalidRestaurantContext = true;
++                return;
++            }
++
++            ApiResult<GetMenuCardsForManageResponse> result = await MenuCardsApiClient.GetForManageAsync(RestaurantId);
++            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"])
++                || result is not ApiResult<GetMenuCardsForManageResponse>.Success success)
++            {
++                return;
++            }
++
++            _canCreate = success.Value.AllowedActions.CanCreate;
++        }
++        finally
++        {
++            _isLoading = false;
++        }
++    }
++
++    private async Task CreateAsync(MenuCardFormModel model)
++    {
++        if (!_canCreate || _isSubmitting)
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<MenuCardMutationResponse> result =
++                await MenuCardsApiClient.CreateAsync(RestaurantId, model.ToCreateRequest());
++            if (_submitError.Apply(result, Text["CreateError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            Snackbar.Add(Text["CreateSuccess"], Severity.Success);
++            NavigationManager.NavigateTo(MenuCardRoutes.Index(RestaurantId));
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private Task Cancel()
++    {
++        NavigationManager.NavigateTo(MenuCardRoutes.Index(RestaurantId));
++        return Task.CompletedTask;
++    }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\EditMenuCard\\EditMenuCardPage.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\EditMenuCard\\EditMenuCardPage.razor"
+new file mode 100644
+index 0000000..30b25b2
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\EditMenuCard\\EditMenuCardPage.razor"
+@@ -0,0 +1,19 @@
++@attribute [Route(MenuCardRoutes.EditTemplate)]
++@attribute [Authorize(Policy = AdminSectionConstants.MenuCardManagement)]
++@layout AdminLayout
++
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Components.Layout.Admin
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++@using MyHomeRamen.Blazor.Infrastructure.Authentication
++
++@inject IStringLocalizer<MenuCardsResources> Text
++
++<PageTitle>@Text["EditPageTitle"]</PageTitle>
++<EditMenuCardView RestaurantId="RestaurantId" MenuCardId="MenuCardId" />
++
++@code {
++    [Parameter] public Guid RestaurantId { get; set; }
++    [Parameter] public Guid MenuCardId { get; set; }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\EditMenuCard\\EditMenuCardView.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\EditMenuCard\\EditMenuCardView.razor"
+new file mode 100644
+index 0000000..759582e
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\EditMenuCard\\EditMenuCardView.razor"
+@@ -0,0 +1,340 @@
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Components
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++@using MyHomeRamen.Blazor.Infrastructure.Api
++
++@inject MenuCardsApiClient MenuCardsApiClient
++@inject IStringLocalizer<MenuCardsResources> Text
++@inject NavigationManager NavigationManager
++@inject ISnackbar Snackbar
++
++<MudPaper Elevation="3" Class="page-surface">
++    <PageHeader Title='@Text["EditHeading"]' />
++    @if (_isLoading)
++    {
++        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
++            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
++            <MudText>@Text["LoadingDetails"]</MudText>
++        </MudStack>
++    }
++    else if (_invalidRoute)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
++    }
++    else if (_loadError.HasError)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
++    }
++    else if (_details is not null && _formModel is not null)
++    {
++        @if (!_details.AllowedActions.CanEdit)
++        {
++            <MudAlert Severity="Severity.Warning" Class="page-state">@Text["NoEditPermission"]</MudAlert>
++        }
++        else
++        {
++            @if (_submitError.HasError)
++            {
++                <MudAlert Severity="Severity.Error" Class="page-state">@_submitError.Message</MudAlert>
++            }
++            <MenuCardForm Model="_formModel"
++                          IsEdit="true"
++                          IsSubmitting="_isSubmitting"
++                          ErrorMessage="@_submitError.Message"
++                          ValidationErrors="_submitError.ValidationErrors"
++                          OnSubmit="UpdateAsync"
++                          OnCancel="Cancel" />
++            <MudDivider Class="my-6" />
++            <PageHeader Title="@Text["Sections"]" />
++            <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
++            <MenuCardSectionsEditor @key="_details"
++                                    Sections="_details.Sections"
++                                    EligibleOffers="_details.EligibleOffers"
++                                    CanEdit="_details.AllowedActions.CanEdit && !_isSubmitting"
++                                    OnCreateSection="CreateSectionAsync"
++                                    OnUpdateSection="UpdateSectionAsync"
++                                    OnDeleteSection="DeleteSectionAsync"
++                                    OnAddOffer="AddOfferAsync"
++                                    OnUpdateOffer="UpdateOfferAsync"
++                                    OnRemoveOffer="RemoveOfferAsync" />
++        }
++    }
++    else if (!_isLoading && !_loadError.HasError && !_invalidRoute)
++    {
++        <MudAlert Severity="Severity.Warning" Class="page-state">@Text["NotFound"]</MudAlert>
++    }
++    <MudButton Variant="Variant.Text" Class="mt-4" Href="@MenuCardRoutes.Index(RestaurantId)">@Text["BackToCards"]</MudButton>
++</MudPaper>
++
++@code {
++    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
++    [Parameter, EditorRequired] public Guid MenuCardId { get; set; }
++
++    private readonly ApiErrorState _loadError = new();
++    private readonly ApiErrorState _submitError = new();
++    private MenuCardDetailsViewModel? _details;
++    private MenuCardFormModel? _formModel;
++    private bool _isLoading = true;
++    private bool _invalidRoute;
++    private bool _isSubmitting;
++
++    protected override async Task OnParametersSetAsync() => await LoadAsync();
++
++    private async Task LoadAsync()
++    {
++        _isLoading = true;
++        _loadError.Clear();
++        _invalidRoute = false;
++        try
++        {
++            if (RestaurantId == Guid.Empty || MenuCardId == Guid.Empty)
++            {
++                _invalidRoute = true;
++                return;
++            }
++
++            ApiResult<GetMenuCardForManageResponse> result =
++                await MenuCardsApiClient.GetByIdForManageAsync(MenuCardId, RestaurantId);
++            if (_loadError.Apply(result, Text["NotFound"], Text["UnexpectedError"])
++                || result is not ApiResult<GetMenuCardForManageResponse>.Success success)
++            {
++                return;
++            }
++
++            if (success.Value.MenuCardId != MenuCardId || success.Value.RestaurantId != RestaurantId)
++            {
++                _invalidRoute = true;
++                return;
++            }
++
++            _details = MenuCardDetailsViewModel.FromResponse(success.Value);
++            _formModel = MenuCardFormModel.FromResponse(success.Value);
++        }
++        finally
++        {
++            _isLoading = false;
++        }
++    }
++
++    private async Task UpdateAsync(MenuCardFormModel model)
++    {
++        if (_details?.AllowedActions.CanEdit != true || _isSubmitting)
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<bool> result = await MenuCardsApiClient.UpdateAsync(
++                MenuCardId,
++                RestaurantId,
++                model.ToUpdateRequest());
++            if (_submitError.Apply(result, Text["UpdateError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            Snackbar.Add(Text["UpdateSuccess"], Severity.Success);
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private async Task CreateSectionAsync(CreateMenuSectionRequest request)
++    {
++        if (_details?.AllowedActions.CanEdit != true || _isSubmitting || string.IsNullOrWhiteSpace(request.Name))
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<MenuCardMutationResponse> result =
++                await MenuCardsApiClient.CreateSectionAsync(MenuCardId, RestaurantId, request);
++            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private async Task UpdateSectionAsync((Guid SectionId, UpdateMenuSectionRequest Request) update)
++    {
++        if (_details?.AllowedActions.CanEdit != true || _isSubmitting || string.IsNullOrWhiteSpace(update.Request.Name))
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<bool> result = await MenuCardsApiClient.UpdateSectionAsync(
++                MenuCardId,
++                update.SectionId,
++                RestaurantId,
++                update.Request);
++            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private async Task DeleteSectionAsync(Guid sectionId)
++    {
++        if (_details?.AllowedActions.CanEdit != true
++            || _isSubmitting
++            || _details.Sections.All(section => section.Id != sectionId))
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<bool> result = await MenuCardsApiClient.DeleteSectionAsync(MenuCardId, sectionId, RestaurantId);
++            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private async Task AddOfferAsync((Guid SectionId, AddMenuCardOfferRequest Request) addition)
++    {
++        if (_details?.AllowedActions.CanEdit != true
++            || _isSubmitting
++            || _details.Sections.All(section => section.Id != addition.SectionId)
++            || !_details.EligibleOffers.Any(offer => offer.OfferId == addition.Request.OfferId)
++            || _details.Sections
++                .First(section => section.Id == addition.SectionId)
++                .Offers.Any(offer => offer.OfferId == addition.Request.OfferId))
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<MenuCardMutationResponse> result = await MenuCardsApiClient.AddOfferAsync(
++                MenuCardId,
++                addition.SectionId,
++                RestaurantId,
++                addition.Request);
++            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private async Task UpdateOfferAsync(
++        (Guid SectionId, Guid ListingId, UpdateMenuCardOfferRequest Request) update)
++    {
++        if (_details?.AllowedActions.CanEdit != true
++            || _isSubmitting
++            || _details.Sections
++                .Where(section => section.Id == update.SectionId)
++                .All(section => section.Offers.All(offer => offer.Id != update.ListingId)))
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<bool> result = await MenuCardsApiClient.UpdateOfferAsync(
++                MenuCardId,
++                update.SectionId,
++                update.ListingId,
++                RestaurantId,
++                update.Request);
++            if (_submitError.Apply(result, Text["OrderError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private async Task RemoveOfferAsync((Guid SectionId, Guid ListingId) removal)
++    {
++        if (_details?.AllowedActions.CanEdit != true
++            || _isSubmitting
++            || _details.Sections
++                .Where(section => section.Id == removal.SectionId)
++                .All(section => section.Offers.All(offer => offer.Id != removal.ListingId)))
++        {
++            return;
++        }
++
++        _isSubmitting = true;
++        _submitError.Clear();
++        try
++        {
++            ApiResult<bool> result = await MenuCardsApiClient.RemoveOfferAsync(
++                MenuCardId,
++                removal.SectionId,
++                removal.ListingId,
++                RestaurantId);
++            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
++            {
++                return;
++            }
++
++            await LoadAsync();
++        }
++        finally
++        {
++            _isSubmitting = false;
++        }
++    }
++
++    private Task Cancel()
++    {
++        NavigationManager.NavigateTo(MenuCardRoutes.Index(RestaurantId));
++        return Task.CompletedTask;
++    }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardFormModel.cs" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardFormModel.cs"
+new file mode 100644
+index 0000000..1072106
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardFormModel.cs"
+@@ -0,0 +1,15 @@
++using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
++
++namespace MyHomeRamen.Blazor.Features.Menu.MenuCards.Models;
++
++public sealed class MenuCardFormModel
++{
++    public string Name { get; set; } = string.Empty;
++
++    public CreateMenuCardRequest ToCreateRequest() => new(Name.Trim());
++
++    public UpdateMenuCardRequest ToUpdateRequest() => new(Name.Trim());
++
++    public static MenuCardFormModel FromResponse(GetMenuCardForManageResponse response) =>
++        new() { Name = response.Name };
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardFormModelValidator.cs" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardFormModelValidator.cs"
+new file mode 100644
+index 0000000..c354c00
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardFormModelValidator.cs"
+@@ -0,0 +1,17 @@
++using FluentValidation;
++using Microsoft.Extensions.Localization;
++using MyHomeRamen.Blazor.Components.Models;
++using MyHomeRamen.Blazor.Features.Menu.MenuCards;
++
++namespace MyHomeRamen.Blazor.Features.Menu.MenuCards.Models;
++
++public sealed class MenuCardFormModelValidator : BaseValidator<MenuCardFormModel>
++{
++    public MenuCardFormModelValidator(IStringLocalizer<MenuCardsResources> text)
++    {
++        RuleFor(model => model.Name)
++            .NotEmpty().WithMessage(text["NameRequired"]);
++        RuleFor(model => model.Name)
++            .MaximumLength(100).WithMessage(text["NameMaxLength"]);
++    }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardViewModel.cs" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardViewModel.cs"
+new file mode 100644
+index 0000000..a8b6136
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Models\\MenuCardViewModel.cs"
+@@ -0,0 +1,94 @@
++using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
++
++namespace MyHomeRamen.Blazor.Features.Menu.MenuCards.Models;
++
++public sealed record MenuCardViewModel(
++    Guid MenuCardId,
++    Guid RestaurantId,
++    string Name,
++    bool IsActive,
++    int SortOrder,
++    bool CanEdit,
++    bool CanDelete)
++{
++    public static MenuCardViewModel FromResponse(MenuCardForManageContract response) =>
++        new(
++            response.MenuCardId,
++            response.RestaurantId,
++            response.Name,
++            response.IsActive,
++            response.SortOrder,
++            response.AllowedActions.CanEdit,
++            response.AllowedActions.CanDelete);
++}
++
++public sealed record MenuCardDetailsViewModel(
++    Guid MenuCardId,
++    Guid RestaurantId,
++    string Name,
++    bool IsActive,
++    int SortOrder,
++    MenuCardAllowedActions AllowedActions,
++    IReadOnlyList<MenuCardSectionViewModel> Sections,
++    IReadOnlyList<MenuCardOfferChoiceViewModel> EligibleOffers)
++{
++    public static MenuCardDetailsViewModel FromResponse(GetMenuCardForManageResponse response) =>
++        new(
++            response.MenuCardId,
++            response.RestaurantId,
++            response.Name,
++            response.IsActive,
++            response.SortOrder,
++            response.AllowedActions,
++            response.Sections
++                .OrderBy(section => section.SortOrder)
++                .Select(section => new MenuCardSectionViewModel(
++                    section.Id,
++                    section.Name,
++                    section.SortOrder,
++                    section.Offers
++                        .OrderBy(offer => offer.SortOrder)
++                        .Select(offer => new MenuCardListingViewModel(
++                            offer.Id,
++                            offer.OfferId,
++                            offer.Name,
++                            offer.SortOrder,
++                            offer.IsAvailable,
++                            offer.Price))
++                        .ToList()))
++                .ToList(),
++            response.EligibleOffers
++                .OrderBy(offer => offer.Name, StringComparer.CurrentCulture)
++                .Select(offer => new MenuCardOfferChoiceViewModel(offer.OfferId, offer.Name))
++                .ToList());
++}
++
++public sealed class MenuCardSectionViewModel(
++    Guid id,
++    string name,
++    int sortOrder,
++    IReadOnlyList<MenuCardListingViewModel> offers)
++{
++    public Guid Id { get; } = id;
++    public string Name { get; set; } = name;
++    public int SortOrder { get; set; } = sortOrder;
++    public IReadOnlyList<MenuCardListingViewModel> Offers { get; } = offers;
++}
++
++public sealed class MenuCardListingViewModel(
++    Guid id,
++    Guid offerId,
++    string name,
++    int sortOrder,
++    bool isAvailable,
++    decimal? price)
++{
++    public Guid Id { get; } = id;
++    public Guid OfferId { get; } = offerId;
++    public string Name { get; } = name;
++    public int SortOrder { get; set; } = sortOrder;
++    public bool IsAvailable { get; } = isAvailable;
++    public decimal? Price { get; } = price;
++}
++
++public sealed record MenuCardOfferChoiceViewModel(Guid OfferId, string Name);
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Shared\\MenuCardRoutes.cs" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Shared\\MenuCardRoutes.cs"
+new file mode 100644
+index 0000000..814adbd
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\Shared\\MenuCardRoutes.cs"
+@@ -0,0 +1,15 @@
++namespace MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
++
++public static class MenuCardRoutes
++{
++    private const string RestaurantMenuRoot = "/admin/restaurants";
++    public const string IndexTemplate = RestaurantMenuRoot + "/{RestaurantId:guid}/menu/cards";
++    public const string CreateTemplate = IndexTemplate + "/create";
++    public const string ViewTemplate = IndexTemplate + "/{MenuCardId:guid}";
++    public const string EditTemplate = ViewTemplate + "/edit";
++
++    public static string Index(Guid restaurantId) => $"{RestaurantMenuRoot}/{restaurantId}/menu/cards";
++    public static string Create(Guid restaurantId) => $"{Index(restaurantId)}/create";
++    public static string View(Guid restaurantId, Guid menuCardId) => $"{Index(restaurantId)}/{menuCardId}";
++    public static string Edit(Guid restaurantId, Guid menuCardId) => $"{View(restaurantId, menuCardId)}/edit";
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\ViewMenuCard\\ViewMenuCardPage.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\ViewMenuCard\\ViewMenuCardPage.razor"
+new file mode 100644
+index 0000000..7d0c3de
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\ViewMenuCard\\ViewMenuCardPage.razor"
+@@ -0,0 +1,19 @@
++@attribute [Route(MenuCardRoutes.ViewTemplate)]
++@attribute [Authorize(Policy = AdminSectionConstants.MenuCardManagement)]
++@layout AdminLayout
++
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Components.Layout.Admin
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++@using MyHomeRamen.Blazor.Infrastructure.Authentication
++
++@inject IStringLocalizer<MenuCardsResources> Text
++
++<PageTitle>@Text["ViewPageTitle"]</PageTitle>
++<ViewMenuCardView RestaurantId="RestaurantId" MenuCardId="MenuCardId" />
++
++@code {
++    [Parameter] public Guid RestaurantId { get; set; }
++    [Parameter] public Guid MenuCardId { get; set; }
++}
+diff --git "a/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\ViewMenuCard\\ViewMenuCardView.razor" "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\ViewMenuCard\\ViewMenuCardView.razor"
+new file mode 100644
+index 0000000..d983f1d
+--- /dev/null
++++ "b/MyHomeRamen.Blazor\\MyHomeRamen.Blazor\\Features\\Menu\\MenuCards\\ViewMenuCard\\ViewMenuCardView.razor"
+@@ -0,0 +1,126 @@
++@using Microsoft.Extensions.Localization
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
++@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
++@using MyHomeRamen.Blazor.Infrastructure.Api
++
++@inject MenuCardsApiClient MenuCardsApiClient
++@inject IStringLocalizer<MenuCardsResources> Text
++@inject NavigationManager NavigationManager
++
++<MudPaper Elevation="3" Class="page-surface">
++    @if (_isLoading)
++    {
++        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
++            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
++            <MudText>@Text["LoadingDetails"]</MudText>
++        </MudStack>
++    }
++    else if (_invalidRoute)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
++    }
++    else if (_loadError.HasError)
++    {
++        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
++    }
++    else if (_details is not null)
++    {
++        <PageHeader Title="@_details.Name">
++            @if (_details.AllowedActions.CanEdit)
++            {
++                <MudButton Variant="Variant.Filled"
++                           Color="Color.Primary"
++                           StartIcon="@Icons.Material.Filled.Edit"
++                           Href="@MenuCardRoutes.Edit(RestaurantId, MenuCardId)">
++                    @Text["Edit"]
++                </MudButton>
++            }
++        </PageHeader>
++        <MudText Class="mb-4">@(_details.IsActive ? Text["Active"] : Text["Inactive"])</MudText>
++        <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
++        @if (_details.Sections.Count == 0)
++        {
++            <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["NoSections"]</MudAlert>
++        }
++        else
++        {
++            <MudStack Spacing="3">
++                @foreach (MenuCardSectionViewModel section in _details.Sections)
++                {
++                    <MudPaper Outlined="true" Class="pa-4">
++                        <MudText Typo="Typo.h6">@section.Name</MudText>
++                        @if (section.Offers.Count == 0)
++                        {
++                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Text["NoListings"]</MudText>
++                        }
++                        @foreach (MenuCardListingViewModel offer in section.Offers)
++                        {
++                            <MudStack Row="true" Justify="Justify.SpaceBetween" Class="mt-2">
++                                <MudText>@offer.Name</MudText>
++                                @if (!offer.IsAvailable)
++                                {
++                                    <MudText Typo="Typo.caption" Color="Color.Warning">@Text["UnavailableOffer"]</MudText>
++                                }
++                                else if (offer.Price.HasValue)
++                                {
++                                    <MudText Typo="Typo.caption">@Text["OfferPrice", offer.Price.Value.ToString("C")]</MudText>
++                                }
++                            </MudStack>
++                        }
++                    </MudPaper>
++                }
++            </MudStack>
++        }
++        <MudButton Variant="Variant.Text" Class="mt-4" Href="@MenuCardRoutes.Index(RestaurantId)">@Text["BackToCards"]</MudButton>
++    }
++    else
++    {
++        <MudAlert Severity="Severity.Warning" Class="page-state">@Text["NotFound"]</MudAlert>
++    }
++</MudPaper>
++
++@code {
++    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
++    [Parameter, EditorRequired] public Guid MenuCardId { get; set; }
++
++    private readonly ApiErrorState _loadError = new();
++    private MenuCardDetailsViewModel? _details;
++    private bool _isLoading = true;
++    private bool _invalidRoute;
++
++    protected override async Task OnParametersSetAsync()
++    {
++        _isLoading = true;
++        _loadError.Clear();
++        _details = null;
++        _invalidRoute = false;
++        try
++        {
++            if (RestaurantId == Guid.Empty || MenuCardId == Guid.Empty)
++            {
++                _invalidRoute = true;
++                return;
++            }
++
++            ApiResult<GetMenuCardForManageResponse> result =
++                await MenuCardsApiClient.GetByIdForManageAsync(MenuCardId, RestaurantId);
++            if (_loadError.Apply(result, Text["NotFound"], Text["UnexpectedError"])
++                || result is not ApiResult<GetMenuCardForManageResponse>.Success success)
++            {
++                return;
++            }
++
++            if (success.Value.MenuCardId != MenuCardId || success.Value.RestaurantId != RestaurantId)
++            {
++                _invalidRoute = true;
++                return;
++            }
++
++            _details = MenuCardDetailsViewModel.FromResponse(success.Value);
++        }
++        finally
++        {
++            _isLoading = false;
++        }
++    }
++}

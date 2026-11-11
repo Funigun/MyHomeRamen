@@ -15,6 +15,7 @@ using MyHomeRamen.Features.Menu.Features.MenuCards.ActivateMenuCard;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardForManage;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardOptions;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardsForManage;
+using MyHomeRamen.Features.Menu.Features.MenuCards.UpdateMenuCardsOrder;
 using MyHomeRamen.Features.Menu.Features.Offers.GetRestaurantOffersForManage;
 using MyHomeRamen.Features.Menu.Features.RestaurantIngredientPrices.GetRestaurantIngredientPricesForManage;
 using MyHomeRamen.IntegrationTests.Extensions;
@@ -37,9 +38,11 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
     private MenuCard _inactiveCard = default!;
     private MenuCard _otherRestaurantCard = default!;
     private Guid _otherRestaurantId;
+    private string _testSuffix = string.Empty;
 
     public async ValueTask InitializeAsync()
     {
+        _testSuffix = Guid.CreateVersion7().ToString("N")[..12];
         _user = await apiFactory.IdentityTestData.SeedUser(
         [
             MenuPermissionConstants.CanManageIngredientPrices,
@@ -50,14 +53,14 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
             MenuPermissionConstants.CanViewMenuCard,
             MenuPermissionConstants.CanEditMenuCard
         ],
-        "restaurant-scoped-menu-management-user");
+        $"restaurant-scoped-menu-management-user-{_testSuffix}");
 
-        Category productCategory = DataGenerator.CreateProductCategory("Management ramen");
-        Category ingredientCategory = DataGenerator.CreateIngredientCategory("Management extras");
-        _firstIngredient = CreateIngredient(ingredientCategory, "PriceTest first");
-        _secondIngredient = CreateIngredient(ingredientCategory, "PriceTest second");
-        Product firstProduct = CreateProduct(productCategory, "Management active ramen");
-        Product secondProduct = CreateProduct(productCategory, "Management retired ramen");
+        Category productCategory = DataGenerator.CreateProductCategory($"Management ramen {_testSuffix}");
+        Category ingredientCategory = DataGenerator.CreateIngredientCategory($"Management extras {_testSuffix}");
+        _firstIngredient = CreateIngredient(ingredientCategory, $"PriceTest {_testSuffix} first");
+        _secondIngredient = CreateIngredient(ingredientCategory, $"PriceTest {_testSuffix} second");
+        Product firstProduct = CreateProduct(productCategory, $"Management active ramen {_testSuffix}");
+        Product secondProduct = CreateProduct(productCategory, $"Management retired ramen {_testSuffix}");
 
         _activeOffer = RestaurantProductOffer.Create(
             new RestaurantProductOfferId(Guid.CreateVersion7()),
@@ -73,11 +76,11 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
             15m);
         _retiredOffer.Retire();
 
-        _activeCard = CreateMenuCard("Active management card", true, _activeOffer);
-        _inactiveCard = CreateMenuCard("Inactive management card", false, _retiredOffer);
+        _activeCard = CreateMenuCard($"Active management card {_testSuffix}", true, _activeOffer);
+        _inactiveCard = CreateMenuCard($"Inactive management card {_testSuffix}", false, _retiredOffer);
         _otherRestaurantId = Guid.CreateVersion7();
         _otherRestaurantCard = CreateMenuCard(
-            "Other restaurant card",
+            $"Other restaurant card {_testSuffix}",
             false,
             null,
             _otherRestaurantId);
@@ -118,7 +121,7 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
     public async Task GetIngredientPricesForManage_ShouldReturnPagedMatchesOnly_ForSelectedRestaurant()
     {
         using HttpRequestMessage request = CreateGetRequest(
-            "/api/menu/ingredient-prices/manage?ingredientName=PriceTest&pageNumber=1&pageSize=1");
+            $"/api/menu/ingredient-prices/manage?ingredientName={Uri.EscapeDataString($"PriceTest {_testSuffix}")}&pageNumber=1&pageSize=1");
 
         HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(
             request,
@@ -132,6 +135,9 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
         Assert.Equal(2, result.TotalCount);
         Assert.Single(result.Items);
         Assert.All(result.Items, item => Assert.Equal(apiFactory.RestaurantId, item.RestaurantId));
+        Assert.False(result.AllowedActions.CanCreate);
+        Assert.False(result.AllowedActions.CanEdit);
+        Assert.False(result.AllowedActions.CanRemove);
     }
 
     [Fact]
@@ -148,8 +154,7 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
 
         Assert.Equal(HttpStatusCode.OK, allOffersResponse.StatusCode);
         Assert.NotNull(allOffers);
-        Assert.Equal(2, allOffers.TotalCount);
-        Assert.Contains(allOffers.Items, offer => offer.Status == RestaurantProductOfferStatus.Retired.ToString());
+        Assert.Contains(allOffers.Items, offer => offer.OfferId == _retiredOffer.Id.Value);
         Assert.All(allOffers.Items, offer => Assert.Equal(apiFactory.RestaurantId, offer.RestaurantId));
 
         using HttpRequestMessage activeOffersRequest = CreateGetRequest("/api/menu/offers/manage?status=Active");
@@ -162,12 +167,12 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
 
         Assert.Equal(HttpStatusCode.OK, activeOffersResponse.StatusCode);
         Assert.NotNull(activeOffers);
-        Assert.Single(activeOffers.Items);
+        Assert.Contains(activeOffers.Items, offer => offer.OfferId == _activeOffer.Id.Value);
         Assert.All(activeOffers.Items, offer => Assert.Equal("Active", offer.Status));
     }
 
     [Fact]
-    public async Task MenuCardManagement_ShouldExposeInactiveCards_AndActivationRestoresCustomerRead()
+    public async Task MenuCardManagement_ShouldExposeInactiveCards_AndActivationRestoresMenuCardRead()
     {
         using HttpRequestMessage listRequest = CreateGetRequest(
             "/api/menu/cards/manage?isActive=false&pageNumber=1&pageSize=10");
@@ -183,6 +188,9 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
         Assert.Contains(listResult.Items, card => card.Id == _inactiveCard.Id.Value);
         Assert.DoesNotContain(listResult.Items, card => card.Id == _activeCard.Id.Value);
         Assert.DoesNotContain(listResult.Items, card => card.Id == _otherRestaurantCard.Id.Value);
+        Assert.False(listResult.AllowedActions.CanCreate);
+        Assert.True(listResult.AllowedActions.CanEdit);
+        Assert.False(listResult.AllowedActions.CanDelete);
 
         using HttpRequestMessage detailRequest = CreateGetRequest(
             $"/api/menu/cards/{_inactiveCard.Id.Value}/manage");
@@ -213,8 +221,7 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
         Assert.NotNull(optionsResult);
         Assert.DoesNotContain(optionsResult.MenuCards, card => card.MenuCardId == _inactiveCard.Id.Value);
 
-        using HttpRequestMessage customerReadRequest = new(
-            HttpMethod.Get,
+        using HttpRequestMessage customerReadRequest = CreateGetRequest(
             $"/api/menu/cards/{_inactiveCard.Id.Value}");
         HttpResponseMessage inactiveCustomerResponse = await apiFactory.HttpClient.SendAsync(
             customerReadRequest,
@@ -228,8 +235,7 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
             TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.OK, activateResponse.StatusCode);
 
-        using HttpRequestMessage activeCustomerReadRequest = new(
-            HttpMethod.Get,
+        using HttpRequestMessage activeCustomerReadRequest = CreateGetRequest(
             $"/api/menu/cards/{_inactiveCard.Id.Value}");
         HttpResponseMessage activeCustomerResponse = await apiFactory.HttpClient.SendAsync(
             activeCustomerReadRequest,
@@ -247,6 +253,47 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
         Assert.Equal(HttpStatusCode.OK, activeOptionsResponse.StatusCode);
         Assert.NotNull(activeOptionsResult);
         Assert.Contains(activeOptionsResult.MenuCards, card => card.MenuCardId == _inactiveCard.Id.Value);
+    }
+
+    [Fact]
+    public async Task UpdateMenuCardsOrder_ShouldPersistOrder_ForSelectedRestaurant()
+    {
+        UpdateMenuCardsOrderRequest body = new(
+        [
+            new MenuCardOrderItemDto(_inactiveCard.Id.Value, 0),
+            new MenuCardOrderItemDto(_activeCard.Id.Value, 1)
+        ]);
+        using HttpRequestMessage request = CreatePutRequest("/api/menu/cards/order");
+        request.WithJsonContent(body);
+
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(
+            request,
+            TestContext.Current.CancellationToken);
+        await response.AssertStatusCode(HttpStatusCode.NoContent);
+
+        using HttpRequestMessage listRequest = CreateGetRequest(
+            $"/api/menu/cards/manage?name={Uri.EscapeDataString($"management card {_testSuffix}")}&pageNumber=1&pageSize=10");
+        HttpResponseMessage listResponse = await apiFactory.HttpClient.SendAsync(
+            listRequest,
+            TestContext.Current.CancellationToken);
+        GetMenuCardsForManageResponse? listResult =
+            await listResponse.Content.ReadFromJsonAsync<GetMenuCardsForManageResponse>(
+                TestContext.Current.CancellationToken);
+
+        await listResponse.AssertStatusCode(HttpStatusCode.OK);
+        Assert.NotNull(listResult);
+        Assert.Collection(
+            listResult.Items,
+            card =>
+            {
+                Assert.Equal(_inactiveCard.Id.Value, card.Id);
+                Assert.Equal(0, card.SortOrder);
+            },
+            card =>
+            {
+                Assert.Equal(_activeCard.Id.Value, card.Id);
+                Assert.Equal(1, card.SortOrder);
+            });
     }
 
     [Fact]

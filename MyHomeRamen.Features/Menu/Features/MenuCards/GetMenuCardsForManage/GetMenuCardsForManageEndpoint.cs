@@ -19,13 +19,17 @@ public sealed record MenuCardForManageDto(
     Guid Id,
     Guid RestaurantId,
     string Name,
-    bool IsActive);
+    bool IsActive,
+    int SortOrder);
 
 public sealed record GetMenuCardsForManageResponse(
     int Page,
     int PageSize,
     int TotalCount,
-    IEnumerable<MenuCardForManageDto> Items);
+    IEnumerable<MenuCardForManageDto> Items,
+    MenuCardAllowedActions AllowedActions);
+
+public sealed record MenuCardAllowedActions(bool CanCreate, bool CanEdit, bool CanDelete);
 
 public sealed class GetMenuCardsForManageEndpoint : IEndpoint
 {
@@ -35,7 +39,7 @@ public sealed class GetMenuCardsForManageEndpoint : IEndpoint
             .MapStandardGet<GetMenuCardsForManageResponse>("api/menu/cards/manage", HandleAsync)
             .WithName("GetMenuCardsForManageEndpoint")
             .WithTags("Menu Cards")
-            .WithDescription("Returns active and inactive menu cards for restaurant management.")
+            .WithDescription("Returns active and inactive menu cards, sort order, and allowed actions for restaurant management.")
             .RequireAuthorization(AuthorizationPolicies.AuthenticatedUserPolicy);
     }
 

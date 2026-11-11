@@ -5,6 +5,7 @@ using MyHomeRamen.Features.Common.Endpoints.Models;
 using MyHomeRamen.Features.Menu.Features.Products.Common;
 using MyHomeRamen.Features.Menu.Features.Products.GetProductByIdForManage;
 using MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
+using MyHomeRamen.Features.Menu.Features.Offers.GetRestaurantOffersForManage;
 
 namespace MyHomeRamen.Persistance.Menu;
 
@@ -26,6 +27,17 @@ public partial class ProductRepository : IProductQuery
                               .Include(p => p.CustomIngredients)
                               .Include(p => p.Categories)
                               .AsSplitQuery(), options, cancellationToken);
+
+    public async Task<IReadOnlyList<EligibleProductForOfferDto>> EligibleForOffers(
+        Guid restaurantId,
+        CancellationToken cancellationToken)
+        => await menuDbContext.Products.AsNoTracking()
+            .Where(product => product.Status == ProductStatus.Active
+                && !menuDbContext.RestaurantProductOffers.Any(offer =>
+                    offer.RestaurantId == restaurantId && offer.ProductId == product.Id))
+            .OrderBy(product => product.Name)
+            .Select(product => new EligibleProductForOfferDto(product.Id.Value, product.Name))
+            .ToListAsync(cancellationToken);
 
     public async Task<bool> IsProductNameUnique(string name, CancellationToken cancellationToken)
         => !await Exists(p => p.Name.ToLower() == name.ToLower(), cancellationToken);

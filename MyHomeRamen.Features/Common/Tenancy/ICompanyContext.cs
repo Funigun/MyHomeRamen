@@ -6,5 +6,7 @@ public interface ICompanyContext
 
     Guid? RestaurantId { get; }
 
+    void SetCompany(Guid companyId);
+
     void SetRestaurant(Guid restaurantId, Guid companyId);
 }

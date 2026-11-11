@@ -39,8 +39,8 @@ public sealed class CreateIngredientHandler(IMenuDbContext dbContext) : IRequest
 {
     public async Task<CreateIngredientResponse> Handle(CreateIngredientCommand command, CancellationToken cancellationToken)
     {
-        IEnumerable<Category> categories = await dbContext.Category.Query()
-                                                                   .GetByIds(command.CreateIngredientRequest.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
+        IEnumerable<Category> categories = await dbContext.Category.Load()
+                                                                   .ByIds(command.CreateIngredientRequest.CategoryIds.Select(id => (CategoryId)id), cancellationToken);
 
         Ingredient ingredient = command.CreateIngredientRequest.ToDomain(dbContext.CompanyId, categories);
 

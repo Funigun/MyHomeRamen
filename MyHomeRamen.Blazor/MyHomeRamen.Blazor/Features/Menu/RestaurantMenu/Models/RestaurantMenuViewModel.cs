@@ -1,3 +1,4 @@
+using MyHomeRamen.Blazor.Components.Models;
 using MyHomeRamen.Blazor.Features.Menu.Common.Services.Contracts.Products.DTOs;
 using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared;
 using MyHomeRamen.Blazor.Features.Menu.Offers.Shared;
@@ -43,13 +44,14 @@ public sealed record RestaurantMenuViewModel(
                     section.Id,
                     section.Name,
                     section.Offers
+                        .OrderBy(offer => offer.SortOrder)
                         .Select(offer => new RestaurantMenuOfferViewModel(
                             offer.OfferId,
                             offer.ProductId,
                             offer.Name,
                             offer.Description,
                             offer.Price,
-                            offer.ImageUrl,
+                            new ImageModel { Url = offer.ImageUrl, Alt = offer.Name },
                             string.Join(", ", offer.Ingredients
                                 .Where(ingredient => !ingredient.IsCustom)
                                 .Select(ingredient => ingredient.Name))))
@@ -68,5 +70,5 @@ public sealed record RestaurantMenuOfferViewModel(
     string Name,
     string Description,
     decimal Price,
-    string ImageUrl,
+    ImageModel Image,
     string BaseIngredients);

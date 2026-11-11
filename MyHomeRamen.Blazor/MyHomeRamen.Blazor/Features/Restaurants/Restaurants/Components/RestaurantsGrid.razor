@@ -42,6 +42,21 @@ else
                             }
                         </MudStack>
                     </MudCardContent>
+                    <MudCardActions Class="data-card-actions">
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Primary"
+                                   OnClick="@(() => OnEdit.InvokeAsync(item.Id))">
+                            @EditText
+                        </MudButton>
+                        @if (ShowPreviewMenu)
+                        {
+                            <MudButton Variant="Variant.Text"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => OnPreviewMenu.InvokeAsync(item.Id))">
+                                @PreviewMenuText
+                            </MudButton>
+                        }
+                    </MudCardActions>
                 </MudCard>
             </MudItem>
         }
@@ -56,4 +71,9 @@ else
     [Parameter, EditorRequired] public string EmailText { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string ActiveText { get; set; } = string.Empty;
     [Parameter, EditorRequired] public string InactiveText { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string EditText { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public EventCallback<Guid> OnEdit { get; set; }
+    [Parameter] public bool ShowPreviewMenu { get; set; }
+    [Parameter] public string PreviewMenuText { get; set; } = string.Empty;
+    [Parameter] public EventCallback<Guid> OnPreviewMenu { get; set; }
 }

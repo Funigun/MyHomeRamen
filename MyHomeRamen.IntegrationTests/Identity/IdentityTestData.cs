@@ -34,6 +34,8 @@ public class IdentityTestData
         if (_serviceCollection is null)
         {
             _serviceCollection = new();
+            _serviceCollection.AddLogging();
+            _serviceCollection.AddSharedServices();
             _serviceCollection.AddSingleton(options);
             _serviceCollection.AddScoped(provider => user);
             _serviceCollection.AddScoped(provider => new IdentityDbContext(options, user, provider));
@@ -53,6 +55,14 @@ public class IdentityTestData
         await seedDbContext.Database.MigrateAsync();
 
         IdentityDbContext = scope.ServiceProvider.GetRequiredService<IIdentityDbContext>();
+        if (!await IdentityDbContext.User.Exists(
+                user => user.FirstName == "System",
+                TestContext.Current.CancellationToken))
+        {
+            IdentityDbContext.User.Add(User.CreateSystem());
+            await IdentityDbContext.SaveChangesAsync(TestContext.Current.CancellationToken);
+        }
+
         await SeedAsync(scope);
     }
 

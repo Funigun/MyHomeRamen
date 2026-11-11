@@ -1,0 +1,74 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
+
+@inject IStringLocalizer<MenuCardsResources> Text
+
+<MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue" ValidationDelay="0">
+    <MudStack Spacing="3" Class="form-fields">
+        <MudTextField @bind-Value="Model.Name"
+                      For="@(() => Model.Name)"
+                      Label="@Text["CardName"]"
+                      Variant="Variant.Outlined"
+                      Disabled="IsSubmitting"
+                      Immediate="true"
+                      Error="@HasError(nameof(Model.Name))"
+                      ErrorText="@GetError(nameof(Model.Name))" />
+        @if (!string.IsNullOrWhiteSpace(ErrorMessage))
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" Class="form-error">@ErrorMessage</MudAlert>
+        }
+        <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="form-actions">
+            <MudButton Variant="Variant.Text" Disabled="IsSubmitting" OnClick="CancelAsync">@Text["Cancel"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="IsSubmitting" OnClick="SubmitAsync">
+                @if (IsSubmitting)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2" />
+                    @Text["Saving"]
+                }
+                else
+                {
+                    @Text[IsEdit ? "Save" : "Create"]
+                }
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudForm>
+
+@code {
+    [Parameter, EditorRequired] public MenuCardFormModel Model { get; set; } = default!;
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public bool IsSubmitting { get; set; }
+    [Parameter] public string? ErrorMessage { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, string[]> ValidationErrors { get; set; } = new Dictionary<string, string[]>();
+    [Parameter, EditorRequired] public EventCallback<MenuCardFormModel> OnSubmit { get; set; }
+    [Parameter, EditorRequired] public EventCallback OnCancel { get; set; }
+
+    private MudForm _form = default!;
+    private MenuCardFormModelValidator _validator = default!;
+
+    protected override void OnInitialized() => _validator = new MenuCardFormModelValidator(Text);
+
+    private async Task SubmitAsync()
+    {
+        await _form.ValidateAsync();
+        if (_form.IsValid && !IsSubmitting)
+        {
+            await OnSubmit.InvokeAsync(Model);
+        }
+    }
+
+    private Task CancelAsync() => OnCancel.InvokeAsync();
+
+    private bool HasError(string propertyName) => GetError(propertyName) is not null;
+
+    private string? GetError(string propertyName)
+    {
+        string[] errors = ValidationErrors
+            .Where(error => error.Key.Equals(propertyName, StringComparison.Ordinal)
+                || error.Key.EndsWith($".{propertyName}", StringComparison.Ordinal))
+            .SelectMany(error => error.Value)
+            .ToArray();
+        return errors.Length > 0 ? string.Join(" ", errors) : null;
+    }
+}

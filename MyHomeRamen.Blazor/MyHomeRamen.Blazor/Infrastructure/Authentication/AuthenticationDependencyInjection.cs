@@ -45,6 +45,8 @@ internal static class AuthenticationDependencyInjection
                     policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.OfferManagement))
                 .AddPolicy(AdminSectionConstants.IngredientPriceManagement, policy =>
                     policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.IngredientPriceManagement))
+                .AddPolicy(AdminSectionConstants.MenuCardManagement, policy =>
+                    policy.RequireClaim(AuthenticationClaimConstants.AdminSection, AdminSectionConstants.MenuCardManagement))
                 .AddPolicy(AuthenticationClaimConstants.CompanyOwnerPolicy, policy =>
                     policy.RequireClaim(AuthenticationClaimConstants.UserDestination, UserDestinationConstants.CompanyOwner))
                 .AddPolicy(AuthenticationClaimConstants.EmployeePolicy, policy =>

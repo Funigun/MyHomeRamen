@@ -1,0 +1,239 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Components
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject MenuCardsApiClient MenuCardsApiClient
+@inject IStringLocalizer<MenuCardsResources> Text
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title='@Text["Heading"]'>
+        @if (!_isLoading && !_loadError.HasError && _allowedActions?.CanCreate == true && !_invalidRestaurantContext)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       Href="@MenuCardRoutes.Create(RestaurantId)">
+                @Text["Create"]
+            </MudButton>
+        }
+    </PageHeader>
+
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["Loading"]</MudText>
+        </MudStack>
+    }
+    else if (_invalidRestaurantContext)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+    }
+    else
+    {
+        @if (_submitError.HasError)
+        {
+            <MudAlert Severity="Severity.Error" Class="page-state">@_submitError.Message</MudAlert>
+        }
+        <MenuCardTable Items="_cards"
+                       EmptyText="@Text["Empty"]"
+                       SortOrderLabel="@Text["SortOrder"]"
+                       ViewText="@Text["View"]"
+                       EditText="@Text["Edit"]"
+                       ActiveText="@Text["Active"]"
+                       InactiveText="@Text["Inactive"]"
+                       DeactivateText="@Text["Deactivate"]"
+                       ActivateText="@Text["Activate"]"
+                       MoveUpText="@Text["MoveUp"]"
+                       MoveDownText="@Text["MoveDown"]"
+                       OnView="ViewCard"
+                       OnEdit="EditCard"
+                       OnDeactivate="ConfirmDeactivateAsync"
+                       OnActivate="ActivateAsync"
+                       OnMove="MoveAsync" />
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
+
+    private readonly ApiErrorState _loadError = new();
+    private readonly ApiErrorState _submitError = new();
+    private List<MenuCardViewModel> _cards = [];
+    private MenuCardAllowedActions? _allowedActions;
+    private bool _isLoading = true;
+    private bool _invalidRestaurantContext;
+    private bool _isSubmitting;
+
+    protected override async Task OnParametersSetAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _loadError.Clear();
+        _invalidRestaurantContext = false;
+
+        try
+        {
+            if (RestaurantId == Guid.Empty)
+            {
+                _invalidRestaurantContext = true;
+                return;
+            }
+
+            ApiResult<GetMenuCardsForManageResponse> result = await MenuCardsApiClient.GetForManageAsync(RestaurantId);
+            if (_loadError.Apply(result, Text["LoadError"], Text["UnexpectedError"])
+                || result is not ApiResult<GetMenuCardsForManageResponse>.Success success)
+            {
+                return;
+            }
+
+            _allowedActions = success.Value.AllowedActions;
+            _cards = success.Value.Items
+                .Select(card => MenuCardViewModel.FromResponse(card, success.Value.AllowedActions))
+                .ToList();
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void ViewCard(Guid menuCardId) =>
+        NavigationManager.NavigateTo(MenuCardRoutes.View(RestaurantId, menuCardId));
+
+    private void EditCard(Guid menuCardId)
+    {
+        MenuCardViewModel? card = _cards.FirstOrDefault(item => item.MenuCardId == menuCardId);
+        if (card?.CanEdit == true)
+        {
+            NavigationManager.NavigateTo(MenuCardRoutes.Edit(RestaurantId, menuCardId));
+        }
+    }
+
+    private async Task ConfirmDeactivateAsync(Guid menuCardId)
+    {
+        MenuCardViewModel? card = _cards.FirstOrDefault(item =>
+            item.MenuCardId == menuCardId && item.IsActive && item.CanDelete);
+        if (card is null || _isSubmitting)
+        {
+            return;
+        }
+
+        bool? confirmed = await DialogService.ShowMessageBoxAsync(
+            Text["DeactivateConfirmTitle"],
+            Text["DeactivateConfirmMessage", card.Name],
+            yesText: Text["Deactivate"],
+            cancelText: Text["Cancel"]);
+        if (confirmed == true)
+        {
+            await DeactivateAsync(card);
+        }
+    }
+
+    private async Task DeactivateAsync(MenuCardViewModel card)
+    {
+        if (!card.IsActive || !card.CanDelete || _isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<bool> result = await MenuCardsApiClient.DeactivateAsync(card.MenuCardId, RestaurantId);
+            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["DeactivateSuccess"], Severity.Success);
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task ActivateAsync(Guid menuCardId)
+    {
+        MenuCardViewModel? card = _cards.FirstOrDefault(item =>
+            item.MenuCardId == menuCardId && !item.IsActive && item.CanEdit);
+        if (card is null || _isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<bool> result = await MenuCardsApiClient.ActivateAsync(menuCardId, RestaurantId);
+            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(Text["ActivateSuccess"], Severity.Success);
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task MoveAsync((Guid MenuCardId, int Offset) move)
+    {
+        if (_allowedActions?.CanEdit != true || _isSubmitting)
+        {
+            return;
+        }
+
+        List<MenuCardViewModel> originalCards = _cards;
+        List<MenuCardViewModel> orderedCards = _cards.ToList();
+        int index = orderedCards.FindIndex(card => card.MenuCardId == move.MenuCardId);
+        int destination = index + move.Offset;
+        if (index < 0 || destination < 0 || destination >= orderedCards.Count)
+        {
+            return;
+        }
+
+        (orderedCards[index], orderedCards[destination]) = (orderedCards[destination], orderedCards[index]);
+        _cards = orderedCards
+            .Select((card, order) => card with { SortOrder = order })
+            .ToList();
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            UpdateMenuCardsOrderRequest request = new(_cards
+                .Select((card, order) => new MenuCardOrderItemRequest(card.MenuCardId, order))
+                .ToArray());
+            ApiResult<bool> result = await MenuCardsApiClient.UpdateOrderAsync(RestaurantId, request);
+            if (_submitError.Apply(result, Text["OrderError"], Text["UnexpectedError"]))
+            {
+                _cards = originalCards;
+                return;
+            }
+
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+}

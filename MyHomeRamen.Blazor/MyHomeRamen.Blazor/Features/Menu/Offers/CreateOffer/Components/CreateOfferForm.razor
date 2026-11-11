@@ -9,6 +9,7 @@
     <MudStack Spacing="3" Class="form-fields">
         <MudSelect T="Guid"
                    @bind-Value="Model.ProductId"
+                   ToStringFunc="GetProductName"
                    Label="@Text["Product"]"
                    Variant="Variant.Outlined"
                    Disabled="IsSubmitting"
@@ -63,6 +64,9 @@
     private CreateOfferFormModelValidator _validator = default!;
 
     protected override void OnInitialized() => _validator = new CreateOfferFormModelValidator(Text);
+
+    private string GetProductName(Guid productId)
+        => Products.FirstOrDefault(product => product.ProductId == productId)?.Name ?? string.Empty;
 
     private async Task SubmitAsync()
     {

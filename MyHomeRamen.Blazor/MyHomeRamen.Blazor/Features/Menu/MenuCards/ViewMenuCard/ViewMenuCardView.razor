@@ -1,0 +1,126 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
+@using MyHomeRamen.Blazor.Infrastructure.Api
+
+@inject MenuCardsApiClient MenuCardsApiClient
+@inject IStringLocalizer<MenuCardsResources> Text
+@inject NavigationManager NavigationManager
+
+<MudPaper Elevation="3" Class="page-surface">
+    @if (_isLoading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudText>@Text["LoadingDetails"]</MudText>
+        </MudStack>
+    }
+    else if (_invalidRoute)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@Text["InvalidRestaurantContext"]</MudAlert>
+    }
+    else if (_loadError.HasError)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+    }
+    else if (_details is not null)
+    {
+        <PageHeader Title="@_details.Name">
+            @if (_details.AllowedActions.CanEdit)
+            {
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Edit"
+                           Href="@MenuCardRoutes.Edit(RestaurantId, MenuCardId)">
+                    @Text["Edit"]
+                </MudButton>
+            }
+        </PageHeader>
+        <MudText Class="mb-4">@(_details.IsActive ? Text["Active"] : Text["Inactive"])</MudText>
+        <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
+        @if (_details.Sections.Count == 0)
+        {
+            <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["NoSections"]</MudAlert>
+        }
+        else
+        {
+            <MudStack Spacing="3">
+                @foreach (MenuCardSectionViewModel section in _details.Sections)
+                {
+                    <MudPaper Outlined="true" Class="pa-4">
+                        <MudText Typo="Typo.h6">@section.Name</MudText>
+                        @if (section.Offers.Count == 0)
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Text["NoListings"]</MudText>
+                        }
+                        @foreach (MenuCardListingViewModel offer in section.Offers)
+                        {
+                            <MudStack Row="true" Justify="Justify.SpaceBetween" Class="mt-2">
+                                <MudText>@offer.Name</MudText>
+                                @if (!offer.IsAvailable)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Warning">@Text["UnavailableOffer"]</MudText>
+                                }
+                                else if (offer.Price.HasValue)
+                                {
+                                    <MudText Typo="Typo.caption">@Text["OfferPrice", offer.Price.Value.ToString("C")]</MudText>
+                                }
+                            </MudStack>
+                        }
+                    </MudPaper>
+                }
+            </MudStack>
+        }
+        <MudButton Variant="Variant.Text" Class="mt-4" Href="@MenuCardRoutes.Index(RestaurantId)">@Text["BackToCards"]</MudButton>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Warning" Class="page-state">@Text["NotFound"]</MudAlert>
+    }
+</MudPaper>
+
+@code {
+    [Parameter, EditorRequired] public Guid RestaurantId { get; set; }
+    [Parameter, EditorRequired] public Guid MenuCardId { get; set; }
+
+    private readonly ApiErrorState _loadError = new();
+    private MenuCardDetailsViewModel? _details;
+    private bool _isLoading = true;
+    private bool _invalidRoute;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _isLoading = true;
+        _loadError.Clear();
+        _details = null;
+        _invalidRoute = false;
+        try
+        {
+            if (RestaurantId == Guid.Empty || MenuCardId == Guid.Empty)
+            {
+                _invalidRoute = true;
+                return;
+            }
+
+            ApiResult<GetMenuCardForManageResponse> result =
+                await MenuCardsApiClient.GetByIdForManageAsync(MenuCardId, RestaurantId);
+            if (_loadError.Apply(result, Text["NotFound"], Text["UnexpectedError"])
+                || result is not ApiResult<GetMenuCardForManageResponse>.Success success)
+            {
+                return;
+            }
+
+            if (success.Value.MenuCardId != MenuCardId || success.Value.RestaurantId != RestaurantId)
+            {
+                _invalidRoute = true;
+                return;
+            }
+
+            _details = MenuCardDetailsViewModel.FromResponse(success.Value);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+}

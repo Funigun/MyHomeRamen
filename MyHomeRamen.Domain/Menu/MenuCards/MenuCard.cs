@@ -15,21 +15,28 @@ public sealed class MenuCard : AuditableEntity, IEntity<MenuCardId>
 
     public bool IsActive { get; private set; }
 
+    public int SortOrder { get; private set; }
+
     public IReadOnlyCollection<MenuSection> Sections => _sections.AsReadOnly();
 
     private MenuCard() { }
 
-    private MenuCard(MenuCardId id, Guid restaurantId, string name)
+    private MenuCard(MenuCardId id, Guid restaurantId, string name, int sortOrder)
     {
         Id = id;
         RestaurantId = restaurantId;
         Name = name;
         IsActive = true;
+        SortOrder = sortOrder;
     }
 
-    public static MenuCard Create(MenuCardId id, Guid restaurantId, string name)
+    public static MenuCard Create(
+        MenuCardId id,
+        Guid restaurantId,
+        string name,
+        int sortOrder = MenuCardConstants.MinSortOrder)
     {
-        MenuCard card = new(id, restaurantId, name);
+        MenuCard card = new(id, restaurantId, name, sortOrder);
         MenuCardValidator.ValidateMenuCard(card);
         return card;
     }
@@ -41,6 +48,12 @@ public sealed class MenuCard : AuditableEntity, IEntity<MenuCardId>
     }
 
     public void SetActive(bool isActive) => IsActive = isActive;
+
+    public void UpdateSortOrder(int sortOrder)
+    {
+        SortOrder = sortOrder;
+        MenuCardValidator.ValidateSortOrder(this);
+    }
 
     public void Activate()
     {

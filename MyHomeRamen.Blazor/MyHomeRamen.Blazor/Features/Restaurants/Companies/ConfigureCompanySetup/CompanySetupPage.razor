@@ -10,9 +10,12 @@
 
 <PageTitle>@Text["PageTitle"]</PageTitle>
 
-<CompanySetupView Status="Status" />
+<CompanySetupView Status="Status" OnStatusChanged="OnStatusChanged" />
 
 @code {
     [Parameter, EditorRequired]
     public CompanySetupStatusResponse Status { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<CompanySetupStatusResponse> OnStatusChanged { get; set; }
 }

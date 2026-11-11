@@ -26,6 +26,26 @@ public sealed class MenuCardTests
     }
 
     [Fact]
+    public void UpdateSortOrder_ShouldSetSortOrder_WhenValueIsNonNegative()
+    {
+        MenuCard card = CreateMenuCard(Guid.CreateVersion7());
+
+        card.UpdateSortOrder(3);
+
+        Assert.Equal(3, card.SortOrder);
+    }
+
+    [Fact]
+    public void UpdateSortOrder_ShouldThrowDomainException_WhenValueIsNegative()
+    {
+        MenuCard card = CreateMenuCard(Guid.CreateVersion7());
+
+        DomainException exception = Assert.Throws<DomainException>(() => card.UpdateSortOrder(-1));
+
+        Assert.Equal(MenuCardErrors.SortOrderInvalid().Message, exception.Message);
+    }
+
+    [Fact]
     public void Activate_ShouldSetActive_WhenCardIsInactive()
     {
         MenuCard card = CreateMenuCard(Guid.CreateVersion7());

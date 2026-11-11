@@ -1,0 +1,171 @@
+diff --git a/MyHomeRamen.Features/Menu/Features/Offers/GetRestaurantOffersForManage/GetRestaurantOffersForManageEndpoint.cs b/MyHomeRamen.Features/Menu/Features/Offers/GetRestaurantOffersForManage/GetRestaurantOffersForManageEndpoint.cs
+index feefdbe..7b61380 100644
+--- a/MyHomeRamen.Features/Menu/Features/Offers/GetRestaurantOffersForManage/GetRestaurantOffersForManageEndpoint.cs
++++ b/MyHomeRamen.Features/Menu/Features/Offers/GetRestaurantOffersForManage/GetRestaurantOffersForManageEndpoint.cs
+@@ -23,13 +23,26 @@ public sealed record RestaurantProductOfferForManageDto(
+     Guid ProductId,
+     string ProductName,
+     decimal Price,
+-    string Status);
++    string Status,
++    OfferAllowedActions AllowedActions)
++{
++    public Guid OfferId => Id;
++}
++
++public sealed record EligibleProductForOfferDto(Guid ProductId, string Name);
++
++public sealed record OfferAllowedActions(bool CanCreate, bool CanEdit, bool CanRetire);
+ 
+ public sealed record GetRestaurantOffersForManageResponse(
+     int Page,
+     int PageSize,
+     int TotalCount,
+-    IEnumerable<RestaurantProductOfferForManageDto> Items);
++    IReadOnlyList<RestaurantProductOfferForManageDto> Items,
++    IReadOnlyList<EligibleProductForOfferDto> EligibleProducts,
++    OfferAllowedActions AllowedActions)
++{
++    public IReadOnlyList<RestaurantProductOfferForManageDto> Offers => Items;
++}
+ 
+ public sealed class GetRestaurantOffersForManageEndpoint : IEndpoint
+ {
+diff --git a/MyHomeRamen.Features/Menu/Features/Offers/GetRestaurantOffersForManage/GetRestaurantOffersForManageQuery.cs b/MyHomeRamen.Features/Menu/Features/Offers/GetRestaurantOffersForManage/GetRestaurantOffersForManageQuery.cs
+index edadc44..dee368c 100644
+--- a/MyHomeRamen.Features/Menu/Features/Offers/GetRestaurantOffersForManage/GetRestaurantOffersForManageQuery.cs
++++ b/MyHomeRamen.Features/Menu/Features/Offers/GetRestaurantOffersForManage/GetRestaurantOffersForManageQuery.cs
+@@ -24,7 +24,9 @@ public sealed record GetRestaurantOffersForManageQueryOptions(
+     GetRestaurantOffersForManageRequest Request,
+     PageParameters PageParameters,
+     ProductId? ProductId,
+-    RestaurantProductOfferStatus? Status)
++    RestaurantProductOfferStatus? Status,
++    bool CanEdit,
++    bool CanRetire)
+     : PagedDbQueryOptions<RestaurantProductOffer, RestaurantProductOfferForManageDto>
+     (
+         new()
+@@ -50,7 +52,11 @@ public sealed record GetRestaurantOffersForManageQueryOptions(
+                 offer.ProductId.Value,
+                 offer.Product.Name,
+                 offer.Price,
+-                offer.Status.ToString())
++                offer.Status.ToString(),
++                new OfferAllowedActions(
++                    false,
++                    CanEdit && offer.Status == RestaurantProductOfferStatus.Active,
++                    CanRetire && offer.Status == RestaurantProductOfferStatus.Active))
+         }
+     );
+ 
+@@ -105,7 +111,8 @@ public sealed class GetRestaurantOffersForManageValidator
+ 
+ public sealed class GetRestaurantOffersForManageHandler(
+     IMenuDbContext dbContext,
+-    ICompanyContext companyContext)
++    ICompanyContext companyContext,
++    ICurrentUser currentUser)
+     : IRequestHandler<GetRestaurantOffersForManageQuery, GetRestaurantOffersForManageResponse>
+ {
+     public async Task<GetRestaurantOffersForManageResponse> Handle(
+@@ -114,6 +121,22 @@ public sealed class GetRestaurantOffersForManageHandler(
+     {
+         Guid restaurantId = companyContext.RestaurantId
+             ?? throw new InvalidOperationException("A restaurant context is required for offer management.");
++        bool canManageOffers = currentUser.HasPermission(
++            "Menu",
++            MenuPermissionConstants.CanManageOffers,
++            restaurantId);
++        bool canCreateOffer = canManageOffers && currentUser.HasPermission(
++            "Menu",
++            MenuPermissionConstants.CanAddOffer,
++            restaurantId);
++        bool canEditOffer = canManageOffers && currentUser.HasPermission(
++            "Menu",
++            MenuPermissionConstants.CanEditOffer,
++            restaurantId);
++        bool canRetireOffer = canManageOffers && currentUser.HasPermission(
++            "Menu",
++            MenuPermissionConstants.CanDeleteOffer,
++            restaurantId);
+         ProductId? productId = query.Request.ProductId is Guid requestedProductId
+             ? new ProductId(requestedProductId)
+             : null;
+@@ -122,16 +145,23 @@ public sealed class GetRestaurantOffersForManageHandler(
+             query.Request,
+             query.PageParameters,
+             productId,
+-            query.Request.Status);
++            query.Request.Status,
++            canEditOffer,
++            canRetireOffer);
+ 
+         PagedResult<RestaurantProductOfferForManageDto> result = await dbContext.RestaurantProductOffer
+             .Query()
+             .ForManage(options, cancellationToken);
++        IReadOnlyList<EligibleProductForOfferDto> eligibleProducts = canCreateOffer
++            ? await dbContext.Product.Query().EligibleForOffers(restaurantId, cancellationToken)
++            : [];
+ 
+         return new GetRestaurantOffersForManageResponse(
+             query.PageParameters.PageNumber,
+             query.PageParameters.PageSize,
+             result.TotalItems,
+-            result.Items);
++            result.Items.ToArray(),
++            eligibleProducts,
++            new OfferAllowedActions(canCreateOffer, false, false));
+     }
+ }
+diff --git a/MyHomeRamen.Features/Menu/Features/Products/Common/IProductQuery.cs b/MyHomeRamen.Features/Menu/Features/Products/Common/IProductQuery.cs
+index 272f21f..5dc2460 100644
+--- a/MyHomeRamen.Features/Menu/Features/Products/Common/IProductQuery.cs
++++ b/MyHomeRamen.Features/Menu/Features/Products/Common/IProductQuery.cs
+@@ -3,6 +3,7 @@ using MyHomeRamen.Domain.Menu.Products;
+ using MyHomeRamen.Features.Common.Endpoints.Models;
+ using MyHomeRamen.Features.Menu.Features.Products.GetProductByIdForManage;
+ using MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
++using MyHomeRamen.Features.Menu.Features.Offers.GetRestaurantOffersForManage;
+ 
+ namespace MyHomeRamen.Features.Menu.Features.Products.Common;
+ 
+@@ -12,6 +13,8 @@ public interface IProductQuery
+ 
+     Task<PagedResult<ProductForManageDto>> ForManage(GetProductsForManageQueryOptions options, CancellationToken cancellationToken);
+ 
++    Task<IReadOnlyList<EligibleProductForOfferDto>> EligibleForOffers(Guid restaurantId, CancellationToken cancellationToken);
++
+     Task<bool> IsProductNameUnique(string name, CancellationToken cancellationToken);
+ 
+     Task<bool> IsProductNameUniqueExcluding(string name, ProductId excludeId, CancellationToken cancellationToken);
+diff --git a/MyHomeRamen.Persistance/Menu/Products/ProductQuery.cs b/MyHomeRamen.Persistance/Menu/Products/ProductQuery.cs
+index 78fcfd4..89c6af6 100644
+--- a/MyHomeRamen.Persistance/Menu/Products/ProductQuery.cs
++++ b/MyHomeRamen.Persistance/Menu/Products/ProductQuery.cs
+@@ -5,6 +5,7 @@ using MyHomeRamen.Features.Common.Endpoints.Models;
+ using MyHomeRamen.Features.Menu.Features.Products.Common;
+ using MyHomeRamen.Features.Menu.Features.Products.GetProductByIdForManage;
+ using MyHomeRamen.Features.Menu.Features.Products.GetProductsForManage;
++using MyHomeRamen.Features.Menu.Features.Offers.GetRestaurantOffersForManage;
+ 
+ namespace MyHomeRamen.Persistance.Menu;
+ 
+@@ -27,6 +28,17 @@ public partial class ProductRepository : IProductQuery
+                               .Include(p => p.Categories)
+                               .AsSplitQuery(), options, cancellationToken);
+ 
++    public async Task<IReadOnlyList<EligibleProductForOfferDto>> EligibleForOffers(
++        Guid restaurantId,
++        CancellationToken cancellationToken)
++        => await menuDbContext.Products.AsNoTracking()
++            .Where(product => product.Status == ProductStatus.Active
++                && !menuDbContext.RestaurantProductOffers.Any(offer =>
++                    offer.RestaurantId == restaurantId && offer.ProductId == product.Id))
++            .OrderBy(product => product.Name)
++            .Select(product => new EligibleProductForOfferDto(product.Id.Value, product.Name))
++            .ToListAsync(cancellationToken);
++
+     public async Task<bool> IsProductNameUnique(string name, CancellationToken cancellationToken)
+         => !await Exists(p => p.Name.ToLower() == name.ToLower(), cancellationToken);
+ 

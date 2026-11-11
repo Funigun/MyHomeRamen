@@ -1,0 +1,86 @@
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
+
+@if (Items.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">@EmptyText</MudAlert>
+}
+else
+{
+    <MudGrid Spacing="3" Class="data-card-grid">
+        @for (int index = 0; index < Items.Count; index++)
+        {
+            MenuCardViewModel card = Items[index];
+            <MudItem xs="12" sm="6" lg="4">
+                <MudCard Outlined="true" Class="data-card">
+                    <MudCardContent Class="data-card-content">
+                        <MudText Typo="Typo.h6">@card.Name</MudText>
+                        <MudText Typo="Typo.body2">@StatusText(card.IsActive)</MudText>
+                        <MudText Typo="Typo.caption">@SortOrderLabel @card.SortOrder</MudText>
+                        <MudStack Row="true" Spacing="1" Class="data-card-actions">
+                            <MudButton Variant="Variant.Text" OnClick="@(() => OnView.InvokeAsync(card.MenuCardId))">@ViewText</MudButton>
+                            @if (card.CanEdit)
+                            {
+                                <MudButton Variant="Variant.Outlined"
+                                           StartIcon="@Icons.Material.Filled.Edit"
+                                           OnClick="@(() => OnEdit.InvokeAsync(card.MenuCardId))">
+                                    @EditText
+                                </MudButton>
+                            }
+                            @if (card.IsActive && card.CanDelete)
+                            {
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Warning"
+                                           StartIcon="@Icons.Material.Filled.VisibilityOff"
+                                           OnClick="@(() => OnDeactivate.InvokeAsync(card.MenuCardId))">
+                                    @DeactivateText
+                                </MudButton>
+                            }
+                            else if (!card.IsActive && card.CanEdit)
+                            {
+                                <MudButton Variant="Variant.Outlined"
+                                           StartIcon="@Icons.Material.Filled.Visibility"
+                                           OnClick="@(() => OnActivate.InvokeAsync(card.MenuCardId))">
+                                    @ActivateText
+                                </MudButton>
+                            }
+                        </MudStack>
+                        @if (card.CanEdit)
+                        {
+                            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="1">
+                                <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward"
+                                               aria-label="@MoveUpText"
+                                               Disabled="@(index == 0)"
+                                               OnClick="@(() => OnMove.InvokeAsync((card.MenuCardId, -1)))" />
+                                <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward"
+                                               aria-label="@MoveDownText"
+                                               Disabled="@(index == Items.Count - 1)"
+                                               OnClick="@(() => OnMove.InvokeAsync((card.MenuCardId, 1)))" />
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<MenuCardViewModel> Items { get; set; } = [];
+    [Parameter] public string EmptyText { get; set; } = string.Empty;
+    [Parameter] public string SortOrderLabel { get; set; } = string.Empty;
+    [Parameter] public string ViewText { get; set; } = string.Empty;
+    [Parameter] public string EditText { get; set; } = string.Empty;
+    [Parameter] public string ActiveText { get; set; } = string.Empty;
+    [Parameter] public string InactiveText { get; set; } = string.Empty;
+    [Parameter] public string DeactivateText { get; set; } = string.Empty;
+    [Parameter] public string ActivateText { get; set; } = string.Empty;
+    [Parameter] public string MoveUpText { get; set; } = string.Empty;
+    [Parameter] public string MoveDownText { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public EventCallback<Guid> OnView { get; set; }
+    [Parameter, EditorRequired] public EventCallback<Guid> OnEdit { get; set; }
+    [Parameter, EditorRequired] public EventCallback<Guid> OnDeactivate { get; set; }
+    [Parameter, EditorRequired] public EventCallback<Guid> OnActivate { get; set; }
+    [Parameter, EditorRequired] public EventCallback<(Guid MenuCardId, int Offset)> OnMove { get; set; }
+
+    private string StatusText(bool active) => active ? ActiveText : InactiveText;
+}

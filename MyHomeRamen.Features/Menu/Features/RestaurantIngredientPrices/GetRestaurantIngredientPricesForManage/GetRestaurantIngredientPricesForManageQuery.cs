@@ -89,7 +89,8 @@ public sealed class GetRestaurantIngredientPricesForManageValidator
 
 public sealed class GetRestaurantIngredientPricesForManageHandler(
     IMenuDbContext dbContext,
-    ICompanyContext companyContext)
+    ICompanyContext companyContext,
+    ICurrentUser currentUser)
     : IRequestHandler<GetRestaurantIngredientPricesForManageQuery, GetRestaurantIngredientPricesForManageResponse>
 {
     public async Task<GetRestaurantIngredientPricesForManageResponse> Handle(
@@ -107,10 +108,28 @@ public sealed class GetRestaurantIngredientPricesForManageHandler(
             .Query()
             .ForManage(options, cancellationToken);
 
+        IngredientPriceAllowedActions allowedActions = new(
+            CanCreate: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId,
+                MenuPermissionConstants.CanManageIngredientPrices,
+                MenuPermissionConstants.CanAddIngredientPrice),
+            CanEdit: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId,
+                MenuPermissionConstants.CanManageIngredientPrices,
+                MenuPermissionConstants.CanEditIngredientPrice),
+            CanRemove: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId,
+                MenuPermissionConstants.CanManageIngredientPrices,
+                MenuPermissionConstants.CanDeleteIngredientPrice));
+
         return new GetRestaurantIngredientPricesForManageResponse(
             query.PageParameters.PageNumber,
             query.PageParameters.PageSize,
             result.TotalItems,
-            result.Items);
+            result.Items,
+            allowedActions);
     }
 }

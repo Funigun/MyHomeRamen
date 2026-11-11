@@ -1,6 +1,7 @@
 ﻿@using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Common.Services.Contracts.Baskets.Responses
 @using MyHomeRamen.Blazor.Infrastructure.Api
+@using Microsoft.JSInterop
 
 @inject ShoppingCartApiClient ShoppingCartApiClient
 @inject ShoppingCartNavigationService ShoppingCartNavigationService
@@ -40,20 +41,57 @@
     private ElementReference _menuRef;
     private DotNetObjectReference<BasketSummaryMenu>? _dotNetRef;
     private IJSObjectReference? _jsModule;
+    private Task _clickOutsideInitialization = Task.CompletedTask;
+    private bool _disposed;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _dotNetRef = DotNetObjectReference.Create(this);
-            _jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/clickOutside.js");
-            await _jsModule.InvokeVoidAsync("registerClickOutside", _menuRef, _dotNetRef);
+            _clickOutsideInitialization = InitializeClickOutsideAsync();
+        }
+
+        return _clickOutsideInitialization;
+    }
+
+    private async Task InitializeClickOutsideAsync()
+    {
+        IJSObjectReference jsModule;
+        try
+        {
+            jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./js/clickOutside.js");
+        }
+        catch (JSDisconnectedException)
+        {
+            return;
+        }
+
+        if (_disposed)
+        {
+            await DisposeModuleAsync(jsModule);
+            return;
+        }
+
+        _dotNetRef = DotNetObjectReference.Create(this);
+        _jsModule = jsModule;
+
+        try
+        {
+            await jsModule.InvokeVoidAsync("registerClickOutside", _menuRef, _dotNetRef);
+        }
+        catch (JSDisconnectedException)
+        {
         }
     }
 
     [JSInvokable]
     public void CloseMenu()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
         _isMenuOpen = false;
         StateHasChanged();
     }
@@ -113,16 +151,43 @@
 
     public async ValueTask DisposeAsync()
     {
-        if (_jsModule is not null)
+        _disposed = true;
+        try
+        {
+            await _clickOutsideInitialization;
+        }
+        finally
         {
             try
             {
-                await _jsModule.InvokeVoidAsync("unregisterClickOutside", _menuRef);
-                await _jsModule.DisposeAsync();
-            }
-            catch {}
-        }
+                if (_jsModule is not null)
+                {
+                    try
+                    {
+                        await _jsModule.InvokeVoidAsync("unregisterClickOutside", _menuRef);
+                    }
+                    catch (JSDisconnectedException)
+                    {
+                    }
 
-        _dotNetRef?.Dispose();
+                    await DisposeModuleAsync(_jsModule);
+                }
+            }
+            finally
+            {
+                _dotNetRef?.Dispose();
+            }
+        }
+    }
+
+    private static async ValueTask DisposeModuleAsync(IJSObjectReference jsModule)
+    {
+        try
+        {
+            await jsModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
     }
 }

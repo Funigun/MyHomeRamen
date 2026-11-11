@@ -11,6 +11,27 @@ namespace MyHomeRamen.Persistance.Menu;
 
 public partial class MenuCardRepository : IMenuCardQuery
 {
+    public async Task<int> GetNextSortOrder(Guid restaurantId, CancellationToken cancellationToken)
+    {
+        int? maxSortOrder = await menuDbContext.MenuCards
+            .Where(card => card.RestaurantId == restaurantId)
+            .Select(card => (int?)card.SortOrder)
+            .MaxAsync(cancellationToken);
+
+        return maxSortOrder.HasValue
+            ? maxSortOrder.Value + 1
+            : MenuCardConstants.MinSortOrder;
+    }
+
+    public async Task<IReadOnlyCollection<Guid>> IdsByRestaurant(
+        Guid restaurantId,
+        CancellationToken cancellationToken)
+        => await menuDbContext.MenuCards
+            .AsNoTracking()
+            .Where(card => card.RestaurantId == restaurantId)
+            .Select(card => card.Id.Value)
+            .ToListAsync(cancellationToken);
+
     public async Task<PagedResult<MenuCardForManageDto>> ForManage(
         GetMenuCardsForManageQueryOptions options,
         CancellationToken cancellationToken)

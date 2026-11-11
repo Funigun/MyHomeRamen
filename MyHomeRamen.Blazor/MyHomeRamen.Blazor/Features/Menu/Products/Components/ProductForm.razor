@@ -24,6 +24,7 @@
                       ErrorText="@GetError(nameof(Model.Description))" />
         <MudSelect T="Guid"
                    @bind-Value="Model.CategoryId"
+                   ToStringFunc="GetCategoryName"
                    Label="@Text["Category"]"
                    Variant="Variant.Outlined"
                    Disabled="IsSubmitting"
@@ -36,6 +37,7 @@
         </MudSelect>
         <MudSelect T="Guid"
                    @bind-SelectedValues="Model.IngredientIds"
+                   ToStringFunc="GetIngredientName"
                    Label="@Text["Ingredients"]"
                    MultiSelection="true"
                    Variant="Variant.Outlined"
@@ -49,6 +51,7 @@
         </MudSelect>
         <MudSelect T="Guid"
                    @bind-SelectedValues="Model.CustomIngredientIds"
+                   ToStringFunc="GetIngredientName"
                    Label="@Text["CustomIngredients"]"
                    MultiSelection="true"
                    Variant="Variant.Outlined"
@@ -99,6 +102,12 @@
     {
         _validator = new ProductFormModelValidator(Text);
     }
+
+    private string GetCategoryName(Guid categoryId)
+        => Categories.FirstOrDefault(category => category.Id == categoryId)?.Name ?? string.Empty;
+
+    private string GetIngredientName(Guid ingredientId)
+        => Ingredients.FirstOrDefault(ingredient => ingredient.Id == ingredientId)?.Name ?? string.Empty;
 
     private async Task SubmitAsync()
     {

@@ -1,7 +1,6 @@
 @using MyHomeRamen.Blazor.Features.Account.Common.Services;
 @using MyHomeRamen.Blazor.Features.Admin.Common.Services;
 @using MyHomeRamen.Blazor.Features.Home.Common.Services
-@using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.BasketMenu
 @using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Authentication.StateProvider
@@ -12,31 +11,33 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudAppBar Elevation="1">
-    <MudStack Class="app-bar-content">
-        <MudText Typo="Typo.h3" Class="app-bar-title">@RestaurantConfiguration.RestaurantName</MudText>
-        <MudStack Row="true" Class="app-bar-navigation">
-            <MudSpacer />
-            <MudSpacer />
-            <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(HomeNavigationService.Routes.Home))">Home</MudButton>
-            <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(RestaurantMenuRoutes.CustomerMenu))">Menu</MudButton>
-            <MudSpacer />
-            
-            @if (_canViewAdminPanel)
-            {
-                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.SelectRestaurant))">Admin Panel</MudButton>
-            }
+    <div class="app-bar-content">
+        <div class="app-bar-title">
+            <MudText Typo="Typo.h3">@RestaurantConfiguration.RestaurantName</MudText>
+        </div>
+        <div class="app-bar-navigation">
+            <div class="app-bar-menu">
+                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(HomeNavigationService.Routes.Home))">Home</MudButton>
+                <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(RestaurantRoutes.BrowseRestaurants))">Menu</MudButton>
+            </div>
 
-            <BasketSummaryMenu/>
+            <div class="app-bar-actions">
+                @if (_canViewAdminPanel)
+                {
+                    <MudButton Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AdminNavigationService.Routes.SelectRestaurant))">Admin Panel</MudButton>
+                }
 
-            @if (_isAuthenticated)
-            {
-                <MudIconButton Icon="@Icons.Material.Filled.ManageAccounts" Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AccountNavigationService.Routes.AccountManagement))">Account</MudIconButton>
-            }
+                <BasketSummaryMenu />
 
-            <Login />
-            <MudSpacer />
-        </MudStack>
-    </MudStack>
+                @if (_isAuthenticated)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.ManageAccounts" Color="Color.Inherit" Variant="Variant.Text" OnClick="@(() => Navigate(AccountNavigationService.Routes.AccountManagement))">Account</MudIconButton>
+                }
+
+                <Login />
+            </div>
+        </div>
+    </div>
 </MudAppBar>
 
 @code {

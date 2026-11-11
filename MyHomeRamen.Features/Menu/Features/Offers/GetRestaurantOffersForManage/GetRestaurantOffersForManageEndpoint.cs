@@ -23,13 +23,26 @@ public sealed record RestaurantProductOfferForManageDto(
     Guid ProductId,
     string ProductName,
     decimal Price,
-    string Status);
+    string Status,
+    OfferAllowedActions AllowedActions)
+{
+    public Guid OfferId => Id;
+}
+
+public sealed record EligibleProductForOfferDto(Guid ProductId, string Name);
+
+public sealed record OfferAllowedActions(bool CanCreate, bool CanEdit, bool CanRetire);
 
 public sealed record GetRestaurantOffersForManageResponse(
     int Page,
     int PageSize,
     int TotalCount,
-    IEnumerable<RestaurantProductOfferForManageDto> Items);
+    IReadOnlyList<RestaurantProductOfferForManageDto> Items,
+    IReadOnlyList<EligibleProductForOfferDto> EligibleProducts,
+    OfferAllowedActions AllowedActions)
+{
+    public IReadOnlyList<RestaurantProductOfferForManageDto> Offers => Items;
+}
 
 public sealed class GetRestaurantOffersForManageEndpoint : IEndpoint
 {

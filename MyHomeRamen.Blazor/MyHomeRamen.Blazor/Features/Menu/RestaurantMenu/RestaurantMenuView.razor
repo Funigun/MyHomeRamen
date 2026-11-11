@@ -4,9 +4,8 @@
 @using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu
 @using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Models
 @using MyHomeRamen.Blazor.Features.Menu.RestaurantMenu.Shared
-@using MyHomeRamen.Blazor.Features.Admin.Common.Services
-@using MyHomeRamen.Blazor.Features.Home.Common.Services
 @using MyHomeRamen.Blazor.Features.Restaurants.Common.Services
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Features.ShoppingCart.Baskets.ProductCustomization
 @using MyHomeRamen.Blazor.Infrastructure.Api
 
@@ -19,19 +18,27 @@
 
 @if (_isLoading)
 {
-    <MudProgressCircular Indeterminate="true" Class="d-block mx-auto my-6" />
-}
-else if (_loadError.Message is not null)
-{
-    <MudAlert Severity="Severity.Error">@_loadError.Message</MudAlert>
+    <MudStack AlignItems="AlignItems.Center" Class="page-loading">
+        <MudProgressCircular Indeterminate="true" />
+        <MudText>@Localizer["Loading"]</MudText>
+    </MudStack>
 }
 else if (_menuCards.Count == 0)
 {
-    <MudText Typo="Typo.body1" Class="mt-4" Color="Color.Secondary">@Localizer["NoMenus"]</MudText>
+    @if (_loadError.Message is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+        <MudButton Variant="Variant.Outlined" OnClick="LoadOptionsAsync">@Localizer["Retry"]</MudButton>
+    }
+    else
+    {
+        <MudText Typo="Typo.body1" Class="component-empty-state" Color="Color.Secondary">@Localizer["NoMenus"]</MudText>
+    }
 }
 else
 {
     <MudSelect T="Guid"
+               ToStringFunc="GetMenuCardName"
                Label="@Localizer["ChooseMenu"]"
                Value="_selectedMenuCardId"
                ValueChanged="OnMenuCardSelectedAsync">
@@ -41,55 +48,74 @@ else
         }
     </MudSelect>
 
-    @if (_menu is not null)
+    @if (_staleSelection)
     {
+        <MudAlert Severity="Severity.Warning" Class="page-state">@Localizer["StaleMenuCard"]</MudAlert>
+    }
+    else if (_loadError.Message is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="page-state">@_loadError.Message</MudAlert>
+        <MudButton Variant="Variant.Outlined" OnClick="@(() => OnMenuCardSelectedAsync(_selectedMenuCardId))">@Localizer["Retry"]</MudButton>
+    }
+    else if (_menu is not null)
+    {
+        <MudText Typo="Typo.h1" Class="mt-4">@_menu.Name</MudText>
         @if (_menu.Sections.Count > 0)
         {
-            <div class="d-flex flex-wrap gap-2 my-6" style="overflow-x: auto; justify-content: center">
+            <div class="d-flex flex-wrap gap-2 my-6" role="tablist" aria-label="@Localizer["ChooseSection"]">
                 @foreach (RestaurantMenuSectionViewModel section in _menu.Sections)
                 {
-                    <MudChip T="string"
-                             Color="@(_selectedSectionId == section.Id ? Color.Primary : Color.Default)"
-                             OnClick="@(() => SelectSection(section.Id))"
-                             Variant="@(_selectedSectionId == section.Id ? Variant.Filled : Variant.Outlined)">
+                    <MudButton Color="@(_selectedSectionId == section.Id ? Color.Primary : Color.Default)"
+                               OnClick="@(() => SelectSection(section.Id))"
+                               Variant="@(_selectedSectionId == section.Id ? Variant.Filled : Variant.Outlined)"
+                               id="@($"menu-section-{section.Id}")"
+                               aria-controls="menu-section-content"
+                               aria-selected="@(_selectedSectionId == section.Id)"
+                               role="tab">
                         @section.Name
-                    </MudChip>
+                    </MudButton>
                 }
             </div>
 
             @if (_selectedSection is { Offers.Count: > 0 } selectedSection)
             {
-                <MudGrid>
-                    @foreach (RestaurantMenuOfferViewModel offer in selectedSection.Offers)
-                    {
-                        <MudItem xs="12" sm="6" md="4">
-                            <MudCard Elevation="2">
-                                <ImageDisplay Style="width:100%; height:100%; object-fit:cover;" />
-                                <MudCardContent>
-                                    <MudText Typo="Typo.h6">@offer.Name</MudText>
-                                    <MudText Typo="Typo.body2" Class="mb-2">@offer.Description</MudText>
-                                    <MudText Typo="Typo.subtitle1" Color="Color.Primary">@offer.Price.ToString("C")</MudText>
-                                    @if (!string.IsNullOrWhiteSpace(offer.BaseIngredients))
-                                    {
-                                        <MudText Typo="Typo.caption" Class="mt-2">@offer.BaseIngredients</MudText>
-                                    }
-                                </MudCardContent>
-                                <MudCardActions>
-                                    @if (!IsCompanyOwnerPreview)
-                                    {
-                                        <MudButton OnClick="@(() => OpenCustomizationDialogAsync(offer.OfferId))"
-                                                   Color="Color.Primary"
-                                                   Variant="Variant.Filled"
-                                                   StartIcon="@Icons.Material.Filled.AddShoppingCart"
-                                                   FullWidth="true">
-                                            @Localizer["CustomizeAndAdd"]
-                                        </MudButton>
-                                    }
-                                </MudCardActions>
-                            </MudCard>
-                        </MudItem>
-                    }
-                </MudGrid>
+                <div id="menu-section-content"
+                     role="tabpanel"
+                     aria-labelledby="@($"menu-section-{selectedSection.Id}")">
+                    <MudGrid>
+                        @foreach (RestaurantMenuOfferViewModel offer in selectedSection.Offers)
+                        {
+                            <MudItem xs="12" sm="6" md="4">
+                                <MudCard Elevation="2">
+                                    <ImageDisplay Image="offer.Image" Style="width:100%; aspect-ratio:16/9; object-fit:cover;" />
+                                    <MudCardContent>
+                                        <MudText Typo="Typo.h6">@offer.Name</MudText>
+                                        <MudText Typo="Typo.body2" Class="mb-2">@offer.Description</MudText>
+                                        <MudText Typo="Typo.subtitle1" Color="Color.Primary">@offer.Price.ToString("C")</MudText>
+                                        @if (!string.IsNullOrWhiteSpace(offer.BaseIngredients))
+                                        {
+                                            <MudText Typo="Typo.caption" Class="mt-2">
+                                                @Localizer["BaseIngredients", offer.BaseIngredients]
+                                            </MudText>
+                                        }
+                                    </MudCardContent>
+                                    <MudCardActions>
+                                        @if (!IsCompanyOwnerPreview)
+                                        {
+                                            <MudButton OnClick="@(() => OpenCustomizationDialogAsync(offer.OfferId))"
+                                                       Color="Color.Primary"
+                                                       Variant="Variant.Filled"
+                                                       StartIcon="@Icons.Material.Filled.AddShoppingCart"
+                                                       FullWidth="true">
+                                                @Localizer["CustomizeAndAdd"]
+                                            </MudButton>
+                                        }
+                                    </MudCardActions>
+                                </MudCard>
+                            </MudItem>
+                        }
+                    </MudGrid>
+                </div>
             }
             else
             {
@@ -123,9 +149,13 @@ else
     private Guid _selectedSectionId;
     private Guid _restaurantId;
     private bool _isLoading;
+    private bool _staleSelection;
 
     private RestaurantMenuSectionViewModel? _selectedSection
         => _menu?.Sections.FirstOrDefault(section => section.Id == _selectedSectionId);
+
+    private string GetMenuCardName(Guid menuCardId)
+        => _menuCards.FirstOrDefault(card => card.MenuCardId == menuCardId)?.Name ?? string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -134,7 +164,7 @@ else
         {
             if (RestaurantId is not Guid ownerRestaurantId || ownerRestaurantId == Guid.Empty)
             {
-                NavigationManager.NavigateTo(AdminNavigationService.Routes.CompanyOwnerHome, replace: true);
+                NavigationManager.NavigateTo(RestaurantRoutes.Index, replace: true);
                 _isLoading = false;
                 return;
             }
@@ -146,7 +176,7 @@ else
             Guid? customerRestaurantId = await RestaurantContextService.GetCustomerRestaurantIdAsync();
             if (!customerRestaurantId.HasValue)
             {
-                NavigationManager.NavigateTo(HomeNavigationService.Routes.Home, replace: true);
+                NavigationManager.NavigateTo(RestaurantRoutes.BrowseRestaurants, replace: true);
                 _isLoading = false;
                 return;
             }
@@ -154,50 +184,69 @@ else
             _restaurantId = customerRestaurantId.Value;
         }
 
-        ApiResult<GetMenuCardOptionsResponse> result = await MenuCardsApiClient.GetOptionsAsync();
-        if (_loadError.Apply(result, Localizer["BadRequest"], Localizer["UnexpectedError"]))
-        {
-            _isLoading = false;
-            return;
-        }
+        await LoadOptionsAsync();
+    }
 
-        if (result is ApiResult<GetMenuCardOptionsResponse>.Success success)
+    private async Task LoadOptionsAsync()
+    {
+        _isLoading = true;
+        _loadError.Clear();
+        try
         {
+            ApiResult<GetMenuCardOptionsResponse> result = await MenuCardsApiClient.GetOptionsAsync(_restaurantId);
+            if (_loadError.Apply(result, Localizer["BadRequest"], Localizer["UnexpectedError"])
+                || result is not ApiResult<GetMenuCardOptionsResponse>.Success success)
+            {
+                return;
+            }
+
             _menuCards = success.Value.MenuCards
                 .Where(card => card.RestaurantId == _restaurantId)
                 .Select(card => new RestaurantMenuCardOptionViewModel(card.MenuCardId, card.RestaurantId, card.Name))
                 .ToArray();
-        }
 
-        RestaurantMenuCardOptionViewModel? firstCard = _menuCards.FirstOrDefault();
-        if (firstCard is not null)
+            RestaurantMenuCardOptionViewModel? firstCard = _menuCards.FirstOrDefault();
+            if (firstCard is not null)
+            {
+                await OnMenuCardSelectedAsync(firstCard.MenuCardId);
+            }
+        }
+        finally
         {
-            await OnMenuCardSelectedAsync(firstCard.MenuCardId);
+            _isLoading = false;
         }
-
-        _isLoading = false;
     }
 
     private async Task OnMenuCardSelectedAsync(Guid menuCardId)
     {
-        _selectedMenuCardId = menuCardId;
         _selectedSectionId = Guid.Empty;
         _menu = null;
+        _staleSelection = false;
+        _loadError.Clear();
         _isLoading = true;
 
         RestaurantMenuCardOptionViewModel? option = _menuCards.FirstOrDefault(card => card.MenuCardId == menuCardId);
         if (option is null)
         {
+            _staleSelection = true;
             _isLoading = false;
             return;
         }
 
+        _selectedMenuCardId = menuCardId;
         ApiResult<MenuCardResponseContract> result = await MenuCardsApiClient.GetByIdAsync(
             option.MenuCardId,
             option.RestaurantId);
         if (!_loadError.Apply(result, Localizer["BadRequest"], Localizer["UnexpectedError"])
             && result is ApiResult<MenuCardResponseContract>.Success success)
         {
+            if (success.Value.MenuCardId != option.MenuCardId || success.Value.RestaurantId != _restaurantId)
+            {
+                _staleSelection = true;
+                _isLoading = false;
+                return;
+            }
+
             _menu = RestaurantMenuViewModel.FromContract(success.Value);
             _selectedSectionId = _menu.Sections.FirstOrDefault()?.Id ?? Guid.Empty;
         }

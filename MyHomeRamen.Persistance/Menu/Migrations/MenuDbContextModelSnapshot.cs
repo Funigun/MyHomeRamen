@@ -192,7 +192,12 @@ namespace MyHomeRamen.Persistance.Menu.Migrations
                     b.Property<Guid>("RestaurantId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("RestaurantId", "SortOrder");
 
                     b.ToTable("MenuCards", "menu");
                 });

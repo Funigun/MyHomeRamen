@@ -13,6 +13,9 @@ public static class MenuCardErrors
     public static DomainException NameTooLong()
         => new($"Menu card name must not exceed {MenuCardConstants.MaxNameLength} characters.");
 
+    public static DomainException SortOrderInvalid()
+        => new($"Menu card sort order must be greater than or equal to {MenuCardConstants.MinSortOrder}.");
+
     public static DomainException AlreadyActive()
         => new("Menu card is already active.");
 }

@@ -42,10 +42,14 @@ public sealed class CreateMenuCardHandler(IMenuDbContext dbContext)
         CreateMenuCardCommand command,
         CancellationToken cancellationToken)
     {
+        int sortOrder = await dbContext.MenuCard.Query().GetNextSortOrder(
+            dbContext.RestaurantId,
+            cancellationToken);
         MenuCard card = MenuCard.Create(
             new MenuCardId(Guid.CreateVersion7()),
             dbContext.RestaurantId,
-            command.Name);
+            command.Name,
+            sortOrder);
         dbContext.MenuCard.Add(card);
         await dbContext.SaveChangesAsync(cancellationToken);
         return new CreateMenuCardResponse(card.Id.Value);
