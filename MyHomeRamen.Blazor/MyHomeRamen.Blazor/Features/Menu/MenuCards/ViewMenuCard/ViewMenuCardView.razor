@@ -8,28 +8,45 @@
 @inject IStringLocalizer<MenuCardsResources> Text
 @inject NavigationManager NavigationManager
 
-<MudPaper Elevation="3" Class="page-surface">
+<MudPaper Elevation="3" Class="page-surface menu-card-editor">
     <PageHeader Title="@(_details?.Name ?? Text["ViewPageTitle"])">
-        @if (RestaurantId != Guid.Empty)
-        {
-            <MudButton Variant="Variant.Text"
-                       StartIcon="@Icons.Material.Filled.ArrowBack"
-                       Href="@MenuCardRoutes.Index(RestaurantId)">
-                @Text["BackToCards"]
-            </MudButton>
-            <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
-                @Text["BackToRestaurant"]
-            </MudButton>
-        }
-        @if (_details?.AllowedActions.CanEdit == true)
-        {
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Edit"
-                       Href="@MenuCardRoutes.Edit(RestaurantId, MenuCardId)">
-                @Text["Edit"]
-            </MudButton>
-        }
+        <TitleContent>
+            <div class="menu-card-header-content">
+                @if (RestaurantId != Guid.Empty)
+                {
+                    <div class="menu-card-header-navigation">
+                        <MudButton Variant="Variant.Text"
+                                   StartIcon="@Icons.Material.Filled.ArrowBack"
+                                   Href="@MenuCardRoutes.Index(RestaurantId)">
+                            @Text["BackToCards"]
+                        </MudButton>
+                        <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
+                            @Text["BackToRestaurant"]
+                        </MudButton>
+                    </div>
+                }
+                <div class="menu-card-header-main">
+                    <MudText Typo="Typo.h4">@(_details?.Name ?? Text["ViewPageTitle"])</MudText>
+                    @if (_details is not null)
+                    {
+                        <MudChip T="string"
+                                 Color="@(_details.IsActive ? Color.Success : Color.Default)"
+                                 Variant="Variant.Outlined">
+                            @Text[_details.IsActive ? "Active" : "Inactive"]
+                        </MudChip>
+                        @if (_details.AllowedActions.CanEdit)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.Edit"
+                                       Href="@MenuCardRoutes.Edit(RestaurantId, MenuCardId)">
+                                @Text["Edit"]
+                            </MudButton>
+                        }
+                    }
+                </div>
+            </div>
+        </TitleContent>
     </PageHeader>
     @if (_isLoading)
     {
@@ -48,37 +65,70 @@
     }
     else if (_details is not null)
     {
-        <MudText Class="mb-4">@(_details.IsActive ? Text["Active"] : Text["Inactive"])</MudText>
-        <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="menu-card-price-explanation">
+            @Text["PriceExplanation"]
+        </MudText>
         @if (_details.Sections.Count == 0)
         {
             <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["NoSections"]</MudAlert>
         }
         else
         {
-            <MudStack Spacing="3">
+            <MudStack Spacing="0" Class="menu-card-section-list">
                 @foreach (MenuCardSectionViewModel section in _details.Sections)
                 {
-                    <MudPaper Outlined="true" Class="pa-4">
-                        <MudText Typo="Typo.h6">@section.Name</MudText>
-                        @if (section.Offers.Count == 0)
-                        {
-                            <MudText Typo="Typo.body2" Color="Color.Secondary">@Text["NoListings"]</MudText>
-                        }
-                        @foreach (MenuCardListingViewModel offer in section.Offers)
-                        {
-                            <MudStack Row="true" Justify="Justify.SpaceBetween" Class="mt-2">
-                                <MudText>@offer.Name</MudText>
-                                @if (!offer.IsAvailable)
-                                {
-                                    <MudText Typo="Typo.caption" Color="Color.Warning">@Text["UnavailableOffer"]</MudText>
-                                }
-                                else if (offer.Price.HasValue)
-                                {
-                                    <MudText Typo="Typo.caption">@Text["OfferPrice", offer.Price.Value.ToString("C")]</MudText>
-                                }
-                            </MudStack>
-                        }
+                    <MudPaper Elevation="0" Class="pa-4 menu-card-section">
+                        <MudStack Spacing="3">
+                            <MudText Typo="Typo.h6">@section.Name</MudText>
+                            @if (section.Offers.Count == 0)
+                            {
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@Text["NoListings"]</MudText>
+                            }
+                            else
+                            {
+                                <MudStack Spacing="2" Class="menu-card-listings">
+                                    @foreach (MenuCardListingViewModel offer in section.Offers)
+                                    {
+                                        <MudPaper Outlined="true" Class="pa-3 menu-card-offer">
+                                            <MudStack Row="true"
+                                                      AlignItems="AlignItems.Center"
+                                                      Spacing="3"
+                                                      Class="menu-card-offer-content">
+                                                @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
+                                                      {
+                                                    <MudImage Src="@offer.ImageUrl"
+                                                              Alt="@Text["ProductImageAlt", offer.Name]"
+                                                              ObjectFit="ObjectFit.Cover"
+                                                              Class="menu-card-offer-image" />
+                                                      }
+                                                <MudStack Spacing="1" Class="menu-card-offer-details">
+                                                    <MudText Typo="Typo.subtitle1">@offer.Name</MudText>
+                                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@offer.Description</MudText>
+                                                    @if (offer.Categories.Count > 0)
+                                                    {
+                                                        <MudText Typo="Typo.caption">
+                                                            @Text["Categories"]: @string.Join(", ", offer.Categories)
+                                                        </MudText>
+                                                    }
+                                                    @if (!offer.IsAvailable)
+                                                    {
+                                                        <MudText Typo="Typo.caption" Color="Color.Warning">
+                                                            @Text["UnavailableOffer"]
+                                                        </MudText>
+                                                    }
+                                                    else
+                                                    {
+                                                        <MudText Typo="Typo.caption">
+                                                            @Text["OfferPrice", offer.Price.ToString("C")]
+                                                        </MudText>
+                                                    }
+                                                </MudStack>
+                                            </MudStack>
+                                        </MudPaper>
+                                    }
+                                </MudStack>
+                            }
+                        </MudStack>
                     </MudPaper>
                 }
             </MudStack>

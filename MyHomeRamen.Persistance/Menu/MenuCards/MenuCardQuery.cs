@@ -59,6 +59,11 @@ public partial class MenuCardRepository : IMenuCardQuery
                     .ThenInclude(item => item.RestaurantProductOffer)
                         .ThenInclude(offer => offer.Product)
                             .ThenInclude(product => product.CustomIngredients)
+            .Include(card => card.Sections.OrderBy(section => section.SortOrder))
+                .ThenInclude(section => section.Items.OrderBy(item => item.SortOrder))
+                    .ThenInclude(item => item.RestaurantProductOffer)
+                        .ThenInclude(offer => offer.Product)
+                            .ThenInclude(product => product.Categories)
             .AsSplitQuery()
             .FirstOrDefaultAsync(cancellationToken);
 

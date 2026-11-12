@@ -73,4 +73,19 @@
   <data name="NoSectionsAvailable" xml:space="preserve"><value>This menu card has no sections yet.</value></data>
   <data name="BackToCards" xml:space="preserve"><value>Back to menu cards</value></data>
   <data name="BackToRestaurant" xml:space="preserve"><value>Back to restaurant</value></data>
+  <data name="CardDetails" xml:space="preserve"><value>Card details</value></data>
+  <data name="Categories" xml:space="preserve"><value>Categories</value></data>
+  <data name="SaveSectionOrder" xml:space="preserve"><value>Save section order</value></data>
+  <data name="ReorderSection" xml:space="preserve"><value>Drag to reorder section</value></data>
+  <data name="MoveSectionUp" xml:space="preserve"><value>Move section up</value></data>
+  <data name="MoveSectionDown" xml:space="preserve"><value>Move section down</value></data>
+  <data name="AddOffers" xml:space="preserve"><value>Add offers</value></data>
+  <data name="AssignOffersTitle" xml:space="preserve"><value>Assign offers to section</value></data>
+  <data name="SearchOffers" xml:space="preserve"><value>Search offers</value></data>
+  <data name="FilterByCategory" xml:space="preserve"><value>Filter by category</value></data>
+  <data name="SelectedOfferCount" xml:space="preserve"><value>{0} selected</value></data>
+  <data name="NoMatchingOffers" xml:space="preserve"><value>No offers match these filters.</value></data>
+  <data name="ProductImageAlt" xml:space="preserve"><value>Image of {0}</value></data>
+  <data name="SelectOffer" xml:space="preserve"><value>Select {0}</value></data>
+  <data name="AddSelectedOffers" xml:space="preserve"><value>Add selected offers</value></data>
 </root>

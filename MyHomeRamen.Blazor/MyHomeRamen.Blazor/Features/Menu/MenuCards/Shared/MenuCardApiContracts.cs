@@ -40,11 +40,25 @@ public sealed record MenuCardOfferListingContract(
     Guid Id,
     Guid OfferId,
     string Name,
+    string Description,
+    string ImageUrl,
+    IEnumerable<string> Categories,
     int SortOrder,
     bool IsAvailable,
-    decimal? Price);
+    decimal Price,
+    string OfferStatus,
+    string ProductStatus);
 
-public sealed record MenuCardOfferChoiceContract(Guid OfferId, string Name);
+public sealed record MenuCardOfferChoiceContract(
+    Guid OfferId,
+    string Name,
+    string Description,
+    string ImageUrl,
+    IEnumerable<string> Categories,
+    decimal Price,
+    bool IsAvailable,
+    string OfferStatus,
+    string ProductStatus);
 
 public sealed record CreateMenuCardRequest(string Name);
 
@@ -61,6 +75,12 @@ public sealed record CreateMenuSectionRequest(string Name, int SortOrder);
 public sealed record UpdateMenuSectionRequest(string Name, int SortOrder);
 
 public sealed record AddMenuCardOfferRequest(Guid OfferId, int SortOrder);
+
+public sealed record AddMenuCardOffersRequest(IReadOnlyList<Guid> OfferIds);
+
+public sealed record MenuCardOfferAssignmentContract(Guid OfferId, Guid ListingId, int SortOrder);
+
+public sealed record AddMenuCardOffersResponse(IReadOnlyList<MenuCardOfferAssignmentContract> Offers);
 
 public sealed record UpdateMenuCardOfferRequest(int SortOrder);
 

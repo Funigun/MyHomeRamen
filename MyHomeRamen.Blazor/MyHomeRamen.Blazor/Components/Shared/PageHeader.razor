@@ -1,6 +1,13 @@
 <header class="page-header">
     <div class="page-header-copy">
-        <MudText Typo="Typo.h3" Class="page-header-title">@Title</MudText>
+        @if (TitleContent is null)
+        {
+            <MudText Typo="Typo.h3" Class="page-header-title">@Title</MudText>
+        }
+        else
+        {
+            @TitleContent
+        }
         @if (!string.IsNullOrWhiteSpace(Description))
         {
             <MudText Class="page-header-description">@Description</MudText>
@@ -17,6 +24,7 @@
 
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter] public RenderFragment? TitleContent { get; set; }
     [Parameter] public string? Description { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
 }

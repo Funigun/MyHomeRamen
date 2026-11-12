@@ -12,28 +12,71 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-<MudPaper Elevation="3" Class="page-surface">
-    <PageHeader Title='@Text["EditHeading"]'>
-        @if (RestaurantId != Guid.Empty)
-        {
-            <MudButton Variant="Variant.Text"
-                       StartIcon="@Icons.Material.Filled.ArrowBack"
-                       Href="@MenuCardRoutes.Index(RestaurantId)">
-                @Text["BackToCards"]
-            </MudButton>
-            <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
-                @Text["BackToRestaurant"]
-            </MudButton>
-        }
-        @if (_details?.AllowedActions.CanEdit == true && !_isSubmitting)
-        {
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Add"
-                       OnClick="OpenCreateSectionDialogAsync">
-                @Text["AddSection"]
-            </MudButton>
-        }
+<MudPaper Elevation="3" Class="page-surface menu-card-editor" Outlined="false">
+    <PageHeader Title="@(_details?.Name ?? Text["EditHeading"])">
+        <TitleContent>
+            <div class="menu-card-header-content">
+                @if (RestaurantId != Guid.Empty)
+                {
+                    <div class="menu-card-header-navigation">
+                        <MudButton Variant="Variant.Text"
+                                   StartIcon="@Icons.Material.Filled.ArrowBack"
+                                   Href="@MenuCardRoutes.Index(RestaurantId)">
+                            @Text["BackToCards"]
+                        </MudButton>
+                        <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
+                            @Text["BackToRestaurant"]
+                        </MudButton>
+                    </div>
+                }
+                @if (_details is not null && _formModel is not null)
+                {
+                    <div class="menu-card-header-main">
+                        @if (_details.AllowedActions.CanEdit)
+                        {
+                            <MenuCardForm Model="_formModel"
+                                          IsEdit="true"
+                                          IsInline="true"
+                                          IsSubmitting="_isSubmitting"
+                                          ErrorMessage="@_submitError.Message"
+                                          ValidationErrors="_submitError.ValidationErrors"
+                                          OnSubmit="UpdateAsync"
+                                          OnInlineCancel="ClearInlineChanges"
+                                          OnCancel="Cancel" />
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h4">@_details.Name</MudText>
+                        }
+                        <MudChip T="string"
+                                 Color="@(_details.IsActive ? Color.Success : Color.Default)"
+                                 Variant="Variant.Outlined">
+                            @Text[_details.IsActive ? "Active" : "Inactive"]
+                        </MudChip>
+                        @if (_details.AllowedActions.CanEdit && !_isSubmitting)
+                        {
+                            <MudButton Variant="Variant.Filled"
+                                       Color="Color.Primary"
+                                       StartIcon="@Icons.Material.Filled.Add"
+                                       OnClick="OpenCreateSectionDialogAsync">
+                                @Text["AddSection"]
+                            </MudButton>
+                        }
+                        @if (!_isSubmitting
+                            && (_details.IsActive && _details.AllowedActions.CanDelete
+                                || !_details.IsActive && _details.AllowedActions.CanEdit))
+                        {
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="@(_details.IsActive ? Color.Error : Color.Success)"
+                                       StartIcon="@(_details.IsActive ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility)"
+                                       OnClick="ToggleVisibilityAsync">
+                                @Text[_details.IsActive ? "Deactivate" : "Activate"]
+                            </MudButton>
+                        }
+                    </div>
+                }
+            </div>
+        </TitleContent>
     </PageHeader>
     @if (_isLoading)
     {
@@ -56,31 +99,21 @@
         {
             <MudAlert Severity="Severity.Warning" Class="page-state">@Text["NoEditPermission"]</MudAlert>
         }
-        else
+        @if (_submitError.HasError)
         {
-            @if (_submitError.HasError)
-            {
-                <MudAlert Severity="Severity.Error" Class="page-state">@_submitError.Message</MudAlert>
-            }
-            <MenuCardForm Model="_formModel"
-                          IsEdit="true"
-                          IsSubmitting="_isSubmitting"
-                          ErrorMessage="@_submitError.Message"
-                          ValidationErrors="_submitError.ValidationErrors"
-                          OnSubmit="UpdateAsync"
-                          OnCancel="Cancel" />
-            <MudDivider Class="my-6" />
-            <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
-            <MenuCardSectionsEditor @key="_details"
-                                    Sections="_details.Sections"
-                                    EligibleOffers="_details.EligibleOffers"
-                                    CanEdit="_details.AllowedActions.CanEdit && !_isSubmitting"
-                                    OnEditSection="OpenEditSectionDialogAsync"
-                                    OnDeleteSection="DeleteSectionAsync"
-                                    OnAddOffer="AddOfferAsync"
-                                    OnUpdateOffer="UpdateOfferAsync"
-                                    OnRemoveOffer="RemoveOfferAsync" />
+            <MudAlert Severity="Severity.Error" Class="page-state">@_submitError.Message</MudAlert>
         }
+        <MenuCardSectionsEditor @key="_details"
+                                Sections="_details.Sections"
+                                EligibleOffers="_details.EligibleOffers"
+                                CanEdit="_details.AllowedActions.CanEdit && !_isSubmitting"
+                                CanDelete="_details.AllowedActions.CanDelete && !_isSubmitting"
+                                OnDeleteSection="DeleteSectionAsync"
+                                OnUpdateSection="UpdateSectionAsync"
+                                OnOrderChanged="UpdateSectionsOrderAsync"
+                                OnOpenOfferAssignment="OpenOfferAssignmentDialogAsync"
+                                OnUpdateOffer="UpdateOfferAsync"
+                                OnRemoveOffer="RemoveOfferAsync" />
     }
     else if (!_isLoading && !_loadError.HasError && !_invalidRoute)
     {
@@ -99,6 +132,8 @@
     private bool _isLoading = true;
     private bool _invalidRoute;
     private bool _isSubmitting;
+    private Guid? _pendingAssignmentSectionId;
+    private readonly HashSet<Guid> _pendingAssignmentOfferIds = [];
 
     private async Task OpenCreateSectionDialogAsync()
     {
@@ -114,27 +149,6 @@
             model,
             isEdit: false,
             submittedModel => CreateSectionAsync(submittedModel.ToCreateRequest()));
-    }
-
-    private async Task OpenEditSectionDialogAsync(MenuCardSectionViewModel section)
-    {
-        if (_details?.AllowedActions.CanEdit != true
-            || _isSubmitting
-            || _details.Sections.All(currentSection => currentSection.Id != section.Id))
-        {
-            return;
-        }
-
-        MenuSectionFormModel model = new()
-        {
-            Name = section.Name,
-            SortOrder = section.SortOrder
-        };
-        await ShowSectionDialogAsync(
-            Text["EditSectionTitle"],
-            model,
-            isEdit: true,
-            submittedModel => UpdateSectionAsync((section.Id, submittedModel.ToUpdateRequest())));
     }
 
     private async Task ShowSectionDialogAsync(
@@ -287,7 +301,7 @@
 
     private async Task DeleteSectionAsync(Guid sectionId)
     {
-        if (_details?.AllowedActions.CanEdit != true
+        if (_details?.AllowedActions.CanDelete != true
             || _isSubmitting
             || _details.Sections.All(section => section.Id != sectionId))
         {
@@ -312,15 +326,66 @@
         }
     }
 
-    private async Task AddOfferAsync((Guid SectionId, AddMenuCardOfferRequest Request) addition)
+    private async Task OpenOfferAssignmentDialogAsync(Guid sectionId)
+    {
+        if (_details?.AllowedActions.CanEdit != true
+            || _isSubmitting
+            || _details.Sections.All(section => section.Id != sectionId))
+        {
+            return;
+        }
+
+        MenuCardSectionViewModel section = _details.Sections.First(current => current.Id == sectionId);
+        if (_pendingAssignmentSectionId != sectionId)
+        {
+            _pendingAssignmentOfferIds.Clear();
+            _pendingAssignmentSectionId = sectionId;
+        }
+
+        DialogParameters<MenuCardOfferAssignmentDialog> parameters = new()
+        {
+            { dialog => dialog.EligibleOffers, _details.EligibleOffers },
+            { dialog => dialog.ExistingOfferIds, section.Offers.Select(offer => offer.OfferId).ToArray() },
+            { dialog => dialog.SelectedOfferIds, _pendingAssignmentOfferIds.ToArray() }
+        };
+        DialogOptions options = new()
+        {
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            CloseOnEscapeKey = true
+        };
+
+        IDialogReference dialog = await DialogService.ShowAsync<MenuCardOfferAssignmentDialog>(
+            Text["AssignOffersTitle"],
+            parameters,
+            options);
+        DialogResult? result = await dialog.Result;
+        if (result is { Canceled: false, Data: Guid[] offerIds })
+        {
+            _pendingAssignmentOfferIds.Clear();
+            _pendingAssignmentOfferIds.UnionWith(offerIds);
+            await AddOffersAsync((sectionId, offerIds));
+        }
+    }
+
+    private async Task AddOffersAsync((Guid SectionId, IReadOnlyList<Guid> OfferIds) addition)
     {
         if (_details?.AllowedActions.CanEdit != true
             || _isSubmitting
             || _details.Sections.All(section => section.Id != addition.SectionId)
-            || !_details.EligibleOffers.Any(offer => offer.OfferId == addition.Request.OfferId)
-            || _details.Sections
-                .First(section => section.Id == addition.SectionId)
-                .Offers.Any(offer => offer.OfferId == addition.Request.OfferId))
+            || _pendingAssignmentSectionId != addition.SectionId)
+        {
+            return;
+        }
+
+        MenuCardSectionViewModel section = _details.Sections.First(current => current.Id == addition.SectionId);
+        HashSet<Guid> alreadyListed = section.Offers.Select(offer => offer.OfferId).ToHashSet();
+        Guid[] newOfferIds = addition.OfferIds
+            .Distinct()
+            .Where(offerId => !alreadyListed.Contains(offerId)
+                && _details.EligibleOffers.Any(offer => offer.OfferId == offerId))
+            .ToArray();
+        if (newOfferIds.Length == 0)
         {
             return;
         }
@@ -329,16 +394,18 @@
         _submitError.Clear();
         try
         {
-            ApiResult<MenuCardMutationResponse> result = await MenuCardsApiClient.AddOfferAsync(
+            ApiResult<AddMenuCardOffersResponse> result = await MenuCardsApiClient.AddOffersAsync(
                 MenuCardId,
                 addition.SectionId,
                 RestaurantId,
-                addition.Request);
+                new AddMenuCardOffersRequest(newOfferIds));
             if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
             {
                 return;
             }
 
+            _pendingAssignmentOfferIds.Clear();
+            _pendingAssignmentSectionId = null;
             await LoadAsync();
         }
         finally
@@ -384,7 +451,7 @@
 
     private async Task RemoveOfferAsync((Guid SectionId, Guid ListingId) removal)
     {
-        if (_details?.AllowedActions.CanEdit != true
+        if (_details?.AllowedActions.CanDelete != true
             || _isSubmitting
             || _details.Sections
                 .Where(section => section.Id == removal.SectionId)
@@ -415,9 +482,86 @@
         }
     }
 
+    private async Task UpdateSectionsOrderAsync(IReadOnlyList<MenuCardSectionViewModel> orderedSections)
+    {
+        if (_details?.AllowedActions.CanEdit != true || _isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            for (int index = 0; index < orderedSections.Count; index++)
+            {
+                MenuCardSectionViewModel section = orderedSections[index];
+                if (section.SortOrder == index)
+                {
+                    continue;
+                }
+
+                ApiResult<bool> result = await MenuCardsApiClient.UpdateSectionAsync(
+                    MenuCardId,
+                    section.Id,
+                    RestaurantId,
+                    new UpdateMenuSectionRequest(section.Name, index));
+                if (_submitError.Apply(result, Text["OrderError"], Text["UnexpectedError"]))
+                {
+                    await LoadAsync();
+                    return;
+                }
+            }
+
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task ToggleVisibilityAsync()
+    {
+        if (_details is null || _isSubmitting
+            || (_details.IsActive && !_details.AllowedActions.CanDelete)
+            || (!_details.IsActive && !_details.AllowedActions.CanEdit))
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        _submitError.Clear();
+        try
+        {
+            ApiResult<bool> result = _details.IsActive
+                ? await MenuCardsApiClient.DeactivateAsync(MenuCardId, RestaurantId)
+                : await MenuCardsApiClient.ActivateAsync(MenuCardId, RestaurantId);
+            if (_submitError.Apply(result, Text["ActionError"], Text["UnexpectedError"]))
+            {
+                return;
+            }
+
+            Snackbar.Add(
+                Text[_details.IsActive ? "DeactivateSuccess" : "ActivateSuccess"],
+                Severity.Success);
+            await LoadAsync();
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
     private Task Cancel()
     {
         NavigationManager.NavigateTo(MenuCardRoutes.Index(RestaurantId));
+        return Task.CompletedTask;
+    }
+
+    private Task ClearInlineChanges()
+    {
+        _submitError.Clear();
         return Task.CompletedTask;
     }
 }

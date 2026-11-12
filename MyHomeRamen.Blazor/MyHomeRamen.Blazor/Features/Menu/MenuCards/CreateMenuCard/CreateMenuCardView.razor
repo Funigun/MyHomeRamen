@@ -11,19 +11,26 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-<MudPaper Elevation="3" Class="page-surface">
+<MudPaper Elevation="3" Class="page-surface menu-card-editor">
     <PageHeader Title='@Text["CreateHeading"]'>
-        @if (RestaurantId != Guid.Empty)
-        {
-            <MudButton Variant="Variant.Text"
-                       StartIcon="@Icons.Material.Filled.ArrowBack"
-                       Href="@MenuCardRoutes.Index(RestaurantId)">
-                @Text["BackToCards"]
-            </MudButton>
-            <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
-                @Text["BackToRestaurant"]
-            </MudButton>
-        }
+        <TitleContent>
+            <div class="menu-card-header-content">
+                @if (RestaurantId != Guid.Empty)
+                {
+                    <div class="menu-card-header-navigation">
+                        <MudButton Variant="Variant.Text"
+                                   StartIcon="@Icons.Material.Filled.ArrowBack"
+                                   Href="@MenuCardRoutes.Index(RestaurantId)">
+                            @Text["BackToCards"]
+                        </MudButton>
+                        <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
+                            @Text["BackToRestaurant"]
+                        </MudButton>
+                    </div>
+                }
+                <MudText Typo="Typo.h4" Class="page-header-title">@Text["CreateHeading"]</MudText>
+            </div>
+        </TitleContent>
     </PageHeader>
     @if (_isLoading)
     {

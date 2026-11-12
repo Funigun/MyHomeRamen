@@ -5,51 +5,206 @@
 
 @inject IStringLocalizer<MenuCardsResources> Text
 
-<MudStack Spacing="3">
-    @if (Sections.Count == 0)
+@if (Sections.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["NoSections"]</MudAlert>
+}
+else
+{
+    @if (CanEdit)
     {
-        <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["NoSections"]</MudAlert>
-    }
-    @foreach (MenuCardSectionViewModel section in Sections)
-    {
-        <MudPaper Elevation="0" Class="pa-4 menu-card-section">
-            <MudStack Spacing="3">
-                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="2">
-                    <MudStack Spacing="1">
-                        <MudText Typo="Typo.h6">@section.Name</MudText>
-                        <MudText Typo="Typo.caption">@Text["SortOrder"] @section.SortOrder</MudText>
-                    </MudStack>
-                    @if (CanEdit)
-                    {
-                        <MudStack Row="true" Spacing="2">
-                            <MudIconButton Icon="@Icons.Material.Filled.Edit"
-                                           aria-label="@Text["EditSection"]"
-                                           OnClick="@(() => OnEditSection.InvokeAsync(section))" />
-                            <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline"
-                                           Color="Color.Error"
-                                           aria-label="@Text["RemoveSection"]"
-                                           OnClick="@(() => OnDeleteSection.InvokeAsync(section.Id))" />
-                        </MudStack>
-                    }
-                </MudStack>
-                <MenuSectionListingsEditor Section="section"
-                                           EligibleOffers="EligibleOffers"
-                                           CanEdit="CanEdit"
-                                           OnAddOffer="OnAddOffer"
-                                           OnUpdateOffer="OnUpdateOffer"
-                                           OnRemoveOffer="OnRemoveOffer" />
+        <MudDropContainer T="MenuCardSectionViewModel"
+                          Items="_orderedSections"
+                          ItemsSelector="@((_, _) => true)"
+                          ItemDropped="OnSectionDropped"
+                          Class="menu-card-section-list">
+            <ChildContent>
+                <MudDropZone T="MenuCardSectionViewModel" Identifier="sections" AllowReorder="true" />
+            </ChildContent>
+            <ItemRenderer>
+                @SectionCard(context)
+            </ItemRenderer>
+        </MudDropContainer>
+        @if (_hasPendingOrder)
+        {
+            <MudStack Row="true" Justify="Justify.FlexEnd" Class="form-actions menu-card-order-actions">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           OnClick="SaveOrderAsync">
+                    @Text["SaveSectionOrder"]
+                </MudButton>
             </MudStack>
-        </MudPaper>
+        }
     }
-</MudStack>
+    else
+    {
+        <MudStack Spacing="0" Class="menu-card-section-list">
+            @foreach (MenuCardSectionViewModel section in Sections.OrderBy(section => section.SortOrder))
+            {
+                @SectionCard(section)
+            }
+        </MudStack>
+    }
+}
 
 @code {
     [Parameter, EditorRequired] public IReadOnlyList<MenuCardSectionViewModel> Sections { get; set; } = [];
     [Parameter, EditorRequired] public IReadOnlyList<MenuCardOfferChoiceViewModel> EligibleOffers { get; set; } = [];
     [Parameter] public bool CanEdit { get; set; }
-    [Parameter, EditorRequired] public EventCallback<MenuCardSectionViewModel> OnEditSection { get; set; }
-    [Parameter, EditorRequired] public EventCallback<Guid> OnDeleteSection { get; set; }
-    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, AddMenuCardOfferRequest Request)> OnAddOffer { get; set; }
+    [Parameter] public bool CanDelete { get; set; }
+    [Parameter] public EventCallback<Guid> OnDeleteSection { get; set; }
+    [Parameter] public EventCallback<(Guid SectionId, UpdateMenuSectionRequest Request)> OnUpdateSection { get; set; }
+    [Parameter] public EventCallback<IReadOnlyList<MenuCardSectionViewModel>> OnOrderChanged { get; set; }
+    [Parameter] public EventCallback<Guid> OnOpenOfferAssignment { get; set; }
     [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId, UpdateMenuCardOfferRequest Request)> OnUpdateOffer { get; set; }
     [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId)> OnRemoveOffer { get; set; }
+
+    private IReadOnlyList<MenuCardSectionViewModel>? _sourceSections;
+    private List<MenuCardSectionViewModel> _orderedSections = [];
+    private Guid? _editingSectionId;
+    private string _editingSectionName = string.Empty;
+    private bool _hasPendingOrder;
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(_sourceSections, Sections))
+        {
+            return;
+        }
+
+        _sourceSections = Sections;
+        _orderedSections = Sections.OrderBy(section => section.SortOrder).ToList();
+        _hasPendingOrder = false;
+        _editingSectionId = null;
+    }
+
+    private RenderFragment SectionCard(MenuCardSectionViewModel section) => @<MudPaper Elevation="0" Class="pa-4 menu-card-section">
+        <MudStack Spacing="3">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="2" Class="menu-card-section-heading">
+                @if (_editingSectionId == section.Id)
+                {
+                    <MudTextField @bind-Value="_editingSectionName"
+                                  Label="@Text["SectionName"]"
+                                  Variant="Variant.Outlined"
+                                  Immediate="true"
+                                  MaxLength="200" />
+                    <MudStack Row="true" Spacing="1">
+                        <MudIconButton Icon="@Icons.Material.Filled.Check"
+                                       aria-label="@Text["SaveSection"]"
+                                       Disabled="@string.IsNullOrWhiteSpace(_editingSectionName)"
+                                       OnClick="@(() => SaveSectionAsync(section))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                       aria-label="@Text["Cancel"]"
+                                       OnClick="CancelSectionEdit" />
+                    </MudStack>
+                }
+                else
+                {
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="menu-card-section-title">
+                        @if (CanEdit)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.DragIndicator"
+                                           aria-label="@Text["ReorderSection"]"
+                                           Class="menu-card-drag-handle" />
+                            <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowUp"
+                                           aria-label="@Text["MoveSectionUp"]"
+                                           Disabled="@(_orderedSections.IndexOf(section) <= 0)"
+                                           OnClick="@(() => MoveSection(section, -1))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.KeyboardArrowDown"
+                                           aria-label="@Text["MoveSectionDown"]"
+                                           Disabled="@(_orderedSections.IndexOf(section) >= _orderedSections.Count - 1)"
+                                           OnClick="@(() => MoveSection(section, 1))" />
+                        }
+                        <MudText Typo="Typo.h6">@section.Name</MudText>
+                    </MudStack>
+                    @if (CanEdit || CanDelete)
+                    {
+                        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="menu-card-section-actions">
+                            @if (CanEdit)
+                            {
+                                bool hasUnlistedOffers = EligibleOffers.Any(
+                                    offer => section.Offers.All(listing => listing.OfferId != offer.OfferId));
+                                @if (hasUnlistedOffers)
+                                {
+                                    <MudButton Variant="Variant.Filled"
+                                               Color="Color.Primary"
+                                               StartIcon="@Icons.Material.Filled.Add"
+                                               OnClick="@(() => OnOpenOfferAssignment.InvokeAsync(section.Id))">
+                                        @Text["AddOffers"]
+                                    </MudButton>
+                                }
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                               aria-label="@Text["EditSection"]"
+                                               Color="Color.Secondary"
+                                               OnClick="@(() => StartSectionEdit(section))" />
+                            }
+                            @if (CanDelete)
+                            {
+                                <MudIconButton Icon="@Icons.Material.Filled.DeleteOutline"
+                                               Color="Color.Error"
+                                               aria-label="@Text["RemoveSection"]"
+                                               OnClick="@(() => OnDeleteSection.InvokeAsync(section.Id))" />
+                            }
+                        </MudStack>
+                    }
+                }
+            </MudStack>
+            <MenuSectionListingsEditor Section="section"
+                                       EligibleOffers="EligibleOffers"
+                                       CanEdit="CanEdit"
+                                       CanDelete="CanDelete"
+                                       OnUpdateOffer="OnUpdateOffer"
+                                       OnRemoveOffer="OnRemoveOffer" />
+        </MudStack>
+    </MudPaper>;
+
+    private void StartSectionEdit(MenuCardSectionViewModel section)
+    {
+        _editingSectionId = section.Id;
+        _editingSectionName = section.Name;
+    }
+
+    private void CancelSectionEdit()
+    {
+        _editingSectionId = null;
+        _editingSectionName = string.Empty;
+    }
+
+    private Task SaveSectionAsync(MenuCardSectionViewModel section)
+        => OnUpdateSection.InvokeAsync((
+            section.Id,
+            new UpdateMenuSectionRequest(_editingSectionName.Trim(), section.SortOrder)));
+
+    private void OnSectionDropped(MudItemDropInfo<MenuCardSectionViewModel> dropInfo)
+    {
+        int currentIndex = _orderedSections.IndexOf(dropInfo.Item);
+        if (currentIndex < 0 || dropInfo.IndexInZone == currentIndex)
+        {
+            return;
+        }
+
+        _orderedSections.RemoveAt(currentIndex);
+        _orderedSections.Insert(dropInfo.IndexInZone, dropInfo.Item);
+        _hasPendingOrder = true;
+    }
+
+    private void MoveSection(MenuCardSectionViewModel section, int offset)
+    {
+        int currentIndex = _orderedSections.IndexOf(section);
+        int targetIndex = currentIndex + offset;
+        if (currentIndex < 0 || targetIndex < 0 || targetIndex >= _orderedSections.Count)
+        {
+            return;
+        }
+
+        _orderedSections.RemoveAt(currentIndex);
+        _orderedSections.Insert(targetIndex, section);
+        _hasPendingOrder = true;
+    }
+
+    private async Task SaveOrderAsync()
+    {
+        await OnOrderChanged.InvokeAsync(_orderedSections);
+        _hasPendingOrder = false;
+    }
 }

@@ -5,27 +5,39 @@
 
 @inject IStringLocalizer<MenuCardsResources> Text
 
-<MudStack Spacing="2">
+<MudStack Spacing="2" Class="menu-card-listings">
     @if (Section.Offers.Count == 0)
     {
         <MudText Typo="Typo.body2" Color="Color.Secondary">@Text["NoListings"]</MudText>
     }
     @foreach (MenuCardListingViewModel listing in Section.Offers.OrderBy(offer => offer.SortOrder))
     {
-        <MudPaper Outlined="true" Class="pa-3">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="2">
-                <MudStack Spacing="1">
-                    <MudText>@listing.Name</MudText>
+        <MudPaper Outlined="true" Class="pa-3 menu-card-offer">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="menu-card-offer-content">
+                @if (!string.IsNullOrWhiteSpace(listing.ImageUrl))
+                {
+                    <MudImage Src="@listing.ImageUrl"
+                              Alt="@Text["ProductImageAlt", listing.Name]"
+                              ObjectFit="ObjectFit.Cover"
+                              Class="menu-card-offer-image" />
+                }
+                <MudStack Spacing="1" Class="menu-card-offer-details">
+                    <MudText Typo="Typo.subtitle1">@listing.Name</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">@listing.Description</MudText>
+                    @if (listing.Categories.Count > 0)
+                    {
+                        <MudText Typo="Typo.caption">@Text["Categories"]: @string.Join(", ", listing.Categories)</MudText>
+                    }
                     @if (!listing.IsAvailable)
                     {
                         <MudText Typo="Typo.caption" Color="Color.Warning">@Text["UnavailableOffer"]</MudText>
                     }
-                    else if (listing.Price.HasValue)
+                    else
                     {
-                        <MudText Typo="Typo.caption">@Text["OfferPrice", listing.Price.Value.ToString("C")]</MudText>
+                        <MudText Typo="Typo.caption">@Text["OfferPrice", listing.Price.ToString("C")]</MudText>
                     }
                 </MudStack>
-                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1" Class="menu-card-offer-actions">
                     <MudNumericField T="int"
                                      @bind-Value="listing.SortOrder"
                                      Label="@Text["SortOrder"]"
@@ -33,50 +45,29 @@
                                      Disabled="@(!CanEdit)"
                                      Min="0"
                                      Style="max-width:100px" />
-                    @if (CanEdit)
+                    @if (CanEdit || CanDelete)
                     {
-                        <MudIconButton Icon="@Icons.Material.Filled.Save"
-                                       aria-label="@Text["SaveOrder"]"
-                                       OnClick="@(() => OnUpdateOffer.InvokeAsync((Section.Id, listing.Id, new UpdateMenuCardOfferRequest(listing.SortOrder))))" />
-                        <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
-                                       Color="Color.Error"
-                                       aria-label="@Text["RemoveListing"]"
-                                       OnClick="@(() => OnRemoveOffer.InvokeAsync((Section.Id, listing.Id)))" />
+                        @if (CanEdit)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Save"
+                                           aria-label="@Text["SaveOrder"]"
+                                           OnClick="@(() => OnUpdateOffer.InvokeAsync((Section.Id, listing.Id, new UpdateMenuCardOfferRequest(listing.SortOrder))))" />
+                        }
+                        @if (CanDelete)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
+                                           Color="Color.Error"
+                                           aria-label="@Text["RemoveListing"]"
+                                           OnClick="@(() => OnRemoveOffer.InvokeAsync((Section.Id, listing.Id)))" />
+                        }
                     }
                 </MudStack>
             </MudStack>
         </MudPaper>
     }
-    @if (CanEdit)
+    @if (CanEdit && EligibleOffers.Count == 0)
     {
-        IReadOnlyList<MenuCardOfferChoiceViewModel> choices = EligibleOffers
-            .Where(offer => Section.Offers.All(listing => listing.OfferId != offer.OfferId))
-            .ToArray();
-        @if (choices.Count == 0)
-        {
-            <MudText Typo="Typo.caption" Color="Color.Secondary">@Text["NoEligibleOffers"]</MudText>
-        }
-        else
-        {
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="flex-wrap">
-                <MudSelect T="Guid"
-                           @bind-Value="_selectedOfferId"
-                           ToStringFunc="GetOfferName"
-                           Label="@Text["Offer"]"
-                           Variant="Variant.Outlined">
-                    @foreach (MenuCardOfferChoiceViewModel offer in choices)
-                    {
-                        <MudSelectItem Value="@offer.OfferId">@offer.Name</MudSelectItem>
-                    }
-                </MudSelect>
-                <MudButton Variant="Variant.Outlined"
-                           Color="Color.Primary"
-                           Disabled="@(_selectedOfferId == Guid.Empty)"
-                           OnClick="AddOfferAsync">
-                    @Text["AddOffer"]
-                </MudButton>
-            </MudStack>
-        }
+        <MudText Typo="Typo.caption" Color="Color.Secondary">@Text["NoEligibleOffers"]</MudText>
     }
 </MudStack>
 
@@ -84,23 +75,7 @@
     [Parameter, EditorRequired] public MenuCardSectionViewModel Section { get; set; } = default!;
     [Parameter, EditorRequired] public IReadOnlyList<MenuCardOfferChoiceViewModel> EligibleOffers { get; set; } = [];
     [Parameter] public bool CanEdit { get; set; }
-    [Parameter, EditorRequired] public EventCallback<(Guid SectionId, AddMenuCardOfferRequest Request)> OnAddOffer { get; set; }
+    [Parameter] public bool CanDelete { get; set; }
     [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId, UpdateMenuCardOfferRequest Request)> OnUpdateOffer { get; set; }
     [Parameter, EditorRequired] public EventCallback<(Guid SectionId, Guid ListingId)> OnRemoveOffer { get; set; }
-
-    private Guid _selectedOfferId;
-
-    private string GetOfferName(Guid offerId)
-        => EligibleOffers.FirstOrDefault(offer => offer.OfferId == offerId)?.Name ?? string.Empty;
-
-    private async Task AddOfferAsync()
-    {
-        if (_selectedOfferId == Guid.Empty || Section.Offers.Any(offer => offer.OfferId == _selectedOfferId))
-        {
-            return;
-        }
-
-        int sortOrder = Section.Offers.Count == 0 ? 0 : Section.Offers.Max(offer => offer.SortOrder) + 1;
-        await OnAddOffer.InvokeAsync((Section.Id, new AddMenuCardOfferRequest(_selectedOfferId, sortOrder)));
-    }
 }

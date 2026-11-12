@@ -15,4 +15,12 @@ public partial class RestaurantProductOfferRepository : IRestaurantProductOfferL
             .Include(offer => offer.Product)
                 .ThenInclude(product => product.CustomIngredients)
             .FirstOrDefaultAsync(offer => offer.Id == offerId, cancellationToken);
+
+    public async Task<IReadOnlyCollection<RestaurantProductOffer>> ByIdsForUpdate(
+        IReadOnlyCollection<RestaurantProductOfferId> offerIds,
+        CancellationToken cancellationToken)
+        => await menuDbContext.RestaurantProductOffers
+            .Include(offer => offer.Product)
+            .Where(offer => offerIds.Contains(offer.Id))
+            .ToListAsync(cancellationToken);
 }

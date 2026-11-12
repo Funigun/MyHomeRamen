@@ -1,0 +1,156 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
+
+@inject IStringLocalizer<MenuCardsResources> Text
+
+<MudDialog Class="menu-card-assignment-dialog">
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudTextField @bind-Value="_searchText"
+                          Label="@Text["SearchOffers"]"
+                          Variant="Variant.Outlined"
+                          Immediate="true"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
+            @if (_availableCategories.Length > 0)
+            {
+                <MudSelect T="string"
+                           Label="@Text["FilterByCategory"]"
+                           MultiSelection="true"
+                           SelectedValues="_selectedCategories"
+                           SelectedValuesChanged="OnCategoriesChanged"
+                           Variant="Variant.Outlined">
+                    @foreach (string category in _availableCategories)
+                    {
+                        <MudSelectItem Value="@category">@category</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            <MudText Typo="Typo.body2" aria-live="polite">
+                @Text["SelectedOfferCount", _selectedOfferIds.Count]
+            </MudText>
+            @if (VisibleOffers.Count == 0)
+            {
+                <MudAlert Severity="Severity.Info" Class="component-empty-state">@Text["NoMatchingOffers"]</MudAlert>
+            }
+            else
+            {
+                <MudStack Spacing="2" Class="menu-card-assignment-list">
+                    @foreach (MenuCardOfferChoiceViewModel offer in VisibleOffers)
+                    {
+                        <MudPaper Outlined="true" Class="pa-3 menu-card-assignment-offer">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudCheckBox T="bool"
+                                             Value="@_selectedOfferIds.Contains(offer.OfferId)"
+                                             ValueChanged="@((bool selected) => SetSelected(offer.OfferId, selected))"
+                                             aria-label="@Text["SelectOffer", offer.Name]" />
+                                @if (!string.IsNullOrWhiteSpace(offer.ImageUrl))
+                                {
+                                    <MudImage Src="@offer.ImageUrl"
+                                              Alt="@Text["ProductImageAlt", offer.Name]"
+                                              ObjectFit="ObjectFit.Cover"
+                                              Class="menu-card-assignment-image" />
+                                }
+                                <MudStack Spacing="1" Class="menu-card-offer-details">
+                                    <MudText Typo="Typo.subtitle1">@offer.Name</MudText>
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@offer.Description</MudText>
+                                    @if (offer.Categories.Count > 0)
+                                    {
+                                        <MudText Typo="Typo.caption">@Text["Categories"]: @string.Join(", ", offer.Categories)</MudText>
+                                    }
+                                    <MudText Typo="Typo.caption">@Text["OfferPrice", offer.Price.ToString("C")]</MudText>
+                                </MudStack>
+                            </MudStack>
+                        </MudPaper>
+                    }
+                </MudStack>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <div class="form-actions">
+            <MudButton OnClick="Cancel">@Text["Cancel"]</MudButton>
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       Disabled="@(_selectedOfferIds.Count == 0)"
+                       OnClick="Confirm">
+                @Text["AddSelectedOffers"]
+            </MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter, EditorRequired] public IReadOnlyList<MenuCardOfferChoiceViewModel> EligibleOffers { get; set; } = [];
+    [Parameter] public IReadOnlyList<Guid> ExistingOfferIds { get; set; } = [];
+    [Parameter] public IReadOnlyList<Guid> SelectedOfferIds { get; set; } = [];
+
+    private HashSet<Guid> _selectedOfferIds = [];
+    private HashSet<string> _selectedCategories = [];
+    private string _searchText = string.Empty;
+    private string[] _availableCategories = [];
+
+    private IReadOnlyList<MenuCardOfferChoiceViewModel> AvailableOffers => EligibleOffers
+        .Where(offer => !ExistingOfferIds.Contains(offer.OfferId))
+        .ToArray();
+
+    private IReadOnlyList<MenuCardOfferChoiceViewModel> VisibleOffers => AvailableOffers
+        .Where(MatchesSearch)
+        .Where(MatchesCategories)
+        .ToArray();
+
+    protected override void OnParametersSet()
+    {
+        _selectedOfferIds = SelectedOfferIds
+            .Where(id => AvailableOffers.Any(offer => offer.OfferId == id))
+            .ToHashSet();
+        _availableCategories = AvailableOffers
+            .SelectMany(offer => offer.Categories)
+            .Distinct(StringComparer.CurrentCulture)
+            .Order(StringComparer.CurrentCulture)
+            .ToArray();
+    }
+
+    private bool MatchesSearch(MenuCardOfferChoiceViewModel offer)
+    {
+        if (string.IsNullOrWhiteSpace(_searchText))
+        {
+            return true;
+        }
+
+        return offer.Name.Contains(_searchText, StringComparison.CurrentCultureIgnoreCase)
+            || offer.Description.Contains(_searchText, StringComparison.CurrentCultureIgnoreCase)
+            || offer.Categories.Any(category =>
+                category.Contains(_searchText, StringComparison.CurrentCultureIgnoreCase));
+    }
+
+    private bool MatchesCategories(MenuCardOfferChoiceViewModel offer)
+        => _selectedCategories.Count == 0
+            || offer.Categories.Any(category => _selectedCategories.Contains(category));
+
+    private Task OnCategoriesChanged(IEnumerable<string> categories)
+    {
+        _selectedCategories = categories.ToHashSet(StringComparer.CurrentCulture);
+        return Task.CompletedTask;
+    }
+
+    private Task SetSelected(Guid offerId, bool selected)
+    {
+        if (selected)
+        {
+            _selectedOfferIds.Add(offerId);
+        }
+        else
+        {
+            _selectedOfferIds.Remove(offerId);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void Confirm() => MudDialog.Close(DialogResult.Ok(_selectedOfferIds.ToArray()));
+
+    private void Cancel() => MudDialog.Cancel();
+}

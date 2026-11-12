@@ -13,9 +13,14 @@ public sealed record MenuCardForManageOfferDto(
     Guid Id,
     Guid OfferId,
     string Name,
+    string Description,
+    string ImageUrl,
+    IReadOnlyList<string> Categories,
     int SortOrder,
     bool IsAvailable,
-    decimal? Price);
+    decimal Price,
+    string OfferStatus,
+    string ProductStatus);
 
 public sealed record MenuCardForManageSectionDto(
     Guid Id,
@@ -23,7 +28,16 @@ public sealed record MenuCardForManageSectionDto(
     int SortOrder,
     IEnumerable<MenuCardForManageOfferDto> Offers);
 
-public sealed record MenuCardOfferChoiceDto(Guid OfferId, string Name);
+public sealed record MenuCardOfferChoiceDto(
+    Guid OfferId,
+    string Name,
+    string Description,
+    string ImageUrl,
+    IReadOnlyList<string> Categories,
+    decimal Price,
+    bool IsAvailable,
+    string OfferStatus,
+    string ProductStatus);
 
 public sealed record GetMenuCardForManageResponse(
     Guid MenuCardId,

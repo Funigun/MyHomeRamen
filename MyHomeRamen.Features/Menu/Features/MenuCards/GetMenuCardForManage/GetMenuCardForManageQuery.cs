@@ -124,8 +124,16 @@ public sealed class GetMenuCardForManageHandler(
             item.Id.Value,
             offer.Id.Value,
             product.Name,
+            product.Description,
+            product.ImageUrl,
+            product.Categories
+                .Select(category => category.Name)
+                .Order(StringComparer.CurrentCulture)
+                .ToArray(),
             item.SortOrder,
             offer.Status == RestaurantProductOfferStatus.Active && product.Status == ProductStatus.Active,
-            offer.Price);
+            offer.Price,
+            offer.Status.ToString(),
+            product.Status.ToString());
     }
 }

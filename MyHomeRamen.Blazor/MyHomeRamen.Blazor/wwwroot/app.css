@@ -7,9 +7,133 @@ h1:focus {
     outline: none;
 }
 
+.menu-card-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: #fff;
+}
+
+.menu-card-editor .page-header {
+    align-items: stretch;
+    flex-direction: column;
+    margin-bottom: 0;
+}
+
+.menu-card-editor .page-header-copy {
+    width: 100%;
+}
+
+.menu-card-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.menu-card-header-navigation,
+.menu-card-header-main {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.menu-card-header-navigation {
+    gap: 0.25rem;
+}
+
+.menu-card-header-main {
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+}
+
+.menu-card-form-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.menu-card-form-inline-name {
+    width: 18rem;
+}
+
+.menu-card-price-explanation {
+    margin-top: -0.5rem;
+}
+
+.menu-card-section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
 .mud-paper.menu-card-section {
-    background-color: var(--admin-navigation-background);
-    color: var(--admin-navigation-text);
+    margin-bottom: 1.5rem;
+    background: #fff;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: var(--mud-default-borderradius);
+}
+
+.menu-card-section-heading {
+    flex-wrap: wrap;
+}
+
+.menu-card-section-title {
+    min-width: 0;
+}
+
+.menu-card-section-actions {
+    margin-left: auto;
+}
+
+.menu-card-drag-handle {
+    cursor: grab;
+}
+
+.menu-card-order-actions {
+    padding-top: 0.75rem;
+}
+
+.menu-card-listings {
+    width: 100%;
+}
+
+.menu-card-offer {
+    width: 100%;
+    background: #fff;
+}
+
+.menu-card-offer-content {
+    width: 100%;
+    align-items: flex-start;
+}
+
+.menu-card-offer-image,
+.menu-card-assignment-image {
+    flex: 0 0 auto;
+    width: 6rem;
+    height: 6rem;
+    border-radius: var(--mud-default-borderradius);
+}
+
+.menu-card-offer-details {
+    flex: 1 1 14rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.menu-card-offer-actions {
+    margin-left: auto;
+    align-self: center;
+}
+
+.menu-card-assignment-list {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.menu-card-assignment-offer {
+    background: #fff;
 }
 
 .site-layout {
@@ -240,6 +364,53 @@ h1:focus {
         flex: 1 1 100%;
     }
 
+    .menu-card-offer-content {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .menu-card-offer-image,
+    .menu-card-assignment-image {
+        width: 100%;
+        height: 10rem;
+    }
+
+    .menu-card-offer-actions {
+        justify-content: flex-start;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .menu-card-section-heading {
+        align-items: flex-start;
+    }
+
+    .menu-card-form-inline {
+        align-items: stretch;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .menu-card-form-inline-name {
+        width: 100%;
+    }
+
+    .menu-card-header-main {
+        align-items: flex-start;
+    }
+
+    .menu-card-assignment-list {
+        max-height: 55vh;
+    }
+
+    .mud-dialog.menu-card-assignment-dialog {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        margin: 0;
+        border-radius: 0;
+    }
 }
 
 @media (min-width: 600px) and (max-width: 960px) {

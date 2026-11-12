@@ -137,6 +137,19 @@ public sealed class MenuCardsApiClient(HttpClient httpClient, ApiService apiServ
             requestBody,
             cancellationToken));
 
+    public Task<ApiResult<AddMenuCardOffersResponse>> AddOffersAsync(
+        Guid menuCardId,
+        Guid sectionId,
+        Guid restaurantId,
+        AddMenuCardOffersRequest requestBody,
+        CancellationToken cancellationToken = default)
+        => apiService.ExecuteAsync(() => SendForRestaurantAsync<AddMenuCardOffersResponse>(
+            HttpMethod.Post,
+            $"{BaseUrl}/{menuCardId}/sections/{sectionId}/offers/batch",
+            restaurantId,
+            requestBody,
+            cancellationToken));
+
     public Task<ApiResult<bool>> UpdateOfferAsync(
         Guid menuCardId,
         Guid sectionId,

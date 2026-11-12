@@ -54,14 +54,28 @@ public sealed record MenuCardDetailsViewModel(
                             offer.Id,
                             offer.OfferId,
                             offer.Name,
+                            offer.Description,
+                            offer.ImageUrl,
+                            offer.Categories.ToArray(),
                             offer.SortOrder,
                             offer.IsAvailable,
-                            offer.Price))
+                            offer.Price,
+                            offer.OfferStatus,
+                            offer.ProductStatus))
                         .ToList()))
                 .ToList(),
             response.EligibleOffers
                 .OrderBy(offer => offer.Name, StringComparer.CurrentCulture)
-                .Select(offer => new MenuCardOfferChoiceViewModel(offer.OfferId, offer.Name))
+                .Select(offer => new MenuCardOfferChoiceViewModel(
+                    offer.OfferId,
+                    offer.Name,
+                    offer.Description,
+                    offer.ImageUrl,
+                    offer.Categories.ToArray(),
+                    offer.Price,
+                    offer.IsAvailable,
+                    offer.OfferStatus,
+                    offer.ProductStatus))
                 .ToList());
 }
 
@@ -81,16 +95,35 @@ public sealed class MenuCardListingViewModel(
     Guid id,
     Guid offerId,
     string name,
+    string description,
+    string imageUrl,
+    IReadOnlyList<string> categories,
     int sortOrder,
     bool isAvailable,
-    decimal? price)
+    decimal price,
+    string offerStatus,
+    string productStatus)
 {
     public Guid Id { get; } = id;
     public Guid OfferId { get; } = offerId;
     public string Name { get; } = name;
+    public string Description { get; } = description;
+    public string ImageUrl { get; } = imageUrl;
+    public IReadOnlyList<string> Categories { get; } = categories;
     public int SortOrder { get; set; } = sortOrder;
     public bool IsAvailable { get; } = isAvailable;
-    public decimal? Price { get; } = price;
+    public decimal Price { get; } = price;
+    public string OfferStatus { get; } = offerStatus;
+    public string ProductStatus { get; } = productStatus;
 }
 
-public sealed record MenuCardOfferChoiceViewModel(Guid OfferId, string Name);
+public sealed record MenuCardOfferChoiceViewModel(
+    Guid OfferId,
+    string Name,
+    string Description,
+    string ImageUrl,
+    IReadOnlyList<string> Categories,
+    decimal Price,
+    bool IsAvailable,
+    string OfferStatus,
+    string ProductStatus);

@@ -7,4 +7,8 @@ public interface IRestaurantProductOfferLoader
     Task<RestaurantProductOffer?> ByIdForUpdate(
         RestaurantProductOfferId offerId,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<RestaurantProductOffer>> ByIdsForUpdate(
+        IReadOnlyCollection<RestaurantProductOfferId> offerIds,
+        CancellationToken cancellationToken);
 }

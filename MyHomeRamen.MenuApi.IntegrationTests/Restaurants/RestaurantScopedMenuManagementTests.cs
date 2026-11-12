@@ -12,6 +12,7 @@ using MyHomeRamen.Domain.Menu.RestaurantIngredientPrices;
 using MyHomeRamen.Features.Identity.Permissions;
 using MyHomeRamen.Features.Common.Configurations;
 using MyHomeRamen.Features.Menu.Features.MenuCards.ActivateMenuCard;
+using MyHomeRamen.Features.Menu.Features.MenuCards.AddMenuSectionOffers;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardForManage;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardOptions;
 using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardsForManage;
@@ -33,7 +34,11 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
     private Ingredient _firstIngredient = default!;
     private Ingredient _secondIngredient = default!;
     private RestaurantProductOffer _activeOffer = default!;
+    private RestaurantProductOffer _batchOfferOne = default!;
+    private RestaurantProductOffer _batchOfferTwo = default!;
+    private RestaurantProductOffer _batchOfferThree = default!;
     private RestaurantProductOffer _retiredOffer = default!;
+    private RestaurantProductOffer _otherRestaurantOffer = default!;
     private MenuCard _activeCard = default!;
     private MenuCard _inactiveCard = default!;
     private MenuCard _otherRestaurantCard = default!;
@@ -61,6 +66,9 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
         _secondIngredient = CreateIngredient(ingredientCategory, $"PriceTest {_testSuffix} second");
         Product firstProduct = CreateProduct(productCategory, $"Management active ramen {_testSuffix}");
         Product secondProduct = CreateProduct(productCategory, $"Management retired ramen {_testSuffix}");
+        Product batchProductOne = CreateProduct(productCategory, $"Management batch ramen one {_testSuffix}");
+        Product batchProductTwo = CreateProduct(productCategory, $"Management batch ramen two {_testSuffix}");
+        Product batchProductThree = CreateProduct(productCategory, $"Management batch ramen three {_testSuffix}");
 
         _activeOffer = RestaurantProductOffer.Create(
             new RestaurantProductOfferId(Guid.CreateVersion7()),
@@ -75,6 +83,24 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
             secondProduct,
             15m);
         _retiredOffer.Retire();
+        _batchOfferOne = RestaurantProductOffer.Create(
+            new RestaurantProductOfferId(Guid.CreateVersion7()),
+            apiFactory.RestaurantId,
+            TestTenant.CompanyId,
+            batchProductOne,
+            18m);
+        _batchOfferTwo = RestaurantProductOffer.Create(
+            new RestaurantProductOfferId(Guid.CreateVersion7()),
+            apiFactory.RestaurantId,
+            TestTenant.CompanyId,
+            batchProductTwo,
+            19m);
+        _batchOfferThree = RestaurantProductOffer.Create(
+            new RestaurantProductOfferId(Guid.CreateVersion7()),
+            apiFactory.RestaurantId,
+            TestTenant.CompanyId,
+            batchProductThree,
+            20m);
 
         _activeCard = CreateMenuCard($"Active management card {_testSuffix}", true, _activeOffer);
         _inactiveCard = CreateMenuCard($"Inactive management card {_testSuffix}", false, _retiredOffer);
@@ -88,8 +114,13 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
         MenuDbContext menuDbContext = (MenuDbContext)apiFactory.MenuDbContext;
         menuDbContext.Categories.AddRange(productCategory, ingredientCategory);
         menuDbContext.Ingredients.AddRange(_firstIngredient, _secondIngredient);
-        menuDbContext.Products.AddRange(firstProduct, secondProduct);
-        menuDbContext.RestaurantProductOffers.AddRange(_activeOffer, _retiredOffer);
+        menuDbContext.Products.AddRange(firstProduct, secondProduct, batchProductOne, batchProductTwo, batchProductThree);
+        menuDbContext.RestaurantProductOffers.AddRange(
+            _activeOffer,
+            _retiredOffer,
+            _batchOfferOne,
+            _batchOfferTwo,
+            _batchOfferThree);
         menuDbContext.RestaurantIngredientPrices.AddRange(
             CreatePrice(_firstIngredient, apiFactory.RestaurantId, 1.25m),
             CreatePrice(_secondIngredient, apiFactory.RestaurantId, 2.50m));
@@ -101,13 +132,13 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
             TestTenant.CompanyId);
         otherRestaurantContext.Products.Attach(firstProduct);
         otherRestaurantContext.Ingredients.Attach(_firstIngredient);
-        otherRestaurantContext.RestaurantProductOffers.Add(
-            RestaurantProductOffer.Create(
-                new RestaurantProductOfferId(Guid.CreateVersion7()),
-                _otherRestaurantId,
-                TestTenant.CompanyId,
-                firstProduct,
-                9m));
+        _otherRestaurantOffer = RestaurantProductOffer.Create(
+            new RestaurantProductOfferId(Guid.CreateVersion7()),
+            _otherRestaurantId,
+            TestTenant.CompanyId,
+            firstProduct,
+            9m);
+        otherRestaurantContext.RestaurantProductOffers.Add(_otherRestaurantOffer);
         otherRestaurantContext.RestaurantIngredientPrices.Add(
             CreatePrice(_firstIngredient, _otherRestaurantId, 9m));
         otherRestaurantContext.MenuCards.Add(_otherRestaurantCard);
@@ -215,7 +246,18 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
         MenuCardForManageOfferDto offer = Assert.Single(section.Offers);
         Assert.Equal(_retiredOffer.Id.Value, offer.OfferId);
         Assert.False(offer.IsAvailable);
+        Assert.Equal("Retired", offer.OfferStatus);
+        Assert.Equal("Active", offer.ProductStatus);
+        Assert.Equal("A valid product description for management tests.", offer.Description);
+        Assert.Contains("Management ramen", offer.Categories);
         Assert.Equal(0, offer.SortOrder);
+        MenuCardOfferChoiceDto eligibleOffer = Assert.Single(
+            detailResult.EligibleOffers,
+            choice => choice.OfferId == _activeOffer.Id.Value);
+        Assert.Equal(12m, eligibleOffer.Price);
+        Assert.True(eligibleOffer.IsAvailable);
+        Assert.Equal("A valid product description for management tests.", eligibleOffer.Description);
+        Assert.Contains("Management ramen", eligibleOffer.Categories);
 
         using HttpRequestMessage optionsRequest = CreateGetRequest(
             $"/api/menu/cards/options?restaurantId={apiFactory.RestaurantId}");
@@ -305,6 +347,174 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
     }
 
     [Fact]
+    public async Task AddMenuSectionOffers_ShouldPreserveSubmittedOrderAndAppendAfterExistingItems_ForValidRequest()
+    {
+        MenuSection section = Assert.Single(_activeCard.Sections);
+        AddMenuSectionOffersRequest body = new([_batchOfferTwo.Id.Value, _batchOfferOne.Id.Value]);
+        using HttpRequestMessage request = CreatePostRequest(
+            $"/api/menu/cards/{_activeCard.Id.Value}/sections/{section.Id.Value}/offers/batch");
+        request.WithJsonContent(body);
+
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(
+            request,
+            TestContext.Current.CancellationToken);
+        await response.AssertStatusCode(HttpStatusCode.Created);
+        AddMenuSectionOffersResponse? result =
+            await response.Content.ReadFromJsonAsync<AddMenuSectionOffersResponse>(
+                TestContext.Current.CancellationToken);
+
+        Assert.NotNull(result);
+        Assert.Collection(
+            result.Offers,
+            item =>
+            {
+                Assert.Equal(_batchOfferTwo.Id.Value, item.OfferId);
+                Assert.Equal(1, item.SortOrder);
+                Assert.NotEqual(Guid.Empty, item.ListingId);
+            },
+            item =>
+            {
+                Assert.Equal(_batchOfferOne.Id.Value, item.OfferId);
+                Assert.Equal(2, item.SortOrder);
+                Assert.NotEqual(Guid.Empty, item.ListingId);
+            });
+
+        using HttpRequestMessage detailRequest = CreateGetRequest(
+            $"/api/menu/cards/{_activeCard.Id.Value}/manage");
+        HttpResponseMessage detailResponse = await apiFactory.HttpClient.SendAsync(
+            detailRequest,
+            TestContext.Current.CancellationToken);
+        await detailResponse.AssertStatusCode(HttpStatusCode.OK);
+        GetMenuCardForManageResponse? details =
+            await detailResponse.Content.ReadFromJsonAsync<GetMenuCardForManageResponse>(
+                TestContext.Current.CancellationToken);
+        Assert.NotNull(details);
+        MenuCardForManageSectionDto resultSection = Assert.Single(details.Sections);
+        Assert.Collection(
+            resultSection.Offers.OrderBy(item => item.SortOrder),
+            item => Assert.Equal(0, item.SortOrder),
+            item =>
+            {
+                Assert.Equal(_batchOfferTwo.Id.Value, item.OfferId);
+                Assert.Equal(result.Offers[0].ListingId, item.Id);
+                Assert.Equal(1, item.SortOrder);
+            },
+            item =>
+            {
+                Assert.Equal(_batchOfferOne.Id.Value, item.OfferId);
+                Assert.Equal(result.Offers[1].ListingId, item.Id);
+                Assert.Equal(2, item.SortOrder);
+            });
+    }
+
+    [Fact]
+    public async Task AddMenuSectionOffers_ShouldRejectInvalidBatchWithoutPartialPersistence()
+    {
+        MenuSection section = Assert.Single(_activeCard.Sections);
+        Guid[][] invalidBatches =
+        [
+            [_batchOfferThree.Id.Value, _retiredOffer.Id.Value],
+            [_batchOfferThree.Id.Value, Guid.NewGuid()],
+            [_batchOfferThree.Id.Value, _activeOffer.Id.Value],
+            [_batchOfferThree.Id.Value, _otherRestaurantOffer.Id.Value],
+            [_batchOfferThree.Id.Value, _batchOfferThree.Id.Value],
+            []
+        ];
+
+        foreach (Guid[] offerIds in invalidBatches)
+        {
+            using HttpRequestMessage request = CreatePostRequest(
+                $"/api/menu/cards/{_activeCard.Id.Value}/sections/{section.Id.Value}/offers/batch");
+            request.WithJsonContent(new AddMenuSectionOffersRequest(offerIds));
+            HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(
+                request,
+                TestContext.Current.CancellationToken);
+            await response.AssertStatusCode(HttpStatusCode.BadRequest);
+        }
+
+        using HttpRequestMessage detailRequest = CreateGetRequest(
+            $"/api/menu/cards/{_activeCard.Id.Value}/manage");
+        HttpResponseMessage detailResponse = await apiFactory.HttpClient.SendAsync(
+            detailRequest,
+            TestContext.Current.CancellationToken);
+        await detailResponse.AssertStatusCode(HttpStatusCode.OK);
+        GetMenuCardForManageResponse? details =
+            await detailResponse.Content.ReadFromJsonAsync<GetMenuCardForManageResponse>(
+                TestContext.Current.CancellationToken);
+        Assert.NotNull(details);
+        Assert.DoesNotContain(
+            Assert.Single(details.Sections).Offers,
+            item => item.OfferId == _batchOfferThree.Id.Value);
+    }
+
+    [Fact]
+    public async Task AddMenuSectionOffers_ShouldRejectOversizedBatch_ForMoreThanMaximumOffers()
+    {
+        MenuSection section = Assert.Single(_activeCard.Sections);
+        Guid[] offerIds = Enumerable.Range(0, AddMenuSectionOffersValidator.MaxOfferCount + 1)
+            .Select(_ => Guid.NewGuid())
+            .ToArray();
+        using HttpRequestMessage request = CreatePostRequest(
+            $"/api/menu/cards/{_activeCard.Id.Value}/sections/{section.Id.Value}/offers/batch");
+        request.WithJsonContent(new AddMenuSectionOffersRequest(offerIds));
+
+        HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(
+            request,
+            TestContext.Current.CancellationToken);
+
+        await response.AssertStatusCode(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task AddMenuSectionOffers_ShouldRejectForeignCardAndSection_ForSelectedRestaurant()
+    {
+        using HttpRequestMessage foreignCardRequest = CreatePostRequest(
+            $"/api/menu/cards/{_otherRestaurantCard.Id.Value}/sections/{Guid.NewGuid()}/offers/batch");
+        foreignCardRequest.WithJsonContent(new AddMenuSectionOffersRequest([_batchOfferThree.Id.Value]));
+
+        HttpResponseMessage foreignCardResponse = await apiFactory.HttpClient.SendAsync(
+            foreignCardRequest,
+            TestContext.Current.CancellationToken);
+        await foreignCardResponse.AssertStatusCode(HttpStatusCode.BadRequest);
+
+        using HttpRequestMessage foreignSectionRequest = CreatePostRequest(
+            $"/api/menu/cards/{_activeCard.Id.Value}/sections/{Guid.NewGuid()}/offers/batch");
+        foreignSectionRequest.WithJsonContent(new AddMenuSectionOffersRequest([_batchOfferThree.Id.Value]));
+
+        HttpResponseMessage foreignSectionResponse = await apiFactory.HttpClient.SendAsync(
+            foreignSectionRequest,
+            TestContext.Current.CancellationToken);
+        await foreignSectionResponse.AssertStatusCode(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task AddMenuSectionOffers_ShouldRequireEditPermission()
+    {
+        (string KeycloakUserId, Guid UserId) viewer = await apiFactory.IdentityTestData.SeedUser(
+            [MenuPermissionConstants.CanManageMenuCards, MenuPermissionConstants.CanViewMenuCard],
+            $"menu-card-batch-viewer-{Guid.CreateVersion7():N}");
+
+        try
+        {
+            MenuSection section = Assert.Single(_activeCard.Sections);
+            using HttpRequestMessage request = HttpClientExtensions.CreatePostMessage(
+                $"/api/menu/cards/{_activeCard.Id.Value}/sections/{section.Id.Value}/offers/batch");
+            request.WithJsonContent(new AddMenuSectionOffersRequest([_batchOfferThree.Id.Value]));
+            request.AddAuthorizationHeader(viewer);
+
+            HttpResponseMessage response = await apiFactory.HttpClient.SendAsync(
+                request,
+                TestContext.Current.CancellationToken);
+
+            await response.AssertStatusCode(HttpStatusCode.Forbidden);
+        }
+        finally
+        {
+            await apiFactory.IdentityTestData.DeleteUser(viewer.UserId);
+        }
+    }
+
+    [Fact]
     public async Task GetMenuCardForManage_ShouldRejectCardFromAnotherRestaurant()
     {
         using HttpRequestMessage request = CreateGetRequest(
@@ -369,6 +579,13 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
     private HttpRequestMessage CreatePutRequest(string path)
     {
         HttpRequestMessage request = new(HttpMethod.Put, path);
+        request.AddAuthorizationHeader(_user);
+        return request;
+    }
+
+    private HttpRequestMessage CreatePostRequest(string path)
+    {
+        HttpRequestMessage request = HttpClientExtensions.CreatePostMessage(path);
         request.AddAuthorizationHeader(_user);
         return request;
     }

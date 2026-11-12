@@ -51,6 +51,19 @@ public partial class RestaurantProductOfferRepository : IRestaurantProductOfferQ
                 && offer.Status == RestaurantProductOfferStatus.Active
                 && offer.Product.Status == ProductStatus.Active)
             .OrderBy(offer => offer.Product.Name)
-            .Select(offer => new MenuCardOfferChoiceDto(offer.Id.Value, offer.Product.Name))
+            .Select(offer => new MenuCardOfferChoiceDto(
+                offer.Id.Value,
+                offer.Product.Name,
+                offer.Product.Description,
+                offer.Product.ImageUrl,
+                offer.Product.Categories
+                    .OrderBy(category => category.Name)
+                    .Select(category => category.Name)
+                    .ToArray(),
+                offer.Price,
+                offer.Status == RestaurantProductOfferStatus.Active
+                    && offer.Product.Status == ProductStatus.Active,
+                offer.Status.ToString(),
+                offer.Product.Status.ToString()))
             .ToListAsync(cancellationToken);
 }
