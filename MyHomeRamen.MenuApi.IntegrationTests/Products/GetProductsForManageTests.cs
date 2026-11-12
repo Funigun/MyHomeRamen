@@ -62,6 +62,11 @@ public sealed class GetProductsForManageTests(WebApiFactory apiFactory) : IClass
         await responseMessage.AssertStatusCode(HttpStatusCode.OK);
         Assert.NotNull(result);
         Assert.NotEmpty(result.Products);
+        ProductForManageDto? product = result.Products.SingleOrDefault(p => p.Id == _product.Id.Value);
+        Assert.NotNull(product);
+        Assert.Equal(_product.Categories[0].Id.Value, product.CategoryId);
+        Assert.Equal(_product.BaseIngredients.Select(ingredient => ingredient.Id.Value), product.IngredientIds);
+        Assert.Empty(product.CustomIngredientIds);
         Assert.False(result.AllowedActions.CanCreate);
         Assert.False(result.AllowedActions.CanEdit);
         Assert.False(result.AllowedActions.CanRetire);

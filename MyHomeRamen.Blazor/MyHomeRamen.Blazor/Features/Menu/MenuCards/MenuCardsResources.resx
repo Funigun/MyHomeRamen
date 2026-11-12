@@ -50,8 +50,14 @@
   <data name="ActionError" xml:space="preserve"><value>Menu card action could not be completed.</value></data>
   <data name="Sections" xml:space="preserve"><value>Sections</value></data>
   <data name="SectionName" xml:space="preserve"><value>Section name</value></data>
+  <data name="SectionNameRequired" xml:space="preserve"><value>Enter a section name.</value></data>
+  <data name="SectionNameMaxLength" xml:space="preserve"><value>Section name cannot exceed 200 characters.</value></data>
+  <data name="SectionSortOrderInvalid" xml:space="preserve"><value>Section order cannot be negative.</value></data>
   <data name="NoSections" xml:space="preserve"><value>No sections have been added to this card.</value></data>
   <data name="AddSection" xml:space="preserve"><value>Add section</value></data>
+  <data name="AddSectionTitle" xml:space="preserve"><value>Add menu section</value></data>
+  <data name="EditSection" xml:space="preserve"><value>Edit section</value></data>
+  <data name="EditSectionTitle" xml:space="preserve"><value>Edit menu section</value></data>
   <data name="SaveSection" xml:space="preserve"><value>Save section</value></data>
   <data name="RemoveSection" xml:space="preserve"><value>Remove section</value></data>
   <data name="Listings" xml:space="preserve"><value>Offer listings</value></data>
@@ -66,4 +72,5 @@
   <data name="PriceExplanation" xml:space="preserve"><value>Offer price is managed in Offers and applies across every menu-card listing of that offer.</value></data>
   <data name="NoSectionsAvailable" xml:space="preserve"><value>This menu card has no sections yet.</value></data>
   <data name="BackToCards" xml:space="preserve"><value>Back to menu cards</value></data>
+  <data name="BackToRestaurant" xml:space="preserve"><value>Back to restaurant</value></data>
 </root>

@@ -1,0 +1,593 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {"darkMode":"class","theme":{"extend":{"colors":{"secondary-fixed-dim":"#e1c299","surface-bright":"#fff8f6","on-tertiary":"#ffffff","error":"#ba1a1a","outline-variant":"#dac2b6","primary-fixed-dim":"#ffb68c","inverse-on-surface":"#ffedea","background":"#fff8f6","on-background":"#2b1613","surface-container-high":"#ffe2dd","surface":"#fff8f6","surface-container-lowest":"#ffffff","primary-container":"#8b4513","tertiary-container":"#5d5944","on-error":"#ffffff","tertiary-fixed":"#e9e3c7","surface-tint":"#934b19","surface-variant":"#ffdad4","on-primary-fixed-variant":"#753401","inverse-primary":"#ffb68c","primary-fixed":"#ffdbc9","secondary-fixed":"#feddb3","tertiary-fixed-dim":"#cdc7ad","on-tertiary-fixed-variant":"#4b4733","secondary-container":"#fbdbb0","surface-container-low":"#fff0ee","on-secondary-fixed-variant":"#584324","on-primary":"#ffffff","primary":"#6c2f00","on-secondary-container":"#765f3d","on-primary-fixed":"#321200","on-surface-variant":"#54433a","on-error-container":"#93000a","surface-container":"#ffe9e5","on-tertiary-fixed":"#1e1c0b","on-primary-container":"#ffc29f","tertiary":"#45422e","surface-container-highest":"#ffdad4","on-surface":"#2b1613","on-secondary-fixed":"#281801","secondary":"#725a39","surface-dim":"#f8d1cb","on-tertiary-container":"#d6d0b5","on-secondary":"#ffffff","error-container":"#ffdad6","inverse-surface":"#422a26","outline":"#877369"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{},"fontFamily":{"headline":["Newsreader"],"display":["Newsreader"],"body":["Be Vietnam Pro"],"label":["Be Vietnam Pro"]},"fontSize":{}}}}</script></head><body class="bg-surface font-body text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-72 bg-surface-container-low z-50 flex flex-col justify-between py-6 shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-6"><div class="px-6 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-on-primary shadow-sm"><span class="material-symbols-outlined text-lg">ramen_dining</span></div><div><span class="block font-headline text-lg font-bold tracking-tight text-primary leading-none">My Home Ramen</span><span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-medium">Kyoto Wood Edition</span></div></div></div><div class="px-4"><div class="bg-surface-container rounded-xl p-3 flex flex-col gap-2"><div class="flex items-center justify-between text-on-surface-variant px-1"><span class="font-label text-xs uppercase tracking-wider font-semibold">Branch Switcher</span><span class="material-symbols-outlined text-sm">unfold_more</span></div><div class="flex items-center gap-2 px-1 text-on-surface"><span class="material-symbols-outlined text-secondary text-base">storefront</span><span class="font-body text-xs font-semibold">Kyoto Central (Higashiyama)</span></div></div></div><div class="px-3 flex flex-col gap-1"><div class="px-3 pb-1"><span class="font-label text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Main Ledger</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-xl"><a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="dashboard" href="#"><span class="material-symbols-outlined text-[20px]">dashboard</span><span>Dashboard</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="manage-menu" href="#"><span class="material-symbols-outlined text-[20px]">restaurant_menu</span><span>Manage Menu</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="manage-roles" href="#"><span class="material-symbols-outlined text-[20px]">badge</span><span>Manage Roles</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="owner-panel" href="#"><span class="material-symbols-outlined text-[20px]">corporate_fare</span><span>Owner Panel</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="staff" href="#"><span class="material-symbols-outlined text-[20px]">group</span><span>Staff</span></a><a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="settings" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span>Settings</span></a></nav></div><div class="px-3 flex flex-col gap-1"><div class="px-3 pb-1"><span class="font-label text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Branch Operations</span></div><nav class="flex flex-col gap-1" data-active-classes="bg-secondary-container text-on-secondary-container font-semibold rounded-xl"><a class="flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="branch-general" href="#"><span class="material-symbols-outlined text-[18px]">info</span><span>General</span></a><a class="flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="branch-ingredients" href="#"><span class="material-symbols-outlined text-[18px]">eco</span><span>Ingredients</span></a><a class="flex items-center gap-3 px-3 py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all text-sm font-medium" data-path="branch-products" href="#"><span class="material-symbols-outlined text-[18px]">inventory_2</span><span>Products</span></a><a aria-current="page" class="flex items-center gap-3 px-3 py-2 transition-all bg-secondary-container text-on-secondary-container font-semibold rounded-xl" data-path="branch-menu-cards" href="#"><span class="material-symbols-outlined text-[18px]">style</span><span>Menu Cards</span></a></nav></div></div><div class="px-4 flex flex-col gap-2"><div class="p-3 bg-surface-container rounded-xl flex items-center justify-between"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-sm">heat_pump</span><span class="font-label text-xs text-on-surface-variant">Hearth Status: Simmering</span></div><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span></div></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40"><div class="h-16 w-full px-8 flex items-center justify-between"><div class="flex items-center gap-4"><div class="flex items-center gap-2 text-on-surface-variant font-label text-xs"><span class="font-medium">Portal</span><span class="text-outline-variant">/</span><span class="text-on-surface font-semibold">Catalog Architecture</span></div></div><div class="flex items-center gap-4"><button class="w-9 h-9 rounded-xl bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span></button><button class="w-9 h-9 rounded-xl bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">help_outline</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full">
+<div class="p-8 lg:p-12 flex flex-col gap-10">
+<!-- Top Banner & Contextual Action Header -->
+<div class="flex flex-col gap-6">
+<!-- Breadcrumb Hierarchy -->
+<nav class="flex items-center gap-2 text-xs font-label uppercase tracking-widest text-on-surface-variant">
+<span>Restaurants</span>
+<span class="text-outline-variant font-light">/</span>
+<span>Kyoto Main Hearth</span>
+<span class="text-outline-variant font-light">/</span>
+<span>Menu Cards</span>
+<span class="text-outline-variant font-light">/</span>
+<span class="text-primary font-bold">Autumn Dinner Tasting</span>
+</nav>
+<!-- Main Title Block & Meta Ribbon -->
+<div class="flex flex-col xl:flex-row xl:items-end justify-between gap-6 pb-2">
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3">
+
+
+</div>
+<div class="flex items-baseline gap-4 flex-wrap">
+<h1 class="font-headline text-4xl lg:text-5xl font-bold tracking-tight text-on-surface italic">Autumn Dinner Tasting</h1>
+
+</div>
+</div>
+<!-- Controls: Status Toggle, Schedule, Action -->
+<div class="flex flex-wrap items-center gap-4">
+<!-- Active Toggle Pill -->
+<div class="flex items-center gap-3 bg-surface-container px-4 py-2.5 rounded-xl shadow-sm">
+<div class="flex flex-col">
+<span class="text-[11px] font-label uppercase tracking-wider font-semibold text-on-surface">Card Visibility</span>
+<span class="text-[10px] text-on-surface-variant">Active on Hearth Display</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" id="status-toggle" type="checkbox">
+<div class="w-11 h-6 bg-surface-container-high peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Schedule Badge -->
+
+<!-- New Section Trigger -->
+<button class="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-container text-on-primary px-5 py-2.5 rounded-xl font-label text-xs font-semibold tracking-wider uppercase hover:shadow-md transition-all" id="add-section-btn">
+<span class="material-symbols-outlined text-[18px]">post_add</span>
+<span>+ Add New Section</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Editorial Canvas (Sections and Overview Sidebar) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+<!-- Main Content Ledger: Section Management (8 Cols) -->
+<div class="xl:col-span-8 flex flex-col gap-6" id="sections-container">
+<!-- SECTION 1 -->
+<article class="section-card bg-surface-container-low rounded-xl p-6 lg:p-7 shadow-sm flex flex-col gap-6 transition-all duration-200" data-section-id="1">
+<!-- Section Bar -->
+<div class="flex items-center justify-between gap-4 pb-4">
+<div class="flex items-center gap-3.5 flex-1 min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-on-surface p-1 rounded transition-colors" title="Drag to reorder section">
+<span class="material-symbols-outlined text-xl">drag_indicator</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center gap-2">
+
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+
+</div>
+<input aria-label="Section Title" class="font-headline text-2xl lg:text-3xl font-bold bg-transparent text-on-surface focus:outline-none focus:bg-surface-container px-1 py-0.5 rounded transition-all truncate" type="text" value="Signature Broths &amp; Ramen">
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="open-modal-trigger flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-label text-xs font-semibold tracking-wide transition-colors" onclick="openProductModal('Signature Broths &amp; Ramen')">
+<span class="material-symbols-outlined text-[16px]">add_circle</span>
+<span>Add Products</span>
+</button>
+<button class="delete-section-btn p-1.5 rounded-xl text-outline-variant hover:text-error hover:bg-surface-container-high transition-colors" title="Delete section">
+<span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+</button>
+</div>
+</div>
+<!-- Items Ledger in Section -->
+<div class="flex flex-col gap-3">
+<!-- Item 1: Tantanmen Hearth -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Steaming bowl of Kyoto-style Tantanmen with toasted sesame broth, spiced minced pork, roasted chili oil swirl, and fresh scallions served in an artisanal clay bowl." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL0Kqccy3_JfIHyk5XZgRziPvTWybnd1Aq5ebcYuQX_szv4w8L_uGz8QAKbg2LitQtrGlPpeCRTh9q7WpUsA8xEOqsL9bSP7Bb14a5-MdC4xrl_-Vo91WSNV85aTzD8nTDEQyxE0Eion5yZ-apVsa9W0P8NbGzLtHuEVZ_ZWaXkR8tv9njly-5LYEPZMH7nZhkV7qtsBqwKTaXLrtvt1QWSdgtTMBrOGoP2Gf5vgo">
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Tantanmen Hearth</h3>
+
+
+</div>
+<p class="text-xs text-on-surface-variant font-body line-clamp-1 mt-0.5">Slow-cooked Kurobuta broth with roasted white sesame paste and charred chili.</p>
+</div>
+</div>
+<div class="flex items-center justify-between sm:justify-end gap-6 flex-shrink-0">
+<div class="flex flex-col sm:items-end">
+<span class="font-headline text-base font-bold text-primary">¥1,450</span>
+
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Edit offer parameters">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-error hover:bg-surface-container transition-colors" title="Remove from section">
+<span class="material-symbols-outlined text-[18px]">remove_circle_outline</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 2: Tonkotsu Classic -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Traditional Kyoto tonkotsu ramen with silky golden bone broth, tender chashu roll slice, kikurage mushroom, and menma in a rustic ceramic bowl." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6_RcdzmXtOv_xgt2_g1BPyt1E1H893eN2dF_uSo5DZ9Ksds7TXHG415r2Z1OdD4tt56FaUpyhvVUvrPfp8LO3FQEiizSX_uZJSSIw4OtsJtLnnthGUK0I9cmpDv605Xe8L5zeabDiR7hPZ-ULlyMrG2u-ZsmZIeQFzg6D9LdJmqooQG9GZbD8EcRAQnupxRiFaejBnTjVj2dreuiRhPouih23WxswGadXjzqT26s">
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Tonkotsu Classic</h3>
+
+
+</div>
+<p class="text-xs text-on-surface-variant font-body line-clamp-1 mt-0.5">18-hour simmered pork bone stock, hand-pulled Hakata noodles, wood-ear mushroom.</p>
+</div>
+</div>
+<div class="flex items-center justify-between sm:justify-end gap-6 flex-shrink-0">
+<div class="flex flex-col sm:items-end">
+<span class="font-headline text-base font-bold text-primary">¥1,380</span>
+
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Edit offer parameters">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-error hover:bg-surface-container transition-colors" title="Remove from section">
+<span class="material-symbols-outlined text-[18px]">remove_circle_outline</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 3: Kuro Shoyu -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Deep dark Kuro Shoyu ramen with shimmering black garlic oil, ajitsuke tamago egg sliced open, and nori seaweed against dark cedar tabletop." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2vj5T4wUPWm9RW-AreKTU9g5pjVetuYUjky71YRj3Suq8SgpSiekJRnlNR970kBZP2uwuT3STwhmnPCkWkk7zDcFfrZaaLFCXoLyhycm5Gq9YgaAanDRIoLXLOOE4yZqYHfuhegA0bX2OMaPYztyE3fGqWi_Iv2jPqNltdgzhlV6hi8se2uB-70J9r1XrpMD-B69TqMuuWWoUlwDD79HLsp4r5tXVWeC8HNwa9Mc">
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Kuro Shoyu Black Broth</h3>
+
+
+</div>
+<p class="text-xs text-on-surface-variant font-body line-clamp-1 mt-0.5">Fermented black soy glaze, charred shallot essence, slow-braised rib char siu.</p>
+</div>
+</div>
+<div class="flex items-center justify-between sm:justify-end gap-6 flex-shrink-0">
+<div class="flex flex-col sm:items-end">
+<span class="font-headline text-base font-bold text-primary">¥1,450</span>
+
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-on-surface hover:bg-surface-container transition-colors" title="Edit offer parameters">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-error hover:bg-surface-container transition-colors" title="Remove from section">
+<span class="material-symbols-outlined text-[18px]">remove_circle_outline</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- SECTION 2 -->
+<article class="section-card bg-surface-container-low rounded-xl p-6 lg:p-7 shadow-sm flex flex-col gap-6 transition-all duration-200" data-section-id="2">
+<div class="flex items-center justify-between gap-4 pb-4">
+<div class="flex items-center gap-3.5 flex-1 min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-on-surface p-1 rounded transition-colors" title="Drag to reorder section">
+<span class="material-symbols-outlined text-xl">drag_indicator</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center gap-2">
+
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+
+</div>
+<input aria-label="Section Title" class="font-headline text-2xl lg:text-3xl font-bold bg-transparent text-on-surface focus:outline-none focus:bg-surface-container px-1 py-0.5 rounded transition-all truncate" type="text" value="Artisanal Small Plates &amp; Sides">
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="open-modal-trigger flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-label text-xs font-semibold tracking-wide transition-colors" onclick="openProductModal('Artisanal Small Plates &amp; Sides')">
+<span class="material-symbols-outlined text-[16px]">add_circle</span>
+<span>Add Products</span>
+</button>
+<button class="delete-section-btn p-1.5 rounded-xl text-outline-variant hover:text-error hover:bg-surface-container-high transition-colors" title="Delete section">
+<span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Item 1: Kyoto Okonomiyaki -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Cast-iron pan savory Kyoto-style Okonomiyaki pancake drizzled with sweet dark sauce, kewpie streaks, and dancing bonito flakes." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCc5Rs9Kl_eAY1x6YRMccFNAGRnMcpJfgBgve5pK6-pXcLa-sQVPxhNw_YqKWdSyOPGSLZ9xz-2hf0A8dX9xRyxDa2gbCzLhIa7D5lwEDu-a7GTgL_tOrM_fGhN5-RMJeTfOybvRiz6UwqdKTqrK1usixvr4oqpBAw0FUoxAN_EGGP2Mw799lEODvIZIeg2N8hV21TlYOiPypY0bL9kBsq3lWSJ2iB43z_6ADDOwIQ">
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Kyoto Okonomiyaki</h3>
+<span class="px-2 py-0.5 rounded-sm bg-surface-container text-on-surface-variant text-[10px] font-label font-medium">Ref: #SD-OK-03</span>
+</div>
+<p class="text-xs text-on-surface-variant font-body line-clamp-1 mt-0.5">Savory mountain yam pancake, scallions, wild bonito flakes, dark plum reduction.</p>
+</div>
+</div>
+<div class="flex items-center justify-between sm:justify-end gap-6 flex-shrink-0">
+<div class="flex flex-col sm:items-end">
+<span class="font-headline text-base font-bold text-primary">¥1,100</span>
+
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-error hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">remove_circle_outline</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Item 2: Forest Nigiri -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Pair of flame-seared wild mushroom forest nigiri rested on polished hinoki wood board with fresh grated wasabi root." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB91q6-hoxTmoxzzo6hxgzG4CEur4SemzhrCj96EHMcXrzUSeAG8oATiv_b96X6FBJqF6_1q-2ODaOrEK9auEfE0sftlncZ20hWiZB95cGSN4bD3OILuqihghReYyU67vn9aSg0xP76iwLK0PsduY4go57Xz7jOFhuZcmd2akn-AWcTnUX4cG2M97EH13LHVXAwmS_Y0eOeXZKTAqd7jJPiX4OWUgTxGqMsYcqKrko">
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Forest Nigiri Duo</h3>
+<span class="px-2 py-0.5 rounded-sm bg-tertiary-fixed-dim text-on-tertiary-fixed-variant text-[10px] font-label font-bold">Vegetarian</span>
+<span class="px-2 py-0.5 rounded-sm bg-surface-container text-on-surface-variant text-[10px] font-label font-medium">Ref: #SD-NG-91</span>
+</div>
+<p class="text-xs text-on-surface-variant font-body line-clamp-1 mt-0.5">Aburi King Oyster &amp; Matsutake fungi, nikiri glaze, freshly microplaned wasabi.</p>
+</div>
+</div>
+<div class="flex items-center justify-between sm:justify-end gap-6 flex-shrink-0">
+<div class="flex flex-col sm:items-end">
+<span class="font-headline text-base font-bold text-primary">¥1,850</span>
+
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-error hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">remove_circle_outline</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- SECTION 3 -->
+<article class="section-card bg-surface-container-low rounded-xl p-6 lg:p-7 shadow-sm flex flex-col gap-6 transition-all duration-200" data-section-id="3">
+<div class="flex items-center justify-between gap-4 pb-4">
+<div class="flex items-center gap-3.5 flex-1 min-w-0">
+<div class="cursor-grab active:cursor-grabbing text-outline hover:text-on-surface p-1 rounded transition-colors" title="Drag to reorder section">
+<span class="material-symbols-outlined text-xl">drag_indicator</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center gap-2">
+
+<span class="w-1 h-1 rounded-full bg-secondary"></span>
+
+</div>
+<input aria-label="Section Title" class="font-headline text-2xl lg:text-3xl font-bold bg-transparent text-on-surface focus:outline-none focus:bg-surface-container px-1 py-0.5 rounded transition-all truncate" type="text" value="Seasonal Desserts &amp; Tea">
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="open-modal-trigger flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-label text-xs font-semibold tracking-wide transition-colors" onclick="openProductModal('Seasonal Desserts &amp; Tea')">
+<span class="material-symbols-outlined text-[16px]">add_circle</span>
+<span>Add Products</span>
+</button>
+<button class="delete-section-btn p-1.5 rounded-xl text-outline-variant hover:text-error hover:bg-surface-container-high transition-colors" title="Delete section">
+<span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+</button>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Item 1: Matcha Warabi Mochi -->
+<div class="group bg-surface-container-lowest rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center gap-4 min-w-0">
+<div class="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="Chilled translucent Matcha Warabi Mochi cubes dusted with emerald green Uji ceremonial matcha powder and roasted kinako with dark kuromitsu syrup." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsLMbyArKNb7exKSpBfj1oqfl4lhfsHRI3d9OJdqcX3DHvPgt4Loe_9nsTvTihgskaf5xMjvZWKPzr3BnWWygoqOyxwYthWyJnjZR6oWlGqAa70uVEukTOvS95SJ2VasRehVjQyL3eg_ej6pfeNIrF_v2X4vn_Y1NuV3zh2v5ELoIYkLVG3f4VRIDUROn8H1yc3HOSjoBUyqq4eShuLw2mcKBtbeVT2g3c9IpuPHY">
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2 flex-wrap">
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Matcha Warabi Mochi</h3>
+<span class="px-2 py-0.5 rounded-sm bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-label font-bold">Uji Grade A</span>
+<span class="px-2 py-0.5 rounded-sm bg-surface-container text-on-surface-variant text-[10px] font-label font-medium">Ref: #DS-WM-02</span>
+</div>
+<p class="text-xs text-on-surface-variant font-body line-clamp-1 mt-0.5">Hand-kneaded bracken starch, dusted with organic Uji ceremonial matcha and brown sugar nectar.</p>
+</div>
+</div>
+<div class="flex items-center justify-between sm:justify-end gap-6 flex-shrink-0">
+<div class="flex flex-col sm:items-end">
+<span class="font-headline text-base font-bold text-primary">¥650</span>
+
+</div>
+<div class="flex items-center gap-1">
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-on-surface hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit_note</span>
+</button>
+<button class="p-1.5 rounded-lg text-outline-variant hover:text-error hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">remove_circle_outline</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Editorial Overview & Publication Sidebar (4 Cols) -->
+<aside class="xl:col-span-4 flex flex-col gap-6">
+<!-- Live Layout Manuscript Card -->
+
+<!-- Section Hierarchy Reorder Quick View -->
+
+</aside>
+</div>
+</div>
+<!-- INTERACTIVE MODAL DIALOG: Assign Products to Section -->
+<div class="fixed inset-0 bg-on-surface/40 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden transition-opacity duration-300" id="product-modal-backdrop">
+<div class="bg-surface-bright rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[921px] overflow-hidden transform transition-all duration-300 scale-95" id="product-modal-card">
+<!-- Modal Header -->
+<div class="p-6 bg-surface-container-low flex items-start justify-between gap-4">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 rounded-sm bg-primary text-on-primary text-[10px] font-label font-bold uppercase tracking-wider">Product Ledger</span>
+<span class="text-xs text-on-surface-variant font-label">RestaurantProductOffer</span>
+</div>
+<h2 class="font-headline text-2xl font-bold text-on-surface">Assign Products to Section</h2>
+<p class="text-xs text-on-surface-variant font-body">
+            Targeting section: <span class="font-bold text-primary" id="modal-target-section-title">Signature Broths &amp; Ramen</span>
+</p>
+</div>
+<button aria-label="Close dialog" class="w-9 h-9 rounded-xl bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors" id="modal-close-btn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Filter & Search Ledger Toolbar -->
+<div class="p-5 flex flex-col gap-3 bg-surface">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-surface-container-low rounded-xl text-xs font-body text-on-surface focus:outline-none focus:bg-surface-container transition-colors placeholder:text-outline" id="modal-search-input" placeholder="Search dish name, broth style, or sku..." type="text">
+</div>
+<!-- Category Filter Pills -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1" id="category-filter-pills">
+<button class="filter-pill px-3 py-1 rounded-sm bg-primary text-on-primary text-[11px] font-label font-semibold whitespace-nowrap">All Items</button>
+<button class="filter-pill px-3 py-1 rounded-sm bg-surface-container text-on-surface-variant hover:text-on-surface text-[11px] font-label font-semibold whitespace-nowrap">Ramen Broths</button>
+<button class="filter-pill px-3 py-1 rounded-sm bg-surface-container text-on-surface-variant hover:text-on-surface text-[11px] font-label font-semibold whitespace-nowrap">Small Plates</button>
+<button class="filter-pill px-3 py-1 rounded-sm bg-surface-container text-on-surface-variant hover:text-on-surface text-[11px] font-label font-semibold whitespace-nowrap">Sweets &amp; Matcha</button>
+<button class="filter-pill px-3 py-1 rounded-sm bg-surface-container text-on-surface-variant hover:text-on-surface text-[11px] font-label font-semibold whitespace-nowrap">Beverages</button>
+</div>
+</div>
+<!-- Scrollable Product Offer Ledger -->
+<div class="overflow-y-auto px-5 py-2 flex flex-col gap-2 max-h-96" id="product-list-container">
+<!-- Item row 1 -->
+<label class="product-item-row flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<div class="flex items-center gap-3.5 min-w-0">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer accent-primary" type="checkbox">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline font-bold text-sm text-on-surface">Tantanmen Hearth Special</span>
+<span class="px-1.5 py-0.5 rounded-sm bg-surface-container-high text-on-surface-variant text-[10px] font-label">#RM-TT-44</span>
+</div>
+<span class="text-xs text-on-surface-variant font-body truncate">Level 3 Spiced, Roasted Sesame Broth</span>
+</div>
+</div>
+<div class="flex items-center gap-4 flex-shrink-0">
+<span class="font-headline text-sm font-bold text-primary">¥1,450</span>
+<span class="text-[10px] font-label text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-sm font-semibold">In Stock</span>
+</div>
+</label>
+<!-- Item row 2 -->
+<label class="product-item-row flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<div class="flex items-center gap-3.5 min-w-0">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer accent-primary" type="checkbox">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline font-bold text-sm text-on-surface">Tonkotsu Classic (18h Simmer)</span>
+<span class="px-1.5 py-0.5 rounded-sm bg-surface-container-high text-on-surface-variant text-[10px] font-label">#RM-TK-12</span>
+</div>
+<span class="text-xs text-on-surface-variant font-body truncate">Kurobuta pork bone, seasoned soft egg</span>
+</div>
+</div>
+<div class="flex items-center gap-4 flex-shrink-0">
+<span class="font-headline text-sm font-bold text-primary">¥1,380</span>
+<span class="text-[10px] font-label text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-sm font-semibold">In Stock</span>
+</div>
+</label>
+<!-- Item row 3 -->
+<label class="product-item-row flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<div class="flex items-center gap-3.5 min-w-0">
+<input checked="" class="w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer accent-primary" type="checkbox">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline font-bold text-sm text-on-surface">Kuro Shoyu Black Broth</span>
+<span class="px-1.5 py-0.5 rounded-sm bg-surface-container-high text-on-surface-variant text-[10px] font-label">#RM-KS-07</span>
+</div>
+<span class="text-xs text-on-surface-variant font-body truncate">Aged Shoyu, roasted garlic essence</span>
+</div>
+</div>
+<div class="flex items-center gap-4 flex-shrink-0">
+<span class="font-headline text-sm font-bold text-primary">¥1,450</span>
+<span class="text-[10px] font-label text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-sm font-semibold">In Stock</span>
+</div>
+</label>
+<!-- Item row 4 (Unselected) -->
+<label class="product-item-row flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<div class="flex items-center gap-3.5 min-w-0">
+<input class="w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer accent-primary" type="checkbox">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline font-bold text-sm text-on-surface">Yuzu Shio Clear Dashi</span>
+<span class="px-1.5 py-0.5 rounded-sm bg-surface-container-high text-on-surface-variant text-[10px] font-label">#RM-YS-09</span>
+</div>
+<span class="text-xs text-on-surface-variant font-body truncate">Kombu, bonito flakes, Kochi citrus zest</span>
+</div>
+</div>
+<div class="flex items-center gap-4 flex-shrink-0">
+<span class="font-headline text-sm font-bold text-primary">¥1,320</span>
+<span class="text-[10px] font-label text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-sm font-semibold">In Stock</span>
+</div>
+</label>
+<!-- Item row 5 (Unselected) -->
+<label class="product-item-row flex items-center justify-between p-3.5 rounded-xl bg-surface-container-low hover:bg-surface-container cursor-pointer transition-colors">
+<div class="flex items-center gap-3.5 min-w-0">
+<input class="w-4 h-4 rounded text-primary focus:ring-0 cursor-pointer accent-primary" type="checkbox">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-headline font-bold text-sm text-on-surface">Spicy Tsukemen Dipping Ramen</span>
+<span class="px-1.5 py-0.5 rounded-sm bg-surface-container-high text-on-surface-variant text-[10px] font-label">#RM-TM-88</span>
+</div>
+<span class="text-xs text-on-surface-variant font-body truncate">Extra-thick noodles, reduced pork broth</span>
+</div>
+</div>
+<div class="flex items-center gap-4 flex-shrink-0">
+<span class="font-headline text-sm font-bold text-primary">¥1,550</span>
+<span class="text-[10px] font-label text-amber-700 bg-amber-100 px-2 py-0.5 rounded-sm font-semibold">Low Batch</span>
+</div>
+</label>
+</div>
+<!-- Modal Footer -->
+<div class="p-5 bg-surface-container-low flex items-center justify-between gap-4 mt-2">
+<span class="text-xs text-on-surface-variant font-body">3 products currently selected</span>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-xl text-on-surface-variant hover:text-on-surface font-label text-xs font-semibold uppercase tracking-wider transition-colors" id="modal-cancel-btn">
+            Cancel
+          </button>
+<button class="px-5 py-2.5 rounded-xl bg-primary text-on-primary hover:bg-primary-container font-label text-xs font-semibold tracking-wider uppercase shadow-sm transition-all flex items-center gap-2" id="modal-confirm-btn">
+<span class="material-symbols-outlined text-[16px]">check</span>
+<span>Confirm Assignment</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+    // Modal Interaction Logic
+    const backdrop = document.getElementById('product-modal-backdrop');
+    const modalCard = document.getElementById('product-modal-card');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+    const modalTargetTitle = document.getElementById('modal-target-section-title');
+
+    function openProductModal(sectionTitle) {
+      if (modalTargetTitle && sectionTitle) {
+        modalTargetTitle.textContent = sectionTitle;
+      }
+      backdrop.classList.remove('hidden');
+      setTimeout(() => {
+        modalCard.classList.remove('scale-95');
+        modalCard.classList.add('scale-100');
+      }, 10);
+    }
+
+    function closeProductModal() {
+      modalCard.classList.remove('scale-100');
+      modalCard.classList.add('scale-95');
+      setTimeout(() => {
+        backdrop.classList.add('hidden');
+      }, 150);
+    }
+
+    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeProductModal);
+    if (modalCancelBtn) modalCancelBtn.addEventListener('click', closeProductModal);
+    if (modalConfirmBtn) modalConfirmBtn.addEventListener('click', closeProductModal);
+
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) {
+        closeProductModal();
+      }
+    });
+
+    // Simple Filter Pills Toggle
+    document.querySelectorAll('.filter-pill').forEach(pill => {
+      pill.addEventListener('click', function() {
+        document.querySelectorAll('.filter-pill').forEach(p => {
+          p.classList.remove('bg-primary', 'text-on-primary');
+          p.classList.add('bg-surface-container', 'text-on-surface-variant');
+        });
+        this.classList.remove('bg-surface-container', 'text-on-surface-variant');
+        this.classList.add('bg-primary', 'text-on-primary');
+      });
+    });
+
+    // Delete section demo handler
+    document.querySelectorAll('.delete-section-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        const sectionCard = this.closest('.section-card');
+        if (sectionCard) {
+          sectionCard.style.opacity = '0';
+          sectionCard.style.transform = 'translateY(10px)';
+          setTimeout(() => {
+            sectionCard.remove();
+            updateSectionCount();
+          }, 200);
+        }
+      });
+    });
+
+    // Add Section Demo Handler
+    const addSectionBtn = document.getElementById('add-section-btn');
+    if (addSectionBtn) {
+      addSectionBtn.addEventListener('click', () => {
+        const container = document.getElementById('sections-container');
+        const count = container.querySelectorAll('.section-card').length + 1;
+        const newSection = document.createElement('article');
+        newSection.className = 'section-card bg-surface-container-low rounded-xl p-6 lg:p-7 shadow-sm flex flex-col gap-6 transition-all duration-200';
+        newSection.innerHTML = `
+          <div class="flex items-center justify-between gap-4 pb-4">
+            <div class="flex items-center gap-3.5 flex-1 min-w-0">
+              <div class="cursor-grab active:cursor-grabbing text-outline hover:text-on-surface p-1 rounded transition-colors">
+                <span class="material-symbols-outlined text-xl">drag_indicator</span>
+              </div>
+              <div class="flex flex-col flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-label text-[10px] tracking-widest uppercase font-semibold text-secondary">Section 0${count}</span>
+                  <span class="w-1 h-1 rounded-full bg-secondary"></span>
+                  <span class="text-[10px] text-on-surface-variant font-label">0 Dishes Assigned</span>
+                </div>
+                <input type="text" value="New Seasonal Category" class="font-headline text-2xl lg:text-3xl font-bold bg-transparent text-on-surface focus:outline-none focus:bg-surface-container px-1 py-0.5 rounded transition-all truncate">
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openProductModal('New Seasonal Category')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container hover:bg-surface-container-high text-primary font-label text-xs font-semibold tracking-wide transition-colors">
+                <span class="material-symbols-outlined text-[16px]">add_circle</span>
+                <span>Add Products</span>
+              </button>
+              <button class="delete-section-btn p-1.5 rounded-xl text-outline-variant hover:text-error hover:bg-surface-container-high transition-colors">
+                <span class="material-symbols-outlined text-[20px]">delete_sweep</span>
+              </button>
+            </div>
+          </div>
+          <div class="p-8 rounded-xl bg-surface-container-lowest/60 text-center flex flex-col items-center justify-center gap-2">
+            <span class="material-symbols-outlined text-outline text-3xl">ramen_dining</span>
+            <p class="text-xs text-on-surface-variant font-body">No products linked yet. Click "Add Products" above to populate this category.</p>
+          </div>
+        `;
+        container.appendChild(newSection);
+        
+        // attach delete listener
+        newSection.querySelector('.delete-section-btn').addEventListener('click', function() {
+          newSection.remove();
+          updateSectionCount();
+        });
+        updateSectionCount();
+      });
+    }
+
+    function updateSectionCount() {
+      const container = document.getElementById('sections-container');
+      const count = container ? container.querySelectorAll('.section-card').length : 0;
+      const statElem = document.getElementById('section-count-stat');
+      if (statElem) statElem.textContent = count;
+    }
+  </script>
+</div></main></div>
+
+</body></html>

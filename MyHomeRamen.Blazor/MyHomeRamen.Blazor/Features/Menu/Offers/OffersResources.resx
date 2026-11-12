@@ -49,4 +49,5 @@
   <data name="Saving" xml:space="preserve"><value>Saving...</value></data>
   <data name="NameRequired" xml:space="preserve"><value>Select a product.</value></data>
   <data name="PriceRequired" xml:space="preserve"><value>Offer price must be greater than zero.</value></data>
+  <data name="BackToRestaurant" xml:space="preserve"><value>Back to restaurant</value></data>
 </root>

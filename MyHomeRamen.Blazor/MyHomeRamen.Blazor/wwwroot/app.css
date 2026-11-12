@@ -1,5 +1,15 @@
+:root {
+    --admin-navigation-background: #FFDBC9;
+    --admin-navigation-text: #877369;
+}
+
 h1:focus {
     outline: none;
+}
+
+.mud-paper.menu-card-section {
+    background-color: var(--admin-navigation-background);
+    color: var(--admin-navigation-text);
 }
 
 .site-layout {

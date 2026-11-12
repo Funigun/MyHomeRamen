@@ -31,7 +31,14 @@ public sealed record GetProductsForManageQueryOptions(GetProductsForManageReques
             OrderDirection = "asc",
             PageNumber = PageParameters.PageNumber,
             PageSize = PageParameters.PageSize,
-            Selector = product => new ProductForManageDto(product.Id.Value, product.Name, product.Description, product.Status.ToString())
+            Selector = product => new ProductForManageDto(
+                product.Id.Value,
+                product.Name,
+                product.Description,
+                product.Status.ToString(),
+                product.Categories[0].Id.Value,
+                product.BaseIngredients.Select(ingredient => ingredient.Id.Value).ToList(),
+                product.CustomIngredients.Select(ingredient => ingredient.Id.Value).ToList())
         }
     );
 

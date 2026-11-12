@@ -2,6 +2,7 @@
 using MyHomeRamen.Domain.Menu.Offers;
 using MyHomeRamen.Domain.Menu.Products;
 using MyHomeRamen.Features.Common.Endpoints.Models;
+using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardForManage;
 using MyHomeRamen.Features.Menu.Features.Offers.Common;
 using MyHomeRamen.Features.Menu.Features.Offers.GetRestaurantOffersForManage;
 
@@ -40,4 +41,16 @@ public partial class RestaurantProductOfferRepository : IRestaurantProductOfferQ
             .Include(offer => offer.Product)
                 .ThenInclude(product => product.CustomIngredients)
             .FirstOrDefaultAsync(cancellationToken);
+
+    public async Task<IReadOnlyList<MenuCardOfferChoiceDto>> EligibleForMenuCard(
+        Guid restaurantId,
+        CancellationToken cancellationToken)
+        => await menuDbContext.RestaurantProductOffers
+            .AsNoTracking()
+            .Where(offer => offer.RestaurantId == restaurantId
+                && offer.Status == RestaurantProductOfferStatus.Active
+                && offer.Product.Status == ProductStatus.Active)
+            .OrderBy(offer => offer.Product.Name)
+            .Select(offer => new MenuCardOfferChoiceDto(offer.Id.Value, offer.Product.Name))
+            .ToListAsync(cancellationToken);
 }

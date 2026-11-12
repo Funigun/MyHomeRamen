@@ -1,25 +1,21 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using MyHomeRamen.Features.Common.Authorization;
 using MyHomeRamen.Features.Common.Endpoints;
 using MyHomeRamen.Features.Common.Mediator;
+using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardsForManage;
 
 namespace MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardForManage;
 
-public sealed record MenuCardForManageIngredientDto(Guid Id, string Name, bool IsCustom);
-
 public sealed record MenuCardForManageOfferDto(
+    Guid Id,
     Guid OfferId,
-    Guid ProductId,
     string Name,
-    string Description,
-    string ImageUrl,
-    decimal Price,
-    string Status,
-    IEnumerable<MenuCardForManageIngredientDto> Ingredients);
+    int SortOrder,
+    bool IsAvailable,
+    decimal? Price);
 
 public sealed record MenuCardForManageSectionDto(
     Guid Id,
@@ -27,12 +23,17 @@ public sealed record MenuCardForManageSectionDto(
     int SortOrder,
     IEnumerable<MenuCardForManageOfferDto> Offers);
 
+public sealed record MenuCardOfferChoiceDto(Guid OfferId, string Name);
+
 public sealed record GetMenuCardForManageResponse(
     Guid MenuCardId,
     Guid RestaurantId,
     string Name,
     bool IsActive,
-    IEnumerable<MenuCardForManageSectionDto> Sections);
+    int SortOrder,
+    MenuCardAllowedActions AllowedActions,
+    IEnumerable<MenuCardForManageSectionDto> Sections,
+    IEnumerable<MenuCardOfferChoiceDto> EligibleOffers);
 
 public sealed class GetMenuCardForManageEndpoint : IEndpoint
 {

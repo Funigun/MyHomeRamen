@@ -15,7 +15,14 @@ public sealed record GetProductsForManageRequest(
     Guid[]? IngredientIds,
     string? OrderBy);
 
-public sealed record ProductForManageDto(Guid Id, string Name, string? Description, string Status);
+public sealed record ProductForManageDto(
+    Guid Id,
+    string Name,
+    string? Description,
+    string Status,
+    Guid CategoryId,
+    IEnumerable<Guid> IngredientIds,
+    IEnumerable<Guid> CustomIngredientIds);
 
 public sealed record GetProductsForManageResponse(
     int Page,

@@ -3,6 +3,7 @@
 @using MyHomeRamen.Blazor.Features.Menu.Offers.Components
 @using MyHomeRamen.Blazor.Features.Menu.Offers.Models
 @using MyHomeRamen.Blazor.Features.Menu.Offers.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject OffersApiClient OffersApiClient
@@ -12,6 +13,14 @@
 
 <MudPaper Elevation="3" Class="page-surface">
     <PageHeader Title='@Text["Heading"]'>
+        @if (RestaurantId != Guid.Empty)
+        {
+            <MudButton Variant="Variant.Text"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       Href="@RestaurantRoutes.Edit(RestaurantId)">
+                @Text["BackToRestaurant"]
+            </MudButton>
+        }
         @if (!_isLoading && !_loadError.HasError && _allowedActions?.CanCreate == true)
         {
             <MudButton Variant="Variant.Filled"

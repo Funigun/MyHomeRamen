@@ -10,6 +10,7 @@ using MyHomeRamen.Features.Common.Tenancy;
 using MyHomeRamen.Features.Identity.Permissions;
 using MyHomeRamen.Features.Menu.Features.Abstractions;
 using MyHomeRamen.Features.Menu.Features.Authorization;
+using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardsForManage;
 
 namespace MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardForManage;
 
@@ -51,7 +52,8 @@ public sealed class GetMenuCardForManageValidator : AbstractValidator<GetMenuCar
 
 public sealed class GetMenuCardForManageHandler(
     IMenuDbContext dbContext,
-    ICompanyContext companyContext)
+    ICompanyContext companyContext,
+    ICurrentUser currentUser)
     : IRequestHandler<GetMenuCardForManageQuery, GetMenuCardForManageResponse?>
 {
     public async Task<GetMenuCardForManageResponse?> Handle(
@@ -81,37 +83,49 @@ public sealed class GetMenuCardForManageHandler(
                     .OrderBy(item => item.SortOrder)
                     .Select(MapOffer)));
 
+        MenuCardAllowedActions allowedActions = new(
+            CanCreate: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId.Value,
+                MenuPermissionConstants.CanManageMenuCards,
+                MenuPermissionConstants.CanAddMenuCard),
+            CanEdit: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId.Value,
+                MenuPermissionConstants.CanManageMenuCards,
+                MenuPermissionConstants.CanEditMenuCard),
+            CanDelete: MenuAuthorization.CanManageRestaurant(
+                currentUser,
+                restaurantId.Value,
+                MenuPermissionConstants.CanManageMenuCards,
+                MenuPermissionConstants.CanDeleteMenuCard));
+        IReadOnlyList<MenuCardOfferChoiceDto> eligibleOffers = allowedActions.CanEdit
+            ? await dbContext.RestaurantProductOffer.Query()
+                .EligibleForMenuCard(restaurantId.Value, cancellationToken)
+            : [];
+
         return new GetMenuCardForManageResponse(
             card.Id.Value,
             card.RestaurantId,
             card.Name,
             card.IsActive,
-            sections);
+            card.SortOrder,
+            allowedActions,
+            sections,
+            eligibleOffers);
     }
 
     private static MenuCardForManageOfferDto MapOffer(MenuSectionItem item)
     {
         RestaurantProductOffer offer = item.RestaurantProductOffer;
         Product product = offer.Product;
-        IEnumerable<MenuCardForManageIngredientDto> ingredients = product.BaseIngredients
-            .Select(ingredient => new MenuCardForManageIngredientDto(
-                ingredient.Id.Value,
-                ingredient.Name,
-                false))
-            .Concat(product.CustomIngredients.Select(
-                ingredient => new MenuCardForManageIngredientDto(
-                    ingredient.Id.Value,
-                    ingredient.Name,
-                    true)));
 
         return new MenuCardForManageOfferDto(
+            item.Id.Value,
             offer.Id.Value,
-            product.Id.Value,
             product.Name,
-            product.Description,
-            product.ImageUrl,
-            offer.Price,
-            offer.Status.ToString(),
-            ingredients);
+            item.SortOrder,
+            offer.Status == RestaurantProductOfferStatus.Active && product.Status == ProductStatus.Active,
+            offer.Price);
     }
 }

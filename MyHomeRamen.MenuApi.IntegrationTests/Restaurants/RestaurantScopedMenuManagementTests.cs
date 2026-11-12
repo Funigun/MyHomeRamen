@@ -205,9 +205,17 @@ public sealed class RestaurantScopedMenuManagementTests(WebApiFactory apiFactory
         Assert.NotNull(detailResult);
         Assert.False(detailResult.IsActive);
         Assert.Equal(apiFactory.RestaurantId, detailResult.RestaurantId);
+        Assert.Equal(_inactiveCard.SortOrder, detailResult.SortOrder);
+        Assert.False(detailResult.AllowedActions.CanCreate);
+        Assert.True(detailResult.AllowedActions.CanEdit);
+        Assert.False(detailResult.AllowedActions.CanDelete);
+        Assert.Contains(detailResult.EligibleOffers, offer => offer.OfferId == _activeOffer.Id.Value);
+        Assert.DoesNotContain(detailResult.EligibleOffers, offer => offer.OfferId == _retiredOffer.Id.Value);
         MenuCardForManageSectionDto section = Assert.Single(detailResult.Sections);
         MenuCardForManageOfferDto offer = Assert.Single(section.Offers);
-        Assert.Equal("Retired", offer.Status);
+        Assert.Equal(_retiredOffer.Id.Value, offer.OfferId);
+        Assert.False(offer.IsAvailable);
+        Assert.Equal(0, offer.SortOrder);
 
         using HttpRequestMessage optionsRequest = CreateGetRequest(
             $"/api/menu/cards/options?restaurantId={apiFactory.RestaurantId}");

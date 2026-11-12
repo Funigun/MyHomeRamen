@@ -3,15 +3,38 @@
 @using MyHomeRamen.Blazor.Features.Menu.MenuCards.Components
 @using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
 @using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject MenuCardsApiClient MenuCardsApiClient
+@inject IDialogService DialogService
 @inject IStringLocalizer<MenuCardsResources> Text
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
 <MudPaper Elevation="3" Class="page-surface">
-    <PageHeader Title='@Text["EditHeading"]' />
+    <PageHeader Title='@Text["EditHeading"]'>
+        @if (RestaurantId != Guid.Empty)
+        {
+            <MudButton Variant="Variant.Text"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       Href="@MenuCardRoutes.Index(RestaurantId)">
+                @Text["BackToCards"]
+            </MudButton>
+            <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
+                @Text["BackToRestaurant"]
+            </MudButton>
+        }
+        @if (_details?.AllowedActions.CanEdit == true && !_isSubmitting)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Add"
+                       OnClick="OpenCreateSectionDialogAsync">
+                @Text["AddSection"]
+            </MudButton>
+        }
+    </PageHeader>
     @if (_isLoading)
     {
         <MudStack AlignItems="AlignItems.Center" Class="page-loading">
@@ -47,14 +70,12 @@
                           OnSubmit="UpdateAsync"
                           OnCancel="Cancel" />
             <MudDivider Class="my-6" />
-            <PageHeader Title="@Text["Sections"]" />
             <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
             <MenuCardSectionsEditor @key="_details"
                                     Sections="_details.Sections"
                                     EligibleOffers="_details.EligibleOffers"
                                     CanEdit="_details.AllowedActions.CanEdit && !_isSubmitting"
-                                    OnCreateSection="CreateSectionAsync"
-                                    OnUpdateSection="UpdateSectionAsync"
+                                    OnEditSection="OpenEditSectionDialogAsync"
                                     OnDeleteSection="DeleteSectionAsync"
                                     OnAddOffer="AddOfferAsync"
                                     OnUpdateOffer="UpdateOfferAsync"
@@ -65,7 +86,6 @@
     {
         <MudAlert Severity="Severity.Warning" Class="page-state">@Text["NotFound"]</MudAlert>
     }
-    <MudButton Variant="Variant.Text" Class="mt-4" Href="@MenuCardRoutes.Index(RestaurantId)">@Text["BackToCards"]</MudButton>
 </MudPaper>
 
 @code {
@@ -79,6 +99,69 @@
     private bool _isLoading = true;
     private bool _invalidRoute;
     private bool _isSubmitting;
+
+    private async Task OpenCreateSectionDialogAsync()
+    {
+        if (_details?.AllowedActions.CanEdit != true || _isSubmitting)
+        {
+            return;
+        }
+
+        int nextSortOrder = _details.Sections.Count == 0 ? 0 : _details.Sections.Max(section => section.SortOrder) + 1;
+        MenuSectionFormModel model = new() { SortOrder = nextSortOrder };
+        await ShowSectionDialogAsync(
+            Text["AddSectionTitle"],
+            model,
+            isEdit: false,
+            submittedModel => CreateSectionAsync(submittedModel.ToCreateRequest()));
+    }
+
+    private async Task OpenEditSectionDialogAsync(MenuCardSectionViewModel section)
+    {
+        if (_details?.AllowedActions.CanEdit != true
+            || _isSubmitting
+            || _details.Sections.All(currentSection => currentSection.Id != section.Id))
+        {
+            return;
+        }
+
+        MenuSectionFormModel model = new()
+        {
+            Name = section.Name,
+            SortOrder = section.SortOrder
+        };
+        await ShowSectionDialogAsync(
+            Text["EditSectionTitle"],
+            model,
+            isEdit: true,
+            submittedModel => UpdateSectionAsync((section.Id, submittedModel.ToUpdateRequest())));
+    }
+
+    private async Task ShowSectionDialogAsync(
+        string title,
+        MenuSectionFormModel model,
+        bool isEdit,
+        Func<MenuSectionFormModel, Task> onSubmit)
+    {
+        DialogParameters<MenuSectionDialog> parameters = new()
+        {
+            { dialog => dialog.Model, model },
+            { dialog => dialog.IsEdit, isEdit }
+        };
+        DialogOptions options = new()
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseOnEscapeKey = true
+        };
+
+        IDialogReference dialog = await DialogService.ShowAsync<MenuSectionDialog>(title, parameters, options);
+        DialogResult? result = await dialog.Result;
+        if (result is { Canceled: false, Data: MenuSectionFormModel submittedModel })
+        {
+            await onSubmit(submittedModel);
+        }
+    }
 
     protected override async Task OnParametersSetAsync() => await LoadAsync();
 

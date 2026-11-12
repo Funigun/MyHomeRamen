@@ -1,6 +1,7 @@
 @using Microsoft.Extensions.Localization
 @using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
 @using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject MenuCardsApiClient MenuCardsApiClient
@@ -8,6 +9,28 @@
 @inject NavigationManager NavigationManager
 
 <MudPaper Elevation="3" Class="page-surface">
+    <PageHeader Title="@(_details?.Name ?? Text["ViewPageTitle"])">
+        @if (RestaurantId != Guid.Empty)
+        {
+            <MudButton Variant="Variant.Text"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       Href="@MenuCardRoutes.Index(RestaurantId)">
+                @Text["BackToCards"]
+            </MudButton>
+            <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
+                @Text["BackToRestaurant"]
+            </MudButton>
+        }
+        @if (_details?.AllowedActions.CanEdit == true)
+        {
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Edit"
+                       Href="@MenuCardRoutes.Edit(RestaurantId, MenuCardId)">
+                @Text["Edit"]
+            </MudButton>
+        }
+    </PageHeader>
     @if (_isLoading)
     {
         <MudStack AlignItems="AlignItems.Center" Class="page-loading">
@@ -25,17 +48,6 @@
     }
     else if (_details is not null)
     {
-        <PageHeader Title="@_details.Name">
-            @if (_details.AllowedActions.CanEdit)
-            {
-                <MudButton Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Edit"
-                           Href="@MenuCardRoutes.Edit(RestaurantId, MenuCardId)">
-                    @Text["Edit"]
-                </MudButton>
-            }
-        </PageHeader>
         <MudText Class="mb-4">@(_details.IsActive ? Text["Active"] : Text["Inactive"])</MudText>
         <MudAlert Severity="Severity.Info" Class="page-state">@Text["PriceExplanation"]</MudAlert>
         @if (_details.Sections.Count == 0)
@@ -71,7 +83,6 @@
                 }
             </MudStack>
         }
-        <MudButton Variant="Variant.Text" Class="mt-4" Href="@MenuCardRoutes.Index(RestaurantId)">@Text["BackToCards"]</MudButton>
     }
     else
     {

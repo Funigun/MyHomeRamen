@@ -32,4 +32,5 @@
   <data name="ConfirmRemove" xml:space="preserve"><value>Remove price</value></data>
   <data name="Removing" xml:space="preserve"><value>Removing...</value></data>
   <data name="PriceMinimum" xml:space="preserve"><value>Extra-ingredient price must be zero or greater.</value></data>
+  <data name="BackToRestaurant" xml:space="preserve"><value>Back to restaurant</value></data>
 </root>

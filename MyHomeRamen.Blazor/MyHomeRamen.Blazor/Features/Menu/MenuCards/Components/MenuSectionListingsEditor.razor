@@ -6,7 +6,6 @@
 @inject IStringLocalizer<MenuCardsResources> Text
 
 <MudStack Spacing="2">
-    <MudText Typo="Typo.subtitle1">@Text["Listings"]</MudText>
     @if (Section.Offers.Count == 0)
     {
         <MudText Typo="Typo.body2" Color="Color.Secondary">@Text["NoListings"]</MudText>
@@ -36,10 +35,9 @@
                                      Style="max-width:100px" />
                     @if (CanEdit)
                     {
-                        <MudButton Variant="Variant.Text"
-                                   OnClick="@(() => OnUpdateOffer.InvokeAsync((Section.Id, listing.Id, new UpdateMenuCardOfferRequest(listing.SortOrder))))">
-                            @Text["SaveOrder"]
-                        </MudButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.Save"
+                                       aria-label="@Text["SaveOrder"]"
+                                       OnClick="@(() => OnUpdateOffer.InvokeAsync((Section.Id, listing.Id, new UpdateMenuCardOfferRequest(listing.SortOrder))))" />
                         <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
                                        Color="Color.Error"
                                        aria-label="@Text["RemoveListing"]"

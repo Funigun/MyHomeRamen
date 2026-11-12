@@ -3,6 +3,7 @@
 @using MyHomeRamen.Blazor.Features.Menu.MenuCards.Components
 @using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
 @using MyHomeRamen.Blazor.Features.Menu.MenuCards.Shared
+@using MyHomeRamen.Blazor.Features.Restaurants.Restaurants.Shared
 @using MyHomeRamen.Blazor.Infrastructure.Api
 
 @inject MenuCardsApiClient MenuCardsApiClient
@@ -11,7 +12,19 @@
 @inject ISnackbar Snackbar
 
 <MudPaper Elevation="3" Class="page-surface">
-    <PageHeader Title='@Text["CreateHeading"]' />
+    <PageHeader Title='@Text["CreateHeading"]'>
+        @if (RestaurantId != Guid.Empty)
+        {
+            <MudButton Variant="Variant.Text"
+                       StartIcon="@Icons.Material.Filled.ArrowBack"
+                       Href="@MenuCardRoutes.Index(RestaurantId)">
+                @Text["BackToCards"]
+            </MudButton>
+            <MudButton Variant="Variant.Text" Href="@RestaurantRoutes.Edit(RestaurantId)">
+                @Text["BackToRestaurant"]
+            </MudButton>
+        }
+    </PageHeader>
     @if (_isLoading)
     {
         <MudStack AlignItems="AlignItems.Center" Class="page-loading">

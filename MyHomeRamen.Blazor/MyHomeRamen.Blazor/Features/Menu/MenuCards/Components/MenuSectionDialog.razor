@@ -1,0 +1,82 @@
+@using Microsoft.Extensions.Localization
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards
+@using MyHomeRamen.Blazor.Features.Menu.MenuCards.Models
+
+@inject IStringLocalizer<MenuCardsResources> Text
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form" Model="Model" Validation="_validator.ValidateValue" ValidationDelay="0">
+            <MudStack Spacing="3" Class="form-fields">
+                <MudTextField @bind-Value="Model.Name"
+                              For="@(() => Model.Name)"
+                              Label="@Text["SectionName"]"
+                              Variant="Variant.Outlined"
+                              MaxLength="200"
+                              Required="true"
+                              Disabled="_isSubmitting" />
+                <MudNumericField T="int"
+                                 @bind-Value="Model.SortOrder"
+                                 For="@(() => Model.SortOrder)"
+                                 Label="@Text["SortOrder"]"
+                                 Variant="Variant.Outlined"
+                                 Min="0"
+                                 Disabled="_isSubmitting" />
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <div class="form-actions">
+            <MudButton OnClick="Cancel" Disabled="_isSubmitting">@Text["Cancel"]</MudButton>
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       Disabled="_isSubmitting"
+                       OnClick="SubmitAsync">
+                @if (_isSubmitting)
+                {
+                    <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+                }
+                else
+                {
+                    @Text[IsEdit ? "SaveSection" : "AddSection"]
+                }
+            </MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter, EditorRequired] public MenuSectionFormModel Model { get; set; } = default!;
+    [Parameter] public bool IsEdit { get; set; }
+
+    private MudForm _form = default!;
+    private MenuSectionFormModelValidator _validator = default!;
+    private bool _isSubmitting;
+
+    protected override void OnInitialized() => _validator = new MenuSectionFormModelValidator(Text);
+
+    private async Task SubmitAsync()
+    {
+        if (_isSubmitting)
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+        try
+        {
+            await _form.ValidateAsync();
+            if (_form.IsValid)
+            {
+                MudDialog.Close(DialogResult.Ok(Model));
+            }
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

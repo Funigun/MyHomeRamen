@@ -48,7 +48,7 @@ public sealed record MenuCardOfferChoiceContract(Guid OfferId, string Name);
 
 public sealed record CreateMenuCardRequest(string Name);
 
-public sealed record UpdateMenuCardRequest(string Name);
+public sealed record UpdateMenuCardRequest(string Name, bool IsActive);
 
 public sealed record MenuCardOrderItemRequest(Guid MenuCardId, int SortOrder);
 

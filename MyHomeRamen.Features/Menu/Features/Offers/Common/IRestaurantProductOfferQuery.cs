@@ -1,5 +1,6 @@
 using MyHomeRamen.Domain.Menu.Offers;
 using MyHomeRamen.Domain.Menu.Products;
+using MyHomeRamen.Features.Menu.Features.MenuCards.GetMenuCardForManage;
 using MyHomeRamen.Features.Menu.Features.Offers.GetRestaurantOffersForManage;
 using MyHomeRamen.Features.Common.Endpoints.Models;
 
@@ -14,4 +15,8 @@ public interface IRestaurantProductOfferQuery
     Task<RestaurantProductOffer?> ById(RestaurantProductOfferId offerId, CancellationToken cancellationToken);
 
     Task<RestaurantProductOffer?> ByProductId(ProductId productId, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<MenuCardOfferChoiceDto>> EligibleForMenuCard(
+        Guid restaurantId,
+        CancellationToken cancellationToken);
 }
